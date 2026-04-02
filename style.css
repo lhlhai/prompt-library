@@ -347,6 +347,76 @@ header p { color: var(--text-muted); font-size: 1.1rem; }
   color: white;
   border-color: var(--success);
 }
+.btn-favorite {
+  background: white;
+  border: 1px solid #fbbf24;
+  color: #f59e0b;
+}
+.btn-favorite:hover {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+.btn-favorite.active {
+  background: #fbbf24;
+  color: white;
+  border-color: #f59e0b;
+}
+.btn-edit {
+  background: #fef3c7;
+  border: 1px solid #fbbf24;
+  color: #92400e;
+}
+.btn-edit:hover {
+  background: #fcd34d;
+  border-color: #f59e0b;
+}
+.btn-edit-save {
+  background: #86efac;
+  border: 1px solid #22c55e;
+  color: white;
+}
+.btn-edit-save:hover {
+  background: #65a30d;
+  border-color: #16a34a;
+}
+.btn-edit-cancel {
+  background: #fca5a5;
+  border: 1px solid #ef4444;
+  color: white;
+}
+.btn-edit-cancel:hover {
+  background: #dc2626;
+  border-color: #b91c1c;
+}
+.btn-reset {
+  background: #dbeafe;
+  border: 1px solid #93c5fd;
+  color: #1e40af;
+}
+.btn-reset:hover {
+  background: #bfdbfe;
+  border-color: #60a5fa;
+}
+
+.modal-prompt-edit {
+  width: 100%;
+  min-height: 200px;
+  padding: 12px;
+  border: 2px solid var(--primary);
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  resize: vertical;
+  outline: none;
+  background: #f8fafc;
+  color: var(--text);
+}
+
+.modal-prompt-edit:focus {
+  border-color: var(--primary-hover);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
 
 /* Variables Section */
 .variables-container {

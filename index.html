@@ -59,7 +59,13 @@
 
       <div class="card-section">
         <div class="card-section-title">📝 Prompt</div>
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+          <button class="btn btn-edit" id="modalEditBtn" style="flex: 1;">✍️ Edit</button>
+          <button class="btn btn-edit-save" id="modalEditSaveBtn" style="flex: 1; display: none;">✅ Save Changes</button>
+          <button class="btn btn-edit-cancel" id="modalEditCancelBtn" style="flex: 1; display: none;">❌ Cancel</button>
+        </div>
         <pre class="modal-prompt" id="modalPrompt"></pre>
+        <textarea class="modal-prompt-edit" id="modalPromptEdit" style="display: none;"></textarea>
       </div>
       <div class="card-section">
         <div class="card-section-title">💡 When to use</div>
@@ -82,6 +88,7 @@
         <button class="btn btn-copy" id="modalCopy">📋 Copy Prompt</button>
         <button class="btn btn-view" id="modalDownload">⬇️ Download .txt</button>
         <button class="btn btn-share" id="modalShare" title="Copy shareable link">🔗 Share</button>
+        <button class="btn btn-reset" id="modalResetBtn" title="Reset to original prompt" style="display: none;">🔄 Reset</button>
       </div>
     </div>
   </div>

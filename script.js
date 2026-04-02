@@ -86,6 +86,80 @@ const copyToClipboard = async (text, btn) => {
   }
 };
 
+// ==================== PROMPT EDITOR HANDLING ====================
+let editedPrompts = JSON.parse(localStorage.getItem('prompt-library-edited')) || {};
+let isEditMode = false;
+
+const getEditedPrompt = (promptNumber) => editedPrompts[promptNumber];
+
+const saveEditedPrompt = (promptNumber, newContent) => {
+  editedPrompts[promptNumber] = newContent;
+  localStorage.setItem('prompt-library-edited', JSON.stringify(editedPrompts));
+};
+
+const deleteEditedPrompt = (promptNumber) => {
+  delete editedPrompts[promptNumber];
+  localStorage.setItem('prompt-library-edited', JSON.stringify(editedPrompts));
+};
+
+const hasEditedPrompt = (promptNumber) => promptNumber in editedPrompts;
+
+// ==================== FAVORITES HANDLING ====================
+let favorites = JSON.parse(localStorage.getItem('prompt-library-favorites')) || [];
+
+const isFavorite = (promptNumber) => favorites.includes(promptNumber);
+
+const toggleFavorite = (promptNumber) => {
+  if (isFavorite(promptNumber)) {
+    favorites = favorites.filter(n => n !== promptNumber);
+  } else {
+    favorites.push(promptNumber);
+  }
+  localStorage.setItem('prompt-library-favorites', JSON.stringify(favorites));
+  updateFavoriteButtons();
+};
+
+const updateFavoriteButtons = () => {
+  document.querySelectorAll('[data-favorite]').forEach(btn => {
+    const num = parseInt(btn.dataset.favorite);
+    if (isFavorite(num)) {
+      btn.classList.add('active');
+      btn.innerHTML = '⭐ Favorited';
+    } else {
+      btn.classList.remove('active');
+      btn.innerHTML = '☆ Add to Favorites';
+    }
+  });
+};
+
+const toggleEditMode = (enable) => {
+  isEditMode = enable;
+  const modalPrompt = document.getElementById('modalPrompt');
+  const modalPromptEdit = document.getElementById('modalPromptEdit');
+  const editBtn = document.getElementById('modalEditBtn');
+  const saveBtn = document.getElementById('modalEditSaveBtn');
+  const cancelBtn = document.getElementById('modalEditCancelBtn');
+  const resetBtn = document.getElementById('modalResetBtn');
+  
+  if (enable) {
+    modalPrompt.style.display = 'none';
+    modalPromptEdit.style.display = 'block';
+    editBtn.style.display = 'none';
+    saveBtn.style.display = 'block';
+    cancelBtn.style.display = 'block';
+    if (hasEditedPrompt(currentModalPrompt.number)) {
+      resetBtn.style.display = 'block';
+    }
+  } else {
+    modalPrompt.style.display = 'block';
+    modalPromptEdit.style.display = 'none';
+    editBtn.style.display = 'block';
+    saveBtn.style.display = 'none';
+    cancelBtn.style.display = 'none';
+    resetBtn.style.display = 'none';
+  }
+};
+
 // ==================== FORMAT HANDLING ====================
 let selectedFormat = 'plain'; // Default format
 
@@ -277,6 +351,7 @@ const renderCard = (p, query = '') => {
     <div class="card-footer">
       <button class="btn btn-copy" data-copy="${p.number}">📋 Copy</button>
       <button class="btn btn-view" data-view="${p.number}">👁️ View Full</button>
+      <button class="btn btn-favorite ${isFavorite(p.number) ? 'active' : ''}" data-favorite="${p.number}">${isFavorite(p.number) ? '⭐ Favorited' : '☆ Add to Favorites'}</button>
     </div>
   `;
   return card;
@@ -312,6 +387,13 @@ const renderGrid = (query = '') => {
       if (prompt) openModal(prompt);
     });
   });
+
+  grid.querySelectorAll('[data-favorite]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const num = parseInt(e.currentTarget.dataset.favorite);
+      toggleFavorite(num);
+    });
+  });
 };
 
 // ==================== MODAL ====================
@@ -325,12 +407,15 @@ const openModal = (p) => {
     <span>#${p.number}</span>
     <span>🕐 Updated: ${formatDate(p.updated_at)}</span>
   `;
-  document.getElementById('modalPrompt').textContent = p.prompt;
+  // Display edited or original prompt
+  const displayPrompt = hasEditedPrompt(p.number) ? getEditedPrompt(p.number) : p.prompt;
+  document.getElementById('modalPrompt').textContent = displayPrompt;
+  document.getElementById('modalPromptEdit').value = displayPrompt;
   document.getElementById('modalWhen').textContent = p.when_to_use || 'N/A';
   document.getElementById('modalHow').textContent = p.how_to_use || 'N/A';
   
   // Extract and render variable inputs
-  const variables = extractVariables(p.prompt);
+  const variables = extractVariables(displayPrompt);
   renderVariableInputs(variables);
   
   // Show format selector
@@ -341,6 +426,9 @@ const openModal = (p) => {
     formatBtns.forEach(btn => btn.classList.remove('active'));
     formatBtns[0].classList.add('active');
   }
+  
+  // Reset edit mode
+  toggleEditMode(false);
   
   modal.classList.add('active');
   document.body.style.overflow = 'hidden';
@@ -455,6 +543,47 @@ if (modalShareBtn) {
       const shareUrl = `${baseUrl}?id=${currentModalPrompt.number}`;
       copyToClipboard(shareUrl, modalShareBtn);
       showToast('✓ Share link copied!');
+    }
+  });
+}
+
+// Edit button handlers
+const modalEditBtn = document.getElementById('modalEditBtn');
+if (modalEditBtn) {
+  modalEditBtn.addEventListener('click', () => {
+    toggleEditMode(true);
+  });
+}
+
+const modalEditSaveBtn = document.getElementById('modalEditSaveBtn');
+if (modalEditSaveBtn) {
+  modalEditSaveBtn.addEventListener('click', () => {
+    if (currentModalPrompt) {
+      const newContent = document.getElementById('modalPromptEdit').value;
+      saveEditedPrompt(currentModalPrompt.number, newContent);
+      document.getElementById('modalPrompt').textContent = newContent;
+      toggleEditMode(false);
+      showToast('✓ Prompt updated!');
+    }
+  });
+}
+
+const modalEditCancelBtn = document.getElementById('modalEditCancelBtn');
+if (modalEditCancelBtn) {
+  modalEditCancelBtn.addEventListener('click', () => {
+    toggleEditMode(false);
+  });
+}
+
+const modalResetBtn = document.getElementById('modalResetBtn');
+if (modalResetBtn) {
+  modalResetBtn.addEventListener('click', () => {
+    if (currentModalPrompt) {
+      deleteEditedPrompt(currentModalPrompt.number);
+      document.getElementById('modalPrompt').textContent = currentModalPrompt.prompt;
+      document.getElementById('modalPromptEdit').value = currentModalPrompt.prompt;
+      toggleEditMode(false);
+      showToast('✓ Prompt reset to original!');
     }
   });
 }
