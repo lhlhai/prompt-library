@@ -403,7 +403,6 @@ const renderCard = (p, query = '') => {
     : '';
 
   card.innerHTML = `
-    ${compareBtnHTML}
     <div class="card-header">
       <div>
         <div class="card-title">${escapeHtml(p.name)}</div>
@@ -411,6 +410,7 @@ const renderCard = (p, query = '') => {
       <div style="display: flex; gap: 8px; align-items: flex-start;">
         ${relevanceHTML}
         <div class="card-number">#${p.number}</div>
+${compareBtnHTML}
       </div>
     </div>
     
