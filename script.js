@@ -244,7 +244,8 @@ const renderVariableInputs = (variables) => {
 const updateModalPromptPreview = () => {
   if (!currentModalPrompt) return;
   const previewElement = document.getElementById('modalPrompt');
-  const replacedText = replaceVariables(currentModalPrompt.prompt, variableValues);
+  const baseText = hasEditedPrompt(currentModalPrompt.number) ? getEditedPrompt(currentModalPrompt.number) : currentModalPrompt.prompt;
+  const replacedText = replaceVariables(baseText, variableValues);
   previewElement.textContent = replacedText;
 };
 
@@ -323,9 +324,10 @@ const renderCard = (p, query = '') => {
   const card = document.createElement('div');
   card.className = `prompt-card ${p.disabled ? 'disabled' : ''}`;
   
-  const previewText = (p.prompt || '').length > 150 
-    ? p.prompt.substring(0, 150) + '...' 
-    : p.prompt;
+  const basePrompt = hasEditedPrompt(p.number) ? getEditedPrompt(p.number) : p.prompt;
+  const previewText = (basePrompt || '').length > 150 
+    ? basePrompt.substring(0, 150) + '...' 
+    : basePrompt;
 
   card.innerHTML = `
     <div class="card-header">
@@ -376,7 +378,10 @@ const renderGrid = (query = '') => {
     btn.addEventListener('click', (e) => {
       const num = parseInt(e.currentTarget.dataset.copy);
       const prompt = PROMPTS.find(x => x.number === num);
-      if (prompt) copyToClipboard(prompt.prompt, e.currentTarget);
+      if (prompt) {
+        const basePrompt = hasEditedPrompt(num) ? getEditedPrompt(num) : prompt.prompt;
+        copyToClipboard(basePrompt, e.currentTarget);
+      }
     });
   });
 
@@ -418,13 +423,10 @@ const openModal = (p) => {
   const variables = extractVariables(displayPrompt);
   renderVariableInputs(variables);
   
-  // Show format selector
+  // Hide format selector as requested
   const formatSelector = document.getElementById('formatSelector');
   if (formatSelector) {
-    formatSelector.style.display = 'block';
-    const formatBtns = document.querySelectorAll('.format-btn');
-    formatBtns.forEach(btn => btn.classList.remove('active'));
-    formatBtns[0].classList.add('active');
+    formatSelector.style.display = 'none';
   }
   
   // Reset edit mode
@@ -486,13 +488,14 @@ document.addEventListener('keydown', (e) => {
     const copyBtn = document.getElementById('modalCopy');
     if (copyBtn && currentModalPrompt) {
       e.preventDefault();
-      const finalPrompt = replaceVariables(currentModalPrompt.prompt, variableValues);
+      const basePrompt = hasEditedPrompt(currentModalPrompt.number) ? getEditedPrompt(currentModalPrompt.number) : currentModalPrompt.prompt;
+      const finalPrompt = replaceVariables(basePrompt, variableValues);
       copyToClipboard(finalPrompt, copyBtn);
     }
   }
 });
 
-// Format selector buttons
+// Format selector buttons (kept for logic but hidden in UI)
 const formatBtns = document.querySelectorAll('.format-btn');
 formatBtns.forEach(btn => {
   btn.addEventListener('click', () => {
@@ -508,7 +511,8 @@ if (modalCopyBtn) {
   modalCopyBtn.addEventListener('click', () => {
     if (currentModalPrompt) {
       // Copy with variable replacements and format
-      let finalPrompt = replaceVariables(currentModalPrompt.prompt, variableValues);
+      const basePrompt = hasEditedPrompt(currentModalPrompt.number) ? getEditedPrompt(currentModalPrompt.number) : currentModalPrompt.prompt;
+      let finalPrompt = replaceVariables(basePrompt, variableValues);
       finalPrompt = getFormattedPrompt(finalPrompt, selectedFormat);
       copyToClipboard(finalPrompt, modalCopyBtn);
     }
@@ -521,7 +525,8 @@ if (modalDownloadBtn) {
   modalDownloadBtn.addEventListener('click', () => {
     if (currentModalPrompt) {
       const p = currentModalPrompt;
-      const finalPrompt = replaceVariables(p.prompt, variableValues);
+      const basePrompt = hasEditedPrompt(p.number) ? getEditedPrompt(p.number) : p.prompt;
+      const finalPrompt = replaceVariables(basePrompt, variableValues);
       const content = `# ${p.name}\nLabel: ${p.label}\n\n## When to use\n${p.when_to_use}\n\n## How to use\n${p.how_to_use}\n\n## Prompt\n${finalPrompt}`;
       const blob = new Blob([content], {type: 'text/plain'});
       const url = URL.createObjectURL(blob);
@@ -561,7 +566,17 @@ if (modalEditSaveBtn) {
     if (currentModalPrompt) {
       const newContent = document.getElementById('modalPromptEdit').value;
       saveEditedPrompt(currentModalPrompt.number, newContent);
+      
+      // Update modal display
       document.getElementById('modalPrompt').textContent = newContent;
+      
+      // Re-extract variables for the new content
+      const variables = extractVariables(newContent);
+      renderVariableInputs(variables);
+      
+      // Update grid to show edited preview
+      filterPrompts(searchInput.value);
+      
       toggleEditMode(false);
       showToast('✓ Prompt updated!');
     }
@@ -582,6 +597,14 @@ if (modalResetBtn) {
       deleteEditedPrompt(currentModalPrompt.number);
       document.getElementById('modalPrompt').textContent = currentModalPrompt.prompt;
       document.getElementById('modalPromptEdit').value = currentModalPrompt.prompt;
+      
+      // Re-extract variables for the original content
+      const variables = extractVariables(currentModalPrompt.prompt);
+      renderVariableInputs(variables);
+      
+      // Update grid
+      filterPrompts(searchInput.value);
+      
       toggleEditMode(false);
       showToast('✓ Prompt reset to original!');
     }
