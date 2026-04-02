@@ -19,9 +19,9 @@ const toast = document.getElementById('toast');
 const categoryOptions = document.getElementById('categoryOptions');
 const selectAllCats = document.getElementById('selectAllCats');
 const clearAllCats = document.getElementById('clearAllCats');
-const dropdownHeader = document.getElementById('dropdownHeader');
-const dropdownContent = document.getElementById('dropdownContent');
-const selectedCatsCount = document.getElementById('selectedCatsCount');
+const dropdownToggle = document.getElementById('dropdownToggle');
+const dropdownMenu = document.getElementById('dropdownMenu');
+const selectedCatsDisplay = document.getElementById('selectedCatsDisplay');
 
 // Format date
 const formatDate = (iso) => {
@@ -93,14 +93,14 @@ const countByCategory = (category) => {
   return PROMPTS.filter(p => !p.disabled && p.label === category).length;
 };
 
-// Update selected categories count text
-const updateSelectedCount = () => {
+// Update selected categories display
+const updateSelectedDisplay = () => {
   if (selectedCategories.length === 0) {
-    selectedCatsCount.textContent = 'Select Categories';
+    selectedCatsDisplay.textContent = 'Select Categories';
   } else if (selectedCategories.length === getCategories().length) {
-    selectedCatsCount.textContent = 'All Categories Selected';
+    selectedCatsDisplay.textContent = 'All Categories Selected';
   } else {
-    selectedCatsCount.textContent = `${selectedCategories.length} Categories Selected`;
+    selectedCatsDisplay.textContent = `${selectedCategories.length} Categories Selected`;
   }
 };
 
@@ -121,7 +121,7 @@ const initCategoryFilter = () => {
       } else {
         selectedCategories = selectedCategories.filter(c => c !== cat);
       }
-      updateSelectedCount();
+      updateSelectedDisplay();
       filterPrompts(searchInput.value);
     });
 
@@ -135,27 +135,29 @@ const initCategoryFilter = () => {
 
     categoryOptions.appendChild(label);
   });
-  updateSelectedCount();
+  updateSelectedDisplay();
 };
 
 // Select all categories
-selectAllCats.addEventListener('click', () => {
+selectAllCats.addEventListener('click', (e) => {
+  e.preventDefault();
   const checkboxes = categoryOptions.querySelectorAll('input[type="checkbox"]');
   selectedCategories = [];
   checkboxes.forEach(cb => {
     cb.checked = true;
     selectedCategories.push(cb.value);
   });
-  updateSelectedCount();
+  updateSelectedDisplay();
   filterPrompts(searchInput.value);
 });
 
 // Clear all categories
-clearAllCats.addEventListener('click', () => {
+clearAllCats.addEventListener('click', (e) => {
+  e.preventDefault();
   const checkboxes = categoryOptions.querySelectorAll('input[type="checkbox"]');
   checkboxes.forEach(cb => cb.checked = false);
   selectedCategories = [];
-  updateSelectedCount();
+  updateSelectedDisplay();
   filterPrompts(searchInput.value);
 });
 
@@ -341,18 +343,23 @@ Created: ${p.created_at} | Updated: ${p.updated_at}`;
 searchInput.addEventListener('input', handleSearch);
 
 // Dropdown toggle
-dropdownHeader.addEventListener('click', (e) => {
+dropdownToggle.addEventListener('click', (e) => {
   e.stopPropagation();
-  dropdownHeader.classList.toggle('active');
-  dropdownContent.classList.toggle('show');
+  dropdownToggle.classList.toggle('active');
+  dropdownMenu.classList.toggle('show');
 });
 
 // Close dropdown when clicking outside
 document.addEventListener('click', (e) => {
-  if (!dropdownHeader.contains(e.target) && !dropdownContent.contains(e.target)) {
-    dropdownHeader.classList.remove('active');
-    dropdownContent.classList.remove('show');
+  if (!dropdownToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
+    dropdownToggle.classList.remove('active');
+    dropdownMenu.classList.remove('show');
   }
+});
+
+// Close dropdown when selecting an option (optional - keeps it open for multi-select)
+categoryOptions.addEventListener('click', (e) => {
+  e.stopPropagation();
 });
 
 modalClose.addEventListener('click', closeModal);
