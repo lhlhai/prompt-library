@@ -9,6 +9,17 @@
 <body>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="search-optimizer.js"></script>
+  <!-- Comparison Bar -->
+  <div class="comparison-bar" id="comparisonBar" style="display: none;">
+    <div class="comparison-info">
+      <span id="comparisonCount">0</span> prompts selected for comparison
+    </div>
+    <div class="comparison-actions">
+      <button class="btn btn-compare-now" id="compareNowBtn">📊 Compare Now</button>
+      <button class="btn btn-clear-compare" id="clearCompareBtn">✕ Clear</button>
+    </div>
+  </div>
+
   <div class="container">
     <header>
       <h1>📚 Prompt Library</h1>
@@ -55,6 +66,17 @@
         <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
       </svg>
       <p>Không tìm thấy prompt nào phù hợp với từ khóa của bạn.</p>
+    </div>
+  </div>
+
+  <!-- Comparison Modal -->
+  <div class="modal comparison-modal" id="comparisonModal">
+    <div class="modal-content" style="max-width: 95%; width: 1200px;">
+      <button class="modal-close" id="comparisonModalClose">&times;</button>
+      <h2 style="margin-bottom: 24px;">📊 Prompt Comparison</h2>
+      <div class="comparison-grid" id="comparisonGrid">
+        <!-- Comparison columns will be injected here -->
+      </div>
     </div>
   </div>
 

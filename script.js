@@ -30,6 +30,7 @@ let currentModalPrompt = null;
 let searchTimeout;
 let variableValues = {}; // Store variable values for current prompt
 let showFavoritesOnly = false; // New state for favorites filter
+let comparisonList = []; // State for comparison mode
 
 // DOM Elements
 const grid = document.getElementById('promptGrid');
@@ -391,7 +392,18 @@ const renderCard = (p, query = '') => {
     ? `<div class="card-relevance" title="Relevance Score">🎯 ${Math.round(p.searchScore)}%</div>`
     : '';
 
+  // Comparison Toggle
+  const isCompared = comparisonList.includes(p.number);
+  const compareBtnHTML = CONFIG.ENABLE_COMPARISON_MODE 
+    ? `<button class="btn-compare-toggle ${isCompared ? 'active' : ''}" 
+               data-compare-toggle="${p.number}" 
+               title="${isCompared ? 'Remove from Comparison' : 'Add to Comparison'}">
+         ${isCompared ? '✓' : '+'}
+       </button>`
+    : '';
+
   card.innerHTML = `
+    ${compareBtnHTML}
     <div class="card-header">
       <div>
         <div class="card-title">${escapeHtml(p.name)}</div>
@@ -466,6 +478,83 @@ const renderGrid = (query = '') => {
       toggleFavorite(num);
     });
   });
+
+  grid.querySelectorAll('[data-compare-toggle]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const num = parseInt(e.currentTarget.dataset.compareToggle);
+      toggleComparison(num);
+    });
+  });
+};
+
+// ==================== COMPARISON LOGIC ====================
+const toggleComparison = (num) => {
+  if (comparisonList.includes(num)) {
+    comparisonList = comparisonList.filter(n => n !== num);
+  } else {
+    if (comparisonList.length >= 3) {
+      showToast('⚠️ Max 3 prompts for comparison');
+      return;
+    }
+    comparisonList.push(num);
+  }
+  updateComparisonBar();
+  renderGrid(searchInput.value);
+};
+
+const updateComparisonBar = () => {
+  const bar = document.getElementById('comparisonBar');
+  const count = document.getElementById('comparisonCount');
+  
+  if (comparisonList.length > 0 && CONFIG.ENABLE_COMPARISON_MODE) {
+    bar.style.display = 'flex';
+    count.textContent = comparisonList.length;
+  } else {
+    bar.style.display = 'none';
+  }
+};
+
+const openComparisonModal = () => {
+  const modal = document.getElementById('comparisonModal');
+  const grid = document.getElementById('comparisonGrid');
+  
+  grid.innerHTML = '';
+  comparisonList.forEach(num => {
+    const p = PROMPTS.find(x => x.number === num);
+    if (!p) return;
+    
+    const col = document.createElement('div');
+    col.className = 'comparison-col';
+    col.innerHTML = `
+      <div class="comparison-col-header">
+        <div class="comparison-col-title">${escapeHtml(p.name)}</div>
+        <div class="card-label">${escapeHtml(p.label)}</div>
+      </div>
+      <div>
+        <div class="comparison-section-title">📝 Prompt Content</div>
+        <div class="comparison-content">${escapeHtml(p.prompt.substring(0, 300))}...</div>
+      </div>
+      <div>
+        <div class="comparison-section-title">💡 When to use</div>
+        <div class="comparison-content">${escapeHtml(p.when_to_use || 'N/A')}</div>
+      </div>
+      <div>
+        <div class="comparison-section-title">⚙️ How to use</div>
+        <div class="comparison-content">${escapeHtml(p.how_to_use || 'N/A')}</div>
+      </div>
+    `;
+    grid.appendChild(col);
+  });
+  
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+};
+
+const closeComparisonModal = () => {
+  const modal = document.getElementById('comparisonModal');
+  modal.classList.remove('active');
+  document.body.style.overflow = '';
 };
 
 // ==================== MODAL ====================
@@ -577,6 +666,18 @@ if (favoriteFilterBtn) {
 }
 
 if (modalClose) modalClose.addEventListener('click', closeModal);
+const compModalClose = document.getElementById('comparisonModalClose');
+if (compModalClose) compModalClose.addEventListener('click', closeComparisonModal);
+
+const compareNowBtn = document.getElementById('compareNowBtn');
+if (compareNowBtn) compareNowBtn.addEventListener('click', openComparisonModal);
+
+const clearCompareBtn = document.getElementById('clearCompareBtn');
+if (clearCompareBtn) clearCompareBtn.addEventListener('click', () => {
+  comparisonList = [];
+  updateComparisonBar();
+  renderGrid(searchInput.value);
+});
 if (modal) {
   modal.addEventListener('click', (e) => {
     if (e.target === modal) closeModal();

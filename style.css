@@ -769,3 +769,98 @@ header p { color: var(--text-muted); font-size: 1.1rem; }
 .snippet-btn:active {
   transform: translateY(0);
 }
+
+/* Comparison Bar */
+.comparison-bar {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: var(--shadow-md);
+  z-index: 1000;
+  animation: slideUp 0.3s ease-out;
+}
+@keyframes slideUp {
+  from { transform: translate(-50%, 100px); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
+}
+.comparison-info span {
+  background: var(--primary);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 700;
+  margin-right: 4px;
+}
+.comparison-actions { display: flex; gap: 8px; }
+.btn-compare-now { background: var(--primary); color: white; border: none; padding: 6px 16px; border-radius: 20px; font-weight: 600; cursor: pointer; }
+.btn-clear-compare { background: rgba(255,255,255,0.1); color: white; border: none; padding: 6px 12px; border-radius: 20px; cursor: pointer; }
+
+/* Comparison Grid */
+.comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 10px;
+}
+.comparison-col {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.comparison-col-header {
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 12px;
+}
+.comparison-col-title { font-weight: 800; font-size: 1.1rem; }
+.comparison-section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.comparison-content {
+  font-size: 0.9rem;
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  white-space: pre-wrap;
+}
+
+/* Compare Toggle on Card */
+.btn-compare-toggle {
+  position: absolute;
+  top: 12px;
+  right: 40px;
+  background: white;
+  border: 1px solid var(--border);
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+.btn-compare-toggle.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+.prompt-card { position: relative; }
