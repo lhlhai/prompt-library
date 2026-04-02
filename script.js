@@ -86,6 +86,21 @@ const copyToClipboard = async (text, btn) => {
   }
 };
 
+// ==================== FORMAT HANDLING ====================
+let selectedFormat = 'plain'; // Default format
+
+// Convert prompt to Markdown format (preserve structure)
+const convertToMarkdown = (text) => {
+  if (!text) return text;
+  // Add markdown code block for better formatting
+  return `\`\`\`\n${text}\n\`\`\``;
+};
+
+// Get prompt content based on selected format
+const getFormattedPrompt = (text, format = 'plain') => {
+  return format === 'markdown' ? convertToMarkdown(text) : text;
+};
+
 // ==================== VARIABLE HANDLING ====================
 // Extract variables from prompt text
 const extractVariables = (text) => {
@@ -303,6 +318,7 @@ const renderGrid = (query = '') => {
 const openModal = (p) => {
   currentModalPrompt = p;
   variableValues = {};
+  selectedFormat = 'plain'; // Reset format to plain
   document.getElementById('modalTitle').textContent = p.name;
   document.getElementById('modalMeta').innerHTML = `
     <span class="card-label">${escapeHtml(p.label)}</span>
@@ -316,6 +332,15 @@ const openModal = (p) => {
   // Extract and render variable inputs
   const variables = extractVariables(p.prompt);
   renderVariableInputs(variables);
+  
+  // Show format selector
+  const formatSelector = document.getElementById('formatSelector');
+  if (formatSelector) {
+    formatSelector.style.display = 'block';
+    const formatBtns = document.querySelectorAll('.format-btn');
+    formatBtns.forEach(btn => btn.classList.remove('active'));
+    formatBtns[0].classList.add('active');
+  }
   
   modal.classList.add('active');
   document.body.style.overflow = 'hidden';
@@ -355,19 +380,48 @@ if (modal) {
   });
 }
 
+// ==================== KEYBOARD SHORTCUTS ====================
 document.addEventListener('keydown', (e) => {
+  // Esc to close modal
   if (e.key === 'Escape' && modal && modal.classList.contains('active')) {
     closeModal();
   }
+  
+  // '/' to focus search (unless already in an input)
+  if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+    e.preventDefault();
+    if (searchInput) searchInput.focus();
+  }
+  
+  // Ctrl+C or Cmd+C in modal to copy prompt
+  if ((e.ctrlKey || e.metaKey) && e.key === 'c' && modal && modal.classList.contains('active')) {
+    const copyBtn = document.getElementById('modalCopy');
+    if (copyBtn && currentModalPrompt) {
+      e.preventDefault();
+      const finalPrompt = replaceVariables(currentModalPrompt.prompt, variableValues);
+      copyToClipboard(finalPrompt, copyBtn);
+    }
+  }
 });
 
-// Copy button - with variable replacement
+// Format selector buttons
+const formatBtns = document.querySelectorAll('.format-btn');
+formatBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    formatBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedFormat = btn.dataset.format;
+  });
+});
+
+// Copy button - with variable replacement and format
 const modalCopyBtn = document.getElementById('modalCopy');
 if (modalCopyBtn) {
   modalCopyBtn.addEventListener('click', () => {
     if (currentModalPrompt) {
-      // Copy with variable replacements
-      const finalPrompt = replaceVariables(currentModalPrompt.prompt, variableValues);
+      // Copy with variable replacements and format
+      let finalPrompt = replaceVariables(currentModalPrompt.prompt, variableValues);
+      finalPrompt = getFormattedPrompt(finalPrompt, selectedFormat);
       copyToClipboard(finalPrompt, modalCopyBtn);
     }
   });
@@ -421,10 +475,40 @@ const handleUrlParams = () => {
   }
 };
 
+// ==================== KEYBOARD SHORTCUTS HINT ====================
+const showKeyboardHint = () => {
+  const hint = document.createElement('div');
+  hint.id = 'keyboard-hint';
+  hint.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(30, 41, 59, 0.9);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    z-index: 999;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s;
+  `;
+  hint.innerHTML = `⌨️ <strong>Keyboard Shortcuts:</strong> <code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 3px; margin: 0 4px;">/</code> Search | <code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 3px; margin: 0 4px;">Esc</code> Close | <code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 3px; margin: 0 4px;">Ctrl+C</code> Copy`;
+  hint.addEventListener('click', () => hint.remove());
+  document.body.appendChild(hint);
+  setTimeout(() => hint.remove(), 8000);
+};
+
 // ==================== INITIALIZATION ====================
 window.addEventListener('DOMContentLoaded', () => {
   initCategoryChips();
   filterPrompts(''); // Khởi tạo hiển thị ban đầu
   handleUrlParams(); // Handle share links
   if (searchInput) searchInput.focus();
+  
+  // Show keyboard shortcuts hint on first visit
+  if (!localStorage.getItem('prompt-library-hint-shown')) {
+    setTimeout(() => showKeyboardHint(), 1500);
+    localStorage.setItem('prompt-library-hint-shown', 'true');
+  }
 });
