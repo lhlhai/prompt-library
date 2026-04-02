@@ -864,3 +864,13 @@ header p { color: var(--text-muted); font-size: 1.1rem; }
   border-color: var(--primary);
 }
 .prompt-card { position: relative; }
+
+.card-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-compare-toggle {
+  margin-left: auto;
+}
