@@ -1,12 +1,18 @@
-    // PROMPTS moved to prompts.js
+// script.js - Logic xử lý cho Prompt Library
 
+// Kiểm tra sự tồn tại của PROMPTS từ prompts.js
+if (typeof PROMPTS === 'undefined') {
+  console.error('PROMPTS is not defined. Please ensure prompts.js is loaded correctly.');
+  window.PROMPTS = [];
+}
 
-// ==================== HELPER FUNCTIONS ====================
+// ==================== STATE ====================
 let filteredPrompts = [...PROMPTS];
 let selectedCategories = [];
 let currentModalPrompt = null;
 let searchTimeout;
 
+// DOM Elements
 const grid = document.getElementById('promptGrid');
 const emptyState = document.getElementById('emptyState');
 const searchInput = document.getElementById('searchInput');
@@ -19,21 +25,24 @@ const toast = document.getElementById('toast');
 const categoryChipsContainer = document.getElementById('categoryChipsContainer');
 const clearAllFiltersBtn = document.getElementById('clearAllFilters');
 
-// Format date
+// ==================== HELPERS ====================
 const formatDate = (iso) => {
-  if (!iso) return '';
-  const d = new Date(iso);
-  return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  if (!iso) return 'N/A';
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  } catch (e) {
+    return iso;
+  }
 };
 
-// Escape HTML
 const escapeHtml = (str) => {
+  if (!str) return '';
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
 };
 
-// Simple fuzzy search function
 const fuzzyMatch = (query, text) => {
   const q = query.toLowerCase();
   const t = text.toLowerCase();
@@ -44,25 +53,30 @@ const fuzzyMatch = (query, text) => {
   return qIdx === q.length;
 };
 
-// Highlight search term in text
 const highlightText = (text, query) => {
-  if (!query) return escapeHtml(text);
+  if (!query || !text) return escapeHtml(text || '');
+  const escapedText = escapeHtml(text);
   const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-  const highlighted = escapeHtml(text).replace(regex, '<span class="search-highlight">$1</span>');
-  return highlighted;
+  return escapedText.replace(regex, '<span class="search-highlight">$1</span>');
 };
 
-// Copy to clipboard
+const showToast = (msg) => {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+};
+
 const copyToClipboard = async (text, btn) => {
   try {
     await navigator.clipboard.writeText(text);
     showToast('✓ Copied to clipboard!');
     if (btn) {
+      const originalHtml = btn.innerHTML;
       btn.classList.add('copied');
-      btn.textContent = '✓ Copied!';
+      btn.innerHTML = '✓ Copied!';
       setTimeout(() => {
         btn.classList.remove('copied');
-        btn.innerHTML = '📋 Copy Prompt';
+        btn.innerHTML = originalHtml;
       }, 2000);
     }
   } catch (err) {
@@ -71,48 +85,64 @@ const copyToClipboard = async (text, btn) => {
   }
 };
 
-// Show toast
-const showToast = (msg) => {
-  toast.textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2500);
-};
-
-// Get unique categories
+// ==================== DATA LOGIC ====================
 const getCategories = () => {
-  const cats = [...new Set(PROMPTS.map(p => p.label))];
+  const cats = [...new Set(PROMPTS.map(p => p.label).filter(Boolean))];
   return cats.sort();
 };
 
-// Count prompts by category
 const countByCategory = (category) => {
   return PROMPTS.filter(p => !p.disabled && p.label === category).length;
 };
 
-// Initialize category chips
+const filterPrompts = (query) => {
+  const q = (query || '').toLowerCase().trim();
+  
+  filteredPrompts = PROMPTS.filter(p => {
+    // Luôn ẩn prompt bị disabled trừ khi cần thiết (tùy logic project)
+    if (p.disabled) return false;
+    
+    // Lọc theo Category
+    const categoryMatch = selectedCategories.length === 0 || selectedCategories.includes(p.label);
+    if (!categoryMatch) return false;
+    
+    // Lọc theo Search Query
+    if (q) {
+      const searchHaystack = [
+        p.name, p.label, p.description, 
+        p.prompt, p.when_to_use, p.how_to_use
+      ].join(' ').toLowerCase();
+      return searchHaystack.includes(q) || fuzzyMatch(q, searchHaystack);
+    }
+    
+    return true;
+  });
+
+  updateStats();
+  renderGrid(q);
+};
+
+// ==================== UI RENDERING ====================
 const initCategoryChips = () => {
+  if (!categoryChipsContainer) return;
   const categories = getCategories();
   categoryChipsContainer.innerHTML = '';
   
   categories.forEach(cat => {
     const chip = document.createElement('button');
     chip.className = 'category-chip';
-    chip.dataset.category = cat;
+    if (selectedCategories.includes(cat)) chip.classList.add('active');
     
     const count = countByCategory(cat);
-    chip.innerHTML = `${escapeHtml(cat)} <span class="category-chip-count">(${count})</span>`;
+    chip.innerHTML = `${escapeHtml(cat)} <span class="category-chip-count">${count}</span>`;
     
     chip.addEventListener('click', () => {
       chip.classList.toggle('active');
-      
       if (chip.classList.contains('active')) {
-        if (!selectedCategories.includes(cat)) {
-          selectedCategories.push(cat);
-        }
+        if (!selectedCategories.includes(cat)) selectedCategories.push(cat);
       } else {
         selectedCategories = selectedCategories.filter(c => c !== cat);
       }
-      
       filterPrompts(searchInput.value);
     });
     
@@ -120,54 +150,39 @@ const initCategoryChips = () => {
   });
 };
 
-// Clear all filters
-clearAllFiltersBtn.addEventListener('click', () => {
-  selectedCategories = [];
-  searchInput.value = '';
-  
-  // Remove active state from all chips
-  document.querySelectorAll('.category-chip').forEach(chip => {
-    chip.classList.remove('active');
-  });
-  
-  filterPrompts('');
-  searchInput.focus();
-});
+const updateStats = () => {
+  if (totalBadge) totalBadge.querySelector('strong').textContent = PROMPTS.length;
+  if (activeBadge) activeBadge.querySelector('strong').textContent = PROMPTS.filter(p => !p.disabled).length;
+  if (resultsBadge) resultsBadge.querySelector('strong').textContent = filteredPrompts.length;
+};
 
-// Render card
 const renderCard = (p, query = '') => {
   const card = document.createElement('div');
   card.className = `prompt-card ${p.disabled ? 'disabled' : ''}`;
   
-  const preview = p.prompt.length > 200 
-    ? p.prompt.substring(0, 200) + '...' 
+  const previewText = (p.prompt || '').length > 150 
+    ? p.prompt.substring(0, 150) + '...' 
     : p.prompt;
-
-  const highlightedDesc = highlightText(p.description || 'No description', query);
-  const highlightedPreview = highlightText(preview, query);
 
   card.innerHTML = `
     <div class="card-header">
-      <div class="card-title">
-        <span class="card-number">#${p.number}</span>
-        ${escapeHtml(p.name)}
-      </div>
-      <span class="card-label">${escapeHtml(p.label || 'General')}</span>
+      <div class="card-title">${escapeHtml(p.name)}</div>
+      <div class="card-number">#${p.number}</div>
     </div>
     
     <div class="card-meta">
+      <span class="card-label">${escapeHtml(p.label || 'General')}</span>
       <span>🕐 ${formatDate(p.updated_at)}</span>
-      ${p.disabled ? '<span style="color:var(--warning)">⚠️ Disabled</span>' : '<span>✅ Active</span>'}
     </div>
 
     <div class="card-section">
       <div class="card-section-title">📄 Description</div>
-      <p class="card-desc">${highlightedDesc}</p>
+      <p class="card-desc">${highlightText(p.description, query)}</p>
     </div>
 
     <div class="card-section">
       <div class="card-section-title">💬 Prompt Preview</div>
-      <pre class="prompt-content">${highlightedPreview}</pre>
+      <pre class="prompt-content">${highlightText(previewText, query)}</pre>
     </div>
 
     <div class="card-footer">
@@ -178,28 +193,26 @@ const renderCard = (p, query = '') => {
   return card;
 };
 
-// Render grid
 const renderGrid = (query = '') => {
+  if (!grid) return;
   grid.innerHTML = '';
   
   if (filteredPrompts.length === 0) {
-    emptyState.style.display = 'block';
+    if (emptyState) emptyState.style.display = 'block';
     return;
   }
-  emptyState.style.display = 'none';
+  if (emptyState) emptyState.style.display = 'none';
 
   filteredPrompts.forEach(p => {
     grid.appendChild(renderCard(p, query));
   });
 
-  // Attach events
+  // Re-attach event listeners for buttons in grid
   grid.querySelectorAll('[data-copy]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const num = parseInt(e.currentTarget.dataset.copy);
       const prompt = PROMPTS.find(x => x.number === num);
-      if (prompt && !prompt.disabled) {
-        copyToClipboard(prompt.prompt, e.currentTarget);
-      }
+      if (prompt) copyToClipboard(prompt.prompt, e.currentTarget);
     });
   });
 
@@ -212,64 +225,14 @@ const renderGrid = (query = '') => {
   });
 };
 
-// Search filter with debounce and fuzzy matching
-const filterPrompts = (query) => {
-  const q = query.toLowerCase().trim();
-  
-  if (!q && selectedCategories.length === 0) {
-    filteredPrompts = [...PROMPTS];
-  } else {
-    filteredPrompts = PROMPTS.filter(p => {
-      if (p.disabled) return false;
-      
-      // Category filter
-      if (selectedCategories.length > 0 && !selectedCategories.includes(p.label)) {
-        return false;
-      }
-      
-      // Search filter
-      if (q) {
-        const hay = [
-          p.name, p.label, p.description, 
-          p.prompt, p.when_to_use, p.how_to_use
-        ].join(' ').toLowerCase();
-        
-        // Exact match or fuzzy match
-        return hay.includes(q) || fuzzyMatch(q, hay);
-      }
-      
-      return true;
-    });
-  }
-  updateStats();
-  renderGrid(q);
-};
-
-// Debounced search
-const handleSearch = (e) => {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => {
-    filterPrompts(e.target.value);
-  }, 300);
-};
-
-// Update stats
-const updateStats = () => {
-  const total = PROMPTS.length;
-  const active = PROMPTS.filter(p => !p.disabled).length;
-  totalBadge.querySelector('strong').textContent = total;
-  activeBadge.querySelector('strong').textContent = active;
-  resultsBadge.querySelector('strong').textContent = filteredPrompts.length;
-};
-
-// Modal functions
+// ==================== MODAL ====================
 const openModal = (p) => {
   currentModalPrompt = p;
-  document.getElementById('modalTitle').textContent = `#${p.number} - ${p.name}`;
+  document.getElementById('modalTitle').textContent = p.name;
   document.getElementById('modalMeta').innerHTML = `
-    <span>🏷️ ${escapeHtml(p.label)}</span>
+    <span class="card-label">${escapeHtml(p.label)}</span>
+    <span>#${p.number}</span>
     <span>🕐 Updated: ${formatDate(p.updated_at)}</span>
-    ${p.disabled ? '<span style="color:var(--warning)">⚠️ Disabled</span>' : ''}
   `;
   document.getElementById('modalPrompt').textContent = p.prompt;
   document.getElementById('modalWhen').textContent = p.when_to_use || 'N/A';
@@ -284,66 +247,68 @@ const closeModal = () => {
   currentModalPrompt = null;
 };
 
-// Download prompt as .txt
-const downloadPrompt = (p) => {
-  const content = `# ${p.name}
-Label: ${p.label}
-Description: ${p.description}
+// ==================== EVENTS ====================
+if (searchInput) {
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      filterPrompts(e.target.value);
+    }, 300);
+  });
+}
 
-## When to use
-${p.when_to_use}
+if (clearAllFiltersBtn) {
+  clearAllFiltersBtn.addEventListener('click', () => {
+    selectedCategories = [];
+    if (searchInput) searchInput.value = '';
+    document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+    filterPrompts('');
+    if (searchInput) searchInput.focus();
+  });
+}
 
-## How to use
-${p.how_to_use}
-
-## Prompt
-${p.prompt}
-
----
-Created: ${p.created_at} | Updated: ${p.updated_at}`;
-  
-  const blob = new Blob([content], {type: 'text/plain'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `prompt-${p.number}-${p.name.toLowerCase().replace(/\s+/g, '-')}.txt`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('✓ Downloaded!');
-};
-
-// Event Listeners
-searchInput.addEventListener('input', handleSearch);
-
-modalClose.addEventListener('click', closeModal);
-modal.addEventListener('click', (e) => {
-  if (e.target === modal) closeModal();
-});
+if (modalClose) modalClose.addEventListener('click', closeModal);
+if (modal) {
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+}
 
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && modal.classList.contains('active')) {
+  if (e.key === 'Escape' && modal && modal.classList.contains('active')) {
     closeModal();
   }
 });
 
-document.getElementById('modalCopy').addEventListener('click', () => {
-  if (currentModalPrompt && !currentModalPrompt.disabled) {
-    copyToClipboard(currentModalPrompt.prompt, document.getElementById('modalCopy'));
-  }
-});
+const modalCopyBtn = document.getElementById('modalCopy');
+if (modalCopyBtn) {
+  modalCopyBtn.addEventListener('click', () => {
+    if (currentModalPrompt) {
+      copyToClipboard(currentModalPrompt.prompt, modalCopyBtn);
+    }
+  });
+}
 
-document.getElementById('modalDownload').addEventListener('click', () => {
-  if (currentModalPrompt) {
-    downloadPrompt(currentModalPrompt);
-  }
-});
+const modalDownloadBtn = document.getElementById('modalDownload');
+if (modalDownloadBtn) {
+  modalDownloadBtn.addEventListener('click', () => {
+    if (currentModalPrompt) {
+      const p = currentModalPrompt;
+      const content = `# ${p.name}\nLabel: ${p.label}\n\n## When to use\n${p.when_to_use}\n\n## How to use\n${p.how_to_use}\n\n## Prompt\n${p.prompt}`;
+      const blob = new Blob([content], {type: 'text/plain'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `prompt-${p.number}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  });
+}
 
-// Init
-initCategoryChips();
-updateStats();
-renderGrid();
-
-// Focus search on load
-window.addEventListener('load', () => {
-  searchInput.focus();
+// ==================== INITIALIZATION ====================
+window.addEventListener('DOMContentLoaded', () => {
+  initCategoryChips();
+  filterPrompts(''); // Khởi tạo hiển thị ban đầu
+  if (searchInput) searchInput.focus();
 });
