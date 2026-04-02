@@ -725,3 +725,47 @@ header p { color: var(--text-muted); font-size: 1.1rem; }
   border-radius: 4px;
   font-family: monospace;
 }
+
+/* Quick Copy Toolbar */
+.quick-toolbar {
+  background: white;
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+}
+.quick-toolbar-title {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.quick-snippets {
+  display: flex;
+  gap: 8px;
+}
+.snippet-btn {
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid transparent;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.snippet-btn:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-1px);
+}
+.snippet-btn:active {
+  transform: translateY(0);
+}

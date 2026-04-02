@@ -16,6 +16,14 @@ const CONFIG = {
 };
 
 // ==================== STATE ====================
+const QUICK_SNIPPETS = [
+  { label: "Critical Flow", content: "Identify critical path and potential failure points." },
+  { label: "Negative Test", content: "Analyze negative test scenarios and edge cases." },
+  { label: "Security Review", content: "Evaluate security risks and permission vulnerabilities." },
+  { label: "API Specs", content: "Review API request/response and error handling." },
+  { label: "UI Checklist", content: "Check UI consistency, accessibility, and responsiveness." }
+];
+
 let filteredPrompts = [...PROMPTS];
 let selectedCategories = [];
 let currentModalPrompt = null;
@@ -301,6 +309,30 @@ const filterPrompts = (query) => {
 };
 
 // ==================== UI RENDERING ====================
+const initQuickToolbar = () => {
+  const toolbar = document.getElementById('quickToolbar');
+  const snippetsContainer = document.getElementById('quickSnippets');
+  
+  if (!toolbar || !snippetsContainer || !CONFIG.ENABLE_QUICK_COPY_TOOLBAR) {
+    if (toolbar) toolbar.style.display = 'none';
+    return;
+  }
+  
+  toolbar.style.display = 'flex';
+  snippetsContainer.innerHTML = '';
+  
+  QUICK_SNIPPETS.forEach(snippet => {
+    const btn = document.createElement('button');
+    btn.className = 'snippet-btn';
+    btn.textContent = snippet.label;
+    btn.title = `Copy: ${snippet.content}`;
+    btn.addEventListener('click', () => {
+      copyToClipboard(snippet.content, btn);
+    });
+    snippetsContainer.appendChild(btn);
+  });
+};
+
 const initCategoryChips = () => {
   if (!categoryChipsContainer) return;
   const categories = getCategories();
@@ -734,6 +766,7 @@ const showKeyboardHint = () => {
 
 // ==================== INITIALIZATION ====================
 window.addEventListener('DOMContentLoaded', () => {
+  initQuickToolbar();
   initCategoryChips();
   filterPrompts(''); // Khởi tạo hiển thị ban đầu
   handleUrlParams(); // Handle share links
