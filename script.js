@@ -497,7 +497,9 @@ const resultsBadge = document.getElementById('resultsBadge');
 const modal = document.getElementById('modal');
 const modalClose = document.getElementById('modalClose');
 const toast = document.getElementById('toast');
-const categoryFilter = document.getElementById('categoryFilter');
+const categoryOptions = document.getElementById('categoryOptions');
+const selectAllCats = document.getElementById('selectAllCats');
+const clearAllCats = document.getElementById('clearAllCats');
 
 // Format date
 const formatDate = (iso) => {
@@ -572,22 +574,53 @@ const countByCategory = (category) => {
 // Initialize category filter
 const initCategoryFilter = () => {
   const categories = getCategories();
+  categoryOptions.innerHTML = '';
   categories.forEach(cat => {
-    const btn = document.createElement('button');
-    btn.className = 'category-btn';
-    btn.innerHTML = `${escapeHtml(cat)} <span class="category-count">(${countByCategory(cat)})</span>`;
-    btn.addEventListener('click', () => {
-      btn.classList.toggle('active');
-      if (btn.classList.contains('active')) {
+    const label = document.createElement('label');
+    label.className = 'category-checkbox-label';
+    
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.value = cat;
+    checkbox.addEventListener('change', (e) => {
+      if (e.target.checked) {
         selectedCategories.push(cat);
       } else {
         selectedCategories = selectedCategories.filter(c => c !== cat);
       }
       filterPrompts(searchInput.value);
     });
-    categoryFilter.appendChild(btn);
+
+    label.appendChild(checkbox);
+    label.appendChild(document.createTextNode(`${cat} `));
+    
+    const countSpan = document.createElement('span');
+    countSpan.className = 'category-count';
+    countSpan.textContent = `(${countByCategory(cat)})`;
+    label.appendChild(countSpan);
+
+    categoryOptions.appendChild(label);
   });
 };
+
+// Select all categories
+selectAllCats.addEventListener('click', () => {
+  const checkboxes = categoryOptions.querySelectorAll('input[type="checkbox"]');
+  selectedCategories = [];
+  checkboxes.forEach(cb => {
+    cb.checked = true;
+    selectedCategories.push(cb.value);
+  });
+  filterPrompts(searchInput.value);
+});
+
+// Clear all categories
+clearAllCats.addEventListener('click', () => {
+  const checkboxes = categoryOptions.querySelectorAll('input[type="checkbox"]');
+  checkboxes.forEach(cb => cb.checked = false);
+  selectedCategories = [];
+  filterPrompts(searchInput.value);
+});
 
 // Render card
 const renderCard = (p, query = '') => {

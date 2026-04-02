@@ -31,7 +31,14 @@
 
     <!-- Category Filter -->
     <div class="category-filter" id="categoryFilter">
-      <span class="category-filter-title">📂 Filter by Category:</span>
+      <div class="category-filter-header">
+        <span class="category-filter-title">📂 Filter by Category:</span>
+        <div class="category-actions">
+          <button class="btn-link" id="selectAllCats">Select All</button>
+          <button class="btn-link" id="clearAllCats">Clear</button>
+        </div>
+      </div>
+      <div class="category-options" id="categoryOptions"></div>
     </div>
 
     <div class="prompt-grid" id="promptGrid"></div>
