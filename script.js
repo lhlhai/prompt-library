@@ -12,6 +12,7 @@ let selectedCategories = [];
 let currentModalPrompt = null;
 let searchTimeout;
 let variableValues = {}; // Store variable values for current prompt
+let showFavoritesOnly = false; // New state for favorites filter
 
 // DOM Elements
 const grid = document.getElementById('promptGrid');
@@ -20,6 +21,7 @@ const searchInput = document.getElementById('searchInput');
 const totalBadge = document.getElementById('totalBadge');
 const activeBadge = document.getElementById('activeBadge');
 const resultsBadge = document.getElementById('resultsBadge');
+const favoriteFilterBtn = document.getElementById('favoriteFilterBtn');
 const modal = document.getElementById('modal');
 const modalClose = document.getElementById('modalClose');
 const toast = document.getElementById('toast');
@@ -117,6 +119,11 @@ const toggleFavorite = (promptNumber) => {
   }
   localStorage.setItem('prompt-library-favorites', JSON.stringify(favorites));
   updateFavoriteButtons();
+  
+  // If we are in "Favorites Only" mode, we need to re-filter
+  if (showFavoritesOnly) {
+    filterPrompts(searchInput.value);
+  }
 };
 
 const updateFavoriteButtons = () => {
@@ -124,10 +131,12 @@ const updateFavoriteButtons = () => {
     const num = parseInt(btn.dataset.favorite);
     if (isFavorite(num)) {
       btn.classList.add('active');
-      btn.innerHTML = '⭐ Favorited';
+      btn.innerHTML = '⭐';
+      btn.title = 'Remove from Favorites';
     } else {
       btn.classList.remove('active');
-      btn.innerHTML = '☆ Add to Favorites';
+      btn.innerHTML = '☆';
+      btn.title = 'Add to Favorites';
     }
   });
 };
@@ -266,6 +275,9 @@ const filterPrompts = (query) => {
     // Luôn ẩn prompt bị disabled trừ khi cần thiết (tùy logic project)
     if (p.disabled) return false;
     
+    // Lọc theo Favorites
+    if (showFavoritesOnly && !isFavorite(p.number)) return false;
+    
     // Lọc theo Category
     const categoryMatch = selectedCategories.length === 0 || selectedCategories.includes(p.label);
     if (!categoryMatch) return false;
@@ -318,6 +330,17 @@ const updateStats = () => {
   if (totalBadge) totalBadge.querySelector('strong').textContent = PROMPTS.length;
   if (activeBadge) activeBadge.querySelector('strong').textContent = PROMPTS.filter(p => !p.disabled).length;
   if (resultsBadge) resultsBadge.querySelector('strong').textContent = filteredPrompts.length;
+  
+  // Update favorite filter button UI
+  if (favoriteFilterBtn) {
+    if (showFavoritesOnly) {
+      favoriteFilterBtn.classList.add('active');
+      favoriteFilterBtn.querySelector('.star-icon').textContent = '⭐';
+    } else {
+      favoriteFilterBtn.classList.remove('active');
+      favoriteFilterBtn.querySelector('.star-icon').textContent = '☆';
+    }
+  }
 };
 
 const renderCard = (p, query = '') => {
@@ -353,7 +376,7 @@ const renderCard = (p, query = '') => {
     <div class="card-footer">
       <button class="btn btn-copy" data-copy="${p.number}">📋 Copy</button>
       <button class="btn btn-view" data-view="${p.number}">👁️ View Full</button>
-      <button class="btn btn-favorite ${isFavorite(p.number) ? 'active' : ''}" data-favorite="${p.number}">${isFavorite(p.number) ? '⭐ Favorited' : '☆ Add to Favorites'}</button>
+      <button class="btn-favorite ${isFavorite(p.number) ? 'active' : ''}" data-favorite="${p.number}" title="${isFavorite(p.number) ? 'Remove from Favorites' : 'Add to Favorites'}">${isFavorite(p.number) ? '⭐' : '☆'}</button>
     </div>
   `;
   return card;
@@ -456,10 +479,18 @@ if (searchInput) {
 if (clearAllFiltersBtn) {
   clearAllFiltersBtn.addEventListener('click', () => {
     selectedCategories = [];
+    showFavoritesOnly = false;
     if (searchInput) searchInput.value = '';
     document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
     filterPrompts('');
     if (searchInput) searchInput.focus();
+  });
+}
+
+if (favoriteFilterBtn) {
+  favoriteFilterBtn.addEventListener('click', () => {
+    showFavoritesOnly = !showFavoritesOnly;
+    filterPrompts(searchInput.value);
   });
 }
 
