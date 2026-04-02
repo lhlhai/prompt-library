@@ -332,6 +332,57 @@ header p { color: var(--text-muted); font-size: 1.1rem; }
   background: var(--bg);
   border-color: var(--text-muted);
 }
+.btn-share {
+  background: #e0f2fe;
+  border: 1px solid #bae6fd;
+  color: #0369a1;
+}
+.btn-share:hover {
+  background: #bae6fd;
+  border-color: #0284c7;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+}
+.btn-share.copied {
+  background: var(--success);
+  color: white;
+  border-color: var(--success);
+}
+
+/* Variables Section */
+.variables-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.variable-input-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.variable-label {
+  font-weight: 600;
+  color: var(--primary);
+  min-width: 120px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+}
+
+.variable-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.variable-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
 
 /* Modal */
 .modal {

@@ -51,6 +51,12 @@
       <button class="modal-close" id="modalClose">&times;</button>
       <h2 id="modalTitle" style="margin-bottom:8px"></h2>
       <div class="card-meta" id="modalMeta" style="margin-bottom:16px"></div>
+      <!-- Variable Tags Section -->
+      <div class="card-section" id="variablesSection" style="display:none;">
+        <div class="card-section-title">🔤 Variables to Fill</div>
+        <div class="variables-container" id="variablesContainer"></div>
+      </div>
+
       <div class="card-section">
         <div class="card-section-title">📝 Prompt</div>
         <pre class="modal-prompt" id="modalPrompt"></pre>
@@ -63,9 +69,10 @@
         <div class="card-section-title">⚙️ How to use</div>
         <p id="modalHow" class="card-desc"></p>
       </div>
-      <div class="card-footer" style="margin-top:20px">
+      <div class="card-footer" style="margin-top:20px; gap: 8px;">
         <button class="btn btn-copy" id="modalCopy">📋 Copy Prompt</button>
         <button class="btn btn-view" id="modalDownload">⬇️ Download .txt</button>
+        <button class="btn btn-share" id="modalShare" title="Copy shareable link">🔗 Share</button>
       </div>
     </div>
   </div>

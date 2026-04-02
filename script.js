@@ -11,6 +11,7 @@ let filteredPrompts = [...PROMPTS];
 let selectedCategories = [];
 let currentModalPrompt = null;
 let searchTimeout;
+let variableValues = {}; // Store variable values for current prompt
 
 // DOM Elements
 const grid = document.getElementById('promptGrid');
@@ -83,6 +84,79 @@ const copyToClipboard = async (text, btn) => {
     showToast('✗ Copy failed');
     console.error(err);
   }
+};
+
+// ==================== VARIABLE HANDLING ====================
+// Extract variables from prompt text
+const extractVariables = (text) => {
+  const regex = /{([A-Z_]+)}/g;
+  const variables = [];
+  let match;
+  while ((match = regex.exec(text)) !== null) {
+    if (!variables.includes(match[1])) {
+      variables.push(match[1]);
+    }
+  }
+  return variables;
+};
+
+// Replace variables in prompt with user input values
+const replaceVariables = (text, values) => {
+  let result = text;
+  Object.keys(values).forEach(key => {
+    if (values[key]) {
+      result = result.replace(new RegExp(`{${key}}`, 'g'), values[key]);
+    }
+  });
+  return result;
+};
+
+// Render variable input fields in modal
+const renderVariableInputs = (variables) => {
+  const container = document.getElementById('variablesContainer');
+  const section = document.getElementById('variablesSection');
+  
+  if (!variables || variables.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+  
+  section.style.display = 'block';
+  container.innerHTML = '';
+  variableValues = {};
+  
+  variables.forEach(varName => {
+    const group = document.createElement('div');
+    group.className = 'variable-input-group';
+    
+    const label = document.createElement('label');
+    label.className = 'variable-label';
+    label.textContent = `{${varName}}`;
+    
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'variable-input';
+    input.placeholder = `Enter value for ${varName}...`;
+    input.dataset.variable = varName;
+    
+    input.addEventListener('input', (e) => {
+      variableValues[varName] = e.target.value;
+      // Update preview in real-time
+      updateModalPromptPreview();
+    });
+    
+    group.appendChild(label);
+    group.appendChild(input);
+    container.appendChild(group);
+  });
+};
+
+// Update modal prompt preview with variable replacements
+const updateModalPromptPreview = () => {
+  if (!currentModalPrompt) return;
+  const previewElement = document.getElementById('modalPrompt');
+  const replacedText = replaceVariables(currentModalPrompt.prompt, variableValues);
+  previewElement.textContent = replacedText;
 };
 
 // ==================== DATA LOGIC ====================
@@ -228,6 +302,7 @@ const renderGrid = (query = '') => {
 // ==================== MODAL ====================
 const openModal = (p) => {
   currentModalPrompt = p;
+  variableValues = {};
   document.getElementById('modalTitle').textContent = p.name;
   document.getElementById('modalMeta').innerHTML = `
     <span class="card-label">${escapeHtml(p.label)}</span>
@@ -237,6 +312,11 @@ const openModal = (p) => {
   document.getElementById('modalPrompt').textContent = p.prompt;
   document.getElementById('modalWhen').textContent = p.when_to_use || 'N/A';
   document.getElementById('modalHow').textContent = p.how_to_use || 'N/A';
+  
+  // Extract and render variable inputs
+  const variables = extractVariables(p.prompt);
+  renderVariableInputs(variables);
+  
   modal.classList.add('active');
   document.body.style.overflow = 'hidden';
 };
@@ -245,6 +325,7 @@ const closeModal = () => {
   modal.classList.remove('active');
   document.body.style.overflow = '';
   currentModalPrompt = null;
+  variableValues = {};
 };
 
 // ==================== EVENTS ====================
@@ -280,21 +361,26 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+// Copy button - with variable replacement
 const modalCopyBtn = document.getElementById('modalCopy');
 if (modalCopyBtn) {
   modalCopyBtn.addEventListener('click', () => {
     if (currentModalPrompt) {
-      copyToClipboard(currentModalPrompt.prompt, modalCopyBtn);
+      // Copy with variable replacements
+      const finalPrompt = replaceVariables(currentModalPrompt.prompt, variableValues);
+      copyToClipboard(finalPrompt, modalCopyBtn);
     }
   });
 }
 
+// Download button
 const modalDownloadBtn = document.getElementById('modalDownload');
 if (modalDownloadBtn) {
   modalDownloadBtn.addEventListener('click', () => {
     if (currentModalPrompt) {
       const p = currentModalPrompt;
-      const content = `# ${p.name}\nLabel: ${p.label}\n\n## When to use\n${p.when_to_use}\n\n## How to use\n${p.how_to_use}\n\n## Prompt\n${p.prompt}`;
+      const finalPrompt = replaceVariables(p.prompt, variableValues);
+      const content = `# ${p.name}\nLabel: ${p.label}\n\n## When to use\n${p.when_to_use}\n\n## How to use\n${p.how_to_use}\n\n## Prompt\n${finalPrompt}`;
       const blob = new Blob([content], {type: 'text/plain'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -306,9 +392,39 @@ if (modalDownloadBtn) {
   });
 }
 
+// Share button - Copy shareable link
+const modalShareBtn = document.getElementById('modalShare');
+if (modalShareBtn) {
+  modalShareBtn.addEventListener('click', () => {
+    if (currentModalPrompt) {
+      const baseUrl = window.location.origin + window.location.pathname;
+      const shareUrl = `${baseUrl}?id=${currentModalPrompt.number}`;
+      copyToClipboard(shareUrl, modalShareBtn);
+      showToast('✓ Share link copied!');
+    }
+  });
+}
+
+// ==================== URL PARAMS HANDLING ====================
+const handleUrlParams = () => {
+  const params = new URLSearchParams(window.location.search);
+  const promptId = params.get('id');
+  
+  if (promptId !== null) {
+    const prompt = PROMPTS.find(p => p.number === parseInt(promptId));
+    if (prompt) {
+      // Delay to ensure DOM is ready
+      setTimeout(() => {
+        openModal(prompt);
+      }, 100);
+    }
+  }
+};
+
 // ==================== INITIALIZATION ====================
 window.addEventListener('DOMContentLoaded', () => {
   initCategoryChips();
   filterPrompts(''); // Khởi tạo hiển thị ban đầu
+  handleUrlParams(); // Handle share links
   if (searchInput) searchInput.focus();
 });
