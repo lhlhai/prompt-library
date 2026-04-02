@@ -16,12 +16,8 @@ const resultsBadge = document.getElementById('resultsBadge');
 const modal = document.getElementById('modal');
 const modalClose = document.getElementById('modalClose');
 const toast = document.getElementById('toast');
-const categoryOptions = document.getElementById('categoryOptions');
-const selectAllCats = document.getElementById('selectAllCats');
-const clearAllCats = document.getElementById('clearAllCats');
-const dropdownToggle = document.getElementById('dropdownToggle');
-const dropdownMenu = document.getElementById('dropdownMenu');
-const selectedCatsDisplay = document.getElementById('selectedCatsDisplay');
+const categoryChipsContainer = document.getElementById('categoryChipsContainer');
+const clearAllFiltersBtn = document.getElementById('clearAllFilters');
 
 // Format date
 const formatDate = (iso) => {
@@ -93,72 +89,49 @@ const countByCategory = (category) => {
   return PROMPTS.filter(p => !p.disabled && p.label === category).length;
 };
 
-// Update selected categories display
-const updateSelectedDisplay = () => {
-  if (selectedCategories.length === 0) {
-    selectedCatsDisplay.textContent = 'Select Categories';
-  } else if (selectedCategories.length === getCategories().length) {
-    selectedCatsDisplay.textContent = 'All Categories Selected';
-  } else {
-    selectedCatsDisplay.textContent = `${selectedCategories.length} Categories Selected`;
-  }
-};
-
-// Initialize category filter
-const initCategoryFilter = () => {
+// Initialize category chips
+const initCategoryChips = () => {
   const categories = getCategories();
-  categoryOptions.innerHTML = '';
+  categoryChipsContainer.innerHTML = '';
+  
   categories.forEach(cat => {
-    const label = document.createElement('label');
-    label.className = 'category-checkbox-label';
+    const chip = document.createElement('button');
+    chip.className = 'category-chip';
+    chip.dataset.category = cat;
     
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.value = cat;
-    checkbox.addEventListener('change', (e) => {
-      if (e.target.checked) {
-        selectedCategories.push(cat);
+    const count = countByCategory(cat);
+    chip.innerHTML = `${escapeHtml(cat)} <span class="category-chip-count">(${count})</span>`;
+    
+    chip.addEventListener('click', () => {
+      chip.classList.toggle('active');
+      
+      if (chip.classList.contains('active')) {
+        if (!selectedCategories.includes(cat)) {
+          selectedCategories.push(cat);
+        }
       } else {
         selectedCategories = selectedCategories.filter(c => c !== cat);
       }
-      updateSelectedDisplay();
+      
       filterPrompts(searchInput.value);
     });
-
-    label.appendChild(checkbox);
-    label.appendChild(document.createTextNode(`${cat} `));
     
-    const countSpan = document.createElement('span');
-    countSpan.className = 'category-count';
-    countSpan.textContent = `(${countByCategory(cat)})`;
-    label.appendChild(countSpan);
-
-    categoryOptions.appendChild(label);
+    categoryChipsContainer.appendChild(chip);
   });
-  updateSelectedDisplay();
 };
 
-// Select all categories
-selectAllCats.addEventListener('click', (e) => {
-  e.preventDefault();
-  const checkboxes = categoryOptions.querySelectorAll('input[type="checkbox"]');
+// Clear all filters
+clearAllFiltersBtn.addEventListener('click', () => {
   selectedCategories = [];
-  checkboxes.forEach(cb => {
-    cb.checked = true;
-    selectedCategories.push(cb.value);
+  searchInput.value = '';
+  
+  // Remove active state from all chips
+  document.querySelectorAll('.category-chip').forEach(chip => {
+    chip.classList.remove('active');
   });
-  updateSelectedDisplay();
-  filterPrompts(searchInput.value);
-});
-
-// Clear all categories
-clearAllCats.addEventListener('click', (e) => {
-  e.preventDefault();
-  const checkboxes = categoryOptions.querySelectorAll('input[type="checkbox"]');
-  checkboxes.forEach(cb => cb.checked = false);
-  selectedCategories = [];
-  updateSelectedDisplay();
-  filterPrompts(searchInput.value);
+  
+  filterPrompts('');
+  searchInput.focus();
 });
 
 // Render card
@@ -342,26 +315,6 @@ Created: ${p.created_at} | Updated: ${p.updated_at}`;
 // Event Listeners
 searchInput.addEventListener('input', handleSearch);
 
-// Dropdown toggle
-dropdownToggle.addEventListener('click', (e) => {
-  e.stopPropagation();
-  dropdownToggle.classList.toggle('active');
-  dropdownMenu.classList.toggle('show');
-});
-
-// Close dropdown when clicking outside
-document.addEventListener('click', (e) => {
-  if (!dropdownToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
-    dropdownToggle.classList.remove('active');
-    dropdownMenu.classList.remove('show');
-  }
-});
-
-// Close dropdown when selecting an option (optional - keeps it open for multi-select)
-categoryOptions.addEventListener('click', (e) => {
-  e.stopPropagation();
-});
-
 modalClose.addEventListener('click', closeModal);
 modal.addEventListener('click', (e) => {
   if (e.target === modal) closeModal();
@@ -386,7 +339,7 @@ document.getElementById('modalDownload').addEventListener('click', () => {
 });
 
 // Init
-initCategoryFilter();
+initCategoryChips();
 updateStats();
 renderGrid();
 

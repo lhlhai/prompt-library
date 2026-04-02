@@ -29,22 +29,11 @@
       <span class="stat-badge" id="resultsBadge">🔎 Results: <strong>0</strong></span>
     </div>
 
-    <!-- Category Filter Dropdown -->
-    <div class="category-filter-wrapper">
-      <label class="category-filter-label">📂 Filter by Category:</label>
-      <div class="dropdown-container" id="categoryFilter">
-        <button class="dropdown-toggle" id="dropdownToggle">
-          <span id="selectedCatsDisplay">Select Categories</span>
-          <span class="dropdown-arrow">▼</span>
-        </button>
-        <div class="dropdown-menu" id="dropdownMenu">
-          <div class="dropdown-actions">
-            <button class="btn-link" id="selectAllCats">Select All</button>
-            <button class="btn-link" id="clearAllCats">Clear</button>
-          </div>
-          <div class="dropdown-options" id="categoryOptions"></div>
-        </div>
-      </div>
+    <!-- Category Filter - Scrollable Chips -->
+    <div class="filter-bar">
+      <div class="filter-label">📂 Filter by Category:</div>
+      <div class="category-chips-container" id="categoryChipsContainer"></div>
+      <button class="btn-clear-all" id="clearAllFilters">✕ Clear All</button>
     </div>
 
     <div class="prompt-grid" id="promptGrid"></div>
