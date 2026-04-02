@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="search-optimizer.js"></script>
   <div class="container">
     <header>
@@ -68,7 +69,13 @@
           <button class="btn btn-edit-save" id="modalEditSaveBtn" style="flex: 1; display: none;">✅ Save Changes</button>
           <button class="btn btn-edit-cancel" id="modalEditCancelBtn" style="flex: 1; display: none;">❌ Cancel</button>
         </div>
+        <!-- Tabs for Preview/Raw -->
+        <div class="modal-tabs" id="modalTabs" style="display: none; margin-bottom: 12px;">
+          <button class="modal-tab active" data-tab="raw">📄 Raw</button>
+          <button class="modal-tab" data-tab="preview">👁️ Preview</button>
+        </div>
         <pre class="modal-prompt" id="modalPrompt"></pre>
+        <div class="modal-prompt-preview" id="modalPromptPreview" style="display: none;"></div>
         <textarea class="modal-prompt-edit" id="modalPromptEdit" style="display: none;"></textarea>
       </div>
       <div class="card-section">

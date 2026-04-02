@@ -6,6 +6,15 @@ if (typeof PROMPTS === 'undefined') {
   window.PROMPTS = [];
 }
 
+// ==================== CONFIG ====================
+const CONFIG = {
+  ENABLE_MARKDOWN_PREVIEW: true, // Issue #21
+  ENABLE_QUICK_COPY_TOOLBAR: true, // Issue #20
+  ENABLE_COMPARISON_MODE: true, // Issue #19
+  ENABLE_COLLECTIONS: true, // Issue #18
+  ENABLE_TAGGING: true, // Issue #15
+};
+
 // ==================== STATE ====================
 let filteredPrompts = [...PROMPTS];
 let selectedCategories = [];
@@ -248,9 +257,15 @@ const renderVariableInputs = (variables) => {
 const updateModalPromptPreview = () => {
   if (!currentModalPrompt) return;
   const previewElement = document.getElementById('modalPrompt');
+  const markdownPreviewElement = document.getElementById('modalPromptPreview');
   const baseText = hasEditedPrompt(currentModalPrompt.number) ? getEditedPrompt(currentModalPrompt.number) : currentModalPrompt.prompt;
   const replacedText = replaceVariables(baseText, variableValues);
+  
   previewElement.textContent = replacedText;
+  
+  if (CONFIG.ENABLE_MARKDOWN_PREVIEW && typeof marked !== 'undefined') {
+    markdownPreviewElement.innerHTML = marked.parse(replacedText);
+  }
 };
 
 // ==================== DATA LOGIC ====================
@@ -439,6 +454,25 @@ const openModal = (p) => {
   document.getElementById('modalWhen').textContent = p.when_to_use || 'N/A';
   document.getElementById('modalHow').textContent = p.how_to_use || 'N/A';
   
+  // Markdown Preview Logic
+  const modalTabs = document.getElementById('modalTabs');
+  const modalPromptPreview = document.getElementById('modalPromptPreview');
+  const modalPrompt = document.getElementById('modalPrompt');
+  
+  if (CONFIG.ENABLE_MARKDOWN_PREVIEW && typeof marked !== 'undefined') {
+    modalTabs.style.display = 'flex';
+    // Reset to Raw tab
+    modalTabs.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+    modalTabs.querySelector('[data-tab="raw"]').classList.add('active');
+    modalPrompt.style.display = 'block';
+    modalPromptPreview.style.display = 'none';
+    modalPromptPreview.innerHTML = marked.parse(displayPrompt);
+  } else {
+    modalTabs.style.display = 'none';
+    modalPrompt.style.display = 'block';
+    modalPromptPreview.style.display = 'none';
+  }
+  
   // Extract and render variable inputs
   const variables = extractVariables(displayPrompt);
   renderVariableInputs(variables);
@@ -464,6 +498,25 @@ const closeModal = () => {
 };
 
 // ==================== EVENTS ====================
+// Tab Switching Logic
+document.querySelectorAll('.modal-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const target = tab.dataset.tab;
+    const modalPrompt = document.getElementById('modalPrompt');
+    const modalPromptPreview = document.getElementById('modalPromptPreview');
+    
+    document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    
+    if (target === 'preview') {
+      modalPrompt.style.display = 'none';
+      modalPromptPreview.style.display = 'block';
+    } else {
+      modalPrompt.style.display = 'block';
+      modalPromptPreview.style.display = 'none';
+    }
+  });
+});
 if (searchInput) {
   searchInput.addEventListener('input', (e) => {
     clearTimeout(searchTimeout);
