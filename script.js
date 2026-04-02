@@ -46,14 +46,9 @@ const escapeHtml = (str) => {
   return div.innerHTML;
 };
 
+// Deprecated: Use searchEngine.fuzzyMatch() instead
 const fuzzyMatch = (query, text) => {
-  const q = query.toLowerCase();
-  const t = text.toLowerCase();
-  let qIdx = 0;
-  for (let i = 0; i < t.length && qIdx < q.length; i++) {
-    if (t[i] === q[qIdx]) qIdx++;
-  }
-  return qIdx === q.length;
+  return searchEngine.fuzzyMatch(query.toLowerCase(), text.toLowerCase());
 };
 
 const highlightText = (text, query) => {
@@ -271,28 +266,20 @@ const countByCategory = (category) => {
 const filterPrompts = (query) => {
   const q = (query || '').toLowerCase().trim();
   
-  filteredPrompts = PROMPTS.filter(p => {
-    // Luôn ẩn prompt bị disabled trừ khi cần thiết (tùy logic project)
+  // Step 1: Apply category and favorites filters
+  let candidates = PROMPTS.filter(p => {
     if (p.disabled) return false;
-    
-    // Lọc theo Favorites
     if (showFavoritesOnly && !isFavorite(p.number)) return false;
-    
-    // Lọc theo Category
     const categoryMatch = selectedCategories.length === 0 || selectedCategories.includes(p.label);
-    if (!categoryMatch) return false;
-    
-    // Lọc theo Search Query
-    if (q) {
-      const searchHaystack = [
-        p.name, p.label, p.description, 
-        p.prompt, p.when_to_use, p.how_to_use
-      ].join(' ').toLowerCase();
-      return searchHaystack.includes(q) || fuzzyMatch(q, searchHaystack);
-    }
-    
-    return true;
+    return categoryMatch;
   });
+  
+  // Step 2: Apply search with advanced scoring
+  if (q) {
+    filteredPrompts = searchEngine.search(q, candidates);
+  } else {
+    filteredPrompts = candidates;
+  }
 
   updateStats();
   renderGrid(q);
@@ -352,10 +339,20 @@ const renderCard = (p, query = '') => {
     ? basePrompt.substring(0, 150) + '...' 
     : basePrompt;
 
+  // Show relevance score if search is active
+  const relevanceHTML = query && p.searchScore !== undefined 
+    ? `<div class="card-relevance" title="Relevance Score">🎯 ${Math.round(p.searchScore)}%</div>`
+    : '';
+
   card.innerHTML = `
     <div class="card-header">
-      <div class="card-title">${escapeHtml(p.name)}</div>
-      <div class="card-number">#${p.number}</div>
+      <div>
+        <div class="card-title">${escapeHtml(p.name)}</div>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: flex-start;">
+        ${relevanceHTML}
+        <div class="card-number">#${p.number}</div>
+      </div>
     </div>
     
     <div class="card-meta">

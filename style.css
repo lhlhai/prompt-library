@@ -646,3 +646,23 @@ header p { color: var(--text-muted); font-size: 1.1rem; }
 .favorite-toggle-badge.active .star-icon {
   content: '⭐';
 }
+
+/* Relevance Score Badge */
+.card-relevance {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  font-size: 0.75rem;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+.card-relevance:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
+}
