@@ -33,12 +33,20 @@
     <div class="category-filter" id="categoryFilter">
       <div class="category-filter-header">
         <span class="category-filter-title">📂 Filter by Category:</span>
-        <div class="category-actions">
-          <button class="btn-link" id="selectAllCats">Select All</button>
-          <button class="btn-link" id="clearAllCats">Clear</button>
+      </div>
+      <div class="dropdown-container">
+        <div class="dropdown-header" id="dropdownHeader">
+          <span id="selectedCatsCount">Select Categories</span>
+          <span class="dropdown-arrow">▼</span>
+        </div>
+        <div class="dropdown-content" id="dropdownContent">
+          <div class="category-actions">
+            <button class="btn-link" id="selectAllCats">Select All</button>
+            <button class="btn-link" id="clearAllCats">Clear</button>
+          </div>
+          <div class="category-options" id="categoryOptions"></div>
         </div>
       </div>
-      <div class="category-options" id="categoryOptions"></div>
     </div>
 
     <div class="prompt-grid" id="promptGrid"></div>
@@ -78,6 +86,7 @@
   <!-- Toast -->
   <div class="toast" id="toast">✓ Copied to clipboard!</div>
 
+  <script src="prompts.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
