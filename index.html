@@ -8,6 +8,7 @@
 </head>
 <body>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
   <script src="config.js"></script>
   <script src="search-optimizer.js"></script>
 
@@ -42,6 +43,28 @@
     </header>
 
     <div class="search-box">
+      <!-- Feature #24: QA Knowledge Graph -->
+      <div class="graph-section" style="margin-bottom: 24px; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+        <div class="card-section-title" style="display: flex; justify-content: space-between; align-items: center;">
+          <span>🗺️ QA Workflow Knowledge Graph</span>
+          <button class="btn btn-view" id="toggleGraphBtn" style="padding: 4px 12px; font-size: 12px;">Show/Hide Graph</button>
+        </div>
+        <div id="graphContainer" style="display: none; margin-top: 16px; overflow-x: auto;">
+          <pre class="mermaid" id="mermaidGraph" style="display: flex; justify-content: center;">
+            graph LR
+              A[Spec Review] --> B[Risk Analysis]
+              B --> C[Test Strategy]
+              C --> D[Test Scenario]
+              D --> E[Coverage Analysis]
+              B --> F[Critical Path]
+              F --> D
+              E --> G[Bug Report]
+              style A fill:#f9f,stroke:#333,stroke-width:2px
+              style G fill:#f66,stroke:#333,stroke-width:2px
+          </pre>
+        </div>
+      </div>
+
       <div class="search-container">
         <input 
           type="text" 
