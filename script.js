@@ -487,7 +487,7 @@ const renderCard = (p, query = '') => {
     ? `<button class="btn-compare-toggle ${isCompared ? 'active' : ''}" 
                data-compare-toggle="${p.number}" 
                title="${isCompared ? 'Remove from Comparison' : 'Add to Comparison'}">
-         ${isCompared ? '✓' : '+'}
+         ${isCompared ? '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}
        </button>`
     : '';
 
@@ -496,10 +496,10 @@ const renderCard = (p, query = '') => {
       <div>
         <div class="card-title">${escapeHtml(p.name)}</div>
       </div>
-      <div style="display: flex; gap: 8px; align-items: flex-start;">
+      <div class="card-header-actions">
         ${relevanceHTML}
         <div class="card-number">#${p.number}</div>
-${compareBtnHTML}
+        ${compareBtnHTML}
       </div>
     </div>
     
