@@ -71,6 +71,9 @@
       </span>
       <span class="stat-badge" id="activeBadge">✅ Active: <strong>0</strong></span>
       <span class="stat-badge" id="resultsBadge">🔎 Results: <strong>0</strong></span>
+      <button class="stat-badge mobile-filter-btn" id="mobileFilterBtn">
+        <span>🔍 Show Filter</span>
+      </button>
     </div>
 
     <!-- Category Filter - Scrollable Chips -->
@@ -128,6 +131,37 @@
       <h2 style="margin-bottom: 24px;">📊 Prompt Comparison</h2>
       <div class="comparison-grid" id="comparisonGrid">
         <!-- Comparison columns will be injected here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Modal for Mobile -->
+  <div class="modal filter-modal" id="filterModal">
+    <div class="modal-content">
+      <button class="modal-close" id="filterModalClose">&times;</button>
+      <h2 style="margin-bottom: 20px;">🔍 Filter Prompts</h2>
+      
+      <div class="filter-section">
+        <div class="filter-section-title">📂 Categories</div>
+        <div class="mobile-category-list" id="mobileCategoryList">
+          <!-- Categories will be injected here -->
+        </div>
+      </div>
+
+      <div class="filter-section" style="margin-top: 24px;">
+        <div class="filter-section-title">⭐ Quick Access</div>
+        <div class="mobile-quick-access">
+          <div class="sidebar-item" id="mobileSidebarFavorites">
+            <span class="sidebar-icon">⭐</span> Favorites
+          </div>
+          <div class="sidebar-item" id="mobileSidebarRecent">
+            <span class="sidebar-icon">🕒</span> Recently Used
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="margin-top: 30px;">
+        <button class="btn btn-copy" id="applyFiltersBtn" style="width: 100%;">Apply Filters</button>
       </div>
     </div>
   </div>

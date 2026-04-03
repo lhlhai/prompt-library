@@ -53,6 +53,13 @@ const gridViewBtn = document.getElementById('gridViewBtn');
 const listViewBtn = document.getElementById('listViewBtn');
 const sidebarFavorites = document.getElementById('sidebarFavorites');
 const sidebarRecent = document.getElementById('sidebarRecent');
+const mobileFilterBtn = document.getElementById('mobileFilterBtn');
+const filterModal = document.getElementById('filterModal');
+const filterModalClose = document.getElementById('filterModalClose');
+const mobileCategoryList = document.getElementById('mobileCategoryList');
+const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+const mobileSidebarFavorites = document.getElementById('mobileSidebarFavorites');
+const mobileSidebarRecent = document.getElementById('mobileSidebarRecent');
 
 // ==================== HELPERS ====================
 const formatDate = (iso) => {
@@ -415,30 +422,72 @@ const renderSidebar = () => {
     categoryList.appendChild(item);
   });
 
+  // Render mobile category list
+  if (mobileCategoryList) {
+    mobileCategoryList.innerHTML = '';
+    categories.forEach(cat => {
+      const item = document.createElement('div');
+      item.className = `mobile-category-item ${selectedCategories.includes(cat) ? 'active' : ''}`;
+      item.innerHTML = `<span>📁 ${escapeHtml(cat)}</span>`;
+      item.onclick = () => {
+        if (selectedCategories.includes(cat)) {
+          selectedCategories = selectedCategories.filter(c => c !== cat);
+        } else {
+          selectedCategories.push(cat);
+        }
+        initCategoryChips();
+        renderSidebar();
+        filterPrompts(searchInput.value);
+      };
+      mobileCategoryList.appendChild(item);
+    });
+  }
+
   // Update favorites item
+  const handleFavoritesToggle = () => {
+    showFavoritesOnly = !showFavoritesOnly;
+    renderSidebar();
+    filterPrompts(searchInput.value);
+  };
+
   if (sidebarFavorites) {
     sidebarFavorites.className = `sidebar-item ${showFavoritesOnly ? 'active' : ''}`;
     sidebarFavorites.innerHTML = `
       <span class="sidebar-icon">⭐</span> Favorites
       <span class="count">${favorites.length}</span>
     `;
-    sidebarFavorites.onclick = () => {
-      showFavoritesOnly = !showFavoritesOnly;
-      renderSidebar();
-      filterPrompts(searchInput.value);
-    };
+    sidebarFavorites.onclick = handleFavoritesToggle;
+  }
+
+  if (mobileSidebarFavorites) {
+    mobileSidebarFavorites.className = `sidebar-item ${showFavoritesOnly ? 'active' : ''}`;
+    mobileSidebarFavorites.innerHTML = `
+      <span class="sidebar-icon">⭐</span> Favorites
+      <span class="count">${favorites.length}</span>
+    `;
+    mobileSidebarFavorites.onclick = handleFavoritesToggle;
   }
 
   // Update recent item
+  const handleRecentClick = () => {
+    filterPromptsByRecent();
+    if (filterModal) filterModal.classList.remove('active');
+  };
+
   if (sidebarRecent) {
     sidebarRecent.innerHTML = `
       <span class="sidebar-icon">🕒</span> Recently Used
       <span class="count">${recentPrompts.length}</span>
     `;
-    sidebarRecent.onclick = () => {
-      // Logic for showing recent prompts
-      filterPromptsByRecent();
-    };
+    sidebarRecent.onclick = handleRecentClick;
+  }
+
+  if (mobileSidebarRecent) {
+    mobileSidebarRecent.innerHTML = `
+      <span class="sidebar-icon">🕒</span> Recently Used
+      <span class="count">${recentPrompts.length}</span>
+    `;
+    mobileSidebarRecent.onclick = handleRecentClick;
   }
 };
 
@@ -1130,6 +1179,28 @@ const initDragToScroll = () => {
 // Add to DOMContentLoaded
 window.addEventListener('DOMContentLoaded', () => {
   initDragToScroll();
+});
+
+// Mobile Filter Modal Logic
+if (mobileFilterBtn) {
+  mobileFilterBtn.onclick = () => {
+    filterModal.classList.add('active');
+    renderSidebar();
+  };
+}
+
+if (filterModalClose) {
+  filterModalClose.onclick = () => filterModal.classList.remove('active');
+}
+
+if (applyFiltersBtn) {
+  applyFiltersBtn.onclick = () => filterModal.classList.remove('active');
+}
+
+window.addEventListener('click', (e) => {
+  if (e.target === filterModal) {
+    filterModal.classList.remove('active');
+  }
 });
 
 // Back to Top Logic
