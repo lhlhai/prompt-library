@@ -7,6 +7,7 @@ const PROMPTS = [
     "description": "Orchestrator tự động đề xuất chuỗi prompt phù hợp dựa trên bối cảnh dự án.",
     "when_to_use": "Khi bắt đầu dự án mới, cần xác định quy trình QA phù hợp.",
     "how_to_use": "Điền {PROJECT_CONTEXT} với thông tin dự án (type, timeline, risk, team size, artifacts, compliance).",
+    "example_output": "====================\nQA WORKFLOW ORCHESTRATION\n\nProject Context Summary\n- Type: Web E-commerce\n- Timeline: Normal (3 months)\n- Risk: High (Payment integration)\n- Team Size: 5 QA Engineers\n- Artifacts: PRD, Figma Designs\n- Compliance: GDPR, PCI-DSS\n\nRecommended Prompt Sequence\n\n| Order | Block Name | Mandatory/Optional | Estimated Effort | Rationale |\n| 1 | Spec Review | Mandatory | 2 days | Ensure requirements are clear before design |\n| 2 | Risk Analysis | Mandatory | 1 day | Identify high-risk payment flows |\n| 3 | Test Strategy | Mandatory | 2 days | Define overall testing approach |\n| 4 | Test Scenario | Mandatory | 5 days | Detailed test design |\n\n====================",
     "disabled": false,
     "created_at": "2026-04-02T10:00:00Z",
     "updated_at": "2026-04-02T10:00:00Z"
@@ -19,6 +20,7 @@ const PROMPTS = [
     "description": "Đánh giá chất lượng spec trước khi viết testcase.",
     "when_to_use": "Khi nhận spec mới, grooming, refinement, trước khi viết testcase.",
     "how_to_use": "Điền {SPEC} với nội dung specification cần review.",
+    "example_output": "====================\n\nSPEC REVIEW REPORT\n\n1. Missing Requirements\n\n| Issue | Impact | Severity | Suggestion |\n| Error handling for failed payments | User stuck on checkout | High | Define retry logic and error messages |\n\n2. Ambiguous Requirements\n\n| Issue | Risk | Severity | Suggestion |\n| 'Fast loading' is not quantified | Performance issues | Medium | Define SLA (e.g., < 2s) |\n\n10. Overall Spec Quality Score\n\nScore: 6/10\n\nJustification: Core flows are defined but error handling and non-functional requirements are missing.\n\n====================",
     "disabled": false,
     "created_at": "2026-04-02T10:00:00Z",
     "updated_at": "2026-04-02T10:00:00Z"

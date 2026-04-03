@@ -686,6 +686,16 @@ const openModal = (p) => {
   document.getElementById('modalWhen').textContent = p.when_to_use || 'N/A';
   document.getElementById('modalHow').textContent = p.how_to_use || 'N/A';
   
+  // Handle Example Output (Feature #29)
+  const exampleSection = document.getElementById('modalExampleSection');
+  const exampleContent = document.getElementById('modalExample');
+  if (p.example_output) {
+    exampleSection.style.display = 'block';
+    exampleContent.textContent = p.example_output;
+  } else {
+    exampleSection.style.display = 'none';
+  }
+
   // Markdown Preview Logic
   const modalTabs = document.getElementById('modalTabs');
   const modalPromptPreview = document.getElementById('modalPromptPreview');
