@@ -15,7 +15,14 @@ const APP_CONFIG = {
       name: 'QA & Testing',
       icon: '🧪',
       description: 'Specialized prompts for quality assurance and software testing.',
-      filter: (p) => p.label && (p.label.includes('QA') || p.label.includes('Test'))
+      filter: (p) => p.label && (p.label.includes('QA') || p.label.includes('Senior QA') || p.label.includes('Analysis'))
+    },
+    {
+      id: 'ba',
+      name: 'Business Analyst',
+      icon: '📊',
+      description: 'Prompts for business analysis, requirement elicitation, and process modeling.',
+      filter: (p) => p.label && p.label.includes('Business Analyst')
     },
     {
       id: 'dev',

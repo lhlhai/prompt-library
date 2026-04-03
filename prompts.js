@@ -15,7 +15,7 @@ const PROMPTS = [
   {
     "number": 1,
     "name": "Spec Review",
-    "label": "Test Architect Level",
+    "label": "QA Architect",
     "prompt": "You are a Senior QA Architect with 15+ years experience.\nYour task is to critically review the provided specification.\nThink step-by-step and analyze deeply.\nAssume the system will fail.\nBe highly critical and avoid generic answers.\nAnalyze the following areas:\n1. Missing requirements\n2. Ambiguous requirements\n3. Conflicting logic\n4. Hidden assumptions\n5. Testability issues\n6. Business risks\n7. Integration risks\n8. Edge case risks\n9. Data privacy / GDPR impact\n10. Compliance requirements (PCI-DSS, HIPAA, etc.)\n11. Backward compatibility impact\nFor each issue provide:\n- Issue\n- Type\n- Impact\n- Severity (High / Medium / Low)\n- Why it matters\n- Suggested improvement\nOutput Format:\n====================\nSPEC REVIEW REPORT\n1. Missing Requirements\n| Issue | Impact | Severity | Suggestion |\n---\n2. Ambiguous Requirements\n| Issue | Risk | Severity | Suggestion |\n---\n3. Conflicting Logic\n| Conflict | Risk | Severity | Suggestion |\n---\n4. Hidden Assumptions\n| Assumption | Risk | Severity |\n---\n5. Testability Issues\n| Issue | Why Hard to Test | Suggestion |\n---\n6. Business Risks\n| Risk | Impact | Severity |\n---\n7. Integration Risks\n| Integration Point | Risk | Severity |\n---\n8. Edge Case Risks\n| Edge Case | Risk | Severity |\n---\n9. Data Privacy / Compliance Risks\n| Area | Risk | Severity | Suggestion |\n---\n10. Overall Spec Quality Score\nScore: 1–10\nJustification:\n====================\nSpecification:\n{SPEC}",
     "description": "Đánh giá chất lượng spec trước khi viết testcase.",
     "when_to_use": "Khi nhận spec mới, grooming, refinement, trước khi viết testcase.",
@@ -28,7 +28,7 @@ const PROMPTS = [
   {
     "number": 2,
     "name": "Spec Gap Analysis",
-    "label": "Senior QA Level",
+    "label": "Senior QA",
     "prompt": "You are a Senior QA Analyst.\nYour task is to compare Requirement vs Specification.\nThink critically and identify gaps.\nAssume implementation may fail if gaps exist.\nAnalyze:\n1. Missing in Specification\n2. Missing in Requirement\n3. Scope mismatch\n4. Conflicting behavior\n5. Hidden assumptions\n6. Business logic gaps\n7. Data flow gaps\n8. Integration gaps\n9. Compliance gaps\nFor each gap provide:\n- Gap description\n- Where found (Requirement / Spec)\n- Impact\n- Severity (High / Medium / Low)\n- Suggested clarification\nOutput Format:\n====================\nSPEC GAP ANALYSIS REPORT\n1. Missing in Specification\n| Requirement | Missing Detail | Impact | Severity |\n---\n2. Missing in Requirement\n| Spec Behavior | Missing Requirement | Risk | Severity |\n---\n3. Scope Mismatch\n| Requirement | Spec | Risk | Severity |\n---\n4. Conflicting Behavior\n| Conflict | Risk | Severity |\n---\n5. Hidden Assumptions\n| Assumption | Risk | Severity |\n---\n6. Business Logic Gaps\n| Logic Gap | Risk | Severity |\n---\n7. Data Flow Gaps\n| Data | Missing Rule | Risk |\n---\n8. Integration Gaps\n| Integration | Missing Behavior | Risk |\n---\n9. Compliance Gaps\n| Requirement | Missing in Spec | Risk | Severity |\n---\n10. Overall Gap Risk Score\nScore: 1–10\nJustification:\n====================\nRequirement:\n{REQUIREMENT}\nSpecification:\n{SPEC}",
     "description": "So sánh Requirement vs Spec để phát hiện gap.",
     "when_to_use": "Khi có Requirement và Spec, trước sprint planning, trước viết testcase.",
@@ -40,7 +40,7 @@ const PROMPTS = [
   {
     "number": 3,
     "name": "Risk Analysis",
-    "label": "Test Architect Level",
+    "label": "QA Architect",
     "prompt": "You are a Senior QA Architect with 15+ years experience.\nPerform Risk-Based Testing Analysis.\nThink step-by-step.\nAssume system failure will happen.\nAnalyze the following areas:\n1. Functional Risk\n2. Integration Risk\n3. Data Risk\n4. Performance Risk\n5. Security Risk\n6. Permission Risk\n7. UI Risk\n8. API Risk\n9. Business Logic Risk\n10. State Transition Risk\n11. Compliance Risk\n12. Data Privacy Risk\n13. Vendor Dependency Risk\n14. Time-to-Market Risk\nFor each risk provide:\n- Risk Area\n- Description\n- Root Cause\n- Impact\n- Likelihood\n- Severity (High / Medium / Low)\n- Risk Score (1–10)\n- Suggested Testing Focus\nOutput Format:\n====================\nRISK ANALYSIS REPORT\n| Area | Risk | Root Cause | Impact | Likelihood | Severity | Score | Testing Focus |\n---\nCritical Risk Summary\nTop 5 Highest Risks\n---\nRisk Distribution\nHigh Risk:\nMedium Risk:\nLow Risk:\n---\nTesting Priority Recommendation\nP0:\nP1:\nP2:\n====================\nSpecification:\n{SPEC}",
     "description": "Phân tích rủi ro hệ thống theo Risk-Based Testing.",
     "when_to_use": "Sau Spec Review, trước viết testcase, trước release.",
@@ -52,7 +52,7 @@ const PROMPTS = [
   {
     "number": 4,
     "name": "Critical Path Analysis",
-    "label": "Test Architect Level",
+    "label": "QA Architect",
     "prompt": "You are a Senior QA Architect with 15+ years experience.\nYour task is to identify Critical User Paths.\nThink step-by-step.\nAssume failure in critical flow causes system failure.\nAnalyze:\n1. Core business flows\n2. User onboarding flows\n3. Data creation flows\n4. Data update flows\n5. Payment / transaction flows (if applicable)\n6. Authentication flows\n7. Integration flows\n8. State transition flows\n9. Recovery flows (rollback, error recovery)\nFor each flow identify:\n- Flow Name\n- Steps\n- Why Critical\n- Failure Impact\n- User Impact\n- Business Impact\n- Severity (High / Medium / Low)\n- Testing Recommendation\nOutput Format:\n====================\nCRITICAL PATH ANALYSIS\n| Flow | Steps | Why Critical | User Impact | Business Impact | Severity | Test Priority |\n---\nTop Critical Flows\n1.\n2.\n3.\n4.\n5.\n---\nSmoke Test Candidates\n| Flow | Reason |\n---\nRecommended Execution Order\n1.\n2.\n3.\n4.\n====================\nSpecification:\n{SPEC}",
     "description": "Xác định Critical User Flow — những luồng quan trọng nhất.",
     "when_to_use": "Sau Risk Analysis, trước viết testcase, trước release, smoke testing design.",
@@ -64,7 +64,7 @@ const PROMPTS = [
   {
     "number": 5,
     "name": "Coverage Analysis",
-    "label": "Test Architect Level",
+    "label": "QA Architect",
     "prompt": "You are a Senior QA Architect.\nAnalyze Test Coverage.\nThink critically.\nAssume missing coverage will cause production bugs.\nAnalyze Coverage Areas:\n1. UI Coverage\n2. API Coverage\n3. Business Logic Coverage\n4. Permission Coverage\n5. Data Coverage\n6. Negative Testing Coverage\n7. Edge Case Coverage\n8. Integration Coverage\n9. State Transition Coverage\n10. Error Handling Coverage\n11. Compliance Coverage\n12. Security Coverage\n13. Performance Coverage\nFor each area:\n- Coverage status (Full / Partial / None)\n- Missing areas\n- Risk level (High / Medium / Low)\n- Suggested test\nOutput Format:\n====================\nTEST COVERAGE REPORT\nCoverage Matrix\n| Area | Coverage | Missing | Risk | Suggestion |\n---\nMissing Critical Coverage\n1.\n2.\n3.\n---\nHigh Risk Untested Areas\n1.\n2.\n3.\n---\nCoverage Score\nScore: 1–10\nJustification:\n====================\nSpecification:\n{SPEC}\nTestcases:\n{TESTCASES}",
     "description": "Kiểm tra testcase có cover đủ hệ thống chưa.",
     "when_to_use": "Sau khi có testcases, trước execution, trước release.",
@@ -76,7 +76,7 @@ const PROMPTS = [
   {
     "number": 6,
     "name": "Test Strategy Generator",
-    "label": "Test Architect Level",
+    "label": "QA Architect",
     "prompt": "You are a Test Architect with 15+ years experience.\nGenerate a comprehensive Test Strategy.\nThink step-by-step.\nAnalyze:\n1. Test Scope\n2. Test Levels\n3. Risk-based testing areas\n4. Automation candidates\n5. Test data strategy\n6. Environment strategy\n7. Regression strategy\n8. Smoke testing strategy\n9. Performance testing strategy\n10. Security testing strategy\n11. Release testing strategy\n12. Compliance testing strategy\nOutput Format:\n====================\nTEST STRATEGY\n1. Test Scope\n---\n2. Test Levels\n| Level | Purpose | Priority |\n---\n3. Risk Based Testing\n| Area | Risk | Priority |\n---\n4. Automation Strategy\n| Area | Automation Type | Priority |\n---\n5. Test Data Strategy\n---\n6. Environment Strategy\n---\n7. Regression Strategy\n---\n8. Smoke Testing Strategy\n---\n9. Performance Testing Strategy\n---\n10. Security Testing Strategy\n---\n11. Compliance Testing Strategy\n---\n12. Release Strategy\n====================\nSpecification:\n{SPEC}",
     "description": "Tạo Test Strategy toàn hệ thống.",
     "when_to_use": "Sau khi có spec, trước khi thiết kế test chi tiết.",
@@ -88,7 +88,7 @@ const PROMPTS = [
   {
     "number": 7,
     "name": "Test Scenario Generator",
-    "label": "Test Architect Level — Strong Version",
+    "label": "QA Architect",
     "prompt": "You are a Senior QA Architect with 15+ years experience.\nGenerate comprehensive Test Scenarios.\nThink step-by-step.\nAssume system failures will occur.\nAnalyze:\n1. Functional scenarios\n2. Business logic scenarios\n3. Integration scenarios\n4. Data validation scenarios\n5. Permission scenarios\n6. State transition scenarios\n7. Error handling scenarios\n8. Negative scenarios\n9. Edge case scenarios\n10. Performance-sensitive scenarios\n11. Compliance scenarios\n12. Security scenarios\nFor each scenario provide:\n- Scenario Name\n- Description\n- Flow\n- Risk Level (High / Medium / Low)\n- Priority (P0 / P1 / P2)\n- Test Type (Functional / Integration / Negative / etc)\nOutput Format:\n====================\nTEST SCENARIO REPORT\n| Scenario | Description | Flow | Risk | Priority | Type |\n---\nCritical Scenarios\n1.\n2.\n3.\n4.\n5.\n---\nHigh Risk Scenarios\n---\nRecommended Execution Order\n====================\nSpecification:\n{SPEC}",
     "description": "Generate test scenario chất lượng cao thay vì list testcase chung chung.",
     "when_to_use": "Sau Test Strategy, sau Risk Analysis, trước viết testcase chi tiết.",
@@ -100,7 +100,7 @@ const PROMPTS = [
   {
     "number": 8,
     "name": "Negative Testing",
-    "label": "Strong Version",
+    "label": "General",
     "prompt": "You are a Senior QA Architect.\nGenerate Negative Test Scenarios.\nThink critically.\nAssume users will misuse system.\nAnalyze:\n1. Invalid inputs\n2. Missing data\n3. Invalid format\n4. Unauthorized access\n5. Unexpected navigation\n6. API failure\n7. Integration failure\n8. Timeout scenarios\n9. Data corruption scenarios\n10. Concurrent user scenarios\n11. Session expiration\n12. Network interruption\nOutput Format:\n====================\nNEGATIVE TEST REPORT\n| Scenario | Input | Expected Behavior | Risk | Priority |\n---\nCritical Negative Scenarios\n---\nHigh Risk Failures\n====================\nSpecification:\n{SPEC}",
     "description": "Generate negative test chuyên sâu.",
     "when_to_use": "Sau khi có test scenarios, để bổ sung negative tests.",
@@ -112,7 +112,7 @@ const PROMPTS = [
   {
     "number": 9,
     "name": "Edge Case Generator",
-    "label": "Strong Version",
+    "label": "General",
     "prompt": "You are a Senior QA Architect.\nGenerate Edge Case Scenarios.\nAnalyze:\n1. Boundary values\n2. Empty values\n3. Null values\n4. Maximum data\n5. Minimum data\n6. Large dataset\n7. Special characters\n8. Unicode inputs\n9. Concurrent users\n10. Rapid user actions\n11. Extreme network conditions\n12. Extreme device configurations\nOutput:\n====================\nEDGE CASE REPORT\n| Scenario | Input | Risk | Priority |\n---\nHigh Risk Edge Cases\n====================\nSpecification:\n{SPEC}",
     "description": "Generate edge case chuyên sâu, giúp phát hiện bug production.",
     "when_to_use": "Sau khi có test scenarios, để bổ sung edge cases.",
@@ -124,7 +124,7 @@ const PROMPTS = [
   {
     "number": 10,
     "name": "Automation Strategy",
-    "label": "Automation Architect Level — Strong Version",
+    "label": "QA Architect",
     "prompt": "You are a Senior Automation Architect with 15+ years experience.\nYour task is to design an intelligent automation strategy.\nThink step-by-step.\nAvoid over-automation.\nAvoid automating unstable features.\nConsider maintenance cost and flaky risk.\nAnalyze:\n1. Test stability\n2. Test frequency\n3. Regression importance\n4. Maintenance cost\n5. Flaky risk\n6. Data dependency\n7. Environment dependency\n8. Execution time impact\n9. Business criticality\n10. Automation layer suitability\n11. Self-healing capability\n12. Visual regression needs\nFor each test scenario provide:\n- Test Scenario\n- Business Criticality\n- Automation Feasibility\n- Flaky Risk\n- Maintenance Cost\n- Recommended Layer (UI / API / Unit)\n- Priority (P0 / P1 / P2)\n- Automation ROI (1–10)\nOutput Format:\n====================\nAUTOMATION STRATEGY REPORT\n| Test | Criticality | Feasibility | Flaky Risk | Layer | ROI | Priority |\n---\nHigh ROI Automation Candidates\n---\nAvoid Automation Candidates\n---\nFlaky Test Mitigation Plan\n---\nRecommended Automation Layers\nUI Automation\nAPI Automation\nUnit Automation\nVisual Regression\n---\nAutomation Maintenance Strategy\n---\nAutomation Strategy Summary\n====================\nTestcases:\n{TESTCASES}\nSpecification:\n{SPEC}",
     "description": "Xác định chiến lược automation thông minh, tránh automation bừa bãi.",
     "when_to_use": "Sau Test Scenario, trước Automation, khi xây automation framework.",
@@ -136,7 +136,7 @@ const PROMPTS = [
   {
     "number": 11,
     "name": "Regression Strategy",
-    "label": "Test Architect Level — Strong Version",
+    "label": "QA Architect",
     "prompt": "You are a Senior QA Architect.\nGenerate Risk-Based Regression Strategy.\nThink step-by-step.\nAnalyze:\n1. Critical user flows\n2. Frequently changed modules\n3. Integration areas\n4. Business critical modules\n5. High defect areas\n6. Historical bug areas\n7. Core business flows\n8. Dependency areas\n9. New feature impact areas\nFor each test identify:\n- Test Scenario\n- Risk Level\n- Change Impact\n- Regression Priority\n- Execution Frequency\nOutput Format:\n====================\nREGRESSION STRATEGY REPORT\n| Test | Risk | Impact | Priority | Frequency |\n---\nRegression Categories\nSmoke Regression\nDaily Regression\nSprint Regression\nFull Regression\n---\nExecution Order\n1.\n2.\n3.\n4.\n---\nRegression Coverage Score\nScore 1–10\n====================\nSpecification:\n{SPEC}\nTestcases:\n{TESTCASES}",
     "description": "Tạo Regression Strategy thông minh theo Risk-Based Testing.",
     "when_to_use": "Sau khi có testcases, trước khi lên kế hoạch regression.",
@@ -148,7 +148,7 @@ const PROMPTS = [
   {
     "number": 12,
     "name": "Release Risk Analysis",
-    "label": "Release Architect Level — Strong Version",
+    "label": "QA Architect",
     "prompt": "You are a Release QA Architect.\nPerform Release Risk Assessment.\nThink critically.\nAssume release may fail.\nAnalyze:\n1. New features\n2. Changed features\n3. High risk areas\n4. Integration changes\n5. Performance risks\n6. Dependency risks\n7. Automation coverage\n8. Regression coverage\n9. Known issues\n10. Compliance sign-off\n11. Security sign-off\nFor each risk provide:\n- Area\n- Risk\n- Impact\n- Severity\n- Mitigation\nOutput Format:\n====================\nRELEASE RISK REPORT\n| Area | Risk | Impact | Severity | Mitigation |\n---\nCritical Release Risks\n---\nGo / No-Go Recommendation\nGO\nCONDITIONAL GO\nNO GO\n---\nRelease Confidence Score\nScore: 1–10\n---\nRelease Recommendation Summary\n====================\nSpecification:\n{SPEC}\nTest Results:\n{TEST_RESULTS}",
     "description": "Đánh giá Go / No-Go trước release.",
     "when_to_use": "Trước release, sau khi có test results.",
@@ -160,7 +160,7 @@ const PROMPTS = [
   {
     "number": 13,
     "name": "Test Plan Generator",
-    "label": "Test Manager / Enterprise Level — Ultra Strong",
+    "label": "QA Management",
     "prompt": "You are a Senior Test Manager with 15+ years experience managing enterprise-scale projects.\nYour task is to create a comprehensive Test Plan.\nThink step-by-step.\nAct as a Test Manager responsible for release quality and delivery.\nConsider:\n- Risk\n- Resource constraints\n- Timeline pressure\n- Cross-team dependencies\n- Release governance\n- Compliance requirements\nAnalyze:\n1. Project Scope\n2. Test Objectives\n3. Risk-Based Strategy\n4. Test Scope by Module\n5. Test Types and Levels\n6. Resource Planning\n7. Test Schedule\n8. Environment Strategy\n9. Test Data Strategy\n10. Entry Criteria\n11. Exit Criteria\n12. Reporting Strategy\n13. Quality Metrics\n14. Release Criteria\n15. Compliance & Security Testing\nOutput Format:\n================================================\nTEST PLAN\n1. Project Overview\nProject:\nRelease:\nScope Summary:\n---\n2. Test Objectives\n- Quality goals\n- Risk reduction goals\n- Release validation goals\n- Compliance goals\n---\n3. Test Scope\nIn Scope\n| Module | Change Type | Risk |\nOut of Scope\n---\n4. Risk Assessment\n| Area | Risk | Impact | Likelihood | Severity | Mitigation |\n---\n5. Test Strategy\nTest Types\n- Functional\n- Integration\n- Regression\n- Smoke\n- UAT Support\n- Performance\n- Security\n- Compliance\nTest Levels\n- API\n- UI\n- E2E\n- Integration\n---\n6. Test Scope by Priority\nP0 Modules\nP1 Modules\nP2 Modules\n---\n7. Resource Planning\n| Role | Allocation | Responsibility |\nQA Lead\nManual QA\nAutomation QA\nPerformance QA\nSecurity QA\n---\n8. Test Schedule\n| Phase | Scope | Timeline | Owner |\nPlanning\nDesign\nExecution\nRegression\nRelease Testing\n---\n9. Test Environment\n| Environment | Purpose | Risk |\nDev\nQA\nStaging\nProd (if applicable)\n---\n10. Test Data Strategy\n- Data preparation\n- Data refresh\n- Data dependency\n- Data masking for compliance\n---\n11. Entry Criteria\n- Build ready\n- Environment ready\n- Dependencies ready\n- Testcases ready\n- Data ready\n---\n12. Exit Criteria\n- No blocker bugs\n- Regression pass\n- Risk accepted\n- Compliance sign-off\n---\n13. Reporting Strategy\nDaily Reporting\n- Test progress\n- Bug summary\n- Risk summary\nWeekly Reporting\n- Coverage\n- Release risk\n---\n14. Quality Metrics\n| Metric | Target |\nCoverage\nBug leakage\nExecution progress\nDefect density\n---\n15. Release Criteria\nGo / No-Go Criteria\nRelease Risk Summary\nRelease Recommendation\n================================================\nProject Context:\n{PROJECT_CONTEXT}\nRelease Scope:\n{SCOPE}\nTeam Size:\n{TEAM_SIZE}",
     "description": "Tạo Test Plan cấp Test Manager / Enterprise level.",
     "when_to_use": "Sprint planning, release planning, enterprise project, multi-team project.",
@@ -172,7 +172,7 @@ const PROMPTS = [
   {
     "number": 14,
     "name": "Test Design Planning",
-    "label": "Test Manager Level — Ultra Strong",
+    "label": "QA Management",
     "prompt": "You are a Senior Test Manager responsible for test execution planning.\nYour task is to create Test Design Planning.\nThink step-by-step.\nConsider:\n- Risk areas\n- Critical modules\n- Resource availability\n- Timeline constraints\n- Release priority\nAnalyze:\n1. Modules\n2. Risk areas\n3. Dependencies\n4. Priority\n5. Test types\nFor each module assign:\n- Owner\n- Priority\n- Test Type\n- Risk Level\n- Dependency\n- Design Order\nOutput Format:\n================================================\nTEST DESIGN PLANNING\nModule Assignment\n| Module | Owner | Priority | Risk | Test Type | Dependency |\n---\nCritical Modules\nP0 Modules\n---\nDesign Order\nPhase 1 — Critical Modules\nPhase 2 — High Risk Modules\nPhase 3 — Remaining Modules\n---\nResource Allocation\n| QA | Assigned Modules | Load |\n---\nRisk-Based Design Priority\n| Module | Risk | Priority |\n---\nTimeline Recommendation\n| Module | Owner | Timeline |\n================================================\nSpecification:\n{SPEC}\nTeam:\n{TEAM}\nTimeline:\n{TIMELINE}",
     "description": "Phân rã test work, assign resource, define priority, define design order.",
     "when_to_use": "Sau Test Plan, trước khi thiết kế test chi tiết.",
@@ -184,7 +184,7 @@ const PROMPTS = [
   {
     "number": 15,
     "name": "Test Coverage Review",
-    "label": "Test Manager / QA Lead Level — Ultra Strong",
+    "label": "QA Management",
     "prompt": "You are a Senior Test Manager responsible for release quality.\nYour task is to review test coverage.\nThink step-by-step.\nAssume missing coverage will cause production issues.\nAnalyze coverage areas:\n1. Functional coverage\n2. Business critical flows\n3. Integration coverage\n4. API coverage\n5. UI coverage\n6. Data validation coverage\n7. Permission coverage\n8. Negative testing coverage\n9. Edge case coverage\n10. Error handling coverage\n11. Regression coverage\n12. High-risk areas coverage\n13. Security coverage\n14. Compliance coverage\nFor each area provide:\n- Coverage status (Full / Partial / None)\n- Missing areas\n- Risk level (High / Medium / Low)\n- Recommendation\nOutput Format:\n================================================\nTEST COVERAGE REVIEW\nCoverage Matrix\n| Area | Coverage | Missing | Risk | Recommendation |\n---\nCritical Missing Coverage\n| Area | Risk | Impact |\n---\nHigh Risk Untested Areas\n---\nCoverage by Module\n| Module | Coverage | Risk |\n---\nCoverage Quality Score\nScore: 1–10\n---\nRelease Risk Based on Coverage\nHigh Risk\nMedium Risk\nLow Risk\n---\nCoverage Recommendation\n================================================\nSpecification:\n{SPEC}\nTestcases:\n{TESTCASES}\nTest Design:\n{TEST_DESIGN}",
     "description": "Kiểm tra coverage, phát hiện gap, xác định risk chưa cover.",
     "when_to_use": "Sau Test Design, trước Test Execution, trước Sprint Execution.",
@@ -196,7 +196,7 @@ const PROMPTS = [
   {
     "number": 16,
     "name": "Test Execution Planning",
-    "label": "Test Manager Level — Ultra Strong",
+    "label": "QA Management",
     "prompt": "You are a Senior Test Manager responsible for test execution planning.\nCreate Test Execution Plan.\nThink step-by-step.\nConsider:\n- Risk\n- Priority\n- Resource availability\n- Timeline constraints\n- Dependencies\nAnalyze:\n1. Critical modules\n2. High risk modules\n3. Dependencies\n4. Resource availability\n5. Execution phases\nFor each module define:\n- Execution Priority\n- Owner\n- Timeline\n- Risk\nOutput Format:\n================================================\nTEST EXECUTION PLAN\nExecution Phases\nPhase 1 — Smoke Testing\nPhase 2 — Critical Modules\nPhase 3 — High Risk Modules\nPhase 4 — Regression\n---\nExecution Matrix\n| Module | Owner | Priority | Timeline | Risk |\n---\nDaily Execution Plan\n| Day | Scope | Owner |\n---\nExecution Risk\n| Risk | Impact | Mitigation |\n---\nResource Utilization\n| QA | Assigned Work | Load |\n---\nExecution Recommendation\n================================================\nTest Plan:\n{TEST_PLAN}\nCoverage Review:\n{COVERAGE}\nTeam:\n{TEAM}\nTimeline:\n{TIMELINE}",
     "description": "Lập kế hoạch execution, xác định thứ tự test, manage timeline.",
     "when_to_use": "Sau Coverage Review, trước khi bắt đầu test execution.",
@@ -208,7 +208,7 @@ const PROMPTS = [
   {
     "number": 17,
     "name": "Defect Management Strategy",
-    "label": "Test Manager Level — Ultra Strong",
+    "label": "QA Management",
     "prompt": "You are a Senior Test Manager responsible for defect management.\nCreate Defect Management Strategy.\nThink step-by-step.\nConsider:\n- Bug severity\n- Bug priority\n- Release timeline\n- Risk impact\n- Team capacity\nAnalyze:\n1. Bug severity classification\n2. Bug priority rules\n3. Bug triage process\n4. Escalation rules\n5. Release blocking rules\n6. Fix verification strategy\n7. Bug taxonomy (root cause, module, tester)\n8. Defect aging analysis\nOutput Format:\n================================================\nDEFECT MANAGEMENT STRATEGY\nSeverity Definition\n| Severity | Description | Example |\n---\nPriority Definition\n| Priority | Description | Fix Timeline |\n---\nBug Triage Strategy\n- Daily triage\n- Risk review\n- Priority adjustment\n---\nRelease Blocking Criteria\n| Severity | Release Impact |\n---\nBug Escalation Strategy\n| Condition | Action |\n---\nFix Verification Strategy\n- Retest strategy\n- Regression requirement\n---\nBug Metrics\n| Metric | Purpose |\nBug Trend Analysis\nDefect Density\nDefect Leakage\n---\nDefect Risk Assessment\nHigh Risk Bugs\nMedium Risk Bugs\nLow Risk Bugs\n================================================\nTest Execution Context:\n{EXECUTION_CONTEXT}\nRelease Timeline:\n{TIMELINE}",
     "description": "Kiểm soát bug, ưu tiên bug, theo dõi risk, tránh bug overload.",
     "when_to_use": "Trong Test Execution, Regression phase, Release preparation.",
@@ -220,7 +220,7 @@ const PROMPTS = [
   {
     "number": 18,
     "name": "Release Readiness Assessment",
-    "label": "Test Manager / QA Lead Level — Ultra Strong",
+    "label": "QA Management",
     "prompt": "You are a Senior Test Manager responsible for release decision.\nPerform Release Readiness Assessment.\nThink step-by-step.\nConsider:\n- Test coverage\n- Bug status\n- Risk areas\n- Regression status\n- Automation coverage\n- Security & compliance sign-off\nAnalyze:\n1. Test coverage status\n2. Bug summary\n3. Regression result\n4. High risk areas\n5. Known issues\n6. Automation coverage\n7. Performance risk\n8. Security risk\n9. Compliance risk\nOutput Format:\n================================================\nRELEASE READINESS REPORT\nTest Coverage Summary\n| Area | Coverage | Risk |\n---\nBug Summary\n| Severity | Count | Risk |\n---\nRegression Result\nPass Rate\n---\nHigh Risk Areas\n---\nKnown Issues\n---\nAutomation Coverage\n---\nSecurity & Compliance Status\n---\nPerformance Risk\n---\nRelease Risk Summary\nHigh Risk\nMedium Risk\nLow Risk\n---\nGo / No-Go Recommendation\nGO\nCONDITIONAL GO\nNO GO\n---\nRelease Confidence Score\nScore: 1–10\n---\nRelease Recommendation Summary\n================================================\nTest Results:\n{TEST_RESULTS}\nCoverage:\n{COVERAGE}\nBug Report:\n{BUG_REPORT}",
     "description": "Đánh giá Go / No-Go Decision.",
     "when_to_use": "Trước release, sau khi có test results.",
@@ -232,7 +232,7 @@ const PROMPTS = [
   {
     "number": 19,
     "name": "Test Data Management Strategy",
-    "label": "Test Architect Level",
+    "label": "QA Architect",
     "prompt": "You are a Senior Test Architect.\nDesign a comprehensive Test Data Management Strategy.\nThink step-by-step.\nConsider:\n- Data volume\n- Data variety\n- Data freshness\n- Data privacy (GDPR, CCPA, etc.)\n- Data dependencies\nAnalyze:\n1. Data sources\n2. Data types (master, transactional, reference)\n3. Data volume requirements\n4. Data masking / anonymization needs\n5. Data generation approach (synthetic, subset, production copy)\n6. Data refresh frequency\n7. Data versioning\n8. Data lifecycle management\n9. Self-service data provisioning\n10. Data cleanup strategy\nOutput Format:\n====================\nTEST DATA MANAGEMENT STRATEGY\nData Inventory\n| Data Entity | Source | Type | Volume | Privacy Sensitive |\n---\nData Provisioning Approach\n| Scenario | Data Source | Refresh Frequency | Method |\n---\nData Masking Rules\n| Field | Masking Type | Rationale |\n---\nData Generation Strategy\n- Synthetic data\n- Production copy (anonymized)\n- Subset extraction\n---\nData Dependencies\n| Test Scenario | Required Data | Dependency Chain |\n---\nData Lifecycle\n| Phase | Action | Owner |\n---\nSelf-Service Data Catalog\n---\nData Risk Assessment\n| Risk | Impact | Mitigation |\n---\nRecommendation\n====================\nSpecification:\n{SPEC}\nCompliance Requirements:\n{COMPLIANCE}",
     "description": "Chiến lược quản lý test data chuyên sâu.",
     "when_to_use": "Sau Test Strategy, trước khi chuẩn bị test data.",
@@ -244,7 +244,7 @@ const PROMPTS = [
   {
     "number": 20,
     "name": "Performance Testing Strategy",
-    "label": "Performance Architect Level",
+    "label": "QA Architect",
     "prompt": "You are a Senior Performance Test Architect.\nDesign a comprehensive Performance Testing Strategy.\nThink step-by-step.\nAnalyze:\n1. Performance objectives (response time, throughput, concurrency)\n2. Load testing scenarios\n3. Stress testing scenarios\n4. Soak / endurance testing\n5. Spike testing\n6. Scalability testing\n7. Infrastructure monitoring\n8. Baseline metrics\n9. Performance acceptance criteria\n10. Tools and environment\nOutput Format:\n====================\nPERFORMANCE TESTING STRATEGY\nPerformance Objectives\n| Metric | Target | Measurement Method |\n---\nLoad Testing Scenarios\n| Scenario | Concurrent Users | Duration | Ramp-up |\n---\nStress Testing\n| Scenario | Load Condition | Expected Behavior |\n---\nSoak Testing\n| Duration | Load Level | Monitored Metrics |\n---\nSpike Testing\n| Spike Magnitude | Recovery Expectation |\n---\nScalability Testing\n| Dimension | Test Approach |\n---\nEnvironment & Tools\n| Component | Tool | Configuration |\n---\nMonitoring Strategy\n| Metric | Monitoring Tool | Alert Threshold |\n---\nAcceptance Criteria\n---\nRisk Assessment\n| Risk | Impact | Mitigation |\n---\nExecution Plan\n| Phase | Scope | Timeline |\n====================\nSpecification:\n{SPEC}\nSystem Architecture:\n{ARCHITECTURE}",
     "description": "Chiến lược performance testing (load, stress, soak, spike).",
     "when_to_use": "Khi hệ thống có yêu cầu về hiệu năng, trước khi thực hiện performance test.",
@@ -256,7 +256,7 @@ const PROMPTS = [
   {
     "number": 21,
     "name": "Security Testing Strategy",
-    "label": "Security Test Architect Level",
+    "label": "QA Architect",
     "prompt": "You are a Senior Security Test Architect.\nDesign a comprehensive Security Testing Strategy.\nThink step-by-step.\nConsider OWASP Top 10, data protection, authentication, authorization.\nAnalyze:\n1. Authentication mechanisms\n2. Authorization rules\n3. Input validation (SQLi, XSS, etc.)\n4. Session management\n5. Data encryption (at rest, in transit)\n6. API security\n7. File upload security\n8. Business logic flaws\n9. Third-party component vulnerabilities\n10. Compliance requirements (PCI-DSS, HIPAA, etc.)\nOutput Format:\n====================\nSECURITY TESTING STRATEGY\nSecurity Testing Objectives\n---\nScope\nIn Scope\nOut of Scope\n---\nTesting Types\n| Type | Description | Tools |\n- SAST\n- DAST\n- IAST\n- Penetration Testing\n- API Security\n- Authentication & Authorization\n- Session Management\n- Input Validation\n- Business Logic Abuse\n---\nAuthentication & Authorization Testing\n| Test Scenario | Expected Behavior |\n---\nInput Validation Testing\n| Vulnerability Type | Test Cases |\n---\nAPI Security Testing\n| API | Security Test Cases |\n---\nData Protection Testing\n| Data Type | Test Approach |\n---\nThird-Party Dependency Testing\n---\nCompliance Requirements\n| Standard | Requirement | Test Evidence |\n---\nRisk Assessment\n| Security Risk | Severity | Mitigation Test |\n---\nTools & Environment\n---\nExecution Schedule\n| Phase | Scope | Timeline |\n---\nSecurity Sign-off Criteria\n====================\nSpecification:\n{SPEC}\nArchitecture:\n{ARCHITECTURE}",
     "description": "Chiến lược security testing (OWASP, auth, injection, etc.).",
     "when_to_use": "Khi hệ thống có yêu cầu bảo mật, trước release.",
@@ -268,7 +268,7 @@ const PROMPTS = [
   {
     "number": 22,
     "name": "API Testing Strategy",
-    "label": "API Test Architect Level",
+    "label": "QA Architect",
     "prompt": "You are a Senior API Test Architect.\nDesign a comprehensive API Testing Strategy.\nThink step-by-step.\nAnalyze:\n1. API endpoints\n2. HTTP methods\n3. Request/response schemas\n4. Authentication/authorization\n5. Error handling\n6. Rate limiting\n7. Versioning\n8. Contract testing\n9. Integration with UI/backend\n10. Performance aspects\nOutput Format:\n====================\nAPI TESTING STRATEGY\nAPI Inventory\n| Endpoint | Method | Purpose | Auth Required |\n---\nTesting Types\n| Type | Description | Priority |\n- Functional\n- Contract (Schema)\n- Integration\n- Security\n- Performance\n- Negative\n---\nContract Testing\n| Service | Contract Type | Tool |\n---\nAuthentication Testing\n| Auth Method | Test Scenarios |\n---\nError Handling Testing\n| Error Type | Expected Status | Test Cases |\n---\nRate Limiting Testing\n| Limit | Test Approach |\n---\nAPI Versioning Testing\n| Version | Backward Compatibility Tests |\n---\nTest Data Strategy\n| API | Data Requirements |\n---\nTools & Automation\n| Tool | Purpose |\n---\nRisk Assessment\n| Risk | Impact | Mitigation |\n---\nExecution Plan\n| Phase | Scope | Timeline |\n====================\nSpecification:\n{SPEC}\nAPI Documentation:\n{API_DOCS}",
     "description": "Chiến lược API testing (contract, schema, integration, security).",
     "when_to_use": "Khi hệ thống có API, trước khi viết API testcases.",
@@ -280,7 +280,7 @@ const PROMPTS = [
   {
     "number": 23,
     "name": "Mobile Testing Strategy",
-    "label": "Mobile Test Architect Level",
+    "label": "QA Architect",
     "prompt": "You are a Senior Mobile Test Architect.\nDesign a comprehensive Mobile Testing Strategy.\nThink step-by-step.\nAnalyze:\n1. Device fragmentation (OS versions, screen sizes)\n2. Network conditions\n3. Battery consumption\n4. Offline mode\n5. Push notifications\n6. Installation/upgrade\n7. Platform-specific behaviors (iOS/Android)\n8. Accessibility\n9. Performance\n10. Security\nOutput Format:\n====================\nMOBILE TESTING STRATEGY\nDevice Coverage Matrix\n| Platform | OS Versions | Device Models | Screen Sizes |\n---\nTesting Types\n| Type | Description | Priority |\n- Functional\n- UI/UX\n- Network (3G/4G/5G/WiFi/Offline)\n- Performance\n- Battery\n- Installation/Upgrade\n- Push Notification\n- Interrupt Testing (calls, alarms)\n- Accessibility\n- Security\n---\nNetwork Testing\n| Scenario | Network Type | Test Cases |\n---\nOffline Mode Testing\n| Feature | Offline Behavior | Sync Logic |\n---\nInstallation & Upgrade Testing\n| Scenario | Expected Behavior |\n---\nPush Notification Testing\n| Scenario | Expected Behavior |\n---\nInterrupt Testing\n| Interrupt Type | App Behavior |\n---\nTools & Devices\n| Tool | Purpose |\n---\nRisk Assessment\n| Risk | Impact | Mitigation |\n---\nExecution Plan\n| Phase | Scope | Timeline |\n====================\nSpecification:\n{SPEC}\nMobile Requirements:\n{MOBILE_REQS}",
     "description": "Chiến lược mobile testing (device fragmentation, network, offline, push).",
     "when_to_use": "Khi sản phẩm có mobile app.",
@@ -292,7 +292,7 @@ const PROMPTS = [
   {
     "number": 24,
     "name": "Accessibility Testing Strategy",
-    "label": "Accessibility Architect Level",
+    "label": "QA Architect",
     "prompt": "You are a Senior Accessibility Test Architect.\nDesign a comprehensive Accessibility Testing Strategy (WCAG 2.1 AA).\nThink step-by-step.\nAnalyze:\n1. WCAG compliance level required\n2. Screen reader compatibility (VoiceOver, TalkBack, NVDA)\n3. Keyboard navigation\n4. Color contrast\n5. Focus management\n6. ARIA attributes\n7. Text alternatives\n8. Responsive scaling\n9. Forms and labels\n10. Error messaging\nOutput Format:\n====================\nACCESSIBILITY TESTING STRATEGY\nCompliance Target\n| Standard | Level | Applicability |\n---\nTesting Types\n| Type | Description | Tools |\n- Automated Scanning\n- Manual Keyboard Testing\n- Screen Reader Testing\n- Color Contrast Testing\n- Zoom/Resize Testing\n---\nScreen Reader Testing\n| Platform | Screen Reader | Test Scenarios |\n---\nKeyboard Navigation Testing\n| Feature | Expected Behavior |\n---\nColor & Contrast Testing\n| Element | Minimum Contrast | Test Tool |\n---\nARIA & Semantic HTML Testing\n| Component | ARIA Requirements |\n---\nForms & Labels Testing\n| Field | Label Association | Error Announcement |\n---\nResponsive & Zoom Testing\n| Zoom Level | Layout Behavior |\n---\nAutomated Tools\n| Tool | Purpose | Limitation |\n---\nRisk Assessment\n| Accessibility Risk | Impact | Mitigation |\n---\nExecution Plan\n| Phase | Scope | Timeline |\n---\nAcceptance Criteria\n====================\nSpecification:\n{SPEC}\nDesign Mockups:\n{MOCKUPS}",
     "description": "Chiến lược accessibility testing (WCAG compliance).",
     "when_to_use": "Khi sản phẩm cần đáp ứng tiêu chuẩn accessibility.",
@@ -304,7 +304,7 @@ const PROMPTS = [
   {
     "number": 25,
     "name": "Localization Testing Strategy",
-    "label": "Localization Architect Level",
+    "label": "QA Architect",
     "prompt": "You are a Senior Localization Test Architect.\nDesign a comprehensive Localization (L10n) and Internationalization (I18n) Testing Strategy.\nThink step-by-step.\nAnalyze:\n1. Supported locales\n2. Language translations\n3. Date/time formats\n4. Currency formats\n5. Number formats\n6. Sorting order\n7. Text expansion/contraction\n8. Right-to-left (RTL) layout\n9. Unicode support\n10. Cultural appropriateness\nOutput Format:\n====================\nLOCALIZATION TESTING STRATEGY\nSupported Locales\n| Locale | Language | Region | Priority |\n---\nInternationalization (I18n) Testing\n| Area | Test Focus |\n- Unicode support\n- Locale detection\n- Formatting APIs\n- Hard-coded strings\n---\nLocalization (L10n) Testing\n| Type | Test Approach |\n- Translation accuracy\n- UI layout (text expansion/contraction)\n- RTL layout (if applicable)\n- Date/time formats\n- Number formats\n- Currency\n- Sorting order\n- Cultural imagery\n---\nText Expansion Testing\n| Component | English String | Expanded String | Layout Impact |\n---\nRTL Layout Testing\n| Page | RTL Behavior | Issues |\n---\nTranslation Quality\n| Method | Description |\n---\nAutomation Support\n| Tool | Purpose |\n---\nRisk Assessment\n| Risk | Impact | Mitigation |\n---\nExecution Plan\n| Phase | Scope | Timeline |\n---\nAcceptance Criteria\n====================\nSpecification:\n{SPEC}\nLocalization Requirements:\n{L10N_REQS}",
     "description": "Chiến lược localization & internationalization testing.",
     "when_to_use": "Khi sản phẩm hỗ trợ nhiều ngôn ngữ / khu vực.",
@@ -316,7 +316,7 @@ const PROMPTS = [
   {
     "number": 26,
     "name": "Resilience / Chaos Testing Strategy",
-    "label": "Resilience Architect Level",
+    "label": "QA Architect",
     "prompt": "You are a Senior Resilience Test Architect (Chaos Engineering).\nDesign a comprehensive Resilience Testing Strategy.\nThink step-by-step.\nAnalyze:\n1. System dependencies\n2. Failure modes (network, service, database, disk)\n3. Recovery time objectives (RTO)\n4. Recovery point objectives (RPO)\n5. Circuit breakers\n6. Retry mechanisms\n7. Fallback behavior\n8. Data consistency after failure\n9. Graceful degradation\nOutput Format:\n====================\nRESILIENCE TESTING STRATEGY\nSystem Architecture Overview\n| Component | Dependencies | Failure Modes |\n---\nChaos Experiments\n| Experiment | Target | Blast Radius | Expected Behavior |\n- Service failure\n- Network latency\n- Packet loss\n- Database failover\n- Disk full\n- Time drift\n- Certificate expiration\n---\nRecovery Testing\n| Scenario | RTO | RPO | Validation |\n---\nCircuit Breaker Testing\n| Service | Trip Condition | Recovery Condition |\n---\nRetry & Backoff Testing\n| Scenario | Retry Count | Backoff Strategy |\n---\nFallback Behavior Testing\n| Failure | Fallback | User Experience |\n---\nData Consistency Testing\n| Scenario | Consistency Check |\n---\nTooling\n| Tool | Purpose |\n---\nRisk Assessment\n| Resilience Risk | Impact | Mitigation |\n---\nExecution Plan\n| Phase | Scope | Environment |\n---\nAcceptance Criteria\n====================\nSpecification:\n{SPEC}\nArchitecture Diagram:\n{ARCHITECTURE}",
     "description": "Chiến lược resilience / chaos testing (khả năng chịu lỗi của hệ thống).",
     "when_to_use": "Khi hệ thống có yêu cầu về độ tin cậy cao, distributed systems.",
@@ -328,7 +328,7 @@ const PROMPTS = [
   {
     "number": 27,
     "name": "AI/ML Testing Strategy",
-    "label": "AI/ML Test Architect Level",
+    "label": "QA Architect",
     "prompt": "You are a Senior AI/ML Test Architect.\nDesign a comprehensive AI/ML Testing Strategy.\nThink step-by-step.\nAnalyze:\n1. Data quality and drift\n2. Model accuracy\n3. Bias and fairness\n4. Explainability\n5. Model versioning\n6. Inference performance\n7. Training pipeline\n8. A/B testing framework\n9. Monitoring & alerting\nOutput Format:\n====================\nAI/ML TESTING STRATEGY\nModel Overview\n| Model | Purpose | Input | Output |\n---\nData Testing\n| Test Type | Focus |\n- Data completeness\n- Data distribution\n- Data drift\n- Label quality\n- Outliers\n---\nModel Performance Testing\n| Metric | Target | Test Method |\n- Accuracy\n- Precision/Recall\n- F1 Score\n- AUC-ROC\n- Confusion Matrix\n---\nBias & Fairness Testing\n| Protected Attribute | Metric | Acceptable Range |\n---\nExplainability Testing\n| Method | Output | Validation |\n---\nModel Versioning & Regression\n| Version | Changes | Test Approach |\n---\nInference Performance\n| Metric | Target | Load Level |\n---\nTraining Pipeline Testing\n| Stage | Test Focus |\n---\nMonitoring Strategy\n| Metric | Alert Threshold |\n---\nRisk Assessment\n| Risk | Impact | Mitigation |\n---\nExecution Plan\n| Phase | Scope | Timeline |\n---\nAcceptance Criteria\n====================\nSpecification:\n{SPEC}\nModel Details:\n{MODEL_DETAILS}",
     "description": "Chiến lược AI/ML testing (data drift, bias, accuracy, fairness).",
     "when_to_use": "Khi hệ thống có AI/ML models.",
@@ -340,7 +340,7 @@ const PROMPTS = [
   {
     "number": 28,
     "name": "Shift-Left & Shift-Right Strategy",
-    "label": "Modern Testing Architect Level",
+    "label": "QA Architect",
     "prompt": "You are a Senior QA Architect specializing in modern testing practices.\nDesign a Shift-Left and Shift-Right Testing Strategy.\nThink step-by-step.\nAnalyze:\n1. Development phase testing (unit, integration, code review)\n2. Static analysis (SAST)\n3. Contract testing\n4. Test automation in CI/CD\n5. Production monitoring\n6. Canary releases\n7. Feature flags\n8. A/B testing\n9. Synthetic monitoring\n10. User feedback loops\nOutput Format:\n====================\nSHIFT-LEFT & SHIFT-RIGHT STRATEGY\nShift-Left Activities\n| Phase | Activity | Owner | Tool |\n- Code commit: Unit tests, SAST, linting\n- PR review: Contract tests, code review checklist\n- Build: Integration tests, API tests\n- Pre-merge: Smoke tests, security scans\n---\nShift-Right Activities\n| Phase | Activity | Purpose |\n- Production: Synthetic monitoring\n- Canary: Gradual rollout validation\n- Feature flags: Toggle testing\n- A/B testing: User behavior analysis\n- User feedback: Bug reporting, session replay\n---\nCI/CD Integration\n| Stage | Tests | Gate Condition |\n---\nCanary Release Testing\n| Canary % | Validation Criteria | Rollback Condition |\n---\nFeature Flag Testing\n| Flag | Test Scenarios | Toggle Behavior |\n---\nSynthetic Monitoring\n| Transaction | Frequency | Alert Threshold |\n---\nProduction Validation\n| Check | Method | Frequency |\n---\nRisk Assessment\n| Risk | Impact | Mitigation |\n---\nExecution Plan\n| Phase | Scope | Timeline |\n====================\nProject Context:\n{CONTEXT}\nCI/CD Pipeline:\n{PIPELINE}",
     "description": "Chiến lược shift-left & shift-right testing.",
     "when_to_use": "Khi muốn tích hợp testing sớm vào quy trình phát triển và giám sát production.",
@@ -352,7 +352,7 @@ const PROMPTS = [
   {
     "number": 29,
     "name": "Test Metrics & Observability Strategy",
-    "label": "QA Metrics Architect Level",
+    "label": "QA Architect",
     "prompt": "You are a Senior QA Architect.\nDesign a Test Metrics & Observability Strategy.\nThink step-by-step.\nAnalyze:\n1. Quality metrics\n2. Coverage metrics\n3. Execution metrics\n4. Defect metrics\n5. Automation metrics\n6. Performance metrics\n7. Security metrics\n8. Dashboards & reporting\n9. Alerting & thresholds\nOutput Format:\n====================\nTEST METRICS & OBSERVABILITY STRATEGY\nQuality Metrics\n| Metric | Target | Calculation | Frequency |\n- Defect density\n- Defect leakage\n- Mean time to detect (MTTD)\n- Mean time to resolve (MTTR)\n- Escaped defects\n---\nCoverage Metrics\n| Metric | Target | Calculation |\n- Requirement coverage\n- Code coverage\n- Scenario coverage\n- Risk coverage\n---\nExecution Metrics\n| Metric | Target | Tool |\n- Test case pass rate\n- Execution progress\n- Blocked test cases\n- Flaky test rate\n---\nDefect Metrics\n| Metric | Purpose | Dashboard |\n- Bug trend\n- Bug age\n- Bug severity distribution\n- Reopen rate\n---\nAutomation Metrics\n| Metric | Target |\n- Automation pass rate\n- Automation ROI\n- Maintenance cost\n- Flaky test count\n---\nPerformance Metrics\n| Metric | Threshold | Alert |\n---\nSecurity Metrics\n| Metric | Threshold |\n---\nObservability Dashboard\n| Dashboard | Audience | Key Metrics |\n---\nAlerting Strategy\n| Metric | Threshold | Action |\n---\nReporting Cadence\n| Report | Frequency | Audience |\n---\nRisk Assessment\n| Metric Risk | Impact | Mitigation |\n====================\nProject Context:\n{CONTEXT}\nExisting Dashboards:\n{DASHBOARDS}",
     "description": "Chiến lược test metrics và observability (KPIs, dashboard, alerting).",
     "when_to_use": "Khi cần theo dõi chất lượng và tiến độ testing.",
@@ -364,7 +364,7 @@ const PROMPTS = [
   {
     "number": 30,
     "name": "Test Environment Management Strategy",
-    "label": "Environment Architect Level",
+    "label": "QA Architect",
     "prompt": "You are a Senior Test Architect.\nDesign a Test Environment Management Strategy.\nThink step-by-step.\nAnalyze:\n1. Environment types (dev, QA, staging, prod-like)\n2. Environment provisioning\n3. Configuration management\n4. Data seeding\n5. Environment isolation\n6. Dependency management (mock vs real)\n7. Environment refresh cadence\n8. Environment monitoring\n9. Access control\nOutput Format:\n====================\nTEST ENVIRONMENT MANAGEMENT STRATEGY\nEnvironment Inventory\n| Environment | Purpose | Ownership | Refresh Cadence |\n---\nProvisioning Approach\n| Environment | Provisioning Method | Automation |\n---\nConfiguration Management\n| Config Item | Method | Version Control |\n---\nData Management\n| Environment | Data Source | Refresh Frequency | Masking |\n---\nDependency Strategy\n| Dependency | Dev | QA | Staging |\n- Internal services\n- Third-party APIs\n- Databases\n- Message queues\n---\nEnvironment Isolation\n| Environment | Isolation Level | Sharing Rules |\n---\nEnvironment Access\n| Environment | Access Control | Approval Process |\n---\nMonitoring & Health Checks\n| Environment | Health Check | Alert |\n---\nRisk Assessment\n| Risk | Impact | Mitigation |\n---\nExecution Plan\n| Phase | Scope | Timeline |\n====================\nProject Architecture:\n{ARCHITECTURE}\nInfrastructure:\n{INFRA}",
     "description": "Chiến lược quản lý môi trường test (provisioning, config, isolation).",
     "when_to_use": "Khi cần quản lý nhiều môi trường test phức tạp.",
@@ -376,7 +376,7 @@ const PROMPTS = [
   {
     "number": 31,
     "name": "CI/CD Integration Strategy",
-    "label": "DevOps Test Architect Level",
+    "label": "QA Architect",
     "prompt": "You are a Senior QA Architect.\nDesign a CI/CD Integration Strategy for testing.\nThink step-by-step.\nAnalyze:\n1. Pipeline stages\n2. Test execution at each stage\n3. Parallel execution\n4. Gating criteria\n5. Test artifacts\n6. Reporting integration\n7. Environment triggers\n8. Rollback triggers\nOutput Format:\n====================\nCI/CD INTEGRATION STRATEGY\nPipeline Stages\n| Stage | Trigger | Tests Executed | Gate Condition |\n- Commit\n- Build\n- Deploy to Dev\n- Deploy to QA\n- Deploy to Staging\n- Production deployment\n---\nTest Execution by Stage\n| Stage | Test Type | Parallelization | Timeout |\n---\nGating Criteria\n| Stage | Pass Condition | Failure Action |\n---\nArtifact Management\n| Artifact | Retention | Tool |\n- Test results\n- Logs\n- Screenshots\n- Coverage reports\n---\nReporting Integration\n| Report | Destination | Format |\n---\nEnvironment Triggers\n| Environment | Trigger | Pipeline Action |\n---\nRollback Strategy\n| Condition | Rollback Action | Validation |\n---\nRisk Assessment\n| Risk | Impact | Mitigation |\n---\nExecution Plan\n| Phase | Scope | Timeline |\n====================\nCI/CD Pipeline:\n{PIPELINE}\nTest Framework:\n{FRAMEWORK}",
     "description": "Chiến lược tích hợp test vào CI/CD pipeline.",
     "when_to_use": "Khi xây dựng hoặc cải thiện CI/CD pipeline.",
@@ -388,7 +388,7 @@ const PROMPTS = [
   {
     "number": 32,
     "name": "Test Case Quality Review",
-    "label": "QA Quality Architect Level",
+    "label": "QA Architect",
     "prompt": "You are a Senior QA Architect.\nPerform Test Case Quality Review.\nThink step-by-step.\nAnalyze each test case for:\n1. Clarity\n2. Atomicity\n3. Maintainability\n4. Reusability\n5. Data dependency\n6. Preconditions/Postconditions\n7. Expected results precision\n8. Negative coverage\n9. Edge case coverage\n10. Automation suitability\nOutput Format:\n====================\nTEST CASE QUALITY REVIEW\nTest Case Quality Scorecard\n| Test ID | Clarity | Atomicity | Maintainability | Data Dep | Overall Score |\n---\nQuality Issues Summary\n| Issue Type | Count | Examples |\n- Ambiguous steps\n- Missing preconditions\n- Vague expected results\n- Combined scenarios\n- Hard-coded data\n- No cleanup\n---\nRecommendations by Category\n| Category | Recommendation | Priority |\n---\nHigh Priority Fixes\n| Test ID | Issue | Suggested Fix |\n---\nOverall Test Case Quality Score\nScore: 1–10\nJustification:\n====================\nTestcases:\n{TESTCASES}\nStandards:\n{QA_STANDARDS}",
     "description": "Đánh giá chất lượng test case (clarity, atomicity, maintainability).",
     "when_to_use": "Sau khi viết testcases, trước khi chạy hoặc trong code review.",
@@ -400,7 +400,7 @@ const PROMPTS = [
   {
     "number": 33,
     "name": "Bug RCA & Prevention Strategy",
-    "label": "Root Cause Analysis Level",
+    "label": "Analysis",
     "prompt": "You are a Senior QA Architect.\nPerform Bug Root Cause Analysis and define Prevention Strategy.\nThink step-by-step.\nAnalyze bug data:\n1. Bug clustering (by module, type, root cause)\n2. Root cause categories (requirements, design, code, test)\n3. Escape analysis\n4. Process gaps\n5. Prevention actions\nOutput Format:\n====================\nBUG RCA & PREVENTION STRATEGY\nBug Summary\n| Period | Total Bugs | Critical | High | Medium | Low |\n---\nRoot Cause Distribution\n| Category | Count | Percentage |\n- Requirement gap\n- Design flaw\n- Code error\n- Configuration\n- Test miss\n- Environment\n- Third-party\n---\nBug Clusters\n| Module | Bug Count | Root Cause Pattern |\n---\nEscape Analysis\n| Phase | Bugs Escaped | Prevention |\n- Requirements\n- Design\n- Development\n- QA\n---\nProcess Gaps\n| Gap | Impact | Recommended Fix |\n---\nPrevention Actions\n| Action | Owner | Timeline | Success Metric |\n---\nRecommended Process Improvements\n---\nRisk Assessment\n| Risk | Impact | Mitigation |\n====================\nBug Data:\n{BUG_DATA}\nProject Process:\n{PROCESS}",
     "description": "Phân tích nguyên nhân gốc rễ của bug và đề xuất phòng ngừa.",
     "when_to_use": "Sau khi có bug data từ các sprint hoặc release.",
@@ -412,7 +412,7 @@ const PROMPTS = [
   {
     "number": 34,
     "name": "Non-Functional Testing Strategy",
-    "label": "NFR Architect Level",
+    "label": "QA Architect",
     "prompt": "You are a Senior QA Architect.\nDesign a comprehensive Non-Functional Testing Strategy.\nThink step-by-step.\nCover all non-functional aspects:\n1. Performance\n2. Security\n3. Reliability\n4. Usability\n5. Accessibility\n6. Compatibility\n7. Portability\n8. Maintainability\n9. Scalability\n10. Compliance\nOutput Format:\n====================\nNON-FUNCTIONAL TESTING STRATEGY\nNon-Functional Requirements\n| Category | Requirement | Target | Test Type |\n---\nPerformance & Scalability\n| Aspect | Test Type | Tool |\n---\nSecurity\n| Aspect | Test Type | Tool |\n---\nReliability & Resilience\n| Aspect | Test Type | Tool |\n---\nUsability\n| Aspect | Test Type | Method |\n---\nAccessibility\n| Standard | Test Type | Tool |\n---\nCompatibility\n| Platform | Configurations | Test Approach |\n---\nPortability\n| Environment | Test Approach |\n---\nMaintainability\n| Metric | Target | Review Method |\n---\nCompliance\n| Standard | Test Evidence |\n---\nRisk Assessment\n| Risk | Impact | Mitigation |\n---\nExecution Plan\n| Phase | Scope | Timeline |\n---\nAcceptance Criteria\n====================\nSpecification:\n{SPEC}\nArchitecture:\n{ARCHITECTURE}",
     "description": "Chiến lược non-functional testing tổng hợp (performance, security, reliability, usability, accessibility, compatibility, etc.).",
     "when_to_use": "Khi cần bao phủ đầy đủ các khía cạnh phi chức năng.",
@@ -424,7 +424,7 @@ const PROMPTS = [
   {
     "number": 35,
     "name": "Third-Party Integration Testing Strategy",
-    "label": "Integration Architect Level",
+    "label": "QA Architect",
     "prompt": "You are a Senior QA Architect.\nDesign a Third-Party Integration Testing Strategy.\nThink step-by-step.\nAnalyze:\n1. Third-party services\n2. API contracts\n3. Sandbox environments\n4. Mocking strategy\n5. Fallback behavior\n6. Rate limiting\n7. Error handling\n8. Version upgrades\n9. Monitoring\nOutput Format:\n====================\nTHIRD-PARTY INTEGRATION TESTING STRATEGY\nThird-Party Inventory\n| Service | Purpose | Criticality | Contract Type |\n---\nTesting Approach\n| Service | Test Type | Environment | Frequency |\n- Contract testing\n- Functional integration\n- Error handling\n- Rate limiting\n- Fallback\n---\nContract Testing\n| Service | Tool | Artifact |\n---\nMocking Strategy\n| Service | Mock Tool | When to Use |\n---\nSandbox / Test Account Strategy\n| Service | Sandbox Availability | Test Data |\n---\nError Handling Testing\n| Error Scenario | Expected Behavior |\n---\nRate Limiting Testing\n| Service | Limit | Test Approach |\n---\nVersion Upgrade Testing\n| Service | Version Strategy | Test Scope |\n---\nFallback & Degradation\n| Service Failure | Fallback Behavior | User Impact |\n---\nMonitoring & Alerting\n| Service | Metric | Alert Threshold |\n---\nRisk Assessment\n| Risk | Impact | Mitigation |\n---\nExecution Plan\n| Phase | Scope | Timeline |\n====================\nSpecification:\n{SPEC}\nThird-Party Documentation:\n{THIRD_PARTY_DOCS}",
     "description": "Chiến lược test third-party integrations (contract, mock, fallback, rate limiting).",
     "when_to_use": "Khi hệ thống tích hợp với nhiều dịch vụ bên thứ ba.",
@@ -436,7 +436,7 @@ const PROMPTS = [
   {
     "number": 36,
     "name": "Production Validation / Smoke Testing",
-    "label": "Production QA Architect Level",
+    "label": "QA Architect",
     "prompt": "You are a Senior QA Architect.\nDesign a Production Validation & Smoke Testing Strategy.\nThink step-by-step.\nAnalyze:\n1. Post-deployment validation\n2. Smoke test suite for production\n3. Readiness checks\n4. Canary deployment validation\n5. Monitoring integration\n6. Rollback triggers\n7. Data verification\nOutput Format:\n====================\nPRODUCTION VALIDATION STRATEGY\nValidation Phases\n| Phase | Timing | Scope | Owner |\n- Pre-deployment checks\n- Deployment smoke\n- Post-deployment monitoring\n- Business verification\n---\nSmoke Test Suite for Production\n| Test | Critical Flow | Automation | Frequency |\n---\nReadiness Checks\n| Check | Method | Pass Condition |\n---\nCanary Deployment Validation\n| Canary % | Validation Criteria | Rollback Condition |\n---\nMonitoring Integration\n| Metric | Alert Threshold | Post-Deployment Action |\n---\nRollback Triggers\n| Condition | Rollback Action | Communication |\n---\nData Verification\n| Data Type | Verification Method | Frequency |\n---\nBusiness Verification\n| Flow | Owner | Verification Method |\n---\nRisk Assessment\n| Risk | Impact | Mitigation |\n---\nExecution Plan\n| Phase | Scope | Timeline |\n---\nAcceptance Criteria\n====================\nDeployment Plan:\n{DEPLOYMENT_PLAN}\nMonitoring Setup:\n{MONITORING}",
     "description": "Chiến lược validation sau khi release lên production.",
     "when_to_use": "Trước và sau khi release production.",
@@ -448,7 +448,7 @@ const PROMPTS = [
   {
     "number": 37,
     "name": "QA Spec Generator (ProMax)",
-    "label": "Core Prompt 1",
+    "label": "Meta",
     "prompt": "You are a Senior QA Analyst and Product Requirement Analyst with 15+ years experience.\nConvert the following requirement into a professional QA Specification.\nGenerate a structured specification using the sections below.\nOnly include sections that are relevant to the requirement.\nIf a section is not applicable, mark:\n[NOT APPLICABLE]\nIf information is missing, mark:\n[NEED CLARIFICATION]\nExplain why clarification is needed and what specific information is required.\nThink step-by-step:\n- Identify the core user need\n- Map out system interactions\n- Highlight ambiguities and risks\n- Define clear acceptance boundaries\nSections:\n1. Overview  \n   - Brief summary of the feature\n2. Scope  \n   - In Scope (explicitly list)\n   - Out of Scope (explicitly list)\n3. User Flow / System Flow  \n   - Step-by-step flow with decision points\n4. UI Components (if applicable)  \n   - List UI elements and their behaviors\n5. Business Rules  \n   - All logic, calculations, validations\n6. Data / API / Backend Behavior (if applicable)  \n   - Request/response structures, data persistence\n7. State Management (if applicable)  \n   - States, transitions, persistence\n8. Permission / Role (if applicable)  \n   - Role-based access, visibility rules\n9. Edge Cases  \n   - Known edge conditions and expected handling\n10. Assumptions  \n    - What is assumed without explicit requirement\n11. Dependencies / Impact Analysis  \n    - Internal and external dependencies\n12. Risk Analysis  \n    - Functional, integration, data, performance risks\n13. Acceptance Criteria  \n    - Clear, testable criteria (Given/When/Then style recommended)\n14. Definition of Ready / Definition of Done  \n    - Criteria for spec readiness and feature completion\n15. Missing Information / Questions  \n    - List all clarifications needed, prioritized by risk\nRules:\n- Do NOT generate test cases\n- Do NOT assume UI if backend feature\n- Do NOT assume cascade unless requirement suggests\n- Adapt detail level automatically based on complexity\n- Identify ambiguity and risk proactively\nRequirement:\n--------------------------------\n{REQUIREMENT}\nContext (optional):\n{CONTEXT}",
     "description": "Chuyển requirement thành QA Specification chuyên nghiệp.",
     "when_to_use": "Khi nhận requirement mới, trước khi viết testcase.",
@@ -460,7 +460,7 @@ const PROMPTS = [
   {
     "number": 38,
     "name": "Stable Testcase Generator",
-    "label": "Core Prompt 2",
+    "label": "Meta",
     "prompt": "You are a Senior QA Engineer with 10+ years experience.\nBased on the provided QA Specification, generate only STABLE test cases.\nDefinition of Stable Test Cases (no assumptions needed):\n- UI presence and visibility\n- Basic user flow (happy path)\n- Loading behavior and default states\n- Static validation (required fields, format masks)\n- Navigation flows\n- Page/component title and labels\n- Non-business-logic scenarios (e.g., layout, static text)\nDo NOT generate test cases for:\n- Business rules not confirmed (e.g., discounts, approvals)\n- Cascade logic not confirmed\n- Permission rules not confirmed\n- API behavior not confirmed\n- Any scenario that requires [NEED CLARIFICATION] from spec\nIf uncertain, mark:\n[WAIT FOR CONFIRMATION: <reason>]\nOutput Sections:\n1. UI Test Cases (Stable)\n   - Element presence, labels, initial state\n2. Basic Flow Test Cases (Stable)\n   - Core happy path without complex business logic\n3. Default State Test Cases (Stable)\n   - What user sees on first load\n4. Loading / UI Behavior Test Cases (Stable)\n   - Spinners, progress indicators, disabling buttons\n5. Deferred Test Cases (Need Confirmation)\n   - List of test cases that require spec clarification before writing\nRules:\n- Keep test cases concise\n- Use format: Test Case ID, Scenario, Precondition, Steps, Expected Result\n- Focus only on stable scenarios\n- Avoid assumptions; explicitly state when deferring\nQA Specification:\n{SPEC}\nContext (optional):\n{CONTEXT}",
     "description": "Tạo stable test cases dựa trên QA Spec đã được xác nhận.",
     "when_to_use": "Sau khi có QA Spec, trước khi có đầy đủ thông tin business rules.",
@@ -472,7 +472,7 @@ const PROMPTS = [
   {
     "number": 39,
     "name": "Final QA Architect",
-    "label": "Core Prompt 3",
+    "label": "Meta",
     "prompt": "You are a Senior QA Architect with 15+ years experience.\nYour task is to finalize test coverage after specification confirmation.\nInputs:\n1. Confirmed QA Specification\n2. Existing Test Cases (Stable or Draft)\nYour Objectives:\n1. Compare Confirmed Spec with Existing Test Cases\n2. Identify Changes\n3. Update Test Cases\n4. Add Missing Test Coverage\n5. Classify Test Cases by Priority and Type\n6. Evaluate Risk\n7. Define Automation Strategy\n---\nStep 1 — Specification Change Analysis\nIdentify:\n- Newly confirmed behavior\n- Updated business rules\n- Removed assumptions\n- New UI components\n- New dependencies\n- Changed data behavior\n---\nStep 2 — Test Case Impact Analysis\nClassify test cases into:\n1. No Change\n2. Update Required (specify what to update)\n3. New Test Case Required (reference spec section)\n4. Remove Test Case (reason)\n---\nStep 3 — Generate Final Test Cases\nFor each test case include:\n- Test ID\n- Scenario\n- Description\n- Priority (P0 / P1 / P2)\n- Test Type (Smoke / Regression / Functional / UI / API / Integration / E2E / Performance / Security / Permission)\n- Area (module/component)\n- Automation Candidate (Yes/No)\n- Risk Level (High/Medium/Low)\nPriority Definition:\n- P0 — Critical business flow (must pass for release)\n- P1 — Important functionality (high value, should pass)\n- P2 — Nice to have / Edge cases\n---\nStep 4 — Risk Re-Evaluation\nEvaluate:\n- Regression risk (affected areas)\n- Integration risk (with other modules)\n- Performance risk (if any)\n- Permission risk (if roles changed)\n- Data risk (data integrity, migration)\n- Compliance risk (if applicable)\n---\nStep 5 — Test Coverage Evaluation\nVerify coverage against confirmed spec:\n- UI coverage\n- Business rule coverage\n- Edge case coverage\n- Permission coverage\n- API coverage\n- State coverage\n- Negative coverage\n- Error handling coverage\nIdentify missing coverage and recommend additional test cases.\n---\nStep 6 — Automation Strategy\nFor each test case classify:\n- Automation Candidate (Yes/No/Maybe)\n- If Yes, recommend layer (UI / API / Unit)\n- If Maybe, state conditions for automation\n---\nStep 7 — Output Sections\nGenerate:\n1. Spec Change Summary\n2. No Change Test Cases (list)\n3. Updated Test Cases (show before/after)\n4. New Test Cases (full details)\n5. Removed Test Cases (with justification)\n6. Risk Analysis (table format)\n7. Coverage Analysis (matrix with gaps)\n8. Automation Strategy (by test case)\n9. Final Test Plan Summary (priority distribution, execution order recommendation)\nRules:\n- Avoid duplicate test cases\n- Maintain clarity and professional QA structure\n- Think like a QA Architect responsible for release quality\nInputs:\nConfirmed Spec:\n{CONFIRMED_SPEC}\nExisting Test Cases:\n{EXISTING_TEST_CASES}\nContext (optional):\n{CONTEXT}",
     "description": "Finalize test coverage sau khi spec được xác nhận.",
     "when_to_use": "Sau khi có spec confirmed và test cases draft/stable.",
@@ -481,133 +481,136 @@ const PROMPTS = [
     "created_at": "2026-04-02T10:00:00Z",
     "updated_at": "2026-04-02T10:00:00Z"
   },
-{
-  "number": 40,
-  "name": "Business Requirement Elicitation Assistant",
-  "label": "BA Core",
-  "prompt": "You are a Senior Business Analyst with 10+ years experience in requirement elicitation.\nYour task is to analyze a raw requirement statement (from stakeholders, emails, meeting notes) and extract structured business requirements.\nThink step-by-step.\nIdentify:\n1. Core business needs (what problem is being solved)\n2. Stakeholder goals (what each stakeholder wants to achieve)\n3. Success criteria (measurable outcomes)\n4. Constraints (budget, time, technology, compliance)\n5. Dependencies (on other systems, teams, data)\n6. Assumptions (what is believed to be true)\n7. Questions to ask stakeholders (clarifications needed)\nOutput Format:\n====================\nBUSINESS REQUIREMENT ELICITATION REPORT\nRaw Requirement Summary:\n(one sentence restatement)\nCore Business Needs:\n- \nStakeholder Goals:\n| Stakeholder | Goal | Priority (High/Med/Low) |\nSuccess Criteria:\n| Metric | Target | Measurement Method |\nConstraints:\n- \nDependencies:\n- \nAssumptions:\n- \nQuestions for Stakeholders:\n1. \n2. \n3. \nRisk Indicators:\n- \nRecommended Next Steps:\n- \n====================\nRaw Requirement:\n{RAW_REQUIREMENT}\nContext (optional):\n{CONTEXT}",
-  "description": "Phân tích yêu cầu thô từ stakeholder thành các yêu cầu nghiệp vụ có cấu trúc.",
-  "when_to_use": "Khi nhận yêu cầu thô từ stakeholder, email, biên bản họp.",
-  "how_to_use": "Điền {RAW_REQUIREMENT} với nội dung yêu cầu gốc, {CONTEXT} với thông tin bổ sung (tuỳ chọn).",
-  "disabled": false,
-  "created_at": "2026-04-02T10:00:00Z",
-  "updated_at": "2026-04-02T10:00:00Z"
-},
-{
-  "number": 41,
-  "name": "User Story Generator from Business Requirements",
-  "label": "BA Core",
-  "prompt": "You are a Senior Business Analyst.\nConvert the following business requirements into INVEST-ready User Stories.\nEach user story must follow the standard format:\nAs a [role], I want to [action] so that [benefit].\nFor each user story, also provide:\n- Role justification\n- Acceptance criteria (3-5 bullet points, Given-When-Then style)\n- Priority (Must have / Should have / Could have / Won't have)\n- Estimated complexity (S/M/L/XL)\n- Dependencies (if any)\nThink step-by-step:\n- Identify user roles from the requirement\n- Break down into smallest valuable increments\n- Ensure stories are independent and testable\nOutput Format:\n====================\nUSER STORY GENERATION REPORT\nBusiness Requirement Summary:\nGenerated User Stories:\n| ID | User Story | Role | Priority | Complexity | Dependencies |\nDetailed Stories:\nStory #1:\nAs a ...\nSo that ...\nAcceptance Criteria:\n- Given ... When ... Then ...\n- ...\n---\nStory #2:\n...\n====================\nBusiness Requirement:\n{REQUIREMENT}\nAdditional Context (optional):\n{CONTEXT}",
-  "description": "Chuyển đổi yêu cầu nghiệp vụ thành user stories theo chuẩn INVEST.",
-  "when_to_use": "Sau khi có yêu cầu nghiệp vụ đã được làm rõ, trước khi grooming.",
-  "how_to_use": "Điền {REQUIREMENT} với yêu cầu nghiệp vụ đã phân tích, {CONTEXT} (tuỳ chọn).",
-  "disabled": false,
-  "created_at": "2026-04-02T10:00:00Z",
-  "updated_at": "2026-04-02T10:00:00Z"
-},
-{
-  "number": 42,
-  "name": "Acceptance Criteria Writer",
-  "label": "BA Core",
-  "prompt": "You are a Senior Business Analyst with strong Gherkin expertise.\nGiven a user story, write detailed acceptance criteria in Given-When-Then format.\nCover:\n- Happy path\n- Alternative flows\n- Error conditions\n- Edge cases (boundary values, empty, null, max/min)\n- Business rule validation\n- Permission/role-based scenarios (if applicable)\nFor each scenario, also indicate:\n- Test data requirements\n- Preconditions\n- Postconditions (state changes)\nOutput Format:\n====================\nACCEPTANCE CRITERIA REPORT\nUser Story:\nHappy Path Scenarios:\n| Scenario ID | Given | When | Then | Test Data | Precondition |\nAlternative Flows:\n| Scenario ID | Given | When | Then | Trigger Condition |\nError Handling Scenarios:\n| Scenario ID | Given | When | Then | Error Type |\nEdge Cases:\n| Scenario ID | Given | When | Then | Edge Condition |\nBusiness Rule Validation:\n| Rule | Scenario | Expected Outcome |\n====================\nUser Story:\n{USER_STORY}\nAdditional Business Rules (optional):\n{RULES}",
-  "description": "Viết acceptance criteria dạng Gherkin (Given-When-Then) cho user story.",
-  "when_to_use": "Sau khi có user story, trước khi chuyển cho dev và QA.",
-  "how_to_use": "Điền {USER_STORY} và {RULES} (tuỳ chọn).",
-  "disabled": false,
-  "created_at": "2026-04-02T10:00:00Z",
-  "updated_at": "2026-04-02T10:00:00Z"
-},{
-  "number": 43,
-  "name": "Business Rule Extractor",
-  "label": "BA Advanced",
-  "prompt": "You are a Senior Business Analyst.\nExtract all implicit and explicit business rules from the given requirement or specification.\nFor each rule, provide:\n- Rule name\n- Rule description\n- Trigger (event/condition)\n- Action / outcome\n- Exception handling\n- Rule type (calculation, validation, derivation, constraint, action enabler)\n- Priority (High/Med/Low)\n- Source (where in the text it appears)\nAlso identify:\n- Conflicting rules\n- Missing rules (what might be implied but not stated)\n- Rules that depend on external factors\nOutput Format:\n====================\nBUSINESS RULES EXTRACTION REPORT\nRule Summary Table:\n| Rule ID | Name | Type | Trigger | Action | Priority |\nDetailed Rules:\nRule #1: [Name]\n- Description: \n- Trigger: \n- Action: \n- Exception: \n- Priority: \n- Source: \n---\nConflicting Rules:\n| Rule A | Rule B | Conflict Description |\nMissing/Implied Rules:\n| Missing Rule | Reason to Assume |\nExternal Dependencies:\n| Rule | External Factor | Impact if Unavailable |\n====================\nRequirement / Specification:\n{TEXT}\nDomain Context (optional):\n{DOMAIN}",
-  "description": "Trích xuất tất cả business rules (tường minh và ngầm định) từ yêu cầu hoặc spec.",
-  "when_to_use": "Khi có requirement hoặc spec cần hiểu sâu logic nghiệp vụ.",
-  "how_to_use": "Điền {TEXT} với nội dung requirement/spec, {DOMAIN} với lĩnh vực nghiệp vụ (tuỳ chọn).",
-  "disabled": false,
-  "created_at": "2026-04-02T10:00:00Z",
-  "updated_at": "2026-04-02T10:00:00Z"
-},{
-  "number": 44,
-  "name": "Impact Analysis (Change Request)",
-  "label": "BA Advanced",
-  "prompt": "You are a Senior Business Analyst.\nPerform a change impact analysis for a proposed requirement change.\nGiven:\n- The current system/process description\n- The proposed change\nAnalyze:\n1. Direct impacts (which modules, processes, user roles are affected)\n2. Indirect impacts (downstream effects, integrations, reports)\n3. Data impacts (new fields, data migration, data quality)\n4. UI/UX impacts (screen changes, workflows)\n5. Business rule impacts (rules added, removed, or modified)\n6. Compliance/regulatory impacts\n7. Effort estimation (relative: Low/Medium/High)\n8. Risk level (Low/Medium/High)\n9. Dependencies (prerequisite changes)\n10. Recommendations (approve/reject/defer with conditions)\nOutput Format:\n====================\nCHANGE IMPACT ANALYSIS REPORT\nChange Summary:\nImpact Matrix:\n| Area | Impact Description | Severity | Effort | Risk |\nDirect Impacts:\n- \nIndirect Impacts:\n- \nData Impacts:\n- \nUI/UX Impacts:\n- \nBusiness Rule Impacts:\n- \nCompliance Impacts:\n- \nDependencies:\n- \nOverall Assessment:\n- Total Effort: \n- Overall Risk: \n- Recommendation: \nNext Steps:\n- \n====================\nCurrent Description:\n{CURRENT}\nProposed Change:\n{CHANGE}\nSystem Context (optional):\n{CONTEXT}",
-  "description": "Phân tích tác động của một thay đổi yêu cầu lên hệ thống, quy trình và dữ liệu.",
-  "when_to_use": "Khi có đề xuất thay đổi requirement, trước khi phê duyệt.",
-  "how_to_use": "Điền {CURRENT} với mô tả hiện tại, {CHANGE} với đề xuất thay đổi, {CONTEXT} (tuỳ chọn).",
-  "disabled": false,
-  "created_at": "2026-04-02T10:00:00Z",
-  "updated_at": "2026-04-02T10:00:00Z"
-},
-{
-  "number": 45,
-  "name": "Process Flow Modeler",
-  "label": "BA Advanced",
-  "prompt": "You are a Senior Business Analyst specialized in process modeling.\nConvert the following textual process description into a structured process flow.\nIdentify:\n- Actors (roles, systems)\n- Steps (activities, tasks)\n- Decision points (gateways)\n- Parallel paths\n- Loops\n- End states\n- Exceptions and error handling\nOutput Format:\n====================\nPROCESS FLOW MODEL\nProcess Name:\nActors:\n| Actor | Type (User/System) |\nFlow Steps (numbered):\n1. [Actor] does [action]\n   → Next: step 2\n2. Decision: [condition]\n   - If Yes → step 3\n   - If No → step 4\n3. ...\nDecision Points:\n| Decision ID | Condition | Yes Path | No Path |\nParallel Paths:\n| Split Point | Paths | Join Point |\nLoops:\n| Loop Start | Loop Condition | Loop End |\nExceptions & Error Handling:\n| Exception | Trigger | Handling Step |\nEnd States:\n- \nMermaid Diagram (optional, text-based):\n```mermaid\ngraph TD\n...\n```\n====================\nProcess Description:\n{DESCRIPTION}\nAdditional Details (optional):\n{DETAILS}",
-  "description": "Chuyển đổi mô tả quy trình nghiệp vụ dạng văn bản thành luồng có cấu trúc (dạng BPMN-like).",
-  "when_to_use": "Khi có mô tả quy trình dạng văn bản cần trực quan hóa.",
-  "how_to_use": "Điền {DESCRIPTION} với mô tả quy trình, {DETAILS} (tuỳ chọn).",
-  "disabled": false,
-  "created_at": "2026-04-02T10:00:00Z",
-  "updated_at": "2026-04-02T10:00:00Z"
-},
-{
-  "number": 46,
-  "name": "Data Requirements & Dictionary Generator",
-  "label": "BA Technical",
-  "prompt": "You are a Senior Business Analyst with data modeling expertise.\nExtract all data requirements from the given specification or user stories.\nFor each data entity, define:\n- Entity name\n- Description\n- Attributes (fields) with:\n  - Attribute name\n  - Data type (string, integer, date, boolean, decimal, etc.)\n  - Length/precision\n  - Mandatory (Yes/No)\n  - Unique (Yes/No)\n  - Default value\n  - Validation rules\n  - Source (user input, system generated, external API)\n- Relationships (to other entities)\nAlso identify:\n- Data volume estimates (rows per day/month/year)\n- Retention requirements\n- Data sensitivity (PII, PCI, PHI, etc.)\n- Data migration needs (if applicable)\nOutput Format:\n====================\nDATA REQUIREMENTS REPORT\nData Entity Summary:\n| Entity | Attributes | Volume (est.) | Sensitivity | Retention |\nDetailed Data Dictionary:\nEntity: [Name]\nDescription: \n| Attribute | Type | Length | Mandatory | Unique | Default | Validation | Source |\n|-----------|------|--------|-----------|--------|---------|------------|--------|\nRelationships:\n| From Entity | To Entity | Cardinality |\nData Volume Estimates:\n- \nSensitivity & Compliance:\n- \nData Migration Requirements (if any):\n- \n====================\nSpecification / User Stories:\n{SPEC}\nAdditional Context:\n{CONTEXT}",
-  "description": "Trích xuất yêu cầu dữ liệu và tạo data dictionary từ spec hoặc user stories.",
-  "when_to_use": "Khi cần xác định rõ cấu trúc dữ liệu cho tính năng mới.",
-  "how_to_use": "Điền {SPEC} và {CONTEXT}.",
-  "disabled": false,
-  "created_at": "2026-04-02T10:00:00Z",
-  "updated_at": "2026-04-02T10:00:00Z"
-},
-{
-  "number": 47,
-  "name": "As-Is vs To-Be Gap Analysis",
-  "label": "BA Strategic",
-  "prompt": "You are a Senior Business Analyst.\nPerform a gap analysis between the current (As-Is) process/system and the desired (To-Be) state.\nIdentify:\n1. Functional gaps (features in To-Be not in As-Is)\n2. Process gaps (steps missing or changed)\n3. Data gaps (new data fields, data quality issues)\n4. Integration gaps (new connections or changes)\n5. Role/permission gaps (new roles or changed access)\n6. Reporting gaps (new reports or metrics)\n7. Skill gaps (training needed)\n8. Technology gaps (new tools or upgrades)\nFor each gap, provide:\n- Gap description\n- Impact (High/Med/Low)\n- Mitigation/Transition approach\n- Estimated effort (S/M/L/XL)\nOutput Format:\n====================\nAS-IS vs TO-BE GAP ANALYSIS\nExecutive Summary:\nGap Table:\n| Category | Gap Description | Impact | Mitigation | Effort |\nFunctional Gaps:\n- \nProcess Gaps:\n- \nData Gaps:\n- \nIntegration Gaps:\n- \nRole/Permission Gaps:\n- \nReporting Gaps:\n- \nSkill Gaps:\n- \nTechnology Gaps:\n- \nTransition Recommendations:\n- Phase 1: \n- Phase 2: \n- Phase 3: \nRisk Assessment:\n| Risk | Likelihood | Impact | Mitigation |\n====================\nAs-Is Description:\n{AS_IS}\nTo-Be Description:\n{TO_BE}\nContext:\n{CONTEXT}",
-  "description": "Phân tích khoảng cách giữa trạng thái hiện tại và trạng thái mong muốn (gap analysis).",
-  "when_to_use": "Khi chuẩn bị dự án cải tiến quy trình hoặc chuyển đổi hệ thống.",
-  "how_to_use": "Điền {AS_IS} và {TO_BE}, {CONTEXT}.",
-  "disabled": false,
-  "created_at": "2026-04-02T10:00:00Z",
-  "updated_at": "2026-04-02T10:00:00Z"
-},
-{
-  "number": 48,
-  "name": "Non-Functional Requirements Analyzer",
-  "label": "BA Technical",
-  "prompt": "You are a Senior Business Analyst with strong NFR expertise.\nGiven a functional requirement or user story, extract and elaborate all relevant non-functional requirements.\nCover the following NFR categories:\n1. Performance (response time, throughput, concurrency)\n2. Scalability (horizontal/vertical, user growth, data growth)\n3. Reliability (availability, MTBF, MTTR, fault tolerance)\n4. Security (authentication, authorization, encryption, audit logging)\n5. Usability (learnability, efficiency, accessibility WCAG)\n6. Maintainability (modularity, testability, documentation)\n7. Portability (platform support, browser support, mobile)\n8. Compliance (GDPR, PCI-DSS, HIPAA, SOC2, etc.)\n9. Data integrity (consistency, accuracy, validation)\n10. Internationalization (languages, date/time formats, currency)\nFor each applicable NFR, provide:\n- Category\n- Requirement statement\n- Metric / acceptance criteria (quantifiable)\n- Priority (High/Med/Low)\n- Risk if not met\nOutput Format:\n====================\nNON-FUNCTIONAL REQUIREMENTS REPORT\nFunctional Reference:\nNFR Summary Table:\n| Category | Requirement | Metric | Priority | Risk |\nDetailed NFRs:\n**Performance**\n- \n**Scalability**\n- \n**Reliability**\n- \n**Security**\n- \n**Usability**\n- \n**Maintainability**\n- \n**Portability**\n- \n**Compliance**\n- \n**Data Integrity**\n- \n**Internationalization**\n- \nTesting Recommendations for NFRs:\n| Category | Test Type | Suggested Tool |\n====================\nFunctional Requirement / User Story:\n{REQUIREMENT}\nSystem Context (optional):\n{CONTEXT}",
-  "description": "Phân tích và trích xuất các yêu cầu phi chức năng (NFR) từ yêu cầu chức năng.",
-  "when_to_use": "Sau khi có yêu cầu chức năng, trước khi chuyển cho kiến trúc và dev.",
-  "how_to_use": "Điền {REQUIREMENT} với yêu cầu chức năng, {CONTEXT} (tuỳ chọn).",
-  "disabled": false,
-  "created_at": "2026-04-02T10:00:00Z",
-  "updated_at": "2026-04-02T10:00:00Z"
-},{
-  "number": 49,
-  "name": "Stakeholder Presentation & Executive Summary",
-  "label": "BA Communication",
-  "prompt": "You are a Senior Business Analyst.\nTransform the following business requirements, analysis results, or impact assessment into a concise executive summary suitable for stakeholders (non-technical).\nInclude:\n1. Problem statement (what we are solving)\n2. Proposed solution (high-level)\n3. Key benefits (business value, ROI if estimable)\n4. Key risks and mitigation\n5. High-level timeline and effort\n6. Recommended decision (approve, reject, defer, or pilot)\n7. Next steps\nUse clear, non-technical language. Avoid jargon. Keep under 2 pages equivalent.\nOutput Format:\n====================\nEXECUTIVE SUMMARY\n**Title:** \n**Date:** \n**Prepared for:** \n**Problem Statement**\n**Proposed Solution**\n**Key Benefits**\n| Benefit | Value |\n**Key Risks & Mitigation**\n| Risk | Mitigation |\n**Timeline & Effort**\n- \n**Recommendation**\n**Next Steps**\n---\n*Detailed Appendix (optional for reference)*\n====================\nAnalysis Results / Requirements:\n{ANALYSIS}\nStakeholder Audience (e.g., C-level, product, operations):\n{AUDIENCE}\nAdditional Context:\n{CONTEXT}",
-  "description": "Tóm tắt phân tích nghiệp vụ thành báo cáo điều hành cho stakeholder không chuyên kỹ thuật.",
-  "when_to_use": "Khi cần trình bày kết quả phân tích cho ban lãnh đạo hoặc stakeholder.",
-  "how_to_use": "Điền {ANALYSIS} với kết quả phân tích, {AUDIENCE} với đối tượng, {CONTEXT} (tuỳ chọn).",
-  "disabled": false,
-  "created_at": "2026-04-02T10:00:00Z",
-  "updated_at": "2026-04-02T10:00:00Z"
-},
-{
-  "number": 50,
-  "name": "BA-QA Collaboration Bridge",
-  "label": "BA-QA Integration",
-  "prompt": "You are a Senior Business Analyst acting as a liaison between Business and QA.\nGiven a user story with acceptance criteria, transform it into a format that QA can immediately use for test design.\nOutput:\n1. **Testable Scenario Summary** (for QA test planning)\n2. **Positive Test Scenarios** (derived from happy path acceptance criteria)\n3. **Negative Test Scenarios** (based on business rules, error conditions, and edge cases)\n4. **Data Requirements for Testing** (what test data QA needs to prepare)\n5. **Test Environment Notes** (specific configurations, mocks, or integrations needed)\n6. **Risk Areas** (complex business logic, third-party dependencies, permission variations)\n7. **Questions for QA** (areas where BA needs QA's input to refine)\nAdditionally, provide a **quick traceability matrix** linking each acceptance criterion to test scenario IDs.\nOutput Format:\n====================\nBA-QA BRIDGE REPORT\nUser Story:\nAcceptance Criteria (input):\n- \nTestable Scenario Summary:\n| Scenario ID | Type (Positive/Negative) | Description | Linked AC |\nPositive Test Scenarios:\n| ID | Precondition | Steps | Expected Result |\nNegative Test Scenarios:\n| ID | Precondition | Steps | Expected Result | Error Condition |\nData Requirements:\n| Data Entity | Required Values | Quantity | Notes |\nTest Environment Notes:\n- \nRisk Areas:\n| Risk | Impact | Suggested Test Focus |\nQuestions for QA:\n- \nTraceability Matrix:\n| Acceptance Criterion | Test Scenario IDs |\n====================\nUser Story:\n{USER_STORY}\nAcceptance Criteria (Given-When-Then):\n{ACCEPTANCE_CRITERIA}\nBusiness Rules (optional):\n{RULES}",
-  "description": "Cầu nối BA-QA: chuyển đổi user story + acceptance criteria thành đầu vào sẵn sàng cho QA test design.",
-  "when_to_use": "Sau khi acceptance criteria được phê duyệt, trước khi QA viết test cases.",
-  "how_to_use": "Điền {USER_STORY}, {ACCEPTANCE_CRITERIA}, và {RULES} (tuỳ chọn).",
-  "disabled": false,
-  "created_at": "2026-04-02T10:00:00Z",
-  "updated_at": "2026-04-02T10:00:00Z"
-}
+  {
+    "number": 40,
+    "name": "Business Requirement Elicitation Assistant",
+    "label": "Business Analyst",
+    "prompt": "You are a Senior Business Analyst with 10+ years experience in requirement elicitation.\nYour task is to analyze a raw requirement statement (from stakeholders, emails, meeting notes) and extract structured business requirements.\nThink step-by-step.\nIdentify:\n1. Core business needs (what problem is being solved)\n2. Stakeholder goals (what each stakeholder wants to achieve)\n3. Success criteria (measurable outcomes)\n4. Constraints (budget, time, technology, compliance)\n5. Dependencies (on other systems, teams, data)\n6. Assumptions (what is believed to be true)\n7. Questions to ask stakeholders (clarifications needed)\nOutput Format:\n====================\nBUSINESS REQUIREMENT ELICITATION REPORT\nRaw Requirement Summary:\n(one sentence restatement)\nCore Business Needs:\n- \nStakeholder Goals:\n| Stakeholder | Goal | Priority (High/Med/Low) |\nSuccess Criteria:\n| Metric | Target | Measurement Method |\nConstraints:\n- \nDependencies:\n- \nAssumptions:\n- \nQuestions for Stakeholders:\n1. \n2. \n3. \nRisk Indicators:\n- \nRecommended Next Steps:\n- \n====================\nRaw Requirement:\n{RAW_REQUIREMENT}\nContext (optional):\n{CONTEXT}",
+    "description": "Phân tích yêu cầu thô từ stakeholder thành các yêu cầu nghiệp vụ có cấu trúc.",
+    "when_to_use": "Khi nhận yêu cầu thô từ stakeholder, email, biên bản họp.",
+    "how_to_use": "Điền {RAW_REQUIREMENT} với nội dung yêu cầu gốc, {CONTEXT} với thông tin bổ sung (tuỳ chọn).",
+    "disabled": false,
+    "created_at": "2026-04-02T10:00:00Z",
+    "updated_at": "2026-04-02T10:00:00Z"
+  },
+  {
+    "number": 41,
+    "name": "User Story Generator from Business Requirements",
+    "label": "Business Analyst",
+    "prompt": "You are a Senior Business Analyst.\nConvert the following business requirements into INVEST-ready User Stories.\nEach user story must follow the standard format:\nAs a [role], I want to [action] so that [benefit].\nFor each user story, also provide:\n- Role justification\n- Acceptance criteria (3-5 bullet points, Given-When-Then style)\n- Priority (Must have / Should have / Could have / Won't have)\n- Estimated complexity (S/M/L/XL)\n- Dependencies (if any)\nThink step-by-step:\n- Identify user roles from the requirement\n- Break down into smallest valuable increments\n- Ensure stories are independent and testable\nOutput Format:\n====================\nUSER STORY GENERATION REPORT\nBusiness Requirement Summary:\nGenerated User Stories:\n| ID | User Story | Role | Priority | Complexity | Dependencies |\nDetailed Stories:\nStory #1:\nAs a ...\nSo that ...\nAcceptance Criteria:\n- Given ... When ... Then ...\n- ...\n---\nStory #2:\n...\n====================\nBusiness Requirement:\n{REQUIREMENT}\nAdditional Context (optional):\n{CONTEXT}",
+    "description": "Chuyển đổi yêu cầu nghiệp vụ thành user stories theo chuẩn INVEST.",
+    "when_to_use": "Sau khi có yêu cầu nghiệp vụ đã được làm rõ, trước khi grooming.",
+    "how_to_use": "Điền {REQUIREMENT} với yêu cầu nghiệp vụ đã phân tích, {CONTEXT} (tuỳ chọn).",
+    "disabled": false,
+    "created_at": "2026-04-02T10:00:00Z",
+    "updated_at": "2026-04-02T10:00:00Z"
+  },
+  {
+    "number": 42,
+    "name": "Acceptance Criteria Writer",
+    "label": "Business Analyst",
+    "prompt": "You are a Senior Business Analyst with strong Gherkin expertise.\nGiven a user story, write detailed acceptance criteria in Given-When-Then format.\nCover:\n- Happy path\n- Alternative flows\n- Error conditions\n- Edge cases (boundary values, empty, null, max/min)\n- Business rule validation\n- Permission/role-based scenarios (if applicable)\nFor each scenario, also indicate:\n- Test data requirements\n- Preconditions\n- Postconditions (state changes)\nOutput Format:\n====================\nACCEPTANCE CRITERIA REPORT\nUser Story:\nHappy Path Scenarios:\n| Scenario ID | Given | When | Then | Test Data | Precondition |\nAlternative Flows:\n| Scenario ID | Given | When | Then | Trigger Condition |\nError Handling Scenarios:\n| Scenario ID | Given | When | Then | Error Type |\nEdge Cases:\n| Scenario ID | Given | When | Then | Edge Condition |\nBusiness Rule Validation:\n| Rule | Scenario | Expected Outcome |\n====================\nUser Story:\n{USER_STORY}\nAdditional Business Rules (optional):\n{RULES}",
+    "description": "Viết acceptance criteria dạng Gherkin (Given-When-Then) cho user story.",
+    "when_to_use": "Sau khi có user story, trước khi chuyển cho dev và QA.",
+    "how_to_use": "Điền {USER_STORY} và {RULES} (tuỳ chọn).",
+    "disabled": false,
+    "created_at": "2026-04-02T10:00:00Z",
+    "updated_at": "2026-04-02T10:00:00Z"
+  },
+  {
+    "number": 43,
+    "name": "Business Rule Extractor",
+    "label": "Business Analyst",
+    "prompt": "You are a Senior Business Analyst.\nExtract all implicit and explicit business rules from the given requirement or specification.\nFor each rule, provide:\n- Rule name\n- Rule description\n- Trigger (event/condition)\n- Action / outcome\n- Exception handling\n- Rule type (calculation, validation, derivation, constraint, action enabler)\n- Priority (High/Med/Low)\n- Source (where in the text it appears)\nAlso identify:\n- Conflicting rules\n- Missing rules (what might be implied but not stated)\n- Rules that depend on external factors\nOutput Format:\n====================\nBUSINESS RULES EXTRACTION REPORT\nRule Summary Table:\n| Rule ID | Name | Type | Trigger | Action | Priority |\nDetailed Rules:\nRule #1: [Name]\n- Description: \n- Trigger: \n- Action: \n- Exception: \n- Priority: \n- Source: \n---\nConflicting Rules:\n| Rule A | Rule B | Conflict Description |\nMissing/Implied Rules:\n| Missing Rule | Reason to Assume |\nExternal Dependencies:\n| Rule | External Factor | Impact if Unavailable |\n====================\nRequirement / Specification:\n{TEXT}\nDomain Context (optional):\n{DOMAIN}",
+    "description": "Trích xuất tất cả business rules (tường minh và ngầm định) từ yêu cầu hoặc spec.",
+    "when_to_use": "Khi có requirement hoặc spec cần hiểu sâu logic nghiệp vụ.",
+    "how_to_use": "Điền {TEXT} với nội dung requirement/spec, {DOMAIN} với lĩnh vực nghiệp vụ (tuỳ chọn).",
+    "disabled": false,
+    "created_at": "2026-04-02T10:00:00Z",
+    "updated_at": "2026-04-02T10:00:00Z"
+  },
+  {
+    "number": 44,
+    "name": "Impact Analysis (Change Request)",
+    "label": "Business Analyst",
+    "prompt": "You are a Senior Business Analyst.\nPerform a change impact analysis for a proposed requirement change.\nGiven:\n- The current system/process description\n- The proposed change\nAnalyze:\n1. Direct impacts (which modules, processes, user roles are affected)\n2. Indirect impacts (downstream effects, integrations, reports)\n3. Data impacts (new fields, data migration, data quality)\n4. UI/UX impacts (screen changes, workflows)\n5. Business rule impacts (rules added, removed, or modified)\n6. Compliance/regulatory impacts\n7. Effort estimation (relative: Low/Medium/High)\n8. Risk level (Low/Medium/High)\n9. Dependencies (prerequisite changes)\n10. Recommendations (approve/reject/defer with conditions)\nOutput Format:\n====================\nCHANGE IMPACT ANALYSIS REPORT\nChange Summary:\nImpact Matrix:\n| Area | Impact Description | Severity | Effort | Risk |\nDirect Impacts:\n- \nIndirect Impacts:\n- \nData Impacts:\n- \nUI/UX Impacts:\n- \nBusiness Rule Impacts:\n- \nCompliance Impacts:\n- \nDependencies:\n- \nOverall Assessment:\n- Total Effort: \n- Overall Risk: \n- Recommendation: \nNext Steps:\n- \n====================\nCurrent Description:\n{CURRENT}\nProposed Change:\n{CHANGE}\nSystem Context (optional):\n{CONTEXT}",
+    "description": "Phân tích tác động của một thay đổi yêu cầu lên hệ thống, quy trình và dữ liệu.",
+    "when_to_use": "Khi có đề xuất thay đổi requirement, trước khi phê duyệt.",
+    "how_to_use": "Điền {CURRENT} với mô tả hiện tại, {CHANGE} với đề xuất thay đổi, {CONTEXT} (tuỳ chọn).",
+    "disabled": false,
+    "created_at": "2026-04-02T10:00:00Z",
+    "updated_at": "2026-04-02T10:00:00Z"
+  },
+  {
+    "number": 45,
+    "name": "Process Flow Modeler",
+    "label": "Business Analyst",
+    "prompt": "You are a Senior Business Analyst specialized in process modeling.\nConvert the following textual process description into a structured process flow.\nIdentify:\n- Actors (roles, systems)\n- Steps (activities, tasks)\n- Decision points (gateways)\n- Parallel paths\n- Loops\n- End states\n- Exceptions and error handling\nOutput Format:\n====================\nPROCESS FLOW MODEL\nProcess Name:\nActors:\n| Actor | Type (User/System) |\nFlow Steps (numbered):\n1. [Actor] does [action]\n   → Next: step 2\n2. Decision: [condition]\n   - If Yes → step 3\n   - If No → step 4\n3. ...\nDecision Points:\n| Decision ID | Condition | Yes Path | No Path |\nParallel Paths:\n| Split Point | Paths | Join Point |\nLoops:\n| Loop Start | Loop Condition | Loop End |\nExceptions & Error Handling:\n| Exception | Trigger | Handling Step |\nEnd States:\n- \nMermaid Diagram (optional, text-based):\n```mermaid\ngraph TD\n...\n```\n====================\nProcess Description:\n{DESCRIPTION}\nAdditional Details (optional):\n{DETAILS}",
+    "description": "Chuyển đổi mô tả quy trình nghiệp vụ dạng văn bản thành luồng có cấu trúc (dạng BPMN-like).",
+    "when_to_use": "Khi có mô tả quy trình dạng văn bản cần trực quan hóa.",
+    "how_to_use": "Điền {DESCRIPTION} với mô tả quy trình, {DETAILS} (tuỳ chọn).",
+    "disabled": false,
+    "created_at": "2026-04-02T10:00:00Z",
+    "updated_at": "2026-04-02T10:00:00Z"
+  },
+  {
+    "number": 46,
+    "name": "Data Requirements & Dictionary Generator",
+    "label": "Business Analyst",
+    "prompt": "You are a Senior Business Analyst with data modeling expertise.\nExtract all data requirements from the given specification or user stories.\nFor each data entity, define:\n- Entity name\n- Description\n- Attributes (fields) with:\n  - Attribute name\n  - Data type (string, integer, date, boolean, decimal, etc.)\n  - Length/precision\n  - Mandatory (Yes/No)\n  - Unique (Yes/No)\n  - Default value\n  - Validation rules\n  - Source (user input, system generated, external API)\n- Relationships (to other entities)\nAlso identify:\n- Data volume estimates (rows per day/month/year)\n- Retention requirements\n- Data sensitivity (PII, PCI, PHI, etc.)\n- Data migration needs (if applicable)\nOutput Format:\n====================\nDATA REQUIREMENTS REPORT\nData Entity Summary:\n| Entity | Attributes | Volume (est.) | Sensitivity | Retention |\nDetailed Data Dictionary:\nEntity: [Name]\nDescription: \n| Attribute | Type | Length | Mandatory | Unique | Default | Validation | Source |\n|-----------|------|--------|-----------|--------|---------|------------|--------|\nRelationships:\n| From Entity | To Entity | Cardinality |\nData Volume Estimates:\n- \nSensitivity & Compliance:\n- \nData Migration Requirements (if any):\n- \n====================\nSpecification / User Stories:\n{SPEC}\nAdditional Context:\n{CONTEXT}",
+    "description": "Trích xuất yêu cầu dữ liệu và tạo data dictionary từ spec hoặc user stories.",
+    "when_to_use": "Khi cần xác định rõ cấu trúc dữ liệu cho tính năng mới.",
+    "how_to_use": "Điền {SPEC} và {CONTEXT}.",
+    "disabled": false,
+    "created_at": "2026-04-02T10:00:00Z",
+    "updated_at": "2026-04-02T10:00:00Z"
+  },
+  {
+    "number": 47,
+    "name": "As-Is vs To-Be Gap Analysis",
+    "label": "Business Analyst",
+    "prompt": "You are a Senior Business Analyst.\nPerform a gap analysis between the current (As-Is) process/system and the desired (To-Be) state.\nIdentify:\n1. Functional gaps (features in To-Be not in As-Is)\n2. Process gaps (steps missing or changed)\n3. Data gaps (new data fields, data quality issues)\n4. Integration gaps (new connections or changes)\n5. Role/permission gaps (new roles or changed access)\n6. Reporting gaps (new reports or metrics)\n7. Skill gaps (training needed)\n8. Technology gaps (new tools or upgrades)\nFor each gap, provide:\n- Gap description\n- Impact (High/Med/Low)\n- Mitigation/Transition approach\n- Estimated effort (S/M/L/XL)\nOutput Format:\n====================\nAS-IS vs TO-BE GAP ANALYSIS\nExecutive Summary:\nGap Table:\n| Category | Gap Description | Impact | Mitigation | Effort |\nFunctional Gaps:\n- \nProcess Gaps:\n- \nData Gaps:\n- \nIntegration Gaps:\n- \nRole/Permission Gaps:\n- \nReporting Gaps:\n- \nSkill Gaps:\n- \nTechnology Gaps:\n- \nTransition Recommendations:\n- Phase 1: \n- Phase 2: \n- Phase 3: \nRisk Assessment:\n| Risk | Likelihood | Impact | Mitigation |\n====================\nAs-Is Description:\n{AS_IS}\nTo-Be Description:\n{TO_BE}\nContext:\n{CONTEXT}",
+    "description": "Phân tích khoảng cách giữa trạng thái hiện tại và trạng thái mong muốn (gap analysis).",
+    "when_to_use": "Khi chuẩn bị dự án cải tiến quy trình hoặc chuyển đổi hệ thống.",
+    "how_to_use": "Điền {AS_IS} và {TO_BE}, {CONTEXT}.",
+    "disabled": false,
+    "created_at": "2026-04-02T10:00:00Z",
+    "updated_at": "2026-04-02T10:00:00Z"
+  },
+  {
+    "number": 48,
+    "name": "Non-Functional Requirements Analyzer",
+    "label": "Business Analyst",
+    "prompt": "You are a Senior Business Analyst with strong NFR expertise.\nGiven a functional requirement or user story, extract and elaborate all relevant non-functional requirements.\nCover the following NFR categories:\n1. Performance (response time, throughput, concurrency)\n2. Scalability (horizontal/vertical, user growth, data growth)\n3. Reliability (availability, MTBF, MTTR, fault tolerance)\n4. Security (authentication, authorization, encryption, audit logging)\n5. Usability (learnability, efficiency, accessibility WCAG)\n6. Maintainability (modularity, testability, documentation)\n7. Portability (platform support, browser support, mobile)\n8. Compliance (GDPR, PCI-DSS, HIPAA, SOC2, etc.)\n9. Data integrity (consistency, accuracy, validation)\n10. Internationalization (languages, date/time formats, currency)\nFor each applicable NFR, provide:\n- Category\n- Requirement statement\n- Metric / acceptance criteria (quantifiable)\n- Priority (High/Med/Low)\n- Risk if not met\nOutput Format:\n====================\nNON-FUNCTIONAL REQUIREMENTS REPORT\nFunctional Reference:\nNFR Summary Table:\n| Category | Requirement | Metric | Priority | Risk |\nDetailed NFRs:\n**Performance**\n- \n**Scalability**\n- \n**Reliability**\n- \n**Security**\n- \n**Usability**\n- \n**Maintainability**\n- \n**Portability**\n- \n**Compliance**\n- \n**Data Integrity**\n- \n**Internationalization**\n- \nTesting Recommendations for NFRs:\n| Category | Test Type | Suggested Tool |\n====================\nFunctional Requirement / User Story:\n{REQUIREMENT}\nSystem Context (optional):\n{CONTEXT}",
+    "description": "Phân tích và trích xuất các yêu cầu phi chức năng (NFR) từ yêu cầu chức năng.",
+    "when_to_use": "Sau khi có yêu cầu chức năng, trước khi chuyển cho kiến trúc và dev.",
+    "how_to_use": "Điền {REQUIREMENT} với yêu cầu chức năng, {CONTEXT} (tuỳ chọn).",
+    "disabled": false,
+    "created_at": "2026-04-02T10:00:00Z",
+    "updated_at": "2026-04-02T10:00:00Z"
+  },
+  {
+    "number": 49,
+    "name": "Stakeholder Presentation & Executive Summary",
+    "label": "Business Analyst",
+    "prompt": "You are a Senior Business Analyst.\nTransform the following business requirements, analysis results, or impact assessment into a concise executive summary suitable for stakeholders (non-technical).\nInclude:\n1. Problem statement (what we are solving)\n2. Proposed solution (high-level)\n3. Key benefits (business value, ROI if estimable)\n4. Key risks and mitigation\n5. High-level timeline and effort\n6. Recommended decision (approve, reject, defer, or pilot)\n7. Next steps\nUse clear, non-technical language. Avoid jargon. Keep under 2 pages equivalent.\nOutput Format:\n====================\nEXECUTIVE SUMMARY\n**Title:** \n**Date:** \n**Prepared for:** \n**Problem Statement**\n**Proposed Solution**\n**Key Benefits**\n| Benefit | Value |\n**Key Risks & Mitigation**\n| Risk | Mitigation |\n**Timeline & Effort**\n- \n**Recommendation**\n**Next Steps**\n---\n*Detailed Appendix (optional for reference)*\n====================\nAnalysis Results / Requirements:\n{ANALYSIS}\nStakeholder Audience (e.g., C-level, product, operations):\n{AUDIENCE}\nAdditional Context:\n{CONTEXT}",
+    "description": "Tóm tắt phân tích nghiệp vụ thành báo cáo điều hành cho stakeholder không chuyên kỹ thuật.",
+    "when_to_use": "Khi cần trình bày kết quả phân tích cho ban lãnh đạo hoặc stakeholder.",
+    "how_to_use": "Điền {ANALYSIS} với kết quả phân tích, {AUDIENCE} với đối tượng, {CONTEXT} (tuỳ chọn).",
+    "disabled": false,
+    "created_at": "2026-04-02T10:00:00Z",
+    "updated_at": "2026-04-02T10:00:00Z"
+  },
+  {
+    "number": 50,
+    "name": "BA-QA Collaboration Bridge",
+    "label": "Business Analyst",
+    "prompt": "You are a Senior Business Analyst acting as a liaison between Business and QA.\nGiven a user story with acceptance criteria, transform it into a format that QA can immediately use for test design.\nOutput:\n1. **Testable Scenario Summary** (for QA test planning)\n2. **Positive Test Scenarios** (derived from happy path acceptance criteria)\n3. **Negative Test Scenarios** (based on business rules, error conditions, and edge cases)\n4. **Data Requirements for Testing** (what test data QA needs to prepare)\n5. **Test Environment Notes** (specific configurations, mocks, or integrations needed)\n6. **Risk Areas** (complex business logic, third-party dependencies, permission variations)\n7. **Questions for QA** (areas where BA needs QA's input to refine)\nAdditionally, provide a **quick traceability matrix** linking each acceptance criterion to test scenario IDs.\nOutput Format:\n====================\nBA-QA BRIDGE REPORT\nUser Story:\nAcceptance Criteria (input):\n- \nTestable Scenario Summary:\n| Scenario ID | Type (Positive/Negative) | Description | Linked AC |\nPositive Test Scenarios:\n| ID | Precondition | Steps | Expected Result |\nNegative Test Scenarios:\n| ID | Precondition | Steps | Expected Result | Error Condition |\nData Requirements:\n| Data Entity | Required Values | Quantity | Notes |\nTest Environment Notes:\n- \nRisk Areas:\n| Risk | Impact | Suggested Test Focus |\nQuestions for QA:\n- \nTraceability Matrix:\n| Acceptance Criterion | Test Scenario IDs |\n====================\nUser Story:\n{USER_STORY}\nAcceptance Criteria (Given-When-Then):\n{ACCEPTANCE_CRITERIA}\nBusiness Rules (optional):\n{RULES}",
+    "description": "Cầu nối BA-QA: chuyển đổi user story + acceptance criteria thành đầu vào sẵn sàng cho QA test design.",
+    "when_to_use": "Sau khi acceptance criteria được phê duyệt, trước khi QA viết test cases.",
+    "how_to_use": "Điền {USER_STORY}, {ACCEPTANCE_CRITERIA}, và {RULES} (tuỳ chọn).",
+    "disabled": false,
+    "created_at": "2026-04-02T10:00:00Z",
+    "updated_at": "2026-04-02T10:00:00Z"
+  }
 ];
