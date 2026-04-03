@@ -32,6 +32,8 @@ let variableValues = {}; // Store variable values for current prompt
 let showFavoritesOnly = false; // New state for favorites filter
 let comparisonList = []; // State for comparison mode
 let currentCollectionId = 'all'; // Default collection
+let viewMode = localStorage.getItem('prompt-library-view-mode') || 'grid'; // 'grid' or 'list'
+let recentPrompts = JSON.parse(localStorage.getItem('prompt-library-recent')) || [];
 
 // DOM Elements
 const grid = document.getElementById('promptGrid');
@@ -46,6 +48,11 @@ const modalClose = document.getElementById('modalClose');
 const toast = document.getElementById('toast');
 const categoryChipsContainer = document.getElementById('categoryChipsContainer');
 const clearAllFiltersBtn = document.getElementById('clearAllFilters');
+const categoryList = document.getElementById('categoryList');
+const gridViewBtn = document.getElementById('gridViewBtn');
+const listViewBtn = document.getElementById('listViewBtn');
+const sidebarFavorites = document.getElementById('sidebarFavorites');
+const sidebarRecent = document.getElementById('sidebarRecent');
 
 // ==================== HELPERS ====================
 const formatDate = (iso) => {
@@ -83,10 +90,16 @@ const showToast = (msg) => {
   setTimeout(() => toast.classList.remove('show'), 2500);
 };
 
-const copyToClipboard = async (text, btn) => {
+const copyToClipboard = async (text, btn, promptNumber) => {
   try {
     await navigator.clipboard.writeText(text);
     showToast('✓ Copied to clipboard!');
+    
+    // Add to recent
+    if (promptNumber !== undefined) {
+      addToRecent(promptNumber);
+    }
+
     if (btn) {
       const originalHtml = btn.innerHTML;
       btn.classList.add('copied');
@@ -100,6 +113,12 @@ const copyToClipboard = async (text, btn) => {
     showToast('✗ Copy failed');
     console.error(err);
   }
+};
+
+const addToRecent = (promptNumber) => {
+  recentPrompts = [promptNumber, ...recentPrompts.filter(n => n !== promptNumber)].slice(0, 10);
+  localStorage.setItem('prompt-library-recent', JSON.stringify(recentPrompts));
+  renderSidebar();
 };
 
 // ==================== PROMPT EDITOR HANDLING ====================
@@ -351,29 +370,84 @@ const initQuickToolbar = () => {
 
 const initCategoryChips = () => {
   if (!categoryChipsContainer) return;
-  const categories = getCategories();
   categoryChipsContainer.innerHTML = '';
   
-  categories.forEach(cat => {
+  selectedCategories.forEach(cat => {
     const chip = document.createElement('button');
-    chip.className = 'category-chip';
-    if (selectedCategories.includes(cat)) chip.classList.add('active');
-    
+    chip.className = 'category-chip active';
     const count = countByCategory(cat);
     chip.innerHTML = `${escapeHtml(cat)} <span class="category-chip-count">${count}</span>`;
     
     chip.addEventListener('click', () => {
-      chip.classList.toggle('active');
-      if (chip.classList.contains('active')) {
-        if (!selectedCategories.includes(cat)) selectedCategories.push(cat);
-      } else {
-        selectedCategories = selectedCategories.filter(c => c !== cat);
-      }
+      selectedCategories = selectedCategories.filter(c => c !== cat);
+      initCategoryChips();
+      renderSidebar();
       filterPrompts(searchInput.value);
     });
     
     categoryChipsContainer.appendChild(chip);
   });
+};
+
+const renderSidebar = () => {
+  if (!categoryList) return;
+  const categories = getCategories();
+  categoryList.innerHTML = '';
+  
+  categories.forEach(cat => {
+    const item = document.createElement('div');
+    item.className = `sidebar-item ${selectedCategories.includes(cat) ? 'active' : ''}`;
+    item.innerHTML = `
+      <span class="sidebar-icon">📂</span>
+      ${escapeHtml(cat)}
+      <span class="count">${countByCategory(cat)}</span>
+    `;
+    item.onclick = () => {
+      if (selectedCategories.includes(cat)) {
+        selectedCategories = selectedCategories.filter(c => c !== cat);
+      } else {
+        selectedCategories.push(cat);
+      }
+      initCategoryChips();
+      renderSidebar();
+      filterPrompts(searchInput.value);
+    };
+    categoryList.appendChild(item);
+  });
+
+  // Update favorites item
+  if (sidebarFavorites) {
+    sidebarFavorites.className = `sidebar-item ${showFavoritesOnly ? 'active' : ''}`;
+    sidebarFavorites.innerHTML = `
+      <span class="sidebar-icon">⭐</span> Favorites
+      <span class="count">${favorites.length}</span>
+    `;
+    sidebarFavorites.onclick = () => {
+      showFavoritesOnly = !showFavoritesOnly;
+      renderSidebar();
+      filterPrompts(searchInput.value);
+    };
+  }
+
+  // Update recent item
+  if (sidebarRecent) {
+    sidebarRecent.innerHTML = `
+      <span class="sidebar-icon">🕒</span> Recently Used
+      <span class="count">${recentPrompts.length}</span>
+    `;
+    sidebarRecent.onclick = () => {
+      // Logic for showing recent prompts
+      filterPromptsByRecent();
+    };
+  }
+};
+
+const filterPromptsByRecent = () => {
+  filteredPrompts = PROMPTS.filter(p => recentPrompts.includes(p.number));
+  // Sort by order in recentPrompts
+  filteredPrompts.sort((a, b) => recentPrompts.indexOf(a.number) - recentPrompts.indexOf(b.number));
+  renderGrid();
+  updateStats();
 };
 
 const updateStats = () => {
@@ -457,6 +531,12 @@ const renderGrid = (query = '') => {
   if (!grid) return;
   grid.innerHTML = '';
   
+  if (viewMode === 'list') {
+    grid.classList.add('list-view');
+  } else {
+    grid.classList.remove('list-view');
+  }
+  
   if (filteredPrompts.length === 0) {
     if (emptyState) emptyState.style.display = 'block';
     return;
@@ -474,7 +554,7 @@ const renderGrid = (query = '') => {
       const prompt = PROMPTS.find(x => x.number === num);
       if (prompt) {
         const basePrompt = hasEditedPrompt(num) ? getEditedPrompt(num) : prompt.prompt;
-        copyToClipboard(basePrompt, e.currentTarget);
+        copyToClipboard(basePrompt, e.currentTarget, num);
       }
     });
   });
@@ -491,6 +571,7 @@ const renderGrid = (query = '') => {
     btn.addEventListener('click', (e) => {
       const num = parseInt(e.currentTarget.dataset.favorite);
       toggleFavorite(num);
+      renderSidebar();
     });
   });
 
@@ -501,6 +582,21 @@ const renderGrid = (query = '') => {
       toggleComparison(num);
     });
   });
+};
+
+const setViewMode = (mode) => {
+  viewMode = mode;
+  localStorage.setItem('prompt-library-view-mode', mode);
+  
+  if (mode === 'grid') {
+    gridViewBtn.classList.add('active');
+    listViewBtn.classList.remove('active');
+  } else {
+    gridViewBtn.classList.remove('active');
+    listViewBtn.classList.add('active');
+  }
+  
+  renderGrid(searchInput.value);
 };
 
 // ==================== COMPARISON LOGIC ====================
@@ -925,10 +1021,19 @@ window.addEventListener('DOMContentLoaded', () => {
   initNavbar();
   initQuickToolbar();
   initCategoryChips();
+  renderSidebar();
+  
+  // Set initial view mode
+  setViewMode(viewMode);
+  
   filterPrompts(''); // Khởi tạo hiển thị ban đầu
   handleUrlParams(); // Handle share links
   if (searchInput) searchInput.focus();
   
+  // View Toggle Listeners
+  if (gridViewBtn) gridViewBtn.onclick = () => setViewMode('grid');
+  if (listViewBtn) listViewBtn.onclick = () => setViewMode('list');
+
   // Show keyboard shortcuts hint on first visit
   if (!localStorage.getItem('prompt-library-hint-shown')) {
     setTimeout(() => showKeyboardHint(), 1500);
@@ -975,3 +1080,19 @@ const initDragToScroll = () => {
 window.addEventListener('DOMContentLoaded', () => {
   initDragToScroll();
 });
+
+// Back to Top Logic
+const backToTopBtn = document.getElementById('backToTop');
+if (backToTopBtn) {
+  window.addEventListener('scroll', () => {
+    if (window.pageYOffset > 300) {
+      backToTopBtn.classList.add('show');
+    } else {
+      backToTopBtn.classList.remove('show');
+    }
+  });
+
+  backToTopBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
