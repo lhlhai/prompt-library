@@ -739,6 +739,36 @@ const closeModal = () => {
   variableValues = {};
 };
 
+// Feature #26: Export to CSV for Jira/TestRail
+const exportToCSV = (prompt) => {
+  const baseText = hasEditedPrompt(prompt.number) ? getEditedPrompt(prompt.number) : prompt.prompt;
+  const finalPrompt = replaceVariables(baseText, variableValues);
+  
+  // Create CSV content (Summary, Description, Priority)
+  const headers = ["Summary", "Description", "Label", "Priority"];
+  const row = [
+    `Prompt: ${prompt.name}`,
+    finalPrompt.replace(/"/g, '""'), // Escape double quotes
+    prompt.label,
+    "Medium"
+  ];
+  
+  const csvContent = [
+    headers.join(","),
+    row.map(cell => `"${cell}"`).join(",")
+  ].join("\n");
+  
+  const blob = new Blob(["\ufeff" + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", `prompt_${prompt.number}_export.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast('✓ Exported to CSV!');
+};
+
 // ==================== EVENTS ====================
 // Tab Switching Logic
 document.querySelectorAll('.modal-tab').forEach(tab => {
@@ -787,6 +817,14 @@ if (favoriteFilterBtn) {
 }
 
 if (modalClose) modalClose.addEventListener('click', closeModal);
+
+const modalExportCSV = document.getElementById('modalExportCSV');
+if (modalExportCSV) {
+  modalExportCSV.addEventListener('click', () => {
+    if (currentModalPrompt) exportToCSV(currentModalPrompt);
+  });
+}
+
 const compModalClose = document.getElementById('comparisonModalClose');
 if (compModalClose) compModalClose.addEventListener('click', closeComparisonModal);
 
