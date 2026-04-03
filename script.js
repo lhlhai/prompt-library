@@ -771,7 +771,11 @@ const exportToCSV = (prompt) => {
 
 // Feature #24: Knowledge Graph Logic
 if (typeof mermaid !== 'undefined') {
-  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+  mermaid.initialize({ 
+    startOnLoad: false, 
+    theme: 'default',
+    securityLevel: 'loose'
+  });
 }
 
 const toggleGraphBtn = document.getElementById('toggleGraphBtn');
@@ -780,8 +784,12 @@ if (toggleGraphBtn && graphContainer) {
   toggleGraphBtn.addEventListener('click', () => {
     const isHidden = graphContainer.style.display === 'none';
     graphContainer.style.display = isHidden ? 'block' : 'none';
+    
     if (isHidden && typeof mermaid !== 'undefined') {
-      mermaid.contentLoaded();
+      // Re-render mermaid when showing the container
+      mermaid.run({
+        nodes: [document.getElementById('mermaidGraph')]
+      });
     }
   });
 }
