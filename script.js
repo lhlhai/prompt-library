@@ -31,6 +31,7 @@ let searchTimeout;
 let variableValues = {}; // Store variable values for current prompt
 let showFavoritesOnly = false; // New state for favorites filter
 let comparisonList = []; // State for comparison mode
+let currentCollectionId = 'all'; // Default collection
 
 // DOM Elements
 const grid = document.getElementById('promptGrid');
@@ -133,8 +134,9 @@ const toggleFavorite = (promptNumber) => {
   localStorage.setItem('prompt-library-favorites', JSON.stringify(favorites));
   updateFavoriteButtons();
   
-  // If we are in "Favorites Only" mode, we need to re-filter
-  if (showFavoritesOnly) {
+  // If we are in "Favorites Only" mode or "My Collection", we need to re-filter
+  const isMyCollection = window.APP_CONFIG && APP_CONFIG.enableMultiPage && currentCollectionId === 'my-collection';
+  if (showFavoritesOnly || isMyCollection) {
     filterPrompts(searchInput.value);
   }
 };
@@ -289,9 +291,22 @@ const countByCategory = (category) => {
 
 const filterPrompts = (query) => {
   const q = (query || '').toLowerCase().trim();
+
+  // Step 0: Apply Collection Filter
+  let collectionCandidates = PROMPTS;
+  if (window.APP_CONFIG && APP_CONFIG.enableMultiPage) {
+    const currentCollection = APP_CONFIG.collections.find(c => c.id === currentCollectionId);
+    if (currentCollection) {
+      if (currentCollection.isPersonal) {
+        collectionCandidates = PROMPTS.filter(p => isFavorite(p.number));
+      } else if (currentCollection.filter) {
+        collectionCandidates = PROMPTS.filter(currentCollection.filter);
+      }
+    }
+  }
   
   // Step 1: Apply category and favorites filters
-  let candidates = PROMPTS.filter(p => {
+  let candidates = collectionCandidates.filter(p => {
     if (p.disabled) return false;
     if (showFavoritesOnly && !isFavorite(p.number)) return false;
     const categoryMatch = selectedCategories.length === 0 || selectedCategories.includes(p.label);
@@ -865,8 +880,49 @@ const showKeyboardHint = () => {
   setTimeout(() => hint.remove(), 8000);
 };
 
+// ==================== NAVIGATION & COLLECTIONS ====================
+const initNavbar = () => {
+  if (!window.APP_CONFIG || !APP_CONFIG.enableMultiPage) return;
+  
+  const navbar = document.getElementById('navbar');
+  const menu = document.getElementById('navbarMenu');
+  if (!navbar || !menu) return;
+  
+  navbar.style.display = 'block';
+  menu.innerHTML = '';
+  
+  APP_CONFIG.collections.forEach(col => {
+    const item = document.createElement('div');
+    item.className = `navbar-item ${col.id === currentCollectionId ? 'active' : ''}`;
+    item.innerHTML = `<span class="navbar-icon">${col.icon}</span> ${col.name}`;
+    item.title = col.description;
+    
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.navbar-item').forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+      currentCollectionId = col.id;
+      
+      // Reset other filters when switching collections for clarity
+      selectedCategories = [];
+      if (searchInput) searchInput.value = '';
+      
+      initCategoryChips();
+      filterPrompts('');
+      
+      // Update header title/desc based on collection
+      const headerTitle = document.querySelector('header h1');
+      const headerDesc = document.querySelector('header p');
+      if (headerTitle) headerTitle.textContent = `${col.icon} ${col.name}`;
+      if (headerDesc) headerDesc.textContent = col.description;
+    });
+    
+    menu.appendChild(item);
+  });
+};
+
 // ==================== INITIALIZATION ====================
 window.addEventListener('DOMContentLoaded', () => {
+  initNavbar();
   initQuickToolbar();
   initCategoryChips();
   filterPrompts(''); // Khởi tạo hiển thị ban đầu

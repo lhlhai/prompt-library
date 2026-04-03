@@ -8,7 +8,22 @@
 </head>
 <body>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="config.js"></script>
   <script src="search-optimizer.js"></script>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar" id="navbar" style="display: none;">
+    <div class="navbar-container">
+      <div class="navbar-brand">
+        <span class="navbar-logo">📚</span>
+        <span class="navbar-title">Prompt Library</span>
+      </div>
+      <div class="navbar-menu" id="navbarMenu">
+        <!-- Menu items will be injected here -->
+      </div>
+    </div>
+  </nav>
+
   <!-- Comparison Bar -->
   <div class="comparison-bar" id="comparisonBar" style="display: none;">
     <div class="comparison-info">
