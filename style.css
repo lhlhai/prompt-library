@@ -120,12 +120,32 @@ header p { color: var(--text-muted); font-size: 1.1rem; }
   overflow-x: auto;
   overflow-y: hidden;
   padding: 4px 0;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: thin; /* Firefox */
+  -ms-overflow-style: auto; /* IE/Edge */
+  cursor: grab;
+  user-select: none;
+}
+
+.category-chips-container:active {
+  cursor: grabbing;
 }
 
 .category-chips-container::-webkit-scrollbar {
-  display: none; /* Chrome/Safari */
+  height: 6px;
+  display: block; /* Show on desktop */
+}
+
+.category-chips-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.category-chips-container::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+}
+
+.category-chips-container::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
 
 .category-chip {
