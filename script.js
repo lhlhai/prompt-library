@@ -985,16 +985,19 @@ const initNavbar = () => {
   if (!navbar || !menu) return;
   
   navbar.style.display = 'block';
-  menu.innerHTML = '';
   
+  // Get existing navigation items (from shared-components.js)
+  const existingItems = menu.querySelectorAll('a.navbar-item');
+  
+  // Add collection items after the existing navigation
   APP_CONFIG.collections.forEach(col => {
     const item = document.createElement('div');
-    item.className = `navbar-item ${col.id === currentCollectionId ? 'active' : ''}`;
+    item.className = `navbar-item navbar-collection ${col.id === currentCollectionId ? 'active' : ''}`;
     item.innerHTML = `<span class="navbar-icon">${col.icon}</span> ${col.name}`;
     item.title = col.description;
     
     item.addEventListener('click', () => {
-      document.querySelectorAll('.navbar-item').forEach(i => i.classList.remove('active'));
+      document.querySelectorAll('.navbar-item.navbar-collection').forEach(i => i.classList.remove('active'));
       item.classList.add('active');
       currentCollectionId = col.id;
       
