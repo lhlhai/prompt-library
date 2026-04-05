@@ -35,60 +35,74 @@
                 <button class="btn btn-secondary">DAILY LOG</button>
             </div>
         </div>
-        <div class="hero-image">
-            <svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <!-- Laboratory shelf illustration -->
-                <rect x="40" y="80" width="220" height="160" rx="8" fill="#1a5490" opacity="0.1"/>
-                
-                <!-- Shelf 1 -->
-                <line x1="40" y1="120" x2="260" y2="120" stroke="#0052cc" stroke-width="3"/>
-                
-                <!-- Shelf 2 -->
-                <line x1="40" y1="170" x2="260" y2="170" stroke="#0052cc" stroke-width="3"/>
-                
-                <!-- Shelf 3 -->
-                <line x1="40" y1="220" x2="260" y2="220" stroke="#0052cc" stroke-width="3"/>
-                
-                <!-- Test tubes -->
-                <rect x="60" y="130" width="15" height="40" rx="2" fill="#ff6b6b"/>
-                <circle cx="67.5" cy="125" r="8" fill="#ff6b6b"/>
-                
-                <rect x="85" y="140" width="15" height="30" rx="2" fill="#ffa94d"/>
-                <circle cx="92.5" cy="135" r="8" fill="#ffa94d"/>
-                
-                <rect x="110" y="135" width="15" height="35" rx="2" fill="#4ecdc4"/>
-                <circle cx="117.5" cy="130" r="8" fill="#4ecdc4"/>
-                
-                <!-- Beaker -->
-                <path d="M 140 145 L 145 185 Q 145 190 140 190 Q 135 190 135 185 L 140 145" fill="#ff6b6b" opacity="0.7"/>
-                <line x1="135" y1="145" x2="145" y2="145" stroke="#ff6b6b" stroke-width="2"/>
-                
-                <!-- Flask -->
-                <circle cx="170" cy="150" r="12" fill="#4ecdc4" opacity="0.7"/>
-                <rect x="166" y="162" width="8" height="20" fill="#4ecdc4" opacity="0.7"/>
-                <rect x="164" y="182" width="12" height="8" fill="#4ecdc4" opacity="0.7"/>
-                
-                <!-- Graduated cylinder -->
-                <rect x="195" y="140" width="12" height="50" rx="2" fill="#95e1d3" opacity="0.7"/>
-                <line x1="195" y1="145" x2="207" y2="145" stroke="#0052cc" stroke-width="1"/>
-                <line x1="195" y1="155" x2="207" y2="155" stroke="#0052cc" stroke-width="1"/>
-                <line x1="195" y1="165" x2="207" y2="165" stroke="#0052cc" stroke-width="1"/>
-                <line x1="195" y1="175" x2="207" y2="175" stroke="#0052cc" stroke-width="1"/>
-                
-                <!-- Bubbles -->
-                <circle cx="75" cy="115" r="3" fill="#0052cc" opacity="0.5"/>
-                <circle cx="100" cy="125" r="2" fill="#0052cc" opacity="0.5"/>
-                <circle cx="125" cy="120" r="2.5" fill="#0052cc" opacity="0.5"/>
-                
-                <!-- Decorative elements -->
-                <circle cx="55" cy="95" r="4" fill="#0052cc" opacity="0.3"/>
-                <circle cx="240" cy="100" r="3" fill="#0052cc" opacity="0.3"/>
-            </svg>
-            <div class="day-badge">
-                <div class="day-number">Day 45</div>
-                <div class="day-label">API Testing Masterclass</div>
-            </div>
-        </div>
+       <div class="hero-image">
+    <svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Background panel -->
+        <rect x="40" y="50" width="220" height="200" rx="12" fill="#1a5490" opacity="0.08"/>
+
+        <!-- Monitor / test screen -->
+        <rect x="70" y="65" width="160" height="110" rx="8" fill="#0052cc" opacity="0.15" stroke="#0052cc" stroke-width="2"/>
+        <rect x="78" y="73" width="144" height="94" rx="4" fill="#e8f0fe"/>
+
+        <!-- Code lines on screen -->
+        <rect x="88" y="83" width="60" height="6" rx="3" fill="#0052cc" opacity="0.4"/>
+        <rect x="88" y="95" width="90" height="6" rx="3" fill="#0052cc" opacity="0.25"/>
+        <rect x="88" y="107" width="70" height="6" rx="3" fill="#0052cc" opacity="0.25"/>
+        <rect x="88" y="119" width="50" height="6" rx="3" fill="#0052cc" opacity="0.25"/>
+
+        <!-- ✓ PASS badge on screen -->
+        <rect x="148" y="100" width="60" height="24" rx="6" fill="#2ecc71"/>
+        <text x="178" y="116" text-anchor="middle" font-size="11" font-weight="bold" fill="white" font-family="monospace">✓ PASS</text>
+
+        <!-- Monitor stand -->
+        <rect x="138" y="175" width="24" height="14" rx="2" fill="#0052cc" opacity="0.3"/>
+        <rect x="120" y="188" width="60" height="6" rx="3" fill="#0052cc" opacity="0.2"/>
+
+        <!-- Bug icon - left -->
+        <circle cx="85" cy="220" r="14" fill="#ff6b6b" opacity="0.15" stroke="#ff6b6b" stroke-width="1.5"/>
+        <ellipse cx="85" cy="221" rx="6" ry="8" fill="#ff6b6b" opacity="0.7"/>
+        <line x1="79" y1="216" x2="73" y2="211" stroke="#ff6b6b" stroke-width="1.5"/>
+        <line x1="91" y1="216" x2="97" y2="211" stroke="#ff6b6b" stroke-width="1.5"/>
+        <line x1="79" y1="222" x2="72" y2="222" stroke="#ff6b6b" stroke-width="1.5"/>
+        <line x1="91" y1="222" x2="98" y2="222" stroke="#ff6b6b" stroke-width="1.5"/>
+        <line x1="80" y1="228" x2="74" y2="234" stroke="#ff6b6b" stroke-width="1.5"/>
+        <line x1="90" y1="228" x2="96" y2="234" stroke="#ff6b6b" stroke-width="1.5"/>
+        <!-- X over bug -->
+        <line x1="78" y1="214" x2="92" y2="228" stroke="#cc0000" stroke-width="2" stroke-linecap="round"/>
+        <line x1="92" y1="214" x2="78" y2="228" stroke="#cc0000" stroke-width="2" stroke-linecap="round"/>
+
+        <!-- Checklist - right -->
+        <rect x="185" y="200" width="68" height="72" rx="6" fill="white" stroke="#0052cc" stroke-width="1.5" opacity="0.9"/>
+        <!-- Checklist items -->
+        <rect x="193" y="213" width="8" height="8" rx="2" fill="#2ecc71"/>
+        <rect x="193" y="228" width="8" height="8" rx="2" fill="#2ecc71"/>
+        <rect x="193" y="243" width="8" height="8" rx="2" fill="#ffa94d"/>
+        <rect x="193" y="258" width="8" height="8" rx="2" fill="#e0e0e0"/>
+        <rect x="206" y="215" width="38" height="4" rx="2" fill="#0052cc" opacity="0.3"/>
+        <rect x="206" y="230" width="32" height="4" rx="2" fill="#0052cc" opacity="0.3"/>
+        <rect x="206" y="245" width="36" height="4" rx="2" fill="#0052cc" opacity="0.3"/>
+        <rect x="206" y="260" width="28" height="4" rx="2" fill="#0052cc" opacity="0.2"/>
+        <!-- Checkmarks -->
+        <polyline points="194,217 196,220 200,215" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <polyline points="194,232 196,235 200,230" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+
+        <!-- Magnifying glass -->
+        <circle cx="148" cy="230" r="16" fill="none" stroke="#0052cc" stroke-width="3" opacity="0.6"/>
+        <circle cx="148" cy="230" r="10" fill="#0052cc" opacity="0.08"/>
+        <line x1="159" y1="241" x2="170" y2="252" stroke="#0052cc" stroke-width="3.5" stroke-linecap="round" opacity="0.6"/>
+
+        <!-- Decorative dots -->
+        <circle cx="55" cy="70" r="4" fill="#0052cc" opacity="0.2"/>
+        <circle cx="245" cy="68" r="3" fill="#0052cc" opacity="0.2"/>
+        <circle cx="58" cy="240" r="3" fill="#ffa94d" opacity="0.3"/>
+        <circle cx="248" cy="185" r="4" fill="#2ecc71" opacity="0.3"/>
+    </svg>
+
+    <div class="day-badge">
+        <div class="day-number">Day 45</div>
+        <div class="day-label">Testing Masterclass</div>
+    </div>
+</div>
     </section>
 
     <!-- Curriculum Section -->
@@ -132,3 +146,4 @@
     <script src="script.js"></script>
 </body>
 </html>
+a
