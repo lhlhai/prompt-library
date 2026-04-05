@@ -35,15 +35,6 @@
             "category": "SDLC",
             "author": "The Manual Authority",
             "image": null
-        },
-        {
-            "id": 1,
-            "file": "001.json",
-            "day": "Day 01",
-            "title": "The Foundation of Exploratory Testing",
-            "category": "FUNDAMENTALS",
-            "author": "The Manual Authority",
-            "image": null
         }
     ],
     "categories": [
