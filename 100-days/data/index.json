@@ -1,15 +1,6 @@
 {
     "posts": [
         {
-            "id": 45,
-            "file": "045.json",
-            "day": "Day 45 / 100",
-            "title": "API Testing Basics: Navigating the Technical Landscape",
-            "category": "API TESTING",
-            "author": "Alex Smith",
-            "image": "https://images.unsplash.com/photo-1516116216624-53e697fedbea?auto=format&fit=crop&q=80&w=1200"
-        },
-        {
             "id": 4,
             "file": "004.json",
             "day": "Day 04",
