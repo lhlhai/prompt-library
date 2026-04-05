@@ -1,6 +1,15 @@
 {
     "posts": [
         {
+            "id": 8,
+            "file": "008.json",
+            "day": "Day 08",
+            "title": "Các Mức Độ Test: Unit, Integration, System, Acceptance",
+            "category": "TEST LEVELS",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
             "id": 7,
             "file": "007.json",
             "day": "Day 07",
@@ -77,6 +86,7 @@
         "STATIC",
         "TECHNIQUES",
         "TEST DESIGN",
+        "TEST LEVELS",
         "TEST MANAGEMENT"
     ],
     "categoryDetails": [
