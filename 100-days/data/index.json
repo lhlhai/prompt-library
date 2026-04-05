@@ -1,6 +1,15 @@
 {
     "posts": [
         {
+            "id": 5,
+            "file": "005.json",
+            "day": "Day 05",
+            "title": "Test Case Cơ Bản & Happy vs Unhappy Path",
+            "category": "TEST DESIGN",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
             "id": 4,
             "file": "004.json",
             "day": "Day 04",
@@ -47,7 +56,8 @@
         "Best Practices",
         "Fundamentals",
         "STATIC",
-        "TECHNIQUES"
+        "TECHNIQUES",
+        "TEST DESIGN"
     ],
     "categoryDetails": [
         {
