@@ -1,0 +1,11 @@
+{
+    "id": 1,
+    "day": "Day 01",
+    "title": "The Foundation of Exploratory Testing",
+    "excerpt": "Discover why intuition remains the most powerful tool in a manual tester's arsenal, despite the rise of automated scripts.",
+    "category": "FUNDAMENTALS",
+    "author": "The Manual Authority",
+    "source": "Guru99 Foundation",
+    "image": null,
+    "content": "<p>Exploratory testing is more than just 'clicking around'. It is a structured approach to software testing that emphasizes the personal freedom and responsibility of the individual tester to continually optimize the quality of their work by treating test-related learning, test design, test execution, and test result interpretation as mutually supportive activities that run in parallel throughout the project.</p><h3>Key Principles</h3><ul><li>Simultaneous learning, test design, and execution.</li><li>The tester's intuition and experience are central.</li><li>Adaptability to new information discovered during testing.</li></ul>"
+}

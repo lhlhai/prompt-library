@@ -81,102 +81,18 @@
     <script src="script.js"></script>
     <script>
         // Post detail specific logic
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Wait for data to be loaded from script.js
+            let attempts = 0;
+            while ((!window.posts || window.posts.length === 0) && attempts < 50) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
+            }
+            
             const urlParams = new URLSearchParams(window.location.search);
             const postId = parseInt(urlParams.get('id')) || 45; // Default to 45 for demo
-            loadPostDetail(postId);
+            await window.loadPostDetail(postId);
         });
-
-        function loadPostDetail(id) {
-            const post = posts.find(p => p.id === id);
-            if (!post) {
-                document.getElementById('post-article').innerHTML = '<h1>Post not found</h1><a href="index.html">Return to Home</a>';
-                return;
-            }
-
-            // Update Page Title
-            document.title = `${post.title} - 100 Days of Manual Testing`;
-
-            // Render Post Content
-            const article = document.getElementById('post-article');
-            article.innerHTML = `
-                <div class="post-header">
-                    <div class="post-day">${post.day}</div>
-                    <h1>${post.title}</h1>
-                    <div class="author-meta">
-                        <div class="author-avatar">
-                            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(post.author)}&background=0052cc&color=fff" alt="${post.author}">
-                        </div>
-                        <div class="author-info">
-                            <div class="name">By: ${post.author}</div>
-                            <div class="role-date">${post.authorRole || 'Contributor'} • ${post.date || 'Recently'}</div>
-                        </div>
-                    </div>
-                </div>
-                
-                ${post.image ? `
-                <div class="post-featured-image">
-                    <img src="${post.image}" alt="${post.title}">
-                </div>
-                ` : ''}
-
-                <div class="post-body">
-                    ${post.content || `<p>${post.excerpt}</p><p>Full content coming soon...</p>`}
-                </div>
-            `;
-
-            // Render Related Posts
-            const relatedContainer = document.getElementById('related-posts');
-            if (post.related && post.related.length > 0) {
-                relatedContainer.innerHTML = '';
-                post.related.forEach(relId => {
-                    const relPost = posts.find(p => p.id === relId);
-                    if (relPost) {
-                        const item = document.createElement('div');
-                        item.className = 'related-post-item';
-                        item.onclick = () => window.location.href = `detail.html?id=${relId}`;
-                        item.innerHTML = `
-                            <div class="related-thumb">
-                                <img src="${relPost.image || 'https://via.placeholder.com/60'}" alt="${relPost.title}">
-                            </div>
-                            <div class="related-info">
-                                <div class="day">${relPost.day}</div>
-                                <div class="title">${relPost.title}</div>
-                            </div>
-                        `;
-                        relatedContainer.appendChild(item);
-                    }
-                });
-            } else {
-                relatedContainer.innerHTML = '<p>No related posts found.</p>';
-            }
-
-            // Render Comments
-            const commentsList = document.getElementById('comments-list');
-            const commentCount = document.getElementById('comment-count');
-            if (post.comments && post.comments.length > 0) {
-                commentCount.textContent = post.comments.length;
-                commentsList.innerHTML = '';
-                post.comments.forEach(comment => {
-                    const item = document.createElement('div');
-                    item.className = 'comment-item';
-                    item.innerHTML = `
-                        <div class="comment-avatar" style="background-color: #eee; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">👤</div>
-                        <div class="comment-content">
-                            <div class="comment-header">
-                                <span class="comment-user">${comment.user}</span>
-                                <span class="comment-time">${comment.time}</span>
-                            </div>
-                            <div class="comment-text">${comment.text}</div>
-                        </div>
-                    `;
-                    commentsList.appendChild(item);
-                });
-            } else {
-                commentCount.textContent = '0';
-                commentsList.innerHTML = '<p style="color: var(--text-light); font-style: italic;">No discussions yet.</p>';
-            }
-        }
     </script>
 </body>
 </html>
