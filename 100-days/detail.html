@@ -64,16 +64,28 @@
     <script>
         // Post detail specific logic
         document.addEventListener('DOMContentLoaded', async () => {
-            // Wait for data to be loaded from script.js
-            let attempts = 0;
-            while ((!window.posts || window.posts.length === 0) && attempts < 50) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-                attempts++;
-            }
-            
             const urlParams = new URLSearchParams(window.location.search);
             const postId = parseInt(urlParams.get('id')) || 45; // Default to 45 for demo
-            await window.loadPostDetail(postId);
+            
+            // If data is already loaded
+            if (window.posts && window.posts.length > 0) {
+                await window.loadPostDetail(postId);
+            } else {
+                // Wait for custom event from script.js
+                document.addEventListener('dataReady', async () => {
+                    await window.loadPostDetail(postId);
+                });
+                
+                // Fallback: poll for a short time
+                let attempts = 0;
+                const poll = setInterval(async () => {
+                    if (window.posts && window.posts.length > 0) {
+                        clearInterval(poll);
+                        await window.loadPostDetail(postId);
+                    }
+                    if (++attempts > 50) clearInterval(poll);
+                }, 100);
+            }
         });
     </script>
 </body>

@@ -41,17 +41,14 @@ async function loadDataFromJSON() {
         specializedDomains = indexData.specializedDomains || [];
         
         // Update window object for immediate access by other scripts
-        if (typeof window !== 'undefined') {
-            window.categories = categories;
-            window.categoryDetails = categoryDetails;
-            window.specializedDomains = specializedDomains;
-        }
+        window.categories = categories;
+        window.categoryDetails = categoryDetails;
+        window.specializedDomains = specializedDomains;
         
         // Store post metadata and initialize empty posts array
         const postMetadata = indexData.posts || [];
         
         // Initially, we only need the metadata to render the grid
-        // Full content will be loaded only when needed (lazy loading)
         posts = postMetadata.map(meta => ({
             ...meta,
             isLoaded: false
@@ -59,16 +56,21 @@ async function loadDataFromJSON() {
         
         // Sort posts by id (descending - newest first)
         posts.sort((a, b) => b.id - a.id);
+        window.posts = posts;
         
         if (mainLoading) mainLoading.style.display = 'none';
+        
+        // Trigger custom event that data is ready
+        document.dispatchEvent(new CustomEvent('dataReady'));
+        
     } catch (error) {
         if (mainLoading) mainLoading.style.display = 'none';
         console.error('Failed to load data from JSON:', error);
         // Fallback to empty data
         categories = ["All Topics"];
-        categoryDetails = [];
-        specializedDomains = [];
+        window.categories = categories;
         posts = [];
+        window.posts = posts;
     }
 }
 
@@ -84,6 +86,7 @@ async function ensurePostLoaded(post) {
         const index = posts.findIndex(p => p.id === post.id);
         if (index !== -1) {
             posts[index] = { ...fullData, isLoaded: true };
+            window.posts = posts;
             return posts[index];
         }
     } catch (error) {
@@ -125,8 +128,6 @@ function setupEventListeners() {
             renderPosts(true);
         });
     }
-
-
 }
 
 function setupThemeToggle() {
@@ -182,7 +183,7 @@ function filterAndRenderPosts() {
                                post.category.toLowerCase().includes(selectedCategory.toLowerCase());
         const matchesSearch = searchQuery === "" || 
                              post.title.toLowerCase().includes(searchQuery) ||
-                             post.excerpt.toLowerCase().includes(searchQuery);
+                             (post.excerpt && post.excerpt.toLowerCase().includes(searchQuery));
         return matchesCategory && matchesSearch;
     });
     currentPage = 1;
@@ -209,7 +210,6 @@ async function renderPosts(append = false) {
     });
 
     // Load each post and update its card when ready
-    // This allows the UI to show skeletons immediately and fill them as data arrives
     cards.forEach(async ({ post, card }) => {
         if (!post.isLoaded) {
             const fullData = await ensurePostLoaded(post);
@@ -263,7 +263,7 @@ function createPostCard(post) {
             <div class="post-day">${post.day}</div>
             <div class="post-category">${post.category}</div>
             <h3 class="post-title">${post.title}</h3>
-            <p class="post-excerpt">${post.excerpt}</p>
+            <p class="post-excerpt">${post.excerpt || ''}</p>
             <div class="post-footer">
                 <div>
                     <div class="post-author">${post.author}</div>
@@ -290,18 +290,11 @@ function updateLoadMoreButton() {
 }
 
 function navigateToPost(postId) {
-    // Navigate to post detail page
     window.location.href = `detail.html?id=${postId}`;
 }
 
-// Export data for other pages access
-if (typeof window !== 'undefined') {
-    window.posts = posts;
-    window.categories = categories;
-    window.categoryDetails = categoryDetails;
-    window.specializedDomains = specializedDomains;
-    window.loadPostDetail = loadPostDetail;
-}
+// Export for other scripts
+window.loadPostDetail = loadPostDetail;
 
 // Load post detail
 async function loadPostDetail(id) {
@@ -357,14 +350,12 @@ async function loadPostDetail(id) {
         </div>
     `;
 
-    // Related posts rendering removed to save space as requested
-
-    // Render Next/Previous Navigation
+    // Render Navigation
     renderPostNavigation(id);
 }
 
 function renderPostNavigation(currentId) {
-    // Sort posts by ID to ensure correct sequence
+    // Sort posts by ID ascending to get correct sequence
     const sortedPosts = [...posts].sort((a, b) => a.id - b.id);
     const currentIndex = sortedPosts.findIndex(p => p.id === currentId);
     
@@ -395,7 +386,7 @@ function renderPostNavigation(currentId) {
     article.appendChild(navContainer);
 }
 
-// Navigation
+// Navigation links
 const navLinks = document.querySelectorAll('nav a');
 navLinks.forEach(link => {
     link.addEventListener('click', (e) => {

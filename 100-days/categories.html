@@ -58,17 +58,32 @@
     <script src="script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-            // Wait for data to be loaded from script.js
-            let attempts = 0;
-            while ((!window.categoryDetails || window.categoryDetails.length === 0) && attempts < 50) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-                attempts++;
+            // If data is already loaded
+            if (window.categoryDetails && window.categoryDetails.length > 0) {
+                initCategoriesPage();
+            } else {
+                // Wait for custom event from script.js
+                document.addEventListener('dataReady', () => {
+                    initCategoriesPage();
+                });
+                
+                // Fallback: poll for a short time
+                let attempts = 0;
+                const poll = setInterval(() => {
+                    if (window.categoryDetails && window.categoryDetails.length > 0) {
+                        clearInterval(poll);
+                        initCategoriesPage();
+                    }
+                    if (++attempts > 50) clearInterval(poll);
+                }, 100);
             }
-            
+        });
+
+        function initCategoriesPage() {
             renderCategories();
             renderSpecializedDomains();
             setupCategorySearch();
-        });
+        }
 
         function renderCategories(filter = '') {
             const grid = document.getElementById('categories-grid');

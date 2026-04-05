@@ -10,6 +10,15 @@
             "image": "https://images.unsplash.com/photo-1516116216624-53e697fedbea?auto=format&fit=crop&q=80&w=800"
         },
         {
+            "id": 2,
+            "file": "002.json",
+            "day": "Day 02",
+            "title": "V-Model & Verification vs Validation",
+            "category": "SDLC",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
             "id": 1,
             "file": "001.json",
             "day": "Day 01",
@@ -23,6 +32,7 @@
         "All Topics",
         "UI Testing",
         "API Testing",
+        "SDLC",
         "Mobile Testing",
         "Tools",
         "Best Practices",
@@ -30,13 +40,22 @@
     ],
     "categoryDetails": [
         {
+            "id": "sdlc-models",
+            "title": "SDLC & Models",
+            "description": "Understanding Software Development Life Cycle models like Waterfall, Agile, and V-Model for better test planning.",
+            "lessons": 14,
+            "icon": "🔄",
+            "color": "#8b5cf6",
+            "featured": true
+        },
+        {
             "id": "ui-ux",
             "title": "UI & UX Testing",
             "description": "Master the art of visual validation, accessibility standards, and intuitive navigation flows across diverse screen resolutions.",
             "lessons": 24,
             "icon": "💻",
             "color": "#0052cc",
-            "featured": true
+            "featured": false
         },
         {
             "id": "api-integration",
