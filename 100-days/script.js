@@ -27,6 +27,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Load data from JSON files
 async function loadDataFromJSON() {
+    const mainLoading = document.getElementById('main-loading');
+    if (mainLoading) mainLoading.style.display = 'flex';
+    
     try {
         // Load index.json to get metadata and list of posts
         const response = await fetch(`${CONFIG.dataPath}index.json`);
@@ -50,7 +53,9 @@ async function loadDataFromJSON() {
         // Sort posts by id (descending - newest first)
         posts.sort((a, b) => b.id - a.id);
         
+        if (mainLoading) mainLoading.style.display = 'none';
     } catch (error) {
+        if (mainLoading) mainLoading.style.display = 'none';
         console.error('Failed to load data from JSON:', error);
         // Fallback to empty data
         categories = ["All Topics"];
@@ -342,31 +347,7 @@ async function loadPostDetail(id) {
         </div>
     `;
 
-    // Render Related Posts
-    const relatedContainer = document.getElementById('related-posts');
-    if (post.related && post.related.length > 0) {
-        relatedContainer.innerHTML = '';
-        post.related.forEach(relId => {
-            const relPost = posts.find(p => p.id === relId);
-            if (relPost) {
-                const item = document.createElement('div');
-                item.className = 'related-post-item';
-                item.onclick = () => window.location.href = `detail.html?id=${relId}`;
-                item.innerHTML = `
-                    <div class="related-thumb">
-                        <img src="${relPost.image || 'https://via.placeholder.com/60'}" alt="${relPost.title}">
-                    </div>
-                    <div class="related-info">
-                        <div class="day">${relPost.day}</div>
-                        <div class="title">${relPost.title}</div>
-                    </div>
-                `;
-                relatedContainer.appendChild(item);
-            }
-        });
-    } else {
-        relatedContainer.innerHTML = '<p>No related posts found.</p>';
-    }
+    // Related posts rendering removed to save space as requested
 
 
 }
