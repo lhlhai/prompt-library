@@ -3,11 +3,87 @@ const CONFIG = {
     postsPerPage: 6,
     enableSearch: true,
     enableFiltering: true,
-    enableThemeToggle: true
+    enableThemeToggle: true,
+    readOnlyMode: true // New: Global read-only mode
 };
 
 // Data
 const posts = [
+    {
+        id: 45,
+        day: "Day 45 / 100",
+        title: "API Testing Basics: Navigating the Technical Landscape",
+        excerpt: "Manual testing isn't just about clicking buttons on a UI. As systems become more decoupled, the ability to verify logic at the service layer becomes critical.",
+        category: "API TESTING",
+        author: "Alex Smith",
+        authorRole: "Senior Quality Engineer",
+        date: "Oct 24, 2024",
+        source: "https://example.com/api-basics",
+        image: "https://images.unsplash.com/photo-1516116216624-53e697fedbea?auto=format&fit=crop&q=80&w=1200",
+        content: `
+            <p>Manual testing isn't just about clicking buttons on a UI. As systems become more decoupled, the ability to verify logic at the service layer becomes critical. Today, we dive into the fundamental concepts of API testing—the bridge between technical implementation and business logic.</p>
+            
+            <h3>What is an API?</h3>
+            <p>In the simplest terms, an API (Application Programming Interface) is a set of rules that allows one software application to talk to another. Think of it as a waiter in a restaurant: you (the client) give an order (the request), and the waiter takes it to the kitchen (the server) and brings back your food (the response).</p>
+            
+            <div class="info-box">
+                <h4>Core Components of an API Request</h4>
+                <ul>
+                    <li><strong>Endpoint:</strong> The URL where the service is hosted.</li>
+                    <li><strong>Method:</strong> The type of action (GET, POST, PUT, DELETE).</li>
+                    <li><strong>Headers:</strong> Metadata like authentication tokens or content type.</li>
+                    <li><strong>Body:</strong> The data being sent to the server (typically JSON).</li>
+                </ul>
+            </div>
+
+            <h3>Practical Example: The JSON Structure</h3>
+            <p>Below is a typical example of a successful response body for a user profile request.</p>
+            
+            <pre><code>{
+  "status": "success",
+  "data": {
+    "user_id": 10294,
+    "username": "tester_pro",
+    "role": "QA Lead",
+    "is_active": true
+  }
+}</code></pre>
+
+            <h3>The Reference Section</h3>
+            <div class="reference-box">
+                <p>🔗 Learn more from: <a href="https://example.com/api-basics" target="_blank">https://example.com/api-basics</a></p>
+            </div>
+        `,
+        related: [44, 46, 47],
+        comments: [
+            {
+                user: "Sarah Jenkins",
+                time: "2 hours ago",
+                text: "This was incredibly helpful! I've been struggling with understanding the difference between PUT and PATCH. Looking forward to Day 46."
+            }
+        ]
+    },
+    {
+        id: 44,
+        day: "Day 44",
+        title: "HTTP Status Codes Explained",
+        category: "FUNDAMENTALS",
+        image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=200"
+    },
+    {
+        id: 46,
+        day: "Day 46",
+        title: "Testing REST vs SOAP APIs",
+        category: "API TESTING",
+        image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=200"
+    },
+    {
+        id: 47,
+        day: "Day 47",
+        title: "Authentication and OAuth 2.0",
+        category: "SECURITY",
+        image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=200"
+    },
     {
         id: 1,
         day: "Day 01",
@@ -280,6 +356,11 @@ function updateLoadMoreButton() {
 function navigateToPost(postId) {
     // Navigate to post detail page
     window.location.href = `detail.html?id=${postId}`;
+}
+
+// Export posts for detail page access
+if (typeof window !== 'undefined') {
+    window.posts = posts;
 }
 
 // Navigation
