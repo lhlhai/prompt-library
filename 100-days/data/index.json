@@ -1,6 +1,15 @@
 {
     "posts": [
         {
+            "id": 10,
+            "file": "010.json",
+            "day": "Day 10",
+            "title": "Regression Testing – Sửa 1 Lỗi Sinh 10 Lỗi",
+            "category": "REGRESSION",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
             "id": 9,
             "file": "009.json",
             "day": "Day 09",
@@ -92,6 +101,7 @@
         "Best Practices",
         "Fundamentals",
         "BUG MANAGEMENT",
+        "REGRESSION",
         "STATIC",
         "TECHNIQUES",
         "TEST DESIGN",
