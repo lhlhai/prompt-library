@@ -37,19 +37,15 @@ async function loadDataFromJSON() {
         categoryDetails = indexData.categoryDetails || [];
         specializedDomains = indexData.specializedDomains || [];
         
-        // Load individual post files
+        // Store post metadata and initialize empty posts array
         const postMetadata = indexData.posts || [];
-        posts = [];
         
-        for (const meta of postMetadata) {
-            try {
-                const postResponse = await fetch(`${CONFIG.dataPath}${meta.file}`);
-                const postData = await postResponse.json();
-                posts.push(postData);
-            } catch (error) {
-                console.warn(`Failed to load post file: ${meta.file}`, error);
-            }
-        }
+        // Initially, we only need the metadata to render the grid
+        // Full content will be loaded only when needed (lazy loading)
+        posts = postMetadata.map(meta => ({
+            ...meta,
+            isLoaded: false
+        }));
         
         // Sort posts by id (descending - newest first)
         posts.sort((a, b) => b.id - a.id);
@@ -62,6 +58,26 @@ async function loadDataFromJSON() {
         specializedDomains = [];
         posts = [];
     }
+}
+
+// Lazy load full post data if not already loaded
+async function ensurePostLoaded(post) {
+    if (post.isLoaded) return post;
+    
+    try {
+        const postResponse = await fetch(`${CONFIG.dataPath}${post.file}`);
+        const fullData = await postResponse.json();
+        
+        // Update the post object in the global array
+        const index = posts.findIndex(p => p.id === post.id);
+        if (index !== -1) {
+            posts[index] = { ...fullData, isLoaded: true };
+            return posts[index];
+        }
+    } catch (error) {
+        console.warn(`Failed to load post file: ${post.file}`, error);
+    }
+    return post;
 }
 
 function initializeApp() {
@@ -98,17 +114,7 @@ function setupEventListeners() {
         });
     }
 
-    const newsletterBtn = document.querySelector('.newsletter-form button');
-    if (newsletterBtn) {
-        newsletterBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const email = document.querySelector('.newsletter-form input').value;
-            if (email) {
-                alert(`Thank you for subscribing with ${email}!`);
-                document.querySelector('.newsletter-form input').value = '';
-            }
-        });
-    }
+
 }
 
 function setupThemeToggle() {
@@ -171,7 +177,7 @@ function filterAndRenderPosts() {
     renderPosts();
 }
 
-function renderPosts(append = false) {
+async function renderPosts(append = false) {
     const postsGrid = document.querySelector('.posts-grid');
     if (!postsGrid) return;
 
@@ -183,7 +189,10 @@ function renderPosts(append = false) {
         postsGrid.innerHTML = '';
     }
 
-    postsToShow.forEach(post => {
+    // Use Promise.all to load only the necessary posts for the current page
+    const loadedPosts = await Promise.all(postsToShow.map(post => ensurePostLoaded(post)));
+
+    loadedPosts.forEach(post => {
         const postCard = createPostCard(post);
         postsGrid.appendChild(postCard);
     });
@@ -253,8 +262,10 @@ async function loadPostDetail(id) {
     // Try to find post in already loaded posts
     let post = posts.find(p => p.id === id);
     
-    // If not found, try to load it directly
-    if (!post) {
+    if (post) {
+        post = await ensurePostLoaded(post);
+    } else {
+        // If not found in the list, try to load it directly
         try {
             const paddedId = String(id).padStart(3, '0');
             const response = await fetch(`${CONFIG.dataPath}${paddedId}.json`);
@@ -326,31 +337,7 @@ async function loadPostDetail(id) {
         relatedContainer.innerHTML = '<p>No related posts found.</p>';
     }
 
-    // Render Comments
-    const commentsList = document.getElementById('comments-list');
-    const commentCount = document.getElementById('comment-count');
-    if (post.comments && post.comments.length > 0) {
-        commentCount.textContent = post.comments.length;
-        commentsList.innerHTML = '';
-        post.comments.forEach(comment => {
-            const item = document.createElement('div');
-            item.className = 'comment-item';
-            item.innerHTML = `
-                <div class="comment-avatar" style="background-color: #eee; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">👤</div>
-                <div class="comment-content">
-                    <div class="comment-header">
-                        <span class="comment-user">${comment.user}</span>
-                        <span class="comment-time">${comment.time}</span>
-                    </div>
-                    <div class="comment-text">${comment.text}</div>
-                </div>
-            `;
-            commentsList.appendChild(item);
-        });
-    } else {
-        commentCount.textContent = '0';
-        commentsList.innerHTML = '<p style="color: var(--text-light); font-style: italic;">No discussions yet.</p>';
-    }
+
 }
 
 // Navigation
