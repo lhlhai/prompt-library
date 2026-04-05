@@ -1,6 +1,15 @@
 {
     "posts": [
         {
+            "id": 9,
+            "file": "009.json",
+            "day": "Day 09",
+            "title": "Smoke Test vs Sanity Test",
+            "category": "TEST TYPES",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
             "id": 8,
             "file": "008.json",
             "day": "Day 08",
@@ -87,7 +96,8 @@
         "TECHNIQUES",
         "TEST DESIGN",
         "TEST LEVELS",
-        "TEST MANAGEMENT"
+        "TEST MANAGEMENT",
+        "TEST TYPES"
     ],
     "categoryDetails": [
         {
