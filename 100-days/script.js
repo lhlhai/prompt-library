@@ -40,6 +40,13 @@ async function loadDataFromJSON() {
         categoryDetails = indexData.categoryDetails || [];
         specializedDomains = indexData.specializedDomains || [];
         
+        // Update window object for immediate access by other scripts
+        if (typeof window !== 'undefined') {
+            window.categories = categories;
+            window.categoryDetails = categoryDetails;
+            window.specializedDomains = specializedDomains;
+        }
+        
         // Store post metadata and initialize empty posts array
         const postMetadata = indexData.posts || [];
         
@@ -287,9 +294,12 @@ function navigateToPost(postId) {
     window.location.href = `detail.html?id=${postId}`;
 }
 
-// Export posts for detail page access
+// Export data for other pages access
 if (typeof window !== 'undefined') {
     window.posts = posts;
+    window.categories = categories;
+    window.categoryDetails = categoryDetails;
+    window.specializedDomains = specializedDomains;
     window.loadPostDetail = loadPostDetail;
 }
 
@@ -349,7 +359,40 @@ async function loadPostDetail(id) {
 
     // Related posts rendering removed to save space as requested
 
+    // Render Next/Previous Navigation
+    renderPostNavigation(id);
+}
 
+function renderPostNavigation(currentId) {
+    // Sort posts by ID to ensure correct sequence
+    const sortedPosts = [...posts].sort((a, b) => a.id - b.id);
+    const currentIndex = sortedPosts.findIndex(p => p.id === currentId);
+    
+    if (currentIndex === -1) return;
+    
+    const prevPost = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null;
+    const nextPost = currentIndex < sortedPosts.length - 1 ? sortedPosts[currentIndex + 1] : null;
+    
+    const navContainer = document.createElement('div');
+    navContainer.className = 'post-navigation';
+    
+    navContainer.innerHTML = `
+        <div class="nav-item prev ${!prevPost ? 'disabled' : ''}" onclick="${prevPost ? `window.location.href='detail.html?id=${prevPost.id}'` : ''}">
+            ${prevPost ? `
+                <span class="nav-label">← PREVIOUS</span>
+                <span class="nav-title">${prevPost.title}</span>
+            ` : ''}
+        </div>
+        <div class="nav-item next ${!nextPost ? 'disabled' : ''}" onclick="${nextPost ? `window.location.href='detail.html?id=${nextPost.id}'` : ''}">
+            ${nextPost ? `
+                <span class="nav-label">NEXT →</span>
+                <span class="nav-title">${nextPost.title}</span>
+            ` : ''}
+        </div>
+    `;
+    
+    const article = document.getElementById('post-article');
+    article.appendChild(navContainer);
 }
 
 // Navigation
