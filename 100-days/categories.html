@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categories - 100 Days of Manual Testing</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header>
+        <div class="header-container">
+            <div class="logo">100 Days of Manual Testing</div>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="categories.html" class="active">Categories</a>
+                <a href="#about">About</a>
+            </nav>
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search knowledge...">
+                <button class="theme-toggle">🌙</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="categories-container">
+        <section class="categories-header">
+            <h1>Explore the <span class="highlight">Curated Archive</span> of Testing Knowledge</h1>
+            <p>Dive into specialized domains of quality assurance. From foundational UI checks to complex API validation, browse by discipline to master the manual craft.</p>
+            <div class="category-search">
+                <input type="text" id="category-search-input" placeholder="Search categories (e.g. 'Security', 'Database')...">
+            </div>
+        </section>
+
+        <div class="categories-grid" id="categories-grid">
+            <!-- Categories will be loaded by JavaScript -->
+        </div>
+
+        <section class="specialized-section">
+            <h2>Specialized Domains</h2>
+            <div class="specialized-grid" id="specialized-grid">
+                <!-- Specialized domains will be loaded by JavaScript -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#twitter">Twitter</a>
+                <a href="#linkedin">LinkedIn</a>
+                <a href="#github">GitHub</a>
+                <a href="#rss">RSS</a>
+            </div>
+            <p>&copy; 2024 The Manual Authority. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCategories();
+            renderSpecializedDomains();
+            setupCategorySearch();
+        });
+
+        function renderCategories(filter = '') {
+            const grid = document.getElementById('categories-grid');
+            grid.innerHTML = '';
+            
+            const filtered = categoryDetails.filter(cat => 
+                cat.title.toLowerCase().includes(filter.toLowerCase()) || 
+                cat.description.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            filtered.forEach(cat => {
+                const card = document.createElement('div');
+                card.className = `category-card ${cat.featured ? 'featured' : ''} ${cat.isWide ? 'wide' : ''} ${cat.highlight ? 'highlight' : ''}`;
+                
+                card.innerHTML = `
+                    ${cat.badge ? `<div class="category-badge">${cat.badge}</div>` : ''}
+                    <div class="category-icon-wrapper" style="background-color: ${cat.highlight ? 'rgba(255,255,255,0.2)' : cat.color + '20'}; color: ${cat.highlight ? 'white' : cat.color};">
+                        ${cat.icon}
+                    </div>
+                    <div class="category-content">
+                        <h3 class="category-title">${cat.title}</h3>
+                        <p class="category-description">${cat.description}</p>
+                        <div class="category-footer">
+                            <span class="category-lessons">${cat.lessons} ${cat.lessons > 1 ? (cat.id === 'api-integration' ? 'POSTS' : 'LESSONS') : 'LESSON'}</span>
+                            ${cat.stats ? `<span style="font-size: 0.8rem; margin-left: 1rem; opacity: 0.7;">⏱️ ${cat.stats}</span>` : ''}
+                            <span class="category-arrow">→</span>
+                        </div>
+                    </div>
+                `;
+                
+                card.onclick = () => {
+                    window.location.href = `index.html?category=${encodeURIComponent(cat.title)}`;
+                };
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function renderSpecializedDomains() {
+            const grid = document.getElementById('specialized-grid');
+            grid.innerHTML = '';
+            specializedDomains.forEach(domain => {
+                const item = document.createElement('div');
+                item.className = 'specialized-item';
+                item.textContent = domain;
+                item.onclick = () => {
+                    window.location.href = `index.html?category=${encodeURIComponent(domain)}`;
+                };
+                grid.appendChild(item);
+            });
+        }
+
+        function setupCategorySearch() {
+            const input = document.getElementById('category-search-input');
+            input.addEventListener('input', (e) => {
+                renderCategories(e.target.value);
+            });
+        }
+    </script>
+</body>
+</html>

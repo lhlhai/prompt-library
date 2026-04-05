@@ -176,6 +176,71 @@ const categories = [
     "Fundamentals"
 ];
 
+const categoryDetails = [
+    {
+        id: "ui-ux",
+        title: "UI & UX Testing",
+        description: "Master the art of visual validation, accessibility standards, and intuitive navigation flows across diverse screen resolutions.",
+        lessons: 24,
+        icon: "💻",
+        color: "#0052cc",
+        featured: true
+    },
+    {
+        id: "api-integration",
+        title: "API & Integration",
+        description: "Verifying data integrity between services without a graphical interface.",
+        lessons: 18,
+        icon: "⚙️",
+        color: "#10b981",
+        featured: false
+    },
+    {
+        id: "mobile-apps",
+        title: "Mobile Apps",
+        description: "Android and iOS specific testing challenges, including interrupts and low battery conditions.",
+        lessons: 12,
+        icon: "📱",
+        color: "#3b82f6",
+        featured: false
+    },
+    {
+        id: "sql-data",
+        title: "SQL & Data",
+        description: "Verifying back-end operations, schema changes, and complex data migrations.",
+        lessons: 9,
+        icon: "🗄️",
+        color: "#6b7280",
+        featured: false
+    },
+    {
+        id: "soft-skills",
+        title: "Soft Skills",
+        description: "Communication, bug reporting, and stakeholder management for high-impact testers.",
+        lessons: 15,
+        icon: "🤝",
+        color: "#2563eb",
+        featured: false,
+        highlight: true
+    },
+    {
+        id: "performance-load",
+        title: "Performance & Load",
+        description: "Simulating high-traffic scenarios and identifying bottleneck thresholds before they affect the end-user experience.",
+        lessons: 11,
+        icon: "🚀",
+        color: "#ef4444",
+        featured: false,
+        isWide: true,
+        badge: "ADVANCED THEORY",
+        stats: "4.5 Hours Content"
+    }
+];
+
+const specializedDomains = [
+    "Security Basics", "Accessibility", "Compliance", "Browser Tools", "Network Logs"
+];
+
 // State
 let currentPage = 1;
 let filteredPosts = [...posts];
@@ -188,8 +253,15 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initializeApp() {
+    // Check for category in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryParam = urlParams.get('category');
+    if (categoryParam) {
+        selectedCategory = categoryParam;
+    }
+
     renderFilterTags();
-    renderPosts();
+    filterAndRenderPosts();
     setupEventListeners();
     setupThemeToggle();
 }
