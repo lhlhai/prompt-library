@@ -58,6 +58,9 @@ async function loadDataFromJSON() {
         posts.sort((a, b) => b.id - a.id);
         window.posts = posts;
         
+        // Auto-update categoryDetails with actual post counts
+        updateCategoryDetailsWithPostCounts();
+        
         if (mainLoading) mainLoading.style.display = 'none';
         
         // Trigger custom event that data is ready
@@ -72,6 +75,68 @@ async function loadDataFromJSON() {
         posts = [];
         window.posts = posts;
     }
+}
+
+// Auto-update categoryDetails with actual post counts from posts
+function updateCategoryDetailsWithPostCounts() {
+    // Count posts by category (normalize category names to lowercase for matching)
+    const categoryCounts = {};
+    posts.forEach(post => {
+        const cat = post.category;
+        if (cat) {
+            // Store both the original and normalized version
+            const normalized = cat.toLowerCase();
+            if (!categoryCounts[normalized]) {
+                categoryCounts[normalized] = {
+                    count: 0,
+                    originalName: cat
+                };
+            }
+            categoryCounts[normalized].count++;
+        }
+    });
+    
+    // Update categoryDetails with actual counts
+    categoryDetails.forEach(catDetail => {
+        const titleLower = catDetail.title.toLowerCase();
+        
+        // Find matching category count
+        for (let normalized in categoryCounts) {
+            // Check if the category detail title matches the post category
+            if (normalized === titleLower || 
+                titleLower.includes(normalized) ||
+                normalized.includes(titleLower)) {
+                catDetail.lessons = categoryCounts[normalized].count;
+                break;
+            }
+        }
+    });
+    
+    // Add any categories from posts that don't have categoryDetails entry
+    for (let normalized in categoryCounts) {
+        const originalName = categoryCounts[normalized].originalName;
+        const exists = categoryDetails.some(cd => 
+            cd.title.toLowerCase() === normalized ||
+            normalized.includes(cd.title.toLowerCase()) ||
+            cd.title.toLowerCase().includes(normalized)
+        );
+        
+        if (!exists) {
+            // Create a new category detail entry for this category
+            categoryDetails.push({
+                id: normalized.replace(/\s+/g, '-'),
+                title: originalName,
+                description: `Explore ${originalName} testing topics and best practices.`,
+                lessons: categoryCounts[normalized].count,
+                icon: '📚',
+                color: '#0052cc',
+                featured: false
+            });
+        }
+    }
+    
+    // Update window object
+    window.categoryDetails = categoryDetails;
 }
 
 // Lazy load full post data if not already loaded
@@ -397,3 +462,4 @@ navLinks.forEach(link => {
         }
     });
 });
+                
