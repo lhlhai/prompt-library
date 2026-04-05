@@ -10,6 +10,15 @@
             "image": null
         },
         {
+            "id": 14,
+            "file": "014.json",
+            "day": "Day 14",
+            "title": "State Transition – Khi Hệ Thống Có 'Nhớ'",
+            "category": "TEST DESIGN",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
             "id": 12,
             "file": "012.json",
             "day": "Day 12",
