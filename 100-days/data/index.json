@@ -1,6 +1,15 @@
 {
     "posts": [
         {
+            "id": 7,
+            "file": "007.json",
+            "day": "Day 07",
+            "title": "Bug Lifecycle: Từ New Đến Closed",
+            "category": "BUG MANAGEMENT",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
             "id": 6,
             "file": "006.json",
             "day": "Day 06",
@@ -64,6 +73,7 @@
         "Tools",
         "Best Practices",
         "Fundamentals",
+        "BUG MANAGEMENT",
         "STATIC",
         "TECHNIQUES",
         "TEST DESIGN",
