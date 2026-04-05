@@ -189,12 +189,21 @@ async function renderPosts(append = false) {
         postsGrid.innerHTML = '';
     }
 
-    // Use Promise.all to load only the necessary posts for the current page
-    const loadedPosts = await Promise.all(postsToShow.map(post => ensurePostLoaded(post)));
+    // Create skeleton cards for posts that are not yet loaded
+    const cards = postsToShow.map(post => {
+        const card = createPostCard(post);
+        postsGrid.appendChild(card);
+        return { post, card };
+    });
 
-    loadedPosts.forEach(post => {
-        const postCard = createPostCard(post);
-        postsGrid.appendChild(postCard);
+    // Load each post and update its card when ready
+    // This allows the UI to show skeletons immediately and fill them as data arrives
+    cards.forEach(async ({ post, card }) => {
+        if (!post.isLoaded) {
+            const fullData = await ensurePostLoaded(post);
+            const newCard = createPostCard(fullData);
+            card.replaceWith(newCard);
+        }
     });
 
     updateLoadMoreButton();
@@ -203,6 +212,28 @@ async function renderPosts(append = false) {
 function createPostCard(post) {
     const card = document.createElement('div');
     card.className = 'post-card';
+    
+    if (!post.isLoaded) {
+        card.classList.add('loading');
+        card.innerHTML = `
+            <div class="post-image skeleton skeleton-image"></div>
+            <div class="post-content">
+                <div class="skeleton skeleton-text" style="width: 30%;"></div>
+                <div class="skeleton skeleton-text" style="width: 20%; height: 0.8rem;"></div>
+                <div class="skeleton skeleton-title"></div>
+                <div class="skeleton skeleton-text"></div>
+                <div class="skeleton skeleton-text"></div>
+                <div class="post-footer">
+                    <div style="width: 100%;">
+                        <div class="skeleton skeleton-text" style="width: 40%;"></div>
+                        <div class="skeleton skeleton-text" style="width: 30%; height: 0.6rem;"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        return card;
+    }
+
     card.addEventListener('click', () => {
         navigateToPost(post.id);
     });
