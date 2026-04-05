@@ -19,6 +19,15 @@
             "image": null
         },
         {
+            "id": 13,
+            "file": "013.json",
+            "day": "Day 13",
+            "title": "Decision Table – Khi Nhiều Điều Kiện Kết Hợp Với Nhau",
+            "category": "TEST DESIGN",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
             "id": 12,
             "file": "012.json",
             "day": "Day 12",
