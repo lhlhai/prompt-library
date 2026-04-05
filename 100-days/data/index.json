@@ -1,6 +1,15 @@
 {
     "posts": [
         {
+            "id": 11,
+            "file": "011.json",
+            "day": "Day 11",
+            "title": "Equivalence Partitioning – Giảm Test Case Mà Vẫn Chất",
+            "category": "TEST DESIGN",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
             "id": 10,
             "file": "010.json",
             "day": "Day 10",
