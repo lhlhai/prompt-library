@@ -1,6 +1,15 @@
 {
     "posts": [
         {
+            "id": 6,
+            "file": "006.json",
+            "day": "Day 06",
+            "title": "Test Suite & Tổ Chức Theo Module",
+            "category": "TEST MANAGEMENT",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
             "id": 5,
             "file": "005.json",
             "day": "Day 05",
@@ -57,7 +66,8 @@
         "Fundamentals",
         "STATIC",
         "TECHNIQUES",
-        "TEST DESIGN"
+        "TEST DESIGN",
+        "TEST MANAGEMENT"
     ],
     "categoryDetails": [
         {
