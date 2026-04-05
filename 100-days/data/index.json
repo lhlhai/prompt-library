@@ -3,11 +3,29 @@
         {
             "id": 45,
             "file": "045.json",
-            "day": "Day 45",
+            "day": "Day 45 / 100",
             "title": "API Testing Basics: Navigating the Technical Landscape",
             "category": "API TESTING",
             "author": "Alex Smith",
-            "image": "https://images.unsplash.com/photo-1516116216624-53e697fedbea?auto=format&fit=crop&q=80&w=800"
+            "image": "https://images.unsplash.com/photo-1516116216624-53e697fedbea?auto=format&fit=crop&q=80&w=1200"
+        },
+        {
+            "id": 4,
+            "file": "004.json",
+            "day": "Day 04",
+            "title": "Black/White/Grey-box & Đọc Requirements",
+            "category": "TECHNIQUES",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
+            "id": 3,
+            "file": "003.json",
+            "day": "Day 03",
+            "title": "Static vs Dynamic Testing",
+            "category": "STATIC",
+            "author": "The Manual Authority",
+            "image": null
         },
         {
             "id": 2,
@@ -36,7 +54,9 @@
         "Mobile Testing",
         "Tools",
         "Best Practices",
-        "Fundamentals"
+        "Fundamentals",
+        "STATIC",
+        "TECHNIQUES"
     ],
     "categoryDetails": [
         {
@@ -108,6 +128,10 @@
         }
     ],
     "specializedDomains": [
-        "Security Basics", "Accessibility", "Compliance", "Browser Tools", "Network Logs"
+        "Security Basics",
+        "Accessibility",
+        "Compliance",
+        "Browser Tools",
+        "Network Logs"
     ]
 }
