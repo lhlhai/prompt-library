@@ -941,6 +941,21 @@ if (modalCopyBtn) {
   });
 }
 
+// ASK GPT button -
+const modalAskGPTBtn = document.getElementById('askGPT');
+if (modalAskGPTBtn) {
+  modalAskGPTBtn.addEventListener('click', () => {
+    if (currentModalPrompt) {
+      // Copy with variable replacements and format
+      const basePrompt = hasEditedPrompt(currentModalPrompt.number) ? getEditedPrompt(currentModalPrompt.number) : currentModalPrompt.prompt;
+      let finalPrompt = replaceVariables(basePrompt, variableValues);
+      finalPrompt = getFormattedPrompt(finalPrompt, selectedFormat);
+      const url = `https://chatgpt.com/?q=${encodeURIComponent(finalPrompt)}`;
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  });
+}
+
 // Download button
 const modalDownloadBtn = document.getElementById('modalDownload');
 if (modalDownloadBtn) {
