@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kibana UI to Query DSL: Cẩm nang nâng tầm Tester</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #005571;
+            --secondary: #00bfb3;
+            --accent: #f04e98;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --code-bg: #1e1e1e;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, var(--primary), #003a4d);
+            color: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .intro {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        nav {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            border: 1px solid var(--border);
+        }
+
+        nav h2 { font-size: 1rem; margin-bottom: 10px; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em; }
+        nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 15px; }
+        nav a { text-decoration: none; color: var(--text); font-weight: 600; font-size: 0.9rem; transition: color 0.2s; }
+        nav a:hover { color: var(--secondary); }
+
+        section {
+            background: var(--card);
+            padding: 40px;
+            border-radius: 24px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        h2.section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h2.section-title::before {
+            content: "";
+            width: 8px;
+            height: 32px;
+            background: var(--secondary);
+            border-radius: 4px;
+        }
+
+        /* Table Styling */
+        .table-container { overflow-x: auto; margin: 20px 0; border-radius: 12px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem; }
+        th { background: #f1f5f9; padding: 15px; font-weight: 700; color: var(--primary); border-bottom: 2px solid var(--border); }
+        td { padding: 15px; border-bottom: 1px solid var(--border); vertical-align: top; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: #f8fafc; }
+
+        .tag-ui { background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+        .tag-dsl { background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+
+        /* Roadmap Styling */
+        .roadmap { position: relative; padding-left: 30px; }
+        .roadmap::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--border); border-radius: 2px; }
+        .step { position: relative; margin-bottom: 40px; }
+        .step::before {
+            content: "";
+            position: absolute;
+            left: -38px;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border: 4px solid var(--secondary);
+            border-radius: 50%;
+            z-index: 2;
+        }
+        .step-title { font-weight: 800; font-size: 1.2rem; margin-bottom: 10px; color: var(--text); }
+        .step-time { font-size: 0.8rem; color: var(--secondary); font-weight: 700; text-transform: uppercase; }
+
+        /* Ideas Grid */
+        .ideas-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px; }
+        .idea-card {
+            background: #f8fafc;
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .idea-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-color: var(--secondary); }
+        .idea-icon { font-size: 2rem; margin-bottom: 15px; }
+        .idea-title { font-weight: 700; margin-bottom: 10px; color: var(--primary); }
+
+        code { font-family: 'JetBrains Mono', monospace; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; color: var(--accent); }
+        
+        .highlight-box {
+            background: #fff9f0;
+            border-left: 4px solid #f59e0b;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        footer { text-align: center; padding: 40px; color: #64748b; font-size: 0.9rem; }
+
+        @media (max-width: 768px) {
+            section { padding: 20px; }
+            h1 { font-size: 1.8rem; }
+            nav ul { flex-direction: column; gap: 10px; }
+            .ideas-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Từ Kibana UI đến Query DSL</h1>
+            <p class="intro">Cẩm nang nâng tầm kỹ năng log analysis dành cho Automation Tester chuyên nghiệp. Chuyển từ người dùng công cụ sang người làm chủ dữ liệu.</p>
+        </header>
+
+        <nav>
+            <h2>Mục lục</h2>
+            <ul>
+                <li><a href="#phan1">1. So sánh UI vs DSL</a></li>
+                <li><a href="#phan2">2. Lộ trình học tập</a></li>
+                <li><a href="#phan3">3. Ý tưởng phát triển</a></li>
+            </ul>
+        </nav>
+
+        <section id="phan1">
+            <h2 class="section-title">Phần 1: Tại sao Query DSL là "Vũ khí tối thượng"?</h2>
+            <p>UI filter của Kibana (KQL/Lucene) rất tiện cho các thao tác nhanh, nhưng Query DSL mới thực sự mở ra sức mạnh không giới hạn.</p>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Khía cạnh</th>
+                            <th><span class="tag-ui">UI Filter (KQL)</span></th>
+                            <th><span class="tag-dsl">Query DSL (JSON)</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Logic phức tạp</strong></td>
+                            <td>Chỉ hỗ trợ AND, OR, NOT cơ bản. Khó lồng nhau sâu.</td>
+                            <td>Cấu trúc cây <code>bool</code> lồng nhau tuỳ ý (must, should, filter).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tìm kiếm mờ</strong></td>
+                            <td>Hạn chế qua <code>~</code>. Khó kiểm soát.</td>
+                            <td>Kiểm soát <code>fuzziness</code>, <code>prefix_length</code> cực kỳ chính xác.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Regexp</strong></td>
+                            <td>Không hỗ trợ trực tiếp hoặc rất hạn chế.</td>
+                            <td>Hỗ trợ đầy đủ regex để khớp pattern ID, phone, log format.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phrase matching</strong></td>
+                            <td>Có thể dùng <code>"..."</code> nhưng không chỉnh được khoảng cách.</td>
+                            <td><code>match_phrase</code> với <code>slop</code> cho phép các từ cách nhau một khoảng.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Aggregation</strong></td>
+                            <td>Visualization có sẵn, không tuỳ chỉnh sâu.</td>
+                            <td>Toàn quyền với <code>aggs</code> lồng nhau nhiều tầng, tính toán thống kê phức tạp.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scripting</strong></td>
+                            <td>Không hỗ trợ.</td>
+                            <td><code>script_fields</code> cho phép tính toán dữ liệu ngay lúc query.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Nested objects</strong></td>
+                            <td>Dễ sai logic khi lọc trên mảng.</td>
+                            <td><code>nested query</code> giúp truy vấn chính xác từng phần tử trong mảng.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tự động hoá</strong></td>
+                            <td>Thao tác tay, khó tái sử dụng.</td>
+                            <td>JSON thuần, dễ dàng nhúng vào Python, Postman, JMeter.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phân trang</strong></td>
+                            <td>Cơ bản, chậm khi lùi sâu (>10k doc).</td>
+                            <td><code>search_after</code> cho phép duyệt hàng triệu record mượt mà.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="phan2">
+            <h2 class="section-title">Phần 2: Lộ trình học Query DSL cho Tester</h2>
+            
+            <div class="highlight-box">
+                <strong>Nguyên tắc vàng:</strong> Học qua ví dụ thực tế, thực hành trên Dev Tools và không cần thuộc lòng - hãy luôn mở Reference!
+            </div>
+
+            <div class="roadmap">
+                <div class="step">
+                    <div class="step-time">Giai đoạn 1: 1-2 ngày</div>
+                    <div class="step-title">Làm quen với sân chơi</div>
+                    <p>Mở Dev Tools, học các lệnh quản lý index cơ bản: <code>GET _cluster/health</code>, <code>GET /index/_search</code>, <code>POST /index/_doc</code>. Tạo dữ liệu giả lập để thực hành.</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-time">Giai đoạn 2: 3-5 ngày</div>
+                    <div class="step-title">Chuyển đổi từ KQL sang DSL</div>
+                    <p>Viết lại các filter quen thuộc bằng DSL. Mẹo: Dùng <strong>Inspect</strong> trên Discover để xem DSL mà Kibana tự sinh ra và học từ đó.</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-time">Giai đoạn 3: 1 tuần</div>
+                    <div class="step-title">Làm chủ các loại query chuyên biệt</div>
+                    <p>Học <code>match</code>, <code>match_phrase</code>, <code>wildcard</code>, <code>fuzzy</code> và đặc biệt là <code>nested query</code>. Mỗi ngày chọn một loại lỗi thực tế để viết query.</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-time">Giai đoạn 4: 1-2 tuần</div>
+                    <div class="step-title">Aggregation – Sức mạnh phân tích</div>
+                    <p>Học <code>terms</code>, <code>date_histogram</code>. Thực hành bài toán: "Tính số lượng đơn hàng thất bại theo mã lỗi trong 1 giờ" hoặc "Tìm 10 user chậm nhất".</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-time">Liên tục</div>
+                    <div class="step-title">Tối ưu và tự động hoá</div>
+                    <p>Dùng <code>profile: true</code> để soi hiệu năng. Đưa query vào Python script hoặc Postman. Xây dựng bộ "query thần thánh" cho cả team.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="phan3">
+            <h2 class="section-title">Phần 3: Ý tưởng phát triển & Show-off</h2>
+            <p>Khi đã thành thạo, hãy thử sức với các dự án nhỏ này để nâng tầm sự nghiệp:</p>
+
+            <div class="ideas-grid">
+                <div class="idea-card">
+                    <div class="idea-icon">🚀</div>
+                    <div class="idea-title">Log-Hawk CLI Tool</div>
+                    <p>Viết tool Python (elasticsearch-py + rich) để query log cực nhanh từ terminal, trả về bảng lỗi đẹp mắt kèm link Kibana.</p>
+                </div>
+
+                <div class="idea-card">
+                    <div class="idea-icon">🤖</div>
+                    <div class="idea-title">AI - Chat với Log</div>
+                    <p>Tích hợp LLM (OpenAI/Gemini) để sinh Query DSL từ câu hỏi tiếng Việt tự nhiên của đồng nghiệp.</p>
+                </div>
+
+                <div class="idea-card">
+                    <div class="idea-icon">🔧</div>
+                    <div class="idea-title">Auto-Bug Ticketing</div>
+                    <p>Script tự động theo dõi log, phân cụm lỗi bằng ML và tự tạo Jira issue kèm đầy đủ thông tin phân tích.</p>
+                </div>
+
+                <div class="idea-card">
+                    <div class="idea-icon">📊</div>
+                    <div class="idea-title">Regression Log Assertion</div>
+                    <p>Đưa DSL vào CI/CD pipeline. Sau khi chạy test, tự động check log: nếu lỗi 5xx tăng đột biến -> Fail pipeline ngay.</p>
+                </div>
+
+                <div class="idea-card">
+                    <div class="idea-icon">🎵</div>
+                    <div class="idea-title">Âm thanh cảnh báo</div>
+                    <p>Script phát tiếng "Toang!", "Bùm!" qua loa văn phòng mỗi khi hệ thống có lỗi 500. Vừa vui vừa cảnh báo tức thì!</p>
+                </div>
+
+                <div class="idea-card">
+                    <div class="idea-icon">🖥️</div>
+                    <div class="idea-title">Màn hình War Room</div>
+                    <p>Dashboard terminal real-time hiển thị top service lỗi, đếm ngược sự cố... cực kỳ chuyên nghiệp.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>Đừng chỉ đọc – hãy gõ lệnh và sai. Chúc bạn sớm trở thành chuyên gia Log Analysis!</p>
+            <p>&copy; 2024 - Tài liệu hướng dẫn cho Automation Testers</p>
+        </footer>
+    </div>
+
+</body>
+</html>
