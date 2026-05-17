@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Học Query DSL thực chiến - Phiên bản Nâng cấp</title>
+    <title>Học Query DSL thực chiến - Hệ thống học tập linh hoạt</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -20,6 +20,7 @@
             --code-text: #d4d4d4;
             --success: #10b981;
             --warning: #f59e0b;
+            --info: #0ea5e9;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -55,14 +56,16 @@
             border-radius: 20px;
             border: 1px solid var(--border);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
         }
 
-        .sidebar-nav h2 { font-size: 0.9rem; text-transform: uppercase; color: #64748b; margin-bottom: 15px; letter-spacing: 0.05em; }
-        .sidebar-nav ul { list-style: none; }
-        .sidebar-nav li { margin-bottom: 10px; }
-        .sidebar-nav a { text-decoration: none; color: var(--text); font-size: 0.95rem; font-weight: 500; transition: color 0.2s; display: block; padding: 5px 0; }
-        .sidebar-nav a:hover { color: var(--secondary); }
-        .sidebar-nav .active { color: var(--secondary); font-weight: 700; }
+        .sidebar-nav h2 { font-size: 0.8rem; text-transform: uppercase; color: #64748b; margin-bottom: 15px; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+        .sidebar-nav ul { list-style: none; margin-bottom: 25px; }
+        .sidebar-nav li { margin-bottom: 8px; }
+        .sidebar-nav a { text-decoration: none; color: var(--text); font-size: 0.9rem; font-weight: 500; transition: all 0.2s; display: block; padding: 5px 10px; border-radius: 8px; }
+        .sidebar-nav a:hover { background: #f1f5f9; color: var(--secondary); }
+        .sidebar-nav .active { background: #f1f5f9; color: var(--secondary); font-weight: 700; }
 
         header {
             grid-column: 1 / -1;
@@ -75,10 +78,11 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+            background-image: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
         }
 
-        .header-content h1 { font-size: 2rem; font-weight: 800; color: var(--primary); margin-bottom: 5px; }
-        .header-content p { color: #64748b; }
+        .header-content h1 { font-size: 2.2rem; font-weight: 800; color: var(--primary); margin-bottom: 5px; }
+        .header-content p { color: #64748b; font-size: 1.1rem; }
 
         .btn-back {
             text-decoration: none;
@@ -87,53 +91,57 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 10px 20px;
+            padding: 12px 24px;
             border-radius: 12px;
             border: 1px solid var(--border);
             transition: all 0.2s;
+            background: white;
         }
-        .btn-back:hover { background: #f1f5f9; border-color: var(--secondary); }
+        .btn-back:hover { background: #f1f5f9; border-color: var(--secondary); transform: translateX(-5px); }
 
         /* Goal Paths */
         .paths-grid {
             grid-column: 1 / -1;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            gap: 25px;
             margin-bottom: 40px;
         }
 
         .path-card {
             background: var(--card);
-            padding: 30px;
+            padding: 35px;
             border-radius: 24px;
             border: 1px solid var(--border);
-            transition: transform 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
 
-        .path-card:hover { transform: translateY(-5px); border-color: var(--secondary); }
-        .path-card h3 { font-size: 1.2rem; margin-bottom: 10px; color: var(--primary); }
-        .path-card p { font-size: 0.9rem; color: #64748b; }
-        .path-icon { font-size: 2.5rem; margin-bottom: 15px; }
-        .path-tag { position: absolute; top: 20px; right: 20px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--secondary); }
+        .path-card:hover { transform: translateY(-8px); border-color: var(--secondary); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .path-card h3 { font-size: 1.3rem; margin-bottom: 12px; color: var(--primary); }
+        .path-card p { font-size: 0.95rem; color: #64748b; flex-grow: 1; }
+        .path-icon { font-size: 3rem; margin-bottom: 20px; }
+        .path-tag { position: absolute; top: 20px; right: 20px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--secondary); background: #f0fdfa; padding: 4px 10px; border-radius: 20px; }
 
         /* Content Sections */
         main section {
             background: var(--card);
-            padding: 40px;
+            padding: 45px;
             border-radius: 24px;
-            margin-bottom: 40px;
+            margin-bottom: 50px;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
             border: 1px solid var(--border);
         }
 
         h2.section-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 30px;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 35px;
             color: var(--primary);
             display: flex;
             align-items: center;
@@ -142,77 +150,82 @@
 
         h2.section-title::before {
             content: "";
-            width: 8px;
-            height: 32px;
+            width: 10px;
+            height: 35px;
             background: var(--secondary);
-            border-radius: 4px;
+            border-radius: 5px;
         }
 
         .lesson {
-            margin-bottom: 60px;
-            padding-bottom: 40px;
+            margin-bottom: 70px;
+            padding-bottom: 50px;
             border-bottom: 1px solid var(--border);
         }
 
-        .lesson:last-child { border-bottom: none; }
+        .lesson:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
 
         .lesson-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 15px;
+            margin-bottom: 25px;
         }
 
         .lesson-badge {
             background: #f1f5f9;
             color: var(--primary);
-            padding: 4px 12px;
-            border-radius: 8px;
-            font-size: 0.75rem;
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 0.8rem;
             font-weight: 800;
             text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
-        .lesson-title { font-size: 1.4rem; font-weight: 700; color: var(--text); }
+        .lesson-title { font-size: 1.6rem; font-weight: 700; color: var(--text); }
 
         .box {
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            font-size: 0.95rem;
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            font-size: 1rem;
+            position: relative;
         }
 
-        .usecase { background: #fff9f0; border-left: 4px solid var(--warning); color: #92400e; }
-        .challenge { background: #ecfdf5; border-left: 4px solid var(--success); color: #065f46; }
-        .pro-tip { background: #f0f9ff; border-left: 4px solid #0ea5e9; color: #075985; }
+        .box strong { display: block; margin-bottom: 8px; font-size: 1.1rem; }
+
+        .usecase { background: #fff9f0; border-left: 5px solid var(--warning); color: #92400e; }
+        .challenge { background: #ecfdf5; border-left: 5px solid var(--success); color: #065f46; }
+        .pro-tip { background: #f0f9ff; border-left: 5px solid var(--info); color: #075985; }
 
         /* Code Block */
         .code-container {
             background: var(--code-bg);
-            border-radius: 16px;
-            margin: 20px 0;
+            border-radius: 20px;
+            margin: 25px 0;
             overflow: hidden;
-            box-shadow: 0 10px 25px -10px rgba(0,0,0,0.5);
+            box-shadow: 0 15px 30px -10px rgba(0,0,0,0.4);
         }
 
         .code-header {
             background: #2d2d2d;
-            padding: 10px 20px;
+            padding: 12px 25px;
             display: flex;
             justify-content: space-between;
-            color: #888;
-            font-size: 0.8rem;
+            color: #aaa;
+            font-size: 0.85rem;
             font-family: 'JetBrains Mono', monospace;
+            border-bottom: 1px solid #3d3d3d;
         }
 
         pre {
-            padding: 25px;
+            padding: 30px;
             margin: 0;
             overflow-x: auto;
             color: var(--code-text);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.95rem;
-            line-height: 1.6;
+            font-size: 1rem;
+            line-height: 1.7;
         }
 
         .key { color: #9cdcfe; }
@@ -220,7 +233,17 @@
         .number { color: #b5cea8; }
         .comment { color: #6a9955; font-style: italic; }
 
-        @media (max-width: 992px) {
+        footer {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+            font-size: 0.95rem;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+
+        @media (max-width: 1100px) {
             .container { grid-template-columns: 1fr; }
             aside { display: none; }
         }
@@ -232,56 +255,62 @@
         <header>
             <div class="header-content">
                 <h1>Học Query DSL thực chiến</h1>
-                <p>Chọn lộ trình phù hợp với mục tiêu của bạn</p>
+                <p>Hệ thống học tập linh hoạt theo lộ trình mục tiêu</p>
             </div>
             <a href="DSL.html" class="btn-back">← Quay lại Cẩm nang</a>
         </header>
 
         <div class="paths-grid">
-            <div class="path-card" onclick="location.href='#level1'">
-                <div class="path-tag">Mới bắt đầu</div>
+            <div class="path-card" onclick="document.getElementById('path1').scrollIntoView({behavior: 'smooth'})">
+                <div class="path-tag">Cơ bản</div>
                 <div class="path-icon">🔍</div>
                 <h3>Người tìm lỗi (Bug Hunter)</h3>
-                <p>Tập trung vào tìm kiếm log nhanh, lọc theo ID, thời gian và status code.</p>
+                <p>Tập trung vào tìm kiếm log nhanh, lọc theo ID, thời gian và status code để xử lý sự cố tức thì.</p>
             </div>
-            <div class="path-card" onclick="location.href='#level2'">
+            <div class="path-card" onclick="document.getElementById('path2').scrollIntoView({behavior: 'smooth'})">
                 <div class="path-tag">Trung cấp</div>
                 <div class="path-icon">📊</div>
                 <h3>Người phân tích (Data Analyst)</h3>
-                <p>Làm chủ Aggregation để thống kê lỗi, tính latency và phân tích xu hướng hệ thống.</p>
+                <p>Làm chủ Aggregation để thống kê lỗi, tính latency, percentiles và phân tích xu hướng hệ thống.</p>
             </div>
-            <div class="path-card" onclick="location.href='#level3'">
+            <div class="path-card" onclick="document.getElementById('path3').scrollIntoView({behavior: 'smooth'})">
                 <div class="path-tag">Nâng cao</div>
                 <div class="path-icon">🤖</div>
                 <h3>Kỹ sư tự động hóa (SDET)</h3>
-                <p>Tự động hóa việc kiểm tra log trong CI/CD, scripting và xử lý nested objects.</p>
+                <p>Tự động hóa việc kiểm tra log, scripting phức tạp, xử lý nested objects và tối ưu hiệu năng query.</p>
             </div>
         </div>
 
         <aside>
             <nav class="sidebar-nav">
-                <h2>Bài học cơ bản</h2>
+                <h2>Lộ trình 1: Bug Hunter</h2>
                 <ul>
-                    <li><a href="#term">Term & Match</a></li>
-                    <li><a href="#range">Range & Time</a></li>
-                    <li><a href="#bool">Logic Bool</a></li>
+                    <li><a href="#lesson1-1">Term vs Match</a></li>
+                    <li><a href="#lesson1-2">Wildcard & Fuzzy</a></li>
+                    <li><a href="#lesson1-3">Range & Time</a></li>
+                    <li><a href="#lesson1-4">Logic Bool</a></li>
                 </ul>
-                <h2 style="margin-top: 20px;">Bài học nâng cao</h2>
+                <h2>Lộ trình 2: Data Analyst</h2>
                 <ul>
-                    <li><a href="#wildcard">Wildcard & Regexp</a></li>
-                    <li><a href="#nested">Nested Objects</a></li>
-                    <li><a href="#aggs">Aggregations</a></li>
-                    <li><a href="#script">Scripting</a></li>
+                    <li><a href="#lesson2-1">Aggs cơ bản</a></li>
+                    <li><a href="#lesson2-2">Grouping & Bucketing</a></li>
+                    <li><a href="#lesson2-3">Percentiles & Cardinality</a></li>
+                </ul>
+                <h2>Lộ trình 3: SDET</h2>
+                <ul>
+                    <li><a href="#lesson3-1">Nested Objects</a></li>
+                    <li><a href="#lesson3-2">Scripting</a></li>
+                    <li><a href="#lesson3-3">Performance Analysis</a></li>
                 </ul>
             </nav>
         </aside>
 
         <main>
-            <!-- Level 1 -->
-            <section id="level1">
+            <!-- Path 1 -->
+            <section id="path1">
                 <h2 class="section-title">Lộ trình 1: Tìm kiếm Log thần tốc</h2>
                 
-                <div class="lesson" id="term">
+                <div class="lesson" id="lesson1-1">
                     <div class="lesson-header">
                         <span class="lesson-badge">Lesson 1.1</span>
                         <span class="lesson-title">Term vs Match: Khi nào dùng cái nào?</span>
@@ -303,11 +332,14 @@
 }</pre>
                     </div>
                     <div class="pro-tip">
-                        <strong>Pro-tip:</strong> Luôn dùng <code>.keyword</code> cho các trường text nếu muốn tìm chính xác (case-sensitive).
+                        <strong>Pro-tip:</strong> Luôn dùng <code>.keyword</code> cho các trường text nếu muốn tìm chính xác (case-sensitive). Trường <code>text</code> thông thường sẽ được phân tách thành các từ đơn lẻ.
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Viết query tìm log có <code>request_id</code> là <code>"REQ-999"</code> và trong <code>message</code> có chứa từ <code>"timeout"</code>.
                     </div>
                 </div>
 
-                <div class="lesson" id="wildcard">
+                <div class="lesson" id="lesson1-2">
                     <div class="lesson-header">
                         <span class="lesson-badge">Lesson 1.2</span>
                         <span class="lesson-title">Wildcard & Fuzzy: Tìm khi không nhớ rõ</span>
@@ -328,16 +360,123 @@
   }
 }</pre>
                     </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Tìm tất cả các log từ các service có tên chứa từ <code>"payment"</code> (dùng wildcard) và có thông báo lỗi gần giống với <code>"database"</code>.
+                    </div>
+                </div>
+
+                <div class="lesson" id="lesson1-3">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 1.3</span>
+                        <span class="lesson-title">Range & Time: Lọc theo thời gian</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Tìm log trong 24h qua hoặc tìm các request có thời gian phản hồi (latency) cực cao.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"query"</span>: {
+    <span class="key">"range"</span>: {
+      <span class="key">"@timestamp"</span>: {
+        <span class="key">"gte"</span>: <span class="string">"now-24h"</span>,
+        <span class="key">"lte"</span>: <span class="string">"now"</span>
+      }
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Sử dụng các toán tử <code>gte</code> (>=), <code>gt</code> (>), <code>lte</code> (<=), <code>lt</code> (<). Đối với thời gian, <code>now-1d</code>, <code>now-1h</code> là những phím tắt cực kỳ hữu dụng.
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Tìm các log có <code>response_time</code> lớn hơn 5000ms trong khoảng thời gian từ 2 ngày trước đến 1 ngày trước.
+                    </div>
+                </div>
+
+                <div class="lesson" id="lesson1-4">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 1.4</span>
+                        <span class="lesson-title">Logic Bool: Kết hợp điều kiện</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Kết hợp nhiều điều kiện: Phải là lỗi, Phải trong 1h qua, và KHÔNG được từ service <code>test-bot</code>.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"query"</span>: {
+    <span class="key">"bool"</span>: {
+      <span class="key">"must"</span>: [ { <span class="key">"match"</span>: { <span class="key">"level"</span>: <span class="string">"ERROR"</span> } } ],
+      <span class="key">"filter"</span>: [ { <span class="key">"range"</span>: { <span class="key">"@timestamp"</span>: { <span class="key">"gte"</span>: <span class="string">"now-1h"</span> } } } ],
+      <span class="key">"must_not"</span>: [ { <span class="key">"term"</span>: { <span class="key">"service.keyword"</span>: <span class="string">"test-bot"</span> } } ]
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Luôn ưu tiên dùng <code>filter</code> thay vì <code>must</code> cho các điều kiện đúng/sai tuyệt đối (như thời gian, status code) vì <code>filter</code> nhanh hơn và được cache.
+                    </div>
                 </div>
             </section>
 
-            <!-- Level 2 -->
-            <section id="level2">
+            <!-- Path 2 -->
+            <section id="path2">
                 <h2 class="section-title">Lộ trình 2: Phân tích dữ liệu Log</h2>
                 
-                <div class="lesson" id="aggs">
+                <div class="lesson" id="lesson2-1">
                     <div class="lesson-header">
                         <span class="lesson-badge">Lesson 2.1</span>
+                        <span class="lesson-title">Aggregations cơ bản: Thống kê nhanh</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Tính trung bình thời gian phản hồi hoặc tìm request chậm nhất trong hệ thống.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"size"</span>: <span class="number">0</span>,
+  <span class="key">"aggs"</span>: {
+    <span class="key">"avg_latency"</span>: { <span class="key">"avg"</span>: { <span class="key">"field"</span>: <span class="string">"latency"</span> } },
+    <span class="key">"max_latency"</span>: { <span class="key">"max"</span>: { <span class="key">"field"</span>: <span class="string">"latency"</span> } }
+  }
+}</pre>
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Viết query tính tổng (sum) dung lượng <code>bytes_sent</code> của tất cả các request có status <code>200</code>.
+                    </div>
+                </div>
+
+                <div class="lesson" id="lesson2-2">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 2.2</span>
+                        <span class="lesson-title">Grouping: Nhóm theo Service & Thời gian</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Đếm số lượng lỗi theo từng service hoặc vẽ biểu đồ lỗi theo từng phút.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"size"</span>: <span class="number">0</span>,
+  <span class="key">"aggs"</span>: {
+    <span class="key">"errors_over_time"</span>: {
+      <span class="key">"date_histogram"</span>: {
+        <span class="key">"field"</span>: <span class="string">"@timestamp"</span>,
+        <span class="key">"fixed_interval"</span>: <span class="string">"1h"</span>
+      }
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Kết hợp <code>terms</code> aggregation bên trong <code>date_histogram</code> để xem top các lỗi trong mỗi khoảng thời gian.
+                    </div>
+                </div>
+
+                <div class="lesson" id="lesson2-3">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 2.3</span>
                         <span class="lesson-title">Thống kê nâng cao: Percentiles</span>
                     </div>
                     <div class="usecase">
@@ -357,14 +496,17 @@
   }
 }</pre>
                     </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Tính số lượng <code>customer_id</code> duy nhất (dùng <code>cardinality</code>) đã gặp lỗi trong 24h qua.
+                    </div>
                 </div>
             </section>
 
-            <!-- Level 3 -->
-            <section id="level3">
+            <!-- Path 3 -->
+            <section id="path3">
                 <h2 class="section-title">Lộ trình 3: Tự động hóa & Xử lý phức tạp</h2>
                 
-                <div class="lesson" id="nested">
+                <div class="lesson" id="lesson3-1">
                     <div class="lesson-header">
                         <span class="lesson-badge">Lesson 3.1</span>
                         <span class="lesson-title">Nested Objects: Lọc chính xác trong mảng</span>
@@ -390,17 +532,57 @@
   }
 }</pre>
                     </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Nếu không dùng <code>nested</code>, Elasticsearch sẽ làm phẳng (flatten) mảng, dẫn đến việc tìm kiếm sai lệch (ví dụ: user A có name="admin" và user B có permission="write" cũng sẽ bị khớp).
+                    </div>
                 </div>
 
-                <div class="lesson">
+                <div class="lesson" id="lesson3-2">
                     <div class="lesson-header">
-                        <span class="lesson-badge">Challenge</span>
-                        <span class="lesson-title">Thử thách cuối cùng</span>
+                        <span class="lesson-badge">Lesson 3.2</span>
+                        <span class="lesson-title">Scripting: Sức mạnh tùy biến</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Lọc các document dựa trên một phép tính logic phức tạp giữa hai trường mà không có sẵn toán tử.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"query"</span>: {
+    <span class="key">"script"</span>: {
+      <span class="key">"script"</span>: {
+        <span class="key">"source"</span>: <span class="string">"doc['actual_latency'].value > doc['expected_latency'].value * params.threshold"</span>,
+        <span class="key">"params"</span>: { <span class="key">"threshold"</span>: <span class="number">1.5</span> }
+      }
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Scripting (Painless) rất mạnh nhưng tốn tài nguyên. Hãy luôn cố gắng dùng các query chuẩn trước khi tìm đến script.
+                    </div>
+                </div>
+
+                <div class="lesson" id="lesson3-3">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 3.3</span>
+                        <span class="lesson-title">Performance: Profile & Explain</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Query của bạn chạy quá chậm? Hãy dùng <code>profile: true</code> để xem Elasticsearch đã tốn bao nhiêu thời gian cho từng bước.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"profile"</span>: <span class="number">true</span>,
+  <span class="key">"query"</span>: {
+    <span class="key">"match"</span>: { <span class="key">"message"</span>: <span class="string">"critical error"</span> }
+  }
+}</pre>
                     </div>
                     <div class="challenge">
-                        <strong>Bài toán:</strong> Hãy viết một query tìm tất cả log của service <code>payment</code> trong 24h qua, có chứa lỗi <code>"timeout"</code>, nhóm kết quả theo từng giờ, và trong mỗi giờ hãy đếm số lượng <code>customer_id</code> duy nhất (cardinality) gặp lỗi này.
+                        <strong>Thử thách cuối cùng:</strong> Hãy viết một query tìm tất cả log của service <code>payment</code> trong 24h qua, có chứa lỗi <code>"timeout"</code>, nhóm kết quả theo từng giờ, và trong mỗi giờ hãy đếm số lượng <code>customer_id</code> duy nhất gặp lỗi này.
                     </div>
-                    <p style="font-size: 0.9rem; color: #64748b;">Gợi ý: Kết hợp <code>bool filter</code>, <code>date_histogram</code> và <code>cardinality aggregation</code>.</p>
                 </div>
             </section>
         </main>
@@ -409,6 +591,29 @@
     <footer>
         <p>&copy; 2024 - Mastering Elasticsearch for Testers. Hãy gõ lệnh để thực sự làm chủ!</p>
     </footer>
+
+    <script>
+        // Highlight active link in sidebar on scroll
+        window.addEventListener('scroll', () => {
+            let current = '';
+            const sections = document.querySelectorAll('div.lesson');
+            const navLinks = document.querySelectorAll('.sidebar-nav a');
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>
