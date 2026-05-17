@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài học Query DSL thực chiến - Mastering Elasticsearch</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #005571;
+            --secondary: #00bfb3;
+            --accent: #f04e98;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            margin-bottom: 40px;
+            padding: 40px;
+            background: var(--card);
+            border-radius: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 { font-size: 1.8rem; font-weight: 800; color: var(--primary); }
+        
+        .btn-back {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.2s;
+        }
+        .btn-back:hover { color: var(--secondary); }
+
+        section {
+            background: var(--card);
+            padding: 40px;
+            border-radius: 24px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        h2.section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h2.section-title::before {
+            content: "";
+            width: 8px;
+            height: 32px;
+            background: var(--secondary);
+            border-radius: 4px;
+        }
+
+        h3.level-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 40px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px dashed var(--border);
+            color: var(--secondary);
+        }
+
+        .lesson {
+            margin-bottom: 50px;
+            padding-left: 20px;
+            border-left: 3px solid #f1f5f9;
+        }
+
+        .lesson-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .lesson-badge {
+            background: var(--primary);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .lesson-title { font-size: 1.2rem; font-weight: 700; color: var(--text); }
+
+        .usecase {
+            background: #fff9f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .usecase strong { color: #b45309; }
+
+        .code-container {
+            position: relative;
+            background: var(--code-bg);
+            border-radius: 12px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .code-header {
+            background: #333;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #aaa;
+            font-size: 0.8rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        pre {
+            padding: 20px;
+            margin: 0;
+            overflow-x: auto;
+            color: var(--code-text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .comment { color: #6a9955; }
+        .key { color: #9cdcfe; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+
+        .explanation { font-size: 0.9rem; color: #64748b; margin-top: 10px; }
+
+        footer { text-align: center; padding: 40px; color: #64748b; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Bài học Query DSL thực chiến</h1>
+            <a href="DSL.html" class="btn-back">← Quay lại Cẩm nang</a>
+        </header>
+
+        <section>
+            <h2 class="section-title">Nội dung học tập chi tiết</h2>
+            
+            <h3 class="level-title">Cấp độ 1: Tìm kiếm chính xác (Term Level Queries)</h3>
+            
+            <div class="lesson">
+                <div class="lesson-header">
+                    <span class="lesson-badge">Lesson 1</span>
+                    <span class="lesson-title">Term Query - Tìm chính xác</span>
+                </div>
+                <div class="usecase">
+                    <strong>Tình huống:</strong> Tìm tất cả các log có <code>status_code</code> đúng bằng 500.
+                </div>
+                <div class="code-container">
+                    <div class="code-header"><span>JSON DSL</span></div>
+                    <pre>{
+  <span class="key">"query"</span>: {
+    <span class="key">"term"</span>: {
+      <span class="key">"status_code"</span>: <span class="number">500</span>
+    }
+  }
+}</pre>
+                </div>
+            </div>
+
+            <div class="lesson">
+                <div class="lesson-header">
+                    <span class="lesson-badge">Lesson 2</span>
+                    <span class="lesson-title">Range Query - Tìm trong khoảng</span>
+                </div>
+                <div class="usecase">
+                    <strong>Tình huống:</strong> Tìm request có thời gian phản hồi (latency) > 2000ms.
+                </div>
+                <div class="code-container">
+                    <div class="code-header"><span>JSON DSL</span></div>
+                    <pre>{
+  <span class="key">"query"</span>: {
+    <span class="key">"range"</span>: {
+      <span class="key">"response_time"</span>: {
+        <span class="key">"gt"</span>: <span class="number">2000</span>,
+        <span class="key">"lte"</span>: <span class="number">5000</span>
+      }
+    }
+  }
+}</pre>
+                </div>
+            </div>
+
+            <h3 class="level-title">Cấp độ 2: Logic & Tìm kiếm toàn văn (Full-text)</h3>
+
+            <div class="lesson">
+                <div class="lesson-header">
+                    <span class="lesson-badge">Lesson 3</span>
+                    <span class="lesson-title">Bool Query - Kết hợp logic</span>
+                </div>
+                <div class="usecase">
+                    <strong>Tình huống:</strong> Tìm log service "order", level "ERROR", nhưng KHÔNG phải lỗi "Timeout".
+                </div>
+                <div class="code-container">
+                    <div class="code-header"><span>JSON DSL</span></div>
+                    <pre>{
+  <span class="key">"query"</span>: {
+    <span class="key">"bool"</span>: {
+      <span class="key">"must"</span>: [
+        { <span class="key">"term"</span>: { <span class="key">"service"</span>: <span class="string">"order"</span> } },
+        { <span class="key">"term"</span>: { <span class="key">"level"</span>: <span class="string">"ERROR"</span> } }
+      ],
+      <span class="key">"must_not"</span>: [
+        { <span class="key">"match"</span>: { <span class="key">"message"</span>: <span class="string">"Timeout"</span> } }
+      ]
+    }
+  }
+}</pre>
+                </div>
+            </div>
+
+            <h3 class="level-title">Cấp độ 3: Phân tích & Thống kê (Aggregations)</h3>
+
+            <div class="lesson">
+                <div class="lesson-header">
+                    <span class="lesson-badge">Lesson 4</span>
+                    <span class="lesson-title">Terms Aggregation - Top lỗi</span>
+                </div>
+                <div class="usecase">
+                    <strong>Tình huống:</strong> Thống kê 5 loại <code>exception_class</code> xuất hiện nhiều nhất.
+                </div>
+                <div class="code-container">
+                    <div class="code-header"><span>JSON DSL</span></div>
+                    <pre>{
+  <span class="key">"size"</span>: <span class="number">0</span>,
+  <span class="key">"aggs"</span>: {
+    <span class="key">"top_errors"</span>: {
+      <span class="key">"terms"</span>: {
+        <span class="key">"field"</span>: <span class="string">"exception_class.keyword"</span>,
+        <span class="key">"size"</span>: <span class="number">5</span>
+      }
+    }
+  }
+}</pre>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2024 - Tài liệu học tập thực chiến cho Testers</p>
+        </footer>
+    </div>
+
+</body>
+</html>
