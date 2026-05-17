@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lộ trình 3 năm - Automation Tester to Expert</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f9fafb;
+            --text-color: #1f2937;
+            --track1: #1E88E5;
+            --track2: #43A047;
+            --track3: #8E24AA;
+            --track4: #E53935;
+            --track5: #FB8C00;
+            --timeline-line: #e5e7eb;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #1E88E5, #8E24AA);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Filter Controls */
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            background: #fff;
+            color: #4b5563;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 2px solid transparent;
+        }
+
+        .filter-btn::before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .filter-btn[data-track="1"]::before { background-color: var(--track1); }
+        .filter-btn[data-track="2"]::before { background-color: var(--track2); }
+        .filter-btn[data-track="3"]::before { background-color: var(--track3); }
+        .filter-btn[data-track="4"]::before { background-color: var(--track4); }
+        .filter-btn[data-track="5"]::before { background-color: var(--track5); }
+
+        .filter-btn.active[data-track="1"] { border-color: var(--track1); background: #e3f2fd; }
+        .filter-btn.active[data-track="2"] { border-color: var(--track2); background: #e8f5e9; }
+        .filter-btn.active[data-track="3"] { border-color: var(--track3); background: #f3e5f5; }
+        .filter-btn.active[data-track="4"] { border-color: var(--track4); background: #ffebee; }
+        .filter-btn.active[data-track="5"] { border-color: var(--track5); background: #fff3e0; }
+
+        .filter-btn:not(.active) {
+            opacity: 0.6;
+            filter: grayscale(1);
+        }
+
+        /* Timeline Layout */
+        .roadmap-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            overflow-x: auto;
+            padding-bottom: 50px;
+        }
+
+        .timeline-horizontal {
+            display: flex;
+            min-width: 1200px;
+            position: relative;
+            padding-top: 60px;
+        }
+
+        .timeline-horizontal::before {
+            content: "";
+            position: absolute;
+            top: 100px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background-color: var(--timeline-line);
+            z-index: 1;
+        }
+
+        .year-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .year-title {
+            text-align: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            margin-bottom: 60px;
+            color: #374151;
+        }
+
+        .quarters-container {
+            display: flex;
+            position: relative;
+        }
+
+        .quarter {
+            flex: 1;
+            position: relative;
+            min-height: 400px;
+        }
+
+        .quarter-label {
+            position: absolute;
+            top: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: 700;
+            color: #9ca3af;
+            font-size: 0.75rem;
+            z-index: 2;
+            background: var(--bg-color);
+            padding: 0 5px;
+        }
+
+        .quarter::after {
+            content: "";
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            width: 16px;
+            height: 16px;
+            background: #fff;
+            border: 4px solid var(--timeline-line);
+            border-radius: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+        }
+
+        /* Milestone Dots */
+        .milestones {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            padding-top: 20px;
+        }
+
+        .milestone {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 5;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+            position: relative;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .milestone:hover {
+            transform: scale(1.3);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+
+        .milestone[data-track="1"] { background: var(--track1); }
+        .milestone[data-track="2"] { background: var(--track2); }
+        .milestone[data-track="3"] { background: var(--track3); }
+        .milestone[data-track="4"] { background: var(--track4); }
+        .milestone[data-track="5"] { background: var(--track5); }
+
+        /* Tooltip style simple label */
+        .milestone-label {
+            position: absolute;
+            top: 50%;
+            left: 30px;
+            transform: translateY(-50%);
+            white-space: nowrap;
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: rgba(255,255,255,0.9);
+            padding: 2px 8px;
+            border-radius: 4px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .milestone:hover .milestone-label {
+            opacity: 1;
+        }
+
+        /* Modal / Popup */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal {
+            background: #fff;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            animation: modalIn 0.3s ease-out;
+            position: relative;
+        }
+
+        @keyframes modalIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #f3f4f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .modal-track-tag {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #9ca3af;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-section {
+            margin-bottom: 15px;
+        }
+
+        .modal-section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #6b7280;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .modal-content-text {
+            font-size: 0.95rem;
+            color: #374151;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Floating Today Button */
+        .today-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #111827;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            z-index: 90;
+            transition: transform 0.2s;
+        }
+
+        .today-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Mobile Layout */
+        @media (max-width: 768px) {
+            .timeline-horizontal {
+                flex-direction: column;
+                min-width: auto;
+                padding-top: 0;
+            }
+
+            .timeline-horizontal::before {
+                display: none;
+            }
+
+            .year-section {
+                margin-bottom: 40px;
+            }
+
+            .quarters-container {
+                flex-direction: column;
+                padding-left: 40px;
+                border-left: 4px solid var(--timeline-line);
+            }
+
+            .quarter {
+                min-height: auto;
+                padding: 20px 0;
+            }
+
+            .quarter::after {
+                left: -48px;
+                top: 25px;
+            }
+
+            .quarter-label {
+                position: static;
+                transform: none;
+                display: block;
+                margin-bottom: 10px;
+                padding: 0;
+            }
+
+            .milestones {
+                position: static;
+                align-items: flex-start;
+                padding-top: 0;
+            }
+
+            .milestone {
+                width: auto;
+                height: auto;
+                border-radius: 8px;
+                padding: 10px 15px;
+                border: none;
+                box-shadow: var(--shadow);
+                display: block;
+                width: 100%;
+                color: #fff;
+                font-weight: 600;
+                font-size: 0.85rem;
+            }
+
+            .milestone-label {
+                position: static;
+                opacity: 1;
+                background: none;
+                box-shadow: none;
+                padding: 0;
+                color: inherit;
+                transform: none;
+                pointer-events: auto;
+            }
+        }
+
+        /* Print Optimization */
+        @media print {
+            .filters, .today-btn, .close-modal {
+                display: none !important;
+            }
+            body {
+                background: white;
+                padding: 0;
+            }
+            .roadmap-container {
+                overflow: visible;
+            }
+            .timeline-horizontal {
+                min-width: auto;
+                display: block;
+            }
+            .milestone-label {
+                opacity: 1;
+                font-size: 8pt;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>LỘ TRÌNH PHÁT TRIỂN SỰ NGHIỆP 3 NĂM</h1>
+        <p>Dành cho Automation Tester (8+ năm kinh nghiệm) hướng tới chuyên gia</p>
+    </header>
+
+    <div class="filters" id="filters">
+        <button class="filter-btn active" data-track="1">SDET & Kiến trúc</button>
+        <button class="filter-btn active" data-track="2">DevOps & Cloud</button>
+        <button class="filter-btn active" data-track="3">AI/ML Testing</button>
+        <button class="filter-btn active" data-track="4">Cybersecurity</button>
+        <button class="filter-btn active" data-track="5">Quản lý & Lãnh đạo</button>
+    </div>
+
+    <div class="roadmap-container">
+        <div class="timeline-horizontal" id="timeline">
+            <!-- Year 1 -->
+            <div class="year-section">
+                <div class="year-title">NĂM 1</div>
+                <div class="quarters-container">
+                    <div class="quarter" data-year="1" data-q="1">
+                        <div class="quarter-label">QUÝ 1</div>
+                        <div class="milestones" id="q1y1"></div>
+                    </div>
+                    <div class="quarter" data-year="1" data-q="2">
+                        <div class="quarter-label">QUÝ 2</div>
+                        <div class="milestones" id="q2y1"></div>
+                    </div>
+                    <div class="quarter" data-year="1" data-q="3">
+                        <div class="quarter-label">QUÝ 3</div>
+                        <div class="milestones" id="q3y1"></div>
+                    </div>
+                    <div class="quarter" data-year="1" data-q="4">
+                        <div class="quarter-label">QUÝ 4</div>
+                        <div class="milestones" id="q4y1"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Year 2 -->
+            <div class="year-section">
+                <div class="year-title">NĂM 2</div>
+                <div class="quarters-container">
+                    <div class="quarter" data-year="2" data-q="1">
+                        <div class="quarter-label">QUÝ 1</div>
+                        <div class="milestones" id="q1y2"></div>
+                    </div>
+                    <div class="quarter" data-year="2" data-q="2">
+                        <div class="quarter-label">QUÝ 2</div>
+                        <div class="milestones" id="q2y2"></div>
+                    </div>
+                    <div class="quarter" data-year="2" data-q="3">
+                        <div class="quarter-label">QUÝ 3</div>
+                        <div class="milestones" id="q3y2"></div>
+                    </div>
+                    <div class="quarter" data-year="2" data-q="4">
+                        <div class="quarter-label">QUÝ 4</div>
+                        <div class="milestones" id="q4y2"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Year 3 -->
+            <div class="year-section">
+                <div class="year-title">NĂM 3</div>
+                <div class="quarters-container">
+                    <div class="quarter" data-year="3" data-q="1">
+                        <div class="quarter-label">QUÝ 1</div>
+                        <div class="milestones" id="q1y3"></div>
+                    </div>
+                    <div class="quarter" data-year="3" data-q="2">
+                        <div class="quarter-label">QUÝ 2</div>
+                        <div class="milestones" id="q2y3"></div>
+                    </div>
+                    <div class="quarter" data-year="3" data-q="3">
+                        <div class="quarter-label">QUÝ 3</div>
+                        <div class="milestones" id="q3y3"></div>
+                    </div>
+                    <div class="quarter" data-year="3" data-q="4">
+                        <div class="quarter-label">QUÝ 4</div>
+                        <div class="milestones" id="q4y3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="today-btn" id="todayBtn">Đến Hôm Nay (Q2 Năm 1)</button>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div>
+                    <span class="modal-track-tag" id="modalTrackTag"></span>
+                    <h2 class="modal-title" id="modalTitle"></h2>
+                </div>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <div class="modal-section-title">Kỹ năng cần học</div>
+                    <div class="modal-content-text" id="modalSkills"></div>
+                </div>
+                <div class="modal-section">
+                    <div class="modal-section-title">Khóa học gợi ý</div>
+                    <div class="modal-content-text" id="modalCourses"></div>
+                </div>
+                <div class="modal-section" id="certSection">
+                    <div class="modal-section-title">Chứng chỉ</div>
+                    <div class="modal-content-text" id="modalCerts"></div>
+                </div>
+                <div class="modal-section" id="projectSection">
+                    <div class="modal-section-title">Dự án thực hành</div>
+                    <div class="modal-content-text" id="modalProjects"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const roadmapData = [
+            // Track 1: SDET & Architecture
+            { track: 1, year: 1, q: 1, title: "Củng cố Java/TS nâng cao", skills: "Generics, Streams, Design Patterns (Factory, Strategy, Singleton)", courses: "Java Design Patterns (Udemy)", projects: "Refactor framework hiện tại áp dụng ít nhất 3 pattern" },
+            { track: 1, year: 1, q: 2, title: "Thiết kế Test Framework", skills: "Hybrid keyword-driven, BDD Cucumber, Allure/Extent integration", courses: "Building Enterprise Test Automation Framework (TestAutomationU)", certs: "ISTQB Advanced Test Automation Engineer" },
+            { track: 1, year: 1, q: 3, title: "CI/CD Pipeline as Code", skills: "Jenkins Pipeline (Declarative), GitHub Actions, Parallel stages", projects: "Dựng pipeline CI/CD cho dự án web và mobile hoàn chỉnh" },
+            { track: 1, year: 1, q: 4, title: "Kiểm thử trên đám mây", skills: "Selenium Grid on AWS/Azure, Docker Compose, BrowserStack/SauceLabs", courses: "Cloud Testing with AWS (A Cloud Guru)" },
+            { track: 1, year: 2, q: 1, title: "Contract Testing", skills: "Pact, Spring Cloud Contract, Microservices API testing", projects: "Triển khai contract testing cho 3 microservices" },
+            { track: 1, year: 2, q: 2, title: "Performance Pipeline", skills: "JMeter + InfluxDB + Grafana, Load test automation", courses: "Performance Testing using JMeter (LinkedIn Learning)" },
+            { track: 1, year: 2, q: 3, title: "Mobile Automation 2.0", skills: "Appium 2.0, Plugins, Device Farm, Visual testing", certs: "Appium Pro certification" },
+            { track: 1, year: 2, q: 4, title: "Database & ETL Testing", skills: "SQL nâng cao, Data flow testing, dbt, Great Expectations", projects: "Tự động hóa kiểm thử data pipeline" },
+            { track: 1, year: 3, q: 1, title: "Security Automation", skills: "OWASP ZAP API, Selenium + ZAP passive scan", courses: "Security Automation with OWASP ZAP (Pluralsight)" },
+            { track: 1, year: 3, q: 2, title: "SRE cho Tester", skills: "SLO, SLI, Error Budget, Synthetic monitoring", courses: "SRE Foundation (DevOps Institute)" },
+            { track: 1, year: 3, q: 3, title: "AI-driven Test Generation", skills: "GPT API, Copilot for test code, AI data generation", projects: "Tích hợp AI vào framework sinh dữ liệu test" },
+            { track: 1, year: 3, q: 4, title: "SDET Professional", skills: "Tổng kết kiến thức, đóng gói framework mẫu", certs: "ISTQB ATAE or Certified SDET Professional", projects: "Chia sẻ framework mẫu lên GitHub cộng đồng" },
+
+            // Track 2: DevOps & Cloud
+            { track: 2, year: 1, q: 1, title: "Docker chuyên sâu", skills: "Multi-stage build, Docker Compose, Network, Volume", courses: "Docker Mastery (Bret Fisher - Udemy)" },
+            { track: 2, year: 1, q: 2, title: "Kubernetes cơ bản", skills: "Kind/Minikube, Pod, Service, Ingress, ConfigMap", projects: "Deploy ứng dụng test lên Kubernetes" },
+            { track: 2, year: 1, q: 3, title: "Helm Chart Management", skills: "Đóng gói test environment, Versioning", courses: "Helm for Beginners (KodeKloud)" },
+            { track: 2, year: 1, q: 4, title: "Monitoring & Logging", skills: "Prometheus, Grafana, Loki, ELK", certs: "CKAD (bắt đầu học)", projects: "Tạo dashboard sức khỏe ứng dụng test" },
+            { track: 2, year: 2, q: 1, title: "Chaos Engineering", skills: "LitmusChaos, Gremlin, Fault injection", projects: "Thực hiện 3 kịch bản chaos trên môi trường staging" },
+            { track: 2, year: 2, q: 2, title: "Infrastructure as Code", skills: "Terraform, Ansible, Auto-provisioning", courses: "HashiCorp Terraform Associate (A Cloud Guru)" },
+            { track: 2, year: 2, q: 3, title: "Cloud Provider Expert", skills: "Serverless, Managed K8s (EKS/AKS)", certs: "AWS Solutions Architect Associate or Azure Admin" },
+            { track: 2, year: 2, q: 4, title: "GitOps for Testing", skills: "ArgoCD/Flux, Declarative environment", projects: "Quản lý environment test bằng GitOps" },
+            { track: 2, year: 3, q: 1, title: "Internal Developer Platform", skills: "Backstage, Port, Self-service portal", projects: "Tạo portal cho QA tự provision môi trường" },
+            { track: 2, year: 3, q: 2, title: "Cloud Cost Optimization", skills: "Bill analysis, Spot instances, Auto-scaling", projects: "Báo cáo tiết kiệm chi phí cloud cho testing" },
+            { track: 2, year: 3, q: 3, title: "DevSecOps Integration", skills: "SAST/DAST pipeline, SonarQube, Trivy", courses: "DevSecOps Foundation (DevOps Institute)" },
+            { track: 2, year: 3, q: 4, title: "DevOps Professional", skills: "Hạ tầng test tự động hoàn chỉnh", certs: "CKA or CKAD", projects: "Tổng hợp portfolio hạ tầng test" },
+
+            // Track 3: AI/ML Testing
+            { track: 3, year: 1, q: 1, title: "Python for Data Science", skills: "Statistics, NumPy, Pandas, Matplotlib", courses: "Python for Data Science (DataCamp)" },
+            { track: 3, year: 1, q: 2, title: "ML Fundamentals", skills: "Classification, Regression, Confusion Matrix", courses: "Machine Learning A-Z (Udemy)" },
+            { track: 3, year: 1, q: 3, title: "Model Validation", skills: "Cross-validation, Overfitting, Adversarial test", projects: "Xây dựng bộ test cho mô hình phân loại ảnh" },
+            { track: 3, year: 1, q: 4, title: "Synthetic Data Generation", skills: "GANs, SDV library", courses: "Synthetic Data Generation (LinkedIn Learning)" },
+            { track: 3, year: 2, q: 1, title: "AI-powered Automation", skills: "Testim, Mabl, Healenium self-healing", projects: "Tích hợp Healenium vào framework hiện có" },
+            { track: 3, year: 2, q: 2, title: "Data Quality Testing", skills: "Great Expectations, Deequ, Data contract", projects: "Tự động kiểm tra dữ liệu nguồn ETL" },
+            { track: 3, year: 2, q: 3, title: "NLP Testing", skills: "Chatbot/LLM testing, Accuracy, Bias", projects: "Viết test set cho một chatbot nội bộ" },
+            { track: 3, year: 2, q: 4, title: "Computer Vision Testing", skills: "Perceptual diff, Applitools, OpenCV", projects: "Kiểm thử ứng dụng nhận dạng hình ảnh" },
+            { track: 3, year: 3, q: 1, title: "MLOps for Tester", skills: "CI/CT/CD for models, Drift monitoring, MLflow", courses: "MLOps Fundamentals (Coursera)" },
+            { track: 3, year: 3, q: 2, title: "QA Virtual Assistant", skills: "GPT API, RAG, Log analysis automation", projects: "Xây dựng trợ lý QA trả lời câu hỏi dự án" },
+            { track: 3, year: 3, q: 3, title: "AI Ethics & Fairness", skills: "Fairness, Explainability (SHAP, LIME)", certs: "AI Ethics (Coursera)" },
+            { track: 3, year: 3, q: 4, title: "AI Testing Professional", skills: "Portfolio AI Testing", certs: "Certified AI Testing Professional (ISTQB CT-AI)" },
+
+            // Track 4: Cybersecurity
+            { track: 4, year: 1, q: 1, title: "Web App Security", skills: "OWASP Top 10, Burp Suite, SQLi, XSS", courses: "Web Security Academy (PortSwigger)" },
+            { track: 4, year: 1, q: 2, title: "ZAP Automation", skills: "ZAP API, Passive/Active scan pipeline", projects: "Pipeline cảnh báo lỗ hổng bảo mật tự động" },
+            { track: 4, year: 1, q: 3, title: "API Security", skills: "JWT, OAuth2, GraphQL injection", certs: "API Security Certified Professional" },
+            { track: 4, year: 1, q: 4, title: "Mobile Security", skills: "APK analysis, Memory check, Cert pinning bypass", courses: "Mobile Application Security (Cybrary)" },
+            { track: 4, year: 2, q: 1, title: "Threat Modeling", skills: "STRIDE, DREAD, Secure SDLC", projects: "Lập tài liệu threat model và checklist bảo mật cho team" },
+            { track: 4, year: 2, q: 2, title: "Penetration Testing", skills: "Metasploit, Nmap, VulnHub/HTB labs", courses: "CEH or eJPT (INE)" },
+            { track: 4, year: 2, q: 3, title: "Advanced DevSecOps", skills: "SonarQube, ZAP, Dependency check integration", courses: "DevSecOps Professional (Practical DevSecOps)" },
+            { track: 4, year: 2, q: 4, title: "Cloud Native Security", skills: "Kube-bench, Falco, Trivy container scanning", projects: "Thiết lập policy bảo mật cho K8s test cluster" },
+            { track: 4, year: 3, q: 1, title: "AI in Security", skills: "ML for anomaly detection, Log analysis", projects: "Tạo mô hình phát hiện anomaly từ access log" },
+            { track: 4, year: 3, q: 2, title: "Red vs Blue Team", skills: "Tabletop exercises, Attack simulation", projects: "Viết báo cáo bảo mật chuyên nghiệp" },
+            { track: 4, year: 3, q: 3, title: "OSCP Certification", skills: "Advanced PenTesting", certs: "OSCP (OffSec Certified Professional)" },
+            { track: 4, year: 3, q: 4, title: "Security Champion", skills: "Workshop training, Security culture", projects: "Xây dựng chương trình đào tạo bảo mật cho QA" },
+
+            // Track 5: Management
+            { track: 5, year: 1, q: 1, title: "Leadership & Communication", skills: "Coaching, Feedback, Crucial Conversations", courses: "Crucial Conversations" },
+            { track: 5, year: 1, q: 2, title: "Agile Coaching", skills: "Scrum Master advanced, Kanban, Facilitation", certs: "Professional Scrum Master II (PSM II)" },
+            { track: 5, year: 1, q: 3, title: "Strategic Quality Management", skills: "Quality KPIs, DORA metrics, Dashboarding", projects: "Triển khai dashboard đo lường chất lượng tổ chức" },
+            { track: 5, year: 1, q: 4, title: "High Performance Teams", skills: "Hiring, Training, Career pathing", courses: "Management 3.0" },
+            { track: 5, year: 2, q: 1, title: "Test Project Management", skills: "Planning, Resource estimation, Risk management", certs: "ISTQB Test Manager" },
+            { track: 5, year: 2, q: 2, title: "Quality Culture", skills: "Shift-left, Quality assistance model", projects: "Pilot mô hình QA embedded trong team dev" },
+            { track: 5, year: 2, q: 3, title: "QA Finance & Budget", skills: "Budgeting for tools, Cloud, Training", projects: "Thuyết phục stakeholder về ngân sách QA" },
+            { track: 5, year: 2, q: 4, title: "Mentoring & Coaching", skills: "Mentoring program, Career framework", projects: "Xây dựng career framework cho QA" },
+            { track: 5, year: 3, q: 1, title: "Thought Leadership", skills: "Blogging, Public speaking, Personal branding", projects: "Chia sẻ tại meetup ngoại bộ/blog cá nhân" },
+            { track: 5, year: 3, q: 2, title: "Change Management", skills: "Agile/DevOps transformation", courses: "Change Management Practitioner (Prosci)" },
+            { track: 5, year: 3, q: 3, title: "Org Development", skills: "Internal QA Academy, Competency assessment", projects: "Xây dựng Academy QA nội bộ" },
+            { track: 5, year: 3, q: 4, title: "Head of QA", skills: "Quality vision, Business alignment", certs: "PMP or Executive Management" }
+        ];
+
+        const trackNames = {
+            1: "SDET & Kiến trúc",
+            2: "DevOps & Cloud",
+            3: "AI/ML Testing",
+            4: "Cybersecurity",
+            5: "Quản lý & Lãnh đạo"
+        };
+
+        const trackColors = {
+            1: "#1E88E5",
+            2: "#43A047",
+            3: "#8E24AA",
+            4: "#E53935",
+            5: "#FB8C00"
+        };
+
+        // Initialize Timeline
+        function initRoadmap() {
+            roadmapData.forEach(item => {
+                const containerId = `q${item.q}y${item.year}`;
+                const container = document.getElementById(containerId);
+                if (container) {
+                    const milestone = document.createElement('div');
+                    milestone.className = 'milestone';
+                    milestone.dataset.track = item.track;
+                    milestone.innerHTML = `<span class="milestone-label">${item.title}</span>`;
+                    milestone.onclick = () => showModal(item);
+                    container.appendChild(milestone);
+                }
+            });
+        }
+
+        // Modal Logic
+        const modalOverlay = document.getElementById('modalOverlay');
+        const closeModal = document.getElementById('closeModal');
+
+        function showModal(item) {
+            document.getElementById('modalTrackTag').textContent = trackNames[item.track];
+            document.getElementById('modalTrackTag').style.backgroundColor = trackColors[item.track] + '22';
+            document.getElementById('modalTrackTag').style.color = trackColors[item.track];
+            
+            const modal = document.querySelector('.modal');
+            modal.style.borderLeft = `8px solid ${trackColors[item.track]}`;
+            
+            document.getElementById('modalTitle').textContent = item.title;
+            document.getElementById('modalSkills').textContent = item.skills || 'N/A';
+            document.getElementById('modalCourses').textContent = item.courses || 'N/A';
+            
+            const certSection = document.getElementById('certSection');
+            if (item.certs) {
+                certSection.classList.remove('hidden');
+                document.getElementById('modalCerts').textContent = item.certs;
+            } else {
+                certSection.classList.add('hidden');
+            }
+
+            const projectSection = document.getElementById('projectSection');
+            if (item.projects) {
+                projectSection.classList.remove('hidden');
+                document.getElementById('modalProjects').textContent = item.projects;
+            } else {
+                projectSection.classList.add('hidden');
+            }
+
+            modalOverlay.style.display = 'flex';
+        }
+
+        closeModal.onclick = () => modalOverlay.style.display = 'none';
+        window.onclick = (event) => {
+            if (event.target == modalOverlay) modalOverlay.style.display = 'none';
+        };
+
+        // Filter Logic
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        filterBtns.forEach(btn => {
+            btn.onclick = () => {
+                btn.classList.toggle('active');
+                const activeTracks = Array.from(document.querySelectorAll('.filter-btn.active'))
+                                          .map(b => b.dataset.track);
+                
+                document.querySelectorAll('.milestone').forEach(m => {
+                    if (activeTracks.includes(m.dataset.track)) {
+                        m.classList.remove('hidden');
+                    } else {
+                        m.classList.add('hidden');
+                    }
+                });
+            };
+        });
+
+        // Today Button Logic
+        document.getElementById('todayBtn').onclick = () => {
+            const todayQ = document.querySelector('.quarter[data-year="1"][data-q="2"]');
+            todayQ.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'center' });
+            todayQ.style.backgroundColor = '#ffff0022';
+            setTimeout(() => todayQ.style.backgroundColor = 'transparent', 2000);
+        };
+
+        initRoadmap();
+    </script>
+</body>
+</html>
