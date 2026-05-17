@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lộ trình 3 năm - Automation Tester to Expert</title>
+    <title>Lộ trình 3 năm - Automation Tester to Expert (PRO)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -31,7 +31,7 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            line-height: 1.5;
+            line-height: 1.6;
             padding: 20px;
         }
 
@@ -43,10 +43,15 @@
         h1 {
             font-size: 2rem;
             font-weight: 800;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             background: linear-gradient(90deg, #1E88E5, #8E24AA);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 0.95rem;
         }
 
         /* Filter Controls */
@@ -252,17 +257,19 @@
             align-items: center;
             z-index: 1000;
             padding: 20px;
+            overflow-y: auto;
         }
 
         .modal {
             background: #fff;
             border-radius: 12px;
-            max-width: 500px;
+            max-width: 600px;
             width: 100%;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             animation: modalIn 0.3s ease-out;
             position: relative;
+            margin: auto;
         }
 
         @keyframes modalIn {
@@ -305,24 +312,49 @@
 
         .modal-body {
             padding: 20px;
+            max-height: 70vh;
+            overflow-y: auto;
         }
 
         .modal-section {
-            margin-bottom: 15px;
+            margin-bottom: 18px;
         }
 
         .modal-section-title {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             font-weight: 700;
             color: #6b7280;
             text-transform: uppercase;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            letter-spacing: 0.05em;
         }
 
         .modal-content-text {
             font-size: 0.95rem;
             color: #374151;
+            line-height: 1.7;
         }
+
+        .tech-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .tech-tag {
+            background: #f3f4f6;
+            color: #374151;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border-left: 3px solid;
+        }
+
+        .tech-tag.primary { border-left-color: var(--track1); }
+        .tech-tag.secondary { border-left-color: var(--track2); }
+        .tech-tag.tertiary { border-left-color: var(--track3); }
 
         .hidden {
             display: none !important;
@@ -448,7 +480,7 @@
 
     <header>
         <h1>LỘ TRÌNH PHÁT TRIỂN SỰ NGHIỆP 3 NĂM</h1>
-        <p>Dành cho Automation Tester (8+ năm kinh nghiệm) hướng tới chuyên gia</p>
+        <p class="subtitle">Automation Tester (8+ năm) → Expert | Phiên bản PRO - Kiến thức Chuyên sâu</p>
     </header>
 
     <div class="filters" id="filters">
@@ -543,19 +575,23 @@
             </div>
             <div class="modal-body">
                 <div class="modal-section">
-                    <div class="modal-section-title">Kỹ năng cần học</div>
-                    <div class="modal-content-text" id="modalSkills"></div>
+                    <div class="modal-section-title">🎯 Mục tiêu chính</div>
+                    <div class="modal-content-text" id="modalObjective"></div>
                 </div>
                 <div class="modal-section">
-                    <div class="modal-section-title">Khóa học gợi ý</div>
-                    <div class="modal-content-text" id="modalCourses"></div>
+                    <div class="modal-section-title">💡 Kiến thức & Kỹ năng cần nắm</div>
+                    <div class="modal-content-text" id="modalKnowledge"></div>
                 </div>
-                <div class="modal-section" id="certSection">
-                    <div class="modal-section-title">Chứng chỉ</div>
-                    <div class="modal-content-text" id="modalCerts"></div>
+                <div class="modal-section">
+                    <div class="modal-section-title">🛠️ Công cụ & Framework</div>
+                    <div id="modalTools"></div>
+                </div>
+                <div class="modal-section">
+                    <div class="modal-section-title">📚 Lĩnh vực chuyên sâu</div>
+                    <div class="modal-content-text" id="modalDomain"></div>
                 </div>
                 <div class="modal-section" id="projectSection">
-                    <div class="modal-section-title">Dự án thực hành</div>
+                    <div class="modal-section-title">🚀 Dự án thực hành</div>
                     <div class="modal-content-text" id="modalProjects"></div>
                 </div>
             </div>
@@ -565,74 +601,434 @@
     <script>
         const roadmapData = [
             // Track 1: SDET & Architecture
-            { track: 1, year: 1, q: 1, title: "Củng cố Java/TS nâng cao", skills: "Generics, Streams, Design Patterns (Factory, Strategy, Singleton)", courses: "Java Design Patterns (Udemy)", projects: "Refactor framework hiện tại áp dụng ít nhất 3 pattern" },
-            { track: 1, year: 1, q: 2, title: "Thiết kế Test Framework", skills: "Hybrid keyword-driven, BDD Cucumber, Allure/Extent integration", courses: "Building Enterprise Test Automation Framework (TestAutomationU)", certs: "ISTQB Advanced Test Automation Engineer" },
-            { track: 1, year: 1, q: 3, title: "CI/CD Pipeline as Code", skills: "Jenkins Pipeline (Declarative), GitHub Actions, Parallel stages", projects: "Dựng pipeline CI/CD cho dự án web và mobile hoàn chỉnh" },
-            { track: 1, year: 1, q: 4, title: "Kiểm thử trên đám mây", skills: "Selenium Grid on AWS/Azure, Docker Compose, BrowserStack/SauceLabs", courses: "Cloud Testing with AWS (A Cloud Guru)" },
-            { track: 1, year: 2, q: 1, title: "Contract Testing", skills: "Pact, Spring Cloud Contract, Microservices API testing", projects: "Triển khai contract testing cho 3 microservices" },
-            { track: 1, year: 2, q: 2, title: "Performance Pipeline", skills: "JMeter + InfluxDB + Grafana, Load test automation", courses: "Performance Testing using JMeter (LinkedIn Learning)" },
-            { track: 1, year: 2, q: 3, title: "Mobile Automation 2.0", skills: "Appium 2.0, Plugins, Device Farm, Visual testing", certs: "Appium Pro certification" },
-            { track: 1, year: 2, q: 4, title: "Database & ETL Testing", skills: "SQL nâng cao, Data flow testing, dbt, Great Expectations", projects: "Tự động hóa kiểm thử data pipeline" },
-            { track: 1, year: 3, q: 1, title: "Security Automation", skills: "OWASP ZAP API, Selenium + ZAP passive scan", courses: "Security Automation with OWASP ZAP (Pluralsight)" },
-            { track: 1, year: 3, q: 2, title: "SRE cho Tester", skills: "SLO, SLI, Error Budget, Synthetic monitoring", courses: "SRE Foundation (DevOps Institute)" },
-            { track: 1, year: 3, q: 3, title: "AI-driven Test Generation", skills: "GPT API, Copilot for test code, AI data generation", projects: "Tích hợp AI vào framework sinh dữ liệu test" },
-            { track: 1, year: 3, q: 4, title: "SDET Professional", skills: "Tổng kết kiến thức, đóng gói framework mẫu", certs: "ISTQB ATAE or Certified SDET Professional", projects: "Chia sẻ framework mẫu lên GitHub cộng đồng" },
+            {
+                track: 1, year: 1, q: 1, title: "Lập trình OOP nâng cao",
+                objective: "Nắm vững các nguyên tắc thiết kế và pattern áp dụng cho test automation framework",
+                knowledge: "Generics, Streams API, Functional Programming, SOLID principles, Reflection API, Annotations",
+                tools: "Java 17+, TypeScript 5.0+, Design Patterns (Factory, Strategy, Singleton, Builder, Decorator)",
+                domain: "Thiết kế framework có khả năng mở rộng, tái sử dụng code, quản lý dependency injection"
+            },
+            {
+                track: 1, year: 1, q: 2, title: "Test Framework Architecture",
+                objective: "Xây dựng framework hybrid kết hợp keyword-driven, data-driven và BDD",
+                knowledge: "Cucumber/Gherkin syntax, Page Object Model (POM), Fluent API, Test Data Management, Reporting architecture",
+                tools: "Cucumber, Gherkin, Allure Report, Extent Report, TestNG, Selenium WebDriver",
+                domain: "Kiến trúc framework scalable, integration với CI/CD, video recording, screenshot management"
+            },
+            {
+                track: 1, year: 1, q: 3, title: "CI/CD Pipeline & DevOps",
+                objective: "Thiết kế pipeline tự động từ commit đến deployment với parallel execution",
+                knowledge: "Pipeline as Code (Declarative & Scripted), Parallel execution, Secret management, Artifact management, Test reporting",
+                tools: "Jenkins (Groovy DSL), GitHub Actions, GitLab CI, Docker, Kubernetes basics",
+                domain: "Orchestration test execution, failure analysis, notification strategy, rollback mechanism"
+            },
+            {
+                track: 1, year: 1, q: 4, title: "Cloud Testing Infrastructure",
+                objective: "Triển khai test trên cloud với scalability và cost optimization",
+                knowledge: "Selenium Grid architecture, Docker containerization, Cloud provider services, Load balancing",
+                tools: "Selenium Grid 4, Docker Compose, AWS EC2/ECS, Azure Container Instances, BrowserStack API",
+                domain: "Multi-region testing, cross-browser testing at scale, performance optimization, cost monitoring"
+            },
+            {
+                track: 1, year: 2, q: 1, title: "Microservices Contract Testing",
+                objective: "Kiểm thử tương tác giữa các microservices mà không phụ thuộc vào implementation",
+                knowledge: "Consumer-Driven Contract Testing, API versioning, Backward compatibility, Service mesh basics",
+                tools: "Pact, Spring Cloud Contract, OpenAPI/Swagger, REST Assured, WireMock",
+                domain: "Giảm coupling giữa services, fast feedback loop, preventing integration issues"
+            },
+            {
+                track: 1, year: 2, q: 2, title: "Performance & Load Testing",
+                objective: "Tích hợp performance testing vào pipeline CI/CD với threshold tự động",
+                knowledge: "Load testing strategy, Baseline establishment, SLA definition, Bottleneck analysis, Profiling",
+                tools: "Apache JMeter, Gatling, InfluxDB, Grafana, Prometheus, k6",
+                domain: "Performance regression detection, capacity planning, resource optimization, monitoring"
+            },
+            {
+                track: 1, year: 2, q: 3, title: "Mobile Automation Advanced",
+                objective: "Nắm vững Appium 2.0 và các kỹ thuật automation mobile nâng cao",
+                knowledge: "Appium 2.0 architecture, Plugin system, Gesture handling, Native app testing, Hybrid app testing, Visual testing",
+                tools: "Appium 2.0, XCUITest, UiAutomator2, Espresso, Detox, Percy/Applitools",
+                domain: "Cross-platform testing, device farm management, flakiness reduction, performance profiling"
+            },
+            {
+                track: 1, year: 2, q: 4, title: "Data Pipeline & ETL Testing",
+                objective: "Kiểm thử các luồng dữ liệu phức tạp trong data warehouse và ETL processes",
+                knowledge: "SQL optimization, Data lineage tracking, Incremental testing, Data quality metrics, dbt fundamentals",
+                tools: "SQL (Advanced), dbt, Great Expectations, Apache Spark, Pandas, Airflow",
+                domain: "Data validation at scale, schema evolution, data governance, anomaly detection"
+            },
+            {
+                track: 1, year: 3, q: 1, title: "Security Automation",
+                objective: "Tích hợp security testing vào automation pipeline",
+                knowledge: "OWASP Top 10, Security scanning types (SAST, DAST), Vulnerability assessment, Compliance testing",
+                tools: "OWASP ZAP, Burp Suite API, SonarQube, Trivy, Snyk, Checkmarx",
+                domain: "Shift-left security, automated vulnerability detection, false positive management"
+            },
+            {
+                track: 1, year: 3, q: 2, title: "SRE & Observability",
+                objective: "Hiểu SRE principles và xây dựng synthetic monitoring cho ứng dụng",
+                knowledge: "SLO/SLI/SLA definition, Error budget, Observability (Logs, Metrics, Traces), Alerting strategy",
+                tools: "Prometheus, Grafana, ELK Stack, Datadog, New Relic, OpenTelemetry",
+                domain: "Synthetic monitoring, incident response, postmortem analysis, continuous improvement"
+            },
+            {
+                track: 1, year: 3, q: 3, title: "AI-Driven Test Automation",
+                objective: "Sử dụng AI/ML để sinh test case, data, và tối ưu test execution",
+                knowledge: "LLM APIs (GPT, Claude), Prompt engineering, Test case generation algorithms, Intelligent locators",
+                tools: "OpenAI API, Anthropic Claude, Copilot, Healenium, Testim, Mabl",
+                domain: "Reducing test maintenance, intelligent test prioritization, anomaly detection in test results"
+            },
+            {
+                track: 1, year: 3, q: 4, title: "SDET Mastery & Leadership",
+                objective: "Tổng hợp kiến thức và trở thành expert trong test automation architecture",
+                knowledge: "Framework design patterns, Best practices documentation, Mentoring junior SDETs, Open source contribution",
+                tools: "All previous tools + GitHub, Documentation tools, Training materials",
+                domain: "Building reusable frameworks, establishing standards, contributing to community"
+            },
 
-            // Track 2: DevOps & Cloud
-            { track: 2, year: 1, q: 1, title: "Docker chuyên sâu", skills: "Multi-stage build, Docker Compose, Network, Volume", courses: "Docker Mastery (Bret Fisher - Udemy)" },
-            { track: 2, year: 1, q: 2, title: "Kubernetes cơ bản", skills: "Kind/Minikube, Pod, Service, Ingress, ConfigMap", projects: "Deploy ứng dụng test lên Kubernetes" },
-            { track: 2, year: 1, q: 3, title: "Helm Chart Management", skills: "Đóng gói test environment, Versioning", courses: "Helm for Beginners (KodeKloud)" },
-            { track: 2, year: 1, q: 4, title: "Monitoring & Logging", skills: "Prometheus, Grafana, Loki, ELK", certs: "CKAD (bắt đầu học)", projects: "Tạo dashboard sức khỏe ứng dụng test" },
-            { track: 2, year: 2, q: 1, title: "Chaos Engineering", skills: "LitmusChaos, Gremlin, Fault injection", projects: "Thực hiện 3 kịch bản chaos trên môi trường staging" },
-            { track: 2, year: 2, q: 2, title: "Infrastructure as Code", skills: "Terraform, Ansible, Auto-provisioning", courses: "HashiCorp Terraform Associate (A Cloud Guru)" },
-            { track: 2, year: 2, q: 3, title: "Cloud Provider Expert", skills: "Serverless, Managed K8s (EKS/AKS)", certs: "AWS Solutions Architect Associate or Azure Admin" },
-            { track: 2, year: 2, q: 4, title: "GitOps for Testing", skills: "ArgoCD/Flux, Declarative environment", projects: "Quản lý environment test bằng GitOps" },
-            { track: 2, year: 3, q: 1, title: "Internal Developer Platform", skills: "Backstage, Port, Self-service portal", projects: "Tạo portal cho QA tự provision môi trường" },
-            { track: 2, year: 3, q: 2, title: "Cloud Cost Optimization", skills: "Bill analysis, Spot instances, Auto-scaling", projects: "Báo cáo tiết kiệm chi phí cloud cho testing" },
-            { track: 2, year: 3, q: 3, title: "DevSecOps Integration", skills: "SAST/DAST pipeline, SonarQube, Trivy", courses: "DevSecOps Foundation (DevOps Institute)" },
-            { track: 2, year: 3, q: 4, title: "DevOps Professional", skills: "Hạ tầng test tự động hoàn chỉnh", certs: "CKA or CKAD", projects: "Tổng hợp portfolio hạ tầng test" },
+            // Track 2: DevOps & Cloud Native
+            {
+                track: 2, year: 1, q: 1, title: "Docker Mastery",
+                objective: "Nắm vững container technology để xây dựng reproducible test environments",
+                knowledge: "Docker architecture, Image optimization, Multi-stage builds, Docker Compose, Networking, Volumes, Security",
+                tools: "Docker, Docker Compose, Docker Registry, Dockerfile best practices",
+                domain: "Container image optimization, layer caching, security scanning, registry management"
+            },
+            {
+                track: 2, year: 1, q: 2, title: "Kubernetes Fundamentals",
+                objective: "Hiểu Kubernetes orchestration để deploy test infrastructure at scale",
+                knowledge: "Kubernetes architecture, Pods, Services, Deployments, StatefulSets, ConfigMaps, Secrets, Ingress",
+                tools: "Kubernetes, kubectl, Kind, Minikube, Docker Desktop K8s",
+                domain: "Container orchestration, resource management, high availability, self-healing"
+            },
+            {
+                track: 2, year: 1, q: 3, title: "Helm & Package Management",
+                objective: "Quản lý Kubernetes deployments bằng Helm charts",
+                knowledge: "Helm architecture, Chart structure, Template rendering, Values management, Versioning, Dependency management",
+                tools: "Helm 3, Helm repositories, Helmfile",
+                domain: "Infrastructure as code for Kubernetes, environment consistency, release management"
+            },
+            {
+                track: 2, year: 1, q: 4, title: "Monitoring & Logging Stack",
+                objective: "Xây dựng comprehensive monitoring cho test infrastructure",
+                knowledge: "Prometheus metrics, Grafana dashboarding, Log aggregation, Distributed tracing, Alerting rules",
+                tools: "Prometheus, Grafana, ELK Stack (Elasticsearch, Logstash, Kibana), Loki, Jaeger",
+                domain: "Infrastructure health monitoring, performance metrics, log analysis, troubleshooting"
+            },
+            {
+                track: 2, year: 2, q: 1, title: "Chaos Engineering",
+                objective: "Kiểm thử resilience của test infrastructure bằng chaos experiments",
+                knowledge: "Chaos engineering principles, Failure injection, Observability during chaos, Recovery testing",
+                tools: "LitmusChaos, Gremlin, Chaos Mesh, Pumba",
+                domain: "Infrastructure resilience, failure scenarios, recovery procedures, SLA validation"
+            },
+            {
+                track: 2, year: 2, q: 2, title: "Infrastructure as Code (IaC)",
+                objective: "Tự động hóa provisioning infrastructure bằng code",
+                knowledge: "Terraform state management, Modules, Variables, Outputs, Ansible playbooks, Configuration management",
+                tools: "Terraform, Ansible, CloudFormation, Pulumi",
+                domain: "Reproducible infrastructure, version control, change tracking, disaster recovery"
+            },
+            {
+                track: 2, year: 2, q: 3, title: "Cloud Provider Expertise",
+                objective: "Chọn 1 cloud provider và nắm vững các dịch vụ cho testing",
+                knowledge: "Cloud architecture, Managed services (RDS, S3, Lambda), Networking, IAM, Cost optimization, Disaster recovery",
+                tools: "AWS (EC2, ECS, EKS, RDS, S3) hoặc Azure (VMs, AKS, CosmosDB) hoặc GCP (Compute Engine, GKE)",
+                domain: "Cloud-native testing, serverless testing, multi-region deployment, cost management"
+            },
+            {
+                track: 2, year: 2, q: 4, title: "GitOps for Infrastructure",
+                objective: "Quản lý infrastructure bằng Git repository",
+                knowledge: "GitOps principles, Declarative infrastructure, Continuous reconciliation, Pull-based deployment",
+                tools: "ArgoCD, Flux, Kustomize, Helm",
+                domain: "Infrastructure versioning, audit trail, rollback capability, team collaboration"
+            },
+            {
+                track: 2, year: 3, q: 1, title: "Internal Developer Platform (IDP)",
+                objective: "Xây dựng self-service platform cho QA team",
+                knowledge: "Platform engineering, Developer experience, Self-service portals, API-driven provisioning",
+                tools: "Backstage, Port, Humanitec, Mia-Platform",
+                domain: "Reducing toil, standardization, faster onboarding, infrastructure democratization"
+            },
+            {
+                track: 2, year: 3, q: 2, title: "Cloud Cost Optimization",
+                objective: "Tối ưu chi phí cloud infrastructure cho testing",
+                knowledge: "Cost analysis, Reserved instances, Spot instances, Auto-scaling, Resource tagging, Budget alerts",
+                tools: "Cloud provider cost tools, CloudHealth, Kubecost, Spot.io",
+                domain: "Cost tracking, waste reduction, ROI calculation, budget forecasting"
+            },
+            {
+                track: 2, year: 3, q: 3, title: "DevSecOps Integration",
+                objective: "Tích hợp security vào DevOps pipeline",
+                knowledge: "SAST/DAST integration, Container scanning, Infrastructure scanning, Compliance automation, Secret management",
+                tools: "SonarQube, Trivy, Grype, Vault, OWASP ZAP, Snyk",
+                domain: "Shift-left security, vulnerability management, compliance automation, incident response"
+            },
+            {
+                track: 2, year: 3, q: 4, title: "Cloud Native Mastery",
+                objective: "Trở thành expert trong cloud-native testing infrastructure",
+                knowledge: "Advanced Kubernetes patterns, Service mesh, Multi-cloud strategy, Disaster recovery, Cost optimization",
+                tools: "Istio, Linkerd, Vault, Consul, Cross-cloud tools",
+                domain: "Enterprise-scale infrastructure, high availability, disaster recovery, multi-region"
+            },
 
             // Track 3: AI/ML Testing
-            { track: 3, year: 1, q: 1, title: "Python for Data Science", skills: "Statistics, NumPy, Pandas, Matplotlib", courses: "Python for Data Science (DataCamp)" },
-            { track: 3, year: 1, q: 2, title: "ML Fundamentals", skills: "Classification, Regression, Confusion Matrix", courses: "Machine Learning A-Z (Udemy)" },
-            { track: 3, year: 1, q: 3, title: "Model Validation", skills: "Cross-validation, Overfitting, Adversarial test", projects: "Xây dựng bộ test cho mô hình phân loại ảnh" },
-            { track: 3, year: 1, q: 4, title: "Synthetic Data Generation", skills: "GANs, SDV library", courses: "Synthetic Data Generation (LinkedIn Learning)" },
-            { track: 3, year: 2, q: 1, title: "AI-powered Automation", skills: "Testim, Mabl, Healenium self-healing", projects: "Tích hợp Healenium vào framework hiện có" },
-            { track: 3, year: 2, q: 2, title: "Data Quality Testing", skills: "Great Expectations, Deequ, Data contract", projects: "Tự động kiểm tra dữ liệu nguồn ETL" },
-            { track: 3, year: 2, q: 3, title: "NLP Testing", skills: "Chatbot/LLM testing, Accuracy, Bias", projects: "Viết test set cho một chatbot nội bộ" },
-            { track: 3, year: 2, q: 4, title: "Computer Vision Testing", skills: "Perceptual diff, Applitools, OpenCV", projects: "Kiểm thử ứng dụng nhận dạng hình ảnh" },
-            { track: 3, year: 3, q: 1, title: "MLOps for Tester", skills: "CI/CT/CD for models, Drift monitoring, MLflow", courses: "MLOps Fundamentals (Coursera)" },
-            { track: 3, year: 3, q: 2, title: "QA Virtual Assistant", skills: "GPT API, RAG, Log analysis automation", projects: "Xây dựng trợ lý QA trả lời câu hỏi dự án" },
-            { track: 3, year: 3, q: 3, title: "AI Ethics & Fairness", skills: "Fairness, Explainability (SHAP, LIME)", certs: "AI Ethics (Coursera)" },
-            { track: 3, year: 3, q: 4, title: "AI Testing Professional", skills: "Portfolio AI Testing", certs: "Certified AI Testing Professional (ISTQB CT-AI)" },
+            {
+                track: 3, year: 1, q: 1, title: "Data Science Foundations",
+                objective: "Nắm vững toán học và lập trình cho data science",
+                knowledge: "Statistics (probability, distributions, hypothesis testing), Linear algebra, NumPy, Pandas, Matplotlib, Jupyter",
+                tools: "Python 3.10+, NumPy, Pandas, Matplotlib, Seaborn, Jupyter Notebook",
+                domain: "Data manipulation, exploratory data analysis, visualization, statistical thinking"
+            },
+            {
+                track: 3, year: 1, q: 2, title: "Machine Learning Basics",
+                objective: "Hiểu các thuật toán ML cơ bản và cách đánh giá model",
+                knowledge: "Supervised learning (classification, regression), Unsupervised learning, Model evaluation metrics, Cross-validation, Hyperparameter tuning",
+                tools: "Scikit-learn, TensorFlow, PyTorch, XGBoost",
+                domain: "Model selection, overfitting prevention, feature engineering, performance optimization"
+            },
+            {
+                track: 3, year: 1, q: 3, title: "Model Validation & Testing",
+                objective: "Kiểm thử ML models một cách toàn diện",
+                knowledge: "Cross-validation strategies, Adversarial testing, Robustness testing, Fairness testing, Explainability",
+                tools: "Scikit-learn, TensorFlow, PyTorch, SHAP, LIME, Alibi",
+                domain: "Model reliability, bias detection, edge case handling, production readiness"
+            },
+            {
+                track: 3, year: 1, q: 4, title: "Synthetic Data Generation",
+                objective: "Sinh dữ liệu test bằng AI để mở rộng test coverage",
+                knowledge: "GANs (Generative Adversarial Networks), Variational Autoencoders, Diffusion models, Privacy-preserving synthesis",
+                tools: "TensorFlow, PyTorch, SDV (Synthetic Data Vault), Gretel, YData",
+                domain: "Test data augmentation, privacy compliance, reducing data bias, cost reduction"
+            },
+            {
+                track: 3, year: 2, q: 1, title: "AI-Powered Test Automation",
+                objective: "Sử dụng AI để tự động hóa test generation và maintenance",
+                knowledge: "Self-healing locators, Intelligent test generation, Visual AI, Anomaly detection in test results",
+                tools: "Healenium, Testim, Mabl, Applitools, Percy",
+                domain: "Reducing maintenance overhead, faster test creation, improved stability"
+            },
+            {
+                track: 3, year: 2, q: 2, title: "Data Quality Testing",
+                objective: "Kiểm thử chất lượng dữ liệu trong data pipelines",
+                knowledge: "Data contracts, Schema validation, Outlier detection, Data profiling, Completeness/accuracy checks",
+                tools: "Great Expectations, Deequ (AWS), Soda, dbt tests, Apache Griffin",
+                domain: "Data governance, quality assurance, early issue detection, compliance validation"
+            },
+            {
+                track: 3, year: 2, q: 3, title: "NLP & Chatbot Testing",
+                objective: "Kiểm thử Natural Language Processing models và chatbots",
+                knowledge: "NLP fundamentals, Sentiment analysis, Intent classification, Response evaluation, Bias detection in language",
+                tools: "NLTK, spaCy, Hugging Face Transformers, OpenAI API, LangChain",
+                domain: "Conversational AI testing, response quality evaluation, multilingual support"
+            },
+            {
+                track: 3, year: 2, q: 4, title: "Computer Vision Testing",
+                objective: "Kiểm thử ứng dụng sử dụng computer vision",
+                knowledge: "Image processing, Object detection, Image classification, Perceptual diff, Visual regression testing",
+                tools: "OpenCV, TensorFlow, PyTorch, Applitools, Percy, ImageMagick",
+                domain: "Visual consistency, object detection accuracy, edge case handling"
+            },
+            {
+                track: 3, year: 3, q: 1, title: "MLOps & Model Deployment",
+                objective: "Quản lý ML models từ training đến production",
+                knowledge: "Model versioning, Experiment tracking, Model registry, Continuous training, Model monitoring, Drift detection",
+                tools: "MLflow, Kubeflow, Weights & Biases, DVC, Seldon Core",
+                domain: "Model lifecycle management, reproducibility, performance monitoring, retraining automation"
+            },
+            {
+                track: 3, year: 3, q: 2, title: "Intelligent QA Assistant",
+                objective: "Xây dựng AI chatbot hỗ trợ QA team",
+                knowledge: "LLM fine-tuning, RAG (Retrieval Augmented Generation), Prompt engineering, Context management, API integration",
+                tools: "OpenAI API, Anthropic Claude, LangChain, Pinecone, Weaviate",
+                domain: "Knowledge base automation, intelligent recommendations, log analysis automation"
+            },
+            {
+                track: 3, year: 3, q: 3, title: "AI Ethics & Fairness",
+                objective: "Đảm bảo AI models công bằng và đạo đức",
+                knowledge: "Bias detection, Fairness metrics, Explainability techniques, Transparency, Regulatory compliance",
+                tools: "Fairlearn, AI Fairness 360, SHAP, LIME, Alibi",
+                domain: "Ethical AI testing, bias mitigation, regulatory compliance, stakeholder trust"
+            },
+            {
+                track: 3, year: 3, q: 4, title: "AI/ML Testing Expert",
+                objective: "Trở thành chuyên gia trong AI/ML testing",
+                knowledge: "Advanced ML testing patterns, Production ML systems, Multi-model orchestration, Advanced analytics",
+                tools: "All previous tools + advanced platforms",
+                domain: "Enterprise AI/ML testing, complex model interactions, business impact measurement"
+            },
 
-            // Track 4: Cybersecurity
-            { track: 4, year: 1, q: 1, title: "Web App Security", skills: "OWASP Top 10, Burp Suite, SQLi, XSS", courses: "Web Security Academy (PortSwigger)" },
-            { track: 4, year: 1, q: 2, title: "ZAP Automation", skills: "ZAP API, Passive/Active scan pipeline", projects: "Pipeline cảnh báo lỗ hổng bảo mật tự động" },
-            { track: 4, year: 1, q: 3, title: "API Security", skills: "JWT, OAuth2, GraphQL injection", certs: "API Security Certified Professional" },
-            { track: 4, year: 1, q: 4, title: "Mobile Security", skills: "APK analysis, Memory check, Cert pinning bypass", courses: "Mobile Application Security (Cybrary)" },
-            { track: 4, year: 2, q: 1, title: "Threat Modeling", skills: "STRIDE, DREAD, Secure SDLC", projects: "Lập tài liệu threat model và checklist bảo mật cho team" },
-            { track: 4, year: 2, q: 2, title: "Penetration Testing", skills: "Metasploit, Nmap, VulnHub/HTB labs", courses: "CEH or eJPT (INE)" },
-            { track: 4, year: 2, q: 3, title: "Advanced DevSecOps", skills: "SonarQube, ZAP, Dependency check integration", courses: "DevSecOps Professional (Practical DevSecOps)" },
-            { track: 4, year: 2, q: 4, title: "Cloud Native Security", skills: "Kube-bench, Falco, Trivy container scanning", projects: "Thiết lập policy bảo mật cho K8s test cluster" },
-            { track: 4, year: 3, q: 1, title: "AI in Security", skills: "ML for anomaly detection, Log analysis", projects: "Tạo mô hình phát hiện anomaly từ access log" },
-            { track: 4, year: 3, q: 2, title: "Red vs Blue Team", skills: "Tabletop exercises, Attack simulation", projects: "Viết báo cáo bảo mật chuyên nghiệp" },
-            { track: 4, year: 3, q: 3, title: "OSCP Certification", skills: "Advanced PenTesting", certs: "OSCP (OffSec Certified Professional)" },
-            { track: 4, year: 3, q: 4, title: "Security Champion", skills: "Workshop training, Security culture", projects: "Xây dựng chương trình đào tạo bảo mật cho QA" },
+            // Track 4: Cybersecurity Testing
+            {
+                track: 4, year: 1, q: 1, title: "Web Application Security",
+                objective: "Nắm vững OWASP Top 10 và các lỗ hổng web phổ biến",
+                knowledge: "SQL Injection, XSS, CSRF, Broken Authentication, Sensitive Data Exposure, XXE, Broken Access Control",
+                tools: "Burp Suite Community, OWASP ZAP, Postman, Browser DevTools",
+                domain: "Vulnerability identification, exploitation techniques, remediation strategies"
+            },
+            {
+                track: 4, year: 1, q: 2, title: "Automated Security Scanning",
+                objective: "Tích hợp automated security scanning vào CI/CD pipeline",
+                knowledge: "SAST (Static Application Security Testing), DAST (Dynamic Application Security Testing), API scanning, Passive scanning",
+                tools: "OWASP ZAP API, Burp Suite API, SonarQube, Checkmarx, Fortify",
+                domain: "Vulnerability detection automation, false positive management, remediation tracking"
+            },
+            {
+                track: 4, year: 1, q: 3, title: "API Security Testing",
+                objective: "Kiểm thử bảo mật các API endpoints",
+                knowledge: "Authentication (JWT, OAuth2, API Keys), Authorization, Input validation, Rate limiting, CORS, GraphQL security",
+                tools: "Postman, REST Assured, GraphQL testing tools, Burp Suite, OWASP ZAP",
+                domain: "API vulnerability assessment, token security, injection attack prevention"
+            },
+            {
+                track: 4, year: 1, q: 4, title: "Mobile Application Security",
+                objective: "Kiểm thử bảo mật ứng dụng mobile",
+                knowledge: "APK/IPA analysis, Local storage security, Certificate pinning, Reverse engineering prevention, Runtime security",
+                tools: "jadx, apktool, Frida, Burp Suite, OWASP Mobile Top 10",
+                domain: "Mobile-specific vulnerabilities, data protection, secure communication"
+            },
+            {
+                track: 4, year: 2, q: 1, title: "Threat Modeling",
+                objective: "Xác định và phân tích các mối đe dọa bảo mật",
+                knowledge: "STRIDE methodology, DREAD scoring, Attack trees, Data flow diagrams, Risk assessment",
+                tools: "Microsoft Threat Modeling Tool, Draw.io, Lucidchart",
+                domain: "Proactive security planning, risk prioritization, mitigation strategies"
+            },
+            {
+                track: 4, year: 2, q: 2, title: "Penetration Testing",
+                objective: "Thực hiện penetration testing để phát hiện lỗ hổng",
+                knowledge: "Reconnaissance, Scanning, Enumeration, Exploitation, Post-exploitation, Reporting",
+                tools: "Metasploit, Nmap, Wireshark, Hashcat, John the Ripper, Kali Linux",
+                domain: "Vulnerability exploitation, system compromise techniques, privilege escalation"
+            },
+            {
+                track: 4, year: 2, q: 3, title: "Advanced DevSecOps",
+                objective: "Tích hợp security vào toàn bộ DevOps pipeline",
+                knowledge: "SAST/DAST integration, Container scanning, Dependency checking, Infrastructure scanning, Secret scanning",
+                tools: "SonarQube, Trivy, Grype, Snyk, Twistlock, Aqua Security",
+                domain: "Shift-left security, vulnerability management, compliance automation"
+            },
+            {
+                track: 4, year: 2, q: 4, title: "Cloud Native Security",
+                objective: "Kiểm thử bảo mật trong Kubernetes và cloud environments",
+                knowledge: "Kubernetes security (RBAC, Network policies), Container security, Cloud IAM, Secrets management",
+                tools: "kube-bench, Falco, Trivy, Vault, kubesec, Aqua Security",
+                domain: "Container security, cluster hardening, workload protection, compliance"
+            },
+            {
+                track: 4, year: 3, q: 1, title: "AI in Security",
+                objective: "Sử dụng AI/ML để phát hiện và phòng chống tấn công",
+                knowledge: "Anomaly detection, Behavioral analysis, Log analysis, Intrusion detection, Threat intelligence",
+                tools: "Splunk, ELK Stack, TensorFlow, PyTorch, Sumo Logic",
+                domain: "Intelligent threat detection, automated response, predictive security"
+            },
+            {
+                track: 4, year: 3, q: 2, title: "Red Team vs Blue Team",
+                objective: "Tổ chức và thực hiện red team exercises",
+                knowledge: "Red team tactics, Blue team defense, Tabletop exercises, Incident response, Post-mortem analysis",
+                tools: "Metasploit, Cobalt Strike (simulated), MITRE ATT&CK framework",
+                domain: "Adversarial testing, defensive strategies, incident response procedures"
+            },
+            {
+                track: 4, year: 3, q: 3, title: "Advanced Penetration Testing",
+                objective: "Nâng cao kỹ năng penetration testing",
+                knowledge: "Advanced exploitation, Privilege escalation, Lateral movement, Persistence, Anti-forensics",
+                tools: "Metasploit, Burp Suite Pro, Cobalt Strike, Custom exploits",
+                domain: "Complex vulnerability exploitation, multi-stage attacks, evasion techniques"
+            },
+            {
+                track: 4, year: 3, q: 4, title: "Security Champion",
+                objective: "Trở thành security champion cho tổ chức",
+                knowledge: "Security awareness training, Security culture, Compliance frameworks, Risk management, Leadership",
+                tools: "All previous tools + training platforms",
+                domain: "Organizational security posture, compliance management, security leadership"
+            },
 
-            // Track 5: Management
-            { track: 5, year: 1, q: 1, title: "Leadership & Communication", skills: "Coaching, Feedback, Crucial Conversations", courses: "Crucial Conversations" },
-            { track: 5, year: 1, q: 2, title: "Agile Coaching", skills: "Scrum Master advanced, Kanban, Facilitation", certs: "Professional Scrum Master II (PSM II)" },
-            { track: 5, year: 1, q: 3, title: "Strategic Quality Management", skills: "Quality KPIs, DORA metrics, Dashboarding", projects: "Triển khai dashboard đo lường chất lượng tổ chức" },
-            { track: 5, year: 1, q: 4, title: "High Performance Teams", skills: "Hiring, Training, Career pathing", courses: "Management 3.0" },
-            { track: 5, year: 2, q: 1, title: "Test Project Management", skills: "Planning, Resource estimation, Risk management", certs: "ISTQB Test Manager" },
-            { track: 5, year: 2, q: 2, title: "Quality Culture", skills: "Shift-left, Quality assistance model", projects: "Pilot mô hình QA embedded trong team dev" },
-            { track: 5, year: 2, q: 3, title: "QA Finance & Budget", skills: "Budgeting for tools, Cloud, Training", projects: "Thuyết phục stakeholder về ngân sách QA" },
-            { track: 5, year: 2, q: 4, title: "Mentoring & Coaching", skills: "Mentoring program, Career framework", projects: "Xây dựng career framework cho QA" },
-            { track: 5, year: 3, q: 1, title: "Thought Leadership", skills: "Blogging, Public speaking, Personal branding", projects: "Chia sẻ tại meetup ngoại bộ/blog cá nhân" },
-            { track: 5, year: 3, q: 2, title: "Change Management", skills: "Agile/DevOps transformation", courses: "Change Management Practitioner (Prosci)" },
-            { track: 5, year: 3, q: 3, title: "Org Development", skills: "Internal QA Academy, Competency assessment", projects: "Xây dựng Academy QA nội bộ" },
-            { track: 5, year: 3, q: 4, title: "Head of QA", skills: "Quality vision, Business alignment", certs: "PMP or Executive Management" }
+            // Track 5: Management & Leadership
+            {
+                track: 5, year: 1, q: 1, title: "Leadership & Communication",
+                objective: "Phát triển kỹ năng lãnh đạo và giao tiếp hiệu quả",
+                knowledge: "Coaching skills, Feedback delivery, Conflict resolution, Active listening, Emotional intelligence",
+                tools: "Communication frameworks, Feedback models, Team assessment tools",
+                domain: "Building trust, team dynamics, psychological safety, effective delegation"
+            },
+            {
+                track: 5, year: 1, q: 2, title: "Agile Coaching",
+                objective: "Trở thành Agile coach hỗ trợ team transformation",
+                knowledge: "Scrum Master advanced, Kanban principles, Lean thinking, Facilitation, Servant leadership",
+                tools: "Jira, Miro, Mural, Agile frameworks documentation",
+                domain: "Process improvement, team velocity, continuous delivery, organizational agility"
+            },
+            {
+                track: 5, year: 1, q: 3, title: "Strategic Quality Management",
+                objective: "Xây dựng chiến lược chất lượng cho tổ chức",
+                knowledge: "Quality metrics (DORA, defect escape rate, test coverage), KPI definition, Dashboard design, Reporting",
+                tools: "Grafana, Tableau, Power BI, DORA metrics tools",
+                domain: "Quality culture, metrics-driven decisions, continuous improvement, stakeholder communication"
+            },
+            {
+                track: 5, year: 1, q: 4, title: "High Performance Teams",
+                objective: "Xây dựng và quản lý đội ngũ hiệu suất cao",
+                knowledge: "Hiring practices, Onboarding, Career development, Performance management, Retention strategies",
+                tools: "HRIS systems, Assessment tools, Development frameworks",
+                domain: "Team capability building, talent management, organizational culture"
+            },
+            {
+                track: 5, year: 2, q: 1, title: "Test Project Management",
+                objective: "Quản lý các dự án testing phức tạp",
+                knowledge: "Project planning, Resource estimation, Risk management, Scope management, Stakeholder communication",
+                tools: "Jira, Monday.com, Asana, Confluence, Risk registers",
+                domain: "Project delivery, resource optimization, quality assurance, stakeholder satisfaction"
+            },
+            {
+                track: 5, year: 2, q: 2, title: "Quality Culture Building",
+                objective: "Xây dựng văn hóa chất lượng trong tổ chức",
+                knowledge: "Shift-left testing, Quality assistance model, Developer testing, Shared responsibility",
+                tools: "Testing tools, Collaboration platforms, Knowledge bases",
+                domain: "Quality ownership, cross-functional collaboration, early defect detection"
+            },
+            {
+                track: 5, year: 2, q: 3, title: "Financial Management for QA",
+                objective: "Quản lý ngân sách và tài chính cho bộ phận QA",
+                knowledge: "Budget planning, Cost analysis, ROI calculation, Tool evaluation, Cloud cost optimization",
+                tools: "Excel, Tableau, Financial planning tools, Cloud cost analyzers",
+                domain: "Cost control, resource allocation, business case development, stakeholder alignment"
+            },
+            {
+                track: 5, year: 2, q: 4, title: "Mentoring & Development",
+                objective: "Phát triển chương trình mentoring cho team",
+                knowledge: "Mentoring frameworks, Career pathing, Skill assessment, Development plans, Knowledge transfer",
+                tools: "Development tracking tools, Learning platforms, Mentoring frameworks",
+                domain: "Talent development, knowledge preservation, succession planning, team growth"
+            },
+            {
+                track: 5, year: 3, q: 1, title: "Thought Leadership",
+                objective: "Xây dựng thương hiệu cá nhân và tư duy lãnh đạo",
+                knowledge: "Content creation, Public speaking, Industry participation, Network building, Personal branding",
+                tools: "Blogging platforms, Social media, Conference speaking, Networking events",
+                domain: "Industry influence, knowledge sharing, career advancement, organizational reputation"
+            },
+            {
+                track: 5, year: 3, q: 2, title: "Organizational Change Management",
+                objective: "Dẫn dắt các thay đổi tổ chức lớn",
+                knowledge: "Change management frameworks, Resistance management, Communication strategy, Stakeholder engagement",
+                tools: "Change management tools, Communication platforms, Training systems",
+                domain: "Organizational transformation, adoption management, risk mitigation"
+            },
+            {
+                track: 5, year: 3, q: 3, title: "Organizational Development",
+                objective: "Xây dựng Academy QA nội bộ và chương trình phát triển",
+                knowledge: "Curriculum design, Training delivery, Competency frameworks, Assessment methods",
+                tools: "Learning management systems, Training platforms, Assessment tools",
+                domain: "Capability building, standardization, knowledge preservation, continuous learning"
+            },
+            {
+                track: 5, year: 3, q: 4, title: "Executive Leadership",
+                objective: "Trở thành Head of QA với tầm nhìn chiến lược",
+                knowledge: "Strategic planning, Business alignment, Executive communication, P&L management, Organizational vision",
+                tools: "Strategic planning tools, Executive dashboards, Business intelligence",
+                domain: "Quality strategy, business impact, organizational leadership, strategic partnerships"
+            }
         ];
 
         const trackNames = {
@@ -680,17 +1076,18 @@
             modal.style.borderLeft = `8px solid ${trackColors[item.track]}`;
             
             document.getElementById('modalTitle').textContent = item.title;
-            document.getElementById('modalSkills').textContent = item.skills || 'N/A';
-            document.getElementById('modalCourses').textContent = item.courses || 'N/A';
+            document.getElementById('modalObjective').textContent = item.objective || 'N/A';
+            document.getElementById('modalKnowledge').textContent = item.knowledge || 'N/A';
             
-            const certSection = document.getElementById('certSection');
-            if (item.certs) {
-                certSection.classList.remove('hidden');
-                document.getElementById('modalCerts').textContent = item.certs;
-            } else {
-                certSection.classList.add('hidden');
-            }
-
+            // Tools display
+            const toolsContainer = document.getElementById('modalTools');
+            const tools = (item.tools || '').split(', ');
+            toolsContainer.innerHTML = tools.map(tool => 
+                `<span class="tech-tag primary">${tool}</span>`
+            ).join('');
+            
+            document.getElementById('modalDomain').textContent = item.domain || 'N/A';
+            
             const projectSection = document.getElementById('projectSection');
             if (item.projects) {
                 projectSection.classList.remove('hidden');
