@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Học Query DSL thực chiến - Hệ thống học tập linh hoạt</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #005571;
+            --secondary: #00bfb3;
+            --accent: #f04e98;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --info: #0ea5e9;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+        }
+        /* Sidebar Navigation */
+        aside {
+            position: sticky;
+            top: 40px;
+            height: fit-content;
+        }
+        .sidebar-nav {
+            background: var(--card);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+        .sidebar-nav h2 { font-size: 0.8rem; text-transform: uppercase; color: #64748b; margin-bottom: 15px; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+        .sidebar-nav ul { list-style: none; margin-bottom: 25px; }
+        .sidebar-nav li { margin-bottom: 8px; }
+        .sidebar-nav a { text-decoration: none; color: var(--text); font-size: 0.9rem; font-weight: 500; transition: all 0.2s; display: block; padding: 5px 10px; border-radius: 8px; }
+        .sidebar-nav a:hover { background: #f1f5f9; color: var(--secondary); }
+        .sidebar-nav .active { background: #f1f5f9; color: var(--secondary); font-weight: 700; }
+        header {
+            grid-column: 1 / -1;
+            padding: 40px;
+            background: var(--card);
+            border-radius: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background-image: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        }
+        .header-content h1 { font-size: 2.2rem; font-weight: 800; color: var(--primary); margin-bottom: 5px; }
+        .header-content p { color: #64748b; font-size: 1.1rem; }
+        .btn-back {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+            background: white;
+        }
+        .btn-back:hover { background: #f1f5f9; border-color: var(--secondary); transform: translateX(-5px); }
+        /* Goal Paths */
+        .paths-grid {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        .path-card {
+            background: var(--card);
+            padding: 35px;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .path-card:hover { transform: translateY(-8px); border-color: var(--secondary); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .path-card h3 { font-size: 1.3rem; margin-bottom: 12px; color: var(--primary); }
+        .path-card p { font-size: 0.95rem; color: #64748b; flex-grow: 1; }
+        .path-icon { font-size: 3rem; margin-bottom: 20px; }
+        .path-tag { position: absolute; top: 20px; right: 20px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--secondary); background: #f0fdfa; padding: 4px 10px; border-radius: 20px; }
+        /* Content Sections */
+        main section {
+            background: var(--card);
+            padding: 45px;
+            border-radius: 24px;
+            margin-bottom: 50px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+        }
+        h2.section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 35px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        h2.section-title::before {
+            content: "";
+            width: 10px;
+            height: 35px;
+            background: var(--secondary);
+            border-radius: 5px;
+        }
+        .lesson {
+            margin-bottom: 70px;
+            padding-bottom: 50px;
+            border-bottom: 1px solid var(--border);
+        }
+        .lesson:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .lesson-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .lesson-badge {
+            background: #f1f5f9;
+            color: var(--primary);
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .lesson-title { font-size: 1.6rem; font-weight: 700; color: var(--text); }
+        .box {
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            font-size: 1rem;
+            position: relative;
+        }
+        .box strong { display: block; margin-bottom: 8px; font-size: 1.1rem; }
+        .usecase { background: #fff9f0; border-left: 5px solid var(--warning); color: #92400e; }
+        .challenge { background: #ecfdf5; border-left: 5px solid var(--success); color: #065f46; }
+        .pro-tip { background: #f0f9ff; border-left: 5px solid var(--info); color: #075985; }
+        /* Code Block */
+        .code-container {
+            background: var(--code-bg);
+            border-radius: 20px;
+            margin: 25px 0;
+            overflow: hidden;
+            box-shadow: 0 15px 30px -10px rgba(0,0,0,0.4);
+        }
+        .code-header {
+            background: #2d2d2d;
+            padding: 12px 25px;
+            display: flex;
+            justify-content: space-between;
+            color: #aaa;
+            font-size: 0.85rem;
+            font-family: 'JetBrains Mono', monospace;
+            border-bottom: 1px solid #3d3d3d;
+        }
+        pre {
+            padding: 30px;
+            margin: 0;
+            overflow-x: auto;
+            color: var(--code-text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+        .key { color: #9cdcfe; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .comment { color: #6a9955; font-style: italic; }
+        footer {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+            font-size: 0.95rem;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+        @media (max-width: 1100px) {
+            .container { grid-template-columns: 1fr; }
+            aside { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>Mastering Elasticsearch Query DSL</h1>
+                <p>Comprehensive hands-on learning system with goal-oriented paths</p>
+            </div>
+            <a href="DSL.html" class="btn-back">← Back to Handbook</a>
+        </header>
+        <div class="paths-grid">
+            <div class="path-card" onclick="document.getElementById('path1').scrollIntoView({behavior: 'smooth'})">
+                <div class="path-tag">Beginner</div>
+                <div class="path-icon">🔍</div>
+                <h3>Bug Hunter</h3>
+                <p>Focus on quick log searching, filtering by ID, time, and status codes for immediate troubleshooting.</p>
+            </div>
+            <div class="path-card" onclick="document.getElementById('path2').scrollIntoView({behavior: 'smooth'})">
+                <div class="path-tag">Intermediate</div>
+                <div class="path-icon">📊</div>
+                <h3>Data Analyst</h3>
+                <p>Master Aggregations to统计 errors, calculate latency, percentiles, and analyze system trends.</p>
+            </div>
+            <div class="path-card" onclick="document.getElementById('path3').scrollIntoView({behavior: 'smooth'})">
+                <div class="path-tag">Advanced</div>
+                <div class="path-icon">🤖</div>
+                <h3>SDET (Software Development Engineer in Test)</h3>
+                <p>Automate log verification, complex scripting, handle nested objects, and optimize query performance.</p>
+            </div>
+            <div class="path-card" onclick="document.getElementById('path4').scrollIntoView({behavior: 'smooth'})">
+                <div class="path-tag">Expert</div>
+                <div class="path-icon">🎯</div>
+                <h3>Performance Engineer</h3>
+                <p>Deep dive into query optimization, profiling, caching strategies, and large-scale data analysis.</p>
+            </div>
+        </div>
+        <!-- Learning Methods Section -->
+        <section style="grid-column: 1 / -1; background: linear-gradient(135deg, #f0fdfa 0%, #ecfdf5 100%); border: 2px solid var(--secondary);">
+            <h2 class="section-title" style="font-size: 1.6rem;">🎓 How to Learn Effectively</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div style="background: white; padding: 20px; border-radius: 16px;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">📖</div>
+                    <h4 style="margin-bottom: 8px; color: var(--primary);">Read & Understand</h4>
+                    <p style="font-size: 0.9rem; color: #64748b;">Study each concept thoroughly before moving to practice. Understand the "why" behind each query.</p>
+                </div>
+                <div style="background: white; padding: 20px; border-radius: 16px;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">✍️</div>
+                    <h4 style="margin-bottom: 8px; color: var(--primary);">Practice Actively</h4>
+                    <p style="font-size: 0.9rem; color: #64748b;">Complete every challenge. Type the queries yourself, don't just copy-paste.</p>
+                </div>
+                <div style="background: white; padding: 20px; border-radius: 16px;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">🔄</div>
+                    <h4 style="margin-bottom: 8px; color: var(--primary);">Repeat & Review</h4>
+                    <p style="font-size: 0.9rem; color: #64748b;">Revisit difficult concepts after 1 day, 3 days, and 1 week for better retention.</p>
+                </div>
+                <div style="background: white; padding: 20px; border-radius: 16px;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">🎯</div>
+                    <h4 style="margin-bottom: 8px; color: var(--primary);">Apply to Real Work</h4>
+                    <p style="font-size: 0.9rem; color: #64748b;">Immediately use what you learn on your actual projects and logs.</p>
+                </div>
+            </div>
+        </section>
+        <aside>
+            <nav class="sidebar-nav">
+                <h2>Path 1: Bug Hunter</h2>
+                <ul>
+                    <li><a href="#lesson1-1">Term vs Match</a></li>
+                    <li><a href="#lesson1-2">Wildcard & Fuzzy</a></li>
+                    <li><a href="#lesson1-3">Range & Time</a></li>
+                    <li><a href="#lesson1-4">Bool Logic</a></li>
+                    <li><a href="#lesson1-5">Exists & Missing</a></li>
+                    <li><a href="#lesson1-6">Prefix & Suffix</a></li>
+                </ul>
+                <h2>Path 2: Data Analyst</h2>
+                <ul>
+                    <li><a href="#lesson2-1">Basic Aggs</a></li>
+                    <li><a href="#lesson2-2">Grouping & Bucketing</a></li>
+                    <li><a href="#lesson2-3">Percentiles & Cardinality</a></li>
+                    <li><a href="#lesson2-4">Nested Aggregations</a></li>
+                    <li><a href="#lesson2-5">Filters in Aggs</a></li>
+                </ul>
+                <h2>Path 3: SDET</h2>
+                <ul>
+                    <li><a href="#lesson3-1">Nested Objects</a></li>
+                    <li><a href="#lesson3-2">Scripting (Painless)</a></li>
+                    <li><a href="#lesson3-3">Performance Analysis</a></li>
+                    <li><a href="#lesson3-4">Query Optimization</a></li>
+                </ul>
+                <h2>Path 4: Performance Engineer</h2>
+                <ul>
+                    <li><a href="#lesson4-1">Profiling Queries</a></li>
+                    <li><a href="#lesson4-2">Caching Strategies</a></li>
+                    <li><a href="#lesson4-3">Index Design</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <main>
+            <!-- Path 1 -->
+            <section id="path1">
+                <h2 class="section-title">Path 1: Lightning-Fast Log Search</h2>
+                <div class="lesson" id="lesson1-1">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 1.1</span>
+                        <span class="lesson-title">Term vs Match: When to Use Which?</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> You have a transaction ID <code>TX12345</code>. Use <code>term</code> for exact match. You have a log message <code>"User login failed"</code>. Use <code>match</code> for full-text search.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"query"</span>: {
+    <span class="key">"bool"</span>: {
+      <span class="key">"must"</span>: [
+        { <span class="key">"term"</span>: { <span class="key">"transaction_id.keyword"</span>: <span class="string">"TX12345"</span> } },
+        { <span class="key">"match"</span>: { <span class="key">"message"</span>: <span class="string">"failed"</span> } }
+      ]
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Always use <code>.keyword</code> for text fields if you want exact matching (case-sensitive). Regular <code>text</code> fields are analyzed and tokenized into individual words.
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Write a query to find logs with <code>request_id</code> equal to <code>"REQ-999"</code> and <code>message</code> containing the word <code>"timeout"</code>.
+                    </div>
+                    <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
+                        <strong>💡 Quick Exercise:</strong> Try modifying the query above to search for multiple keywords in the message field using the OR operator.
+                    </div>
+                </div>
+                <div class="lesson" id="lesson1-2">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 1.2</span>
+                        <span class="lesson-title">Wildcard & Fuzzy: Finding When You're Not Sure</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Find logs from services starting with <code>auth-*</code> or find misspelled keywords (e.g., <code>conection</code> instead of <code>connection</code>).
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"query"</span>: {
+    <span class="key">"bool"</span>: {
+      <span class="key">"should"</span>: [
+        { <span class="key">"wildcard"</span>: { <span class="key">"service.keyword"</span>: <span class="string">"auth-*"</span> } },
+        { <span class="key">"fuzzy"</span>: { <span class="key">"message"</span>: { <span class="key">"value"</span>: <span class="string">"conection"</span>, <span class="key">"fuzziness"</span>: <span class="number">1</span> } } }
+      ]
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Wildcards can be slow on large datasets. Use them sparingly and prefer prefix wildcards (<code>auth-*</code>) over suffix wildcards (<code>*-service</code>).
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Find all logs from services containing <code>"payment"</code> (using wildcard) with error messages similar to <code>"database"</code>.
+                    </div>
+                    <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
+                        <strong>💡 Quick Exercise:</strong> Experiment with different fuzziness values (0, 1, 2) and observe how results change.
+                    </div>
+                </div>
+                <div class="lesson" id="lesson1-3">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 1.3</span>
+                        <span class="lesson-title">Range & Time: Filtering by Time</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Find logs in the last 24 hours or find requests with extremely high response times (latency).
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"query"</span>: {
+    <span class="key">"range"</span>: {
+      <span class="key">"@timestamp"</span>: {
+        <span class="key">"gte"</span>: <span class="string">"now-24h"</span>,
+        <span class="key">"lte"</span>: <span class="string">"now"</span>
+      }
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Use operators <code>gte</code> (>=), <code>gt</code> (>), <code>lte</code> (<=), <code>lt</code> (<). For time, shortcuts like <code>now-1d</code>, <code>now-1h</code> are extremely useful.
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Find logs with <code>response_time</code> greater than 5000ms between 2 days ago and 1 day ago.
+                    </div>
+                    <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
+                        <strong>💡 Quick Exercise:</strong> Create a query that finds logs from the beginning of the current month until now.
+                    </div>
+                </div>
+                <div class="lesson" id="lesson1-4">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 1.4</span>
+                        <span class="lesson-title">Bool Logic: Combining Conditions</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Combine multiple conditions: Must be an error, Must be within 1 hour, and Must NOT be from service <code>test-bot</code>.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"query"</span>: {
+    <span class="key">"bool"</span>: {
+      <span class="key">"must"</span>: [ { <span class="key">"match"</span>: { <span class="key">"level"</span>: <span class="string">"ERROR"</span> } } ],
+      <span class="key">"filter"</span>: [ { <span class="key">"range"</span>: { <span class="key">"@timestamp"</span>: { <span class="key">"gte"</span>: <span class="string">"now-1h"</span> } } } ],
+      <span class="key">"must_not"</span>: [ { <span class="key">"term"</span>: { <span class="key">"service.keyword"</span>: <span class="string">"test-bot"</span> } } ]
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Always prefer <code>filter</code> over <code>must</code> for true/false conditions (like time, status codes) because <code>filter</code> is faster and cached.
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Build a query that finds ERROR logs from the last 2 hours, excluding service "monitoring", but only for user_id starting with "VIP".
+                    </div>
+                </div>
+                <div class="lesson" id="lesson1-5">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 1.5</span>
+                        <span class="lesson-title">Exists & Missing: Checking Field Presence</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Find all logs that have a <code>user_id</code> field (regardless of value) or find logs missing critical fields like <code>error_code</code>.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"query"</span>: {
+    <span class="key">"bool"</span>: {
+      <span class="key">"must"</span>: [
+        { <span class="key">"exists"</span>: { <span class="key">"field"</span>: <span class="string">"user_id"</span> } }
+      ],
+      <span class="key">"must_not"</span>: [
+        { <span class="key">"exists"</span>: { <span class="key">"field"</span>: <span class="string">"error_code"</span> } }
+      ]
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> The <code>exists</code> query checks if a field has any non-null value. Empty strings <code>""</code> are considered existing values!
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Find all logs that have both <code>customer_id</code> AND <code>order_id</code> fields, but are missing <code>refund_amount</code>.
+                    </div>
+                    <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
+                        <strong>💡 Quick Exercise:</strong> Count how many logs in your index are missing the <code>trace_id</code> field (hint: use aggregation with exists filter).
+                    </div>
+                </div>
+                <div class="lesson" id="lesson1-6">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 1.6</span>
+                        <span class="lesson-title">Prefix & Suffix: Pattern Matching</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Find all error codes starting with <code>ERR_</code> or URLs ending with <code>.json</code>. More efficient than wildcards for simple patterns.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"query"</span>: {
+    <span class="key">"bool"</span>: {
+      <span class="key">"must"</span>: [
+        { <span class="key">"prefix"</span>: { <span class="key">"error_code.keyword"</span>: <span class="string">"ERR_"</span> } },
+        { <span class="key">"suffix"</span>: { <span class="key">"url.keyword"</span>: <span class="string">".json"</span> } }
+      ]
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Prefix queries are faster than wildcard queries because they can use term dictionaries efficiently. Use them when possible!
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Find all logs where <code>request_path</code> starts with <code>/api/v2/</code> and <code>content_type</code> ends with <code>/json</code>.
+                    </div>
+                </div>
+            </section>
+            <!-- Path 2 -->
+            <section id="path2">
+                <h2 class="section-title">Path 2: Log Data Analysis</h2>
+                <div class="lesson" id="lesson2-1">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 2.1</span>
+                        <span class="lesson-title">Basic Aggregations: Quick Statistics</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Calculate average response time or find the slowest request in the system.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"size"</span>: <span class="number">0</span>,
+  <span class="key">"aggs"</span>: {
+    <span class="key">"avg_latency"</span>: { <span class="key">"avg"</span>: { <span class="key">"field"</span>: <span class="string">"latency"</span> } },
+    <span class="key">"max_latency"</span>: { <span class="key">"max"</span>: { <span class="key">"field"</span>: <span class="string">"latency"</span> } },
+    <span class="key">"min_latency"</span>: { <span class="key">"min"</span>: { <span class="key">"field"</span>: <span class="string">"latency"</span> } },
+    <span class="key">"sum_bytes"</span>: { <span class="key">"sum"</span>: { <span class="key">"field"</span>: <span class="string">"bytes_sent"</span> } }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Always set <code>"size": 0</code> when you only need aggregations to avoid returning unnecessary documents and improve performance.
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Write a query to calculate the sum of <code>bytes_sent</code> for all requests with status <code>200</code>.
+                    </div>
+                    <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
+                        <strong>💡 Quick Exercise:</strong> Add a <code>count</code> aggregation to see how many documents were analyzed.
+                    </div>
+                </div>
+                <div class="lesson" id="lesson2-2">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 2.2</span>
+                        <span class="lesson-title">Grouping: Terms & Date Histograms</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Count errors by service or create a time-series chart of errors per minute/hour.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"size"</span>: <span class="number">0</span>,
+  <span class="key">"aggs"</span>: {
+    <span class="key">"errors_by_service"</span>: {
+      <span class="key">"terms"</span>: {
+        <span class="key">"field"</span>: <span class="string">"service.keyword"</span>,
+        <span class="key">"size"</span>: <span class="number">10</span>
+      }
+    },
+    <span class="key">"errors_over_time"</span>: {
+      <span class="key">"date_histogram"</span>: {
+        <span class="key">"field"</span>: <span class="string">"@timestamp"</span>,
+        <span class="key">"fixed_interval"</span>: <span class="string">"1h"</span>
+      }
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Combine <code>terms</code> aggregation inside <code>date_histogram</code> to see top errors in each time bucket. Use <code>calendar_interval</code> for human-readable intervals like "1d", "1M".
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Create a query that shows error count grouped by <code>status_code</code> for the last 24 hours.
+                    </div>
+                    <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
+                        <strong>💡 Quick Exercise:</strong> Modify the date_histogram to use 15-minute intervals instead of 1 hour.
+                    </div>
+                </div>
+                <div class="lesson" id="lesson2-3">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 2.3</span>
+                        <span class="lesson-title">Advanced Statistics: Percentiles & Cardinality</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Find the P95 latency (95% of users have response time below this value). This is more meaningful than average! Also count unique customers affected by errors.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"size"</span>: <span class="number">0</span>,
+  <span class="key">"aggs"</span>: {
+    <span class="key">"latency_percentiles"</span>: {
+      <span class="key">"percentiles"</span>: {
+        <span class="key">"field"</span>: <span class="string">"latency"</span>,
+        <span class="key">"percents"</span>: [<span class="number">50</span>, <span class="number">75</span>, <span class="number">95</span>, <span class="number">99</span>]
+      }
+    },
+    <span class="key">"unique_customers"</span>: {
+      <span class="key">"cardinality"</span>: {
+        <span class="key">"field"</span>: <span class="string">"customer_id.keyword"</span>
+      }
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> P95/P99 are crucial SLA metrics. Cardinality uses HyperLogLog++ for approximate counting - it's memory efficient but may have ~1% error on very large datasets.
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Calculate the number of unique <code>customer_id</code> values that encountered errors in the last 24 hours.
+                    </div>
+                    <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
+                        <strong>💡 Quick Exercise:</strong> Add a percentile_ranks aggregation to find what percentile a specific latency value (e.g., 500ms) falls into.
+                    </div>
+                </div>
+                <div class="lesson" id="lesson2-4">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 2.4</span>
+                        <span class="lesson-title">Nested Aggregations: Multi-Level Analysis</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> First group by service, then within each service, show errors by status code, and calculate average latency for each combination.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"size"</span>: <span class="number">0</span>,
+  <span class="key">"aggs"</span>: {
+    <span class="key">"by_service"</span>: {
+      <span class="key">"terms"</span>: { <span class="key">"field"</span>: <span class="string">"service.keyword"</span> },
+      <span class="key">"aggs"</span>: {
+        <span class="key">"by_status"</span>: {
+          <span class="key">"terms"</span>: { <span class="key">"field"</span>: <span class="string">"status_code"</span> },
+          <span class="key">"aggs"</span>: {
+            <span class="key">"avg_latency"</span>: { <span class="key">"avg"</span>: { <span class="key">"field"</span>: <span class="string">"latency"</span> } }
+          }
+        }
+      }
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Nested aggregations can go multiple levels deep, but be careful about performance. Each level multiplies the number of buckets!
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Create a 3-level aggregation: Group by date (daily), then by service, then calculate error rate (count of ERROR / total count).
+                    </div>
+                </div>
+                <div class="lesson" id="lesson2-5">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 2.5</span>
+                        <span class="lesson-title">Filters in Aggregations: Targeted Analysis</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Compare metrics between different user segments (VIP vs regular), or analyze error rates before/after a deployment.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"size"</span>: <span class="number">0</span>,
+  <span class="key">"aggs"</span>: {
+    <span class="key">"vip_users"</span>: {
+      <span class="key">"filter"</span>: { <span class="key">"prefix"</span>: { <span class="key">"user_id.keyword"</span>: <span class="string">"VIP_"</span> } },
+      <span class="key">"aggs"</span>: {
+        <span class="key">"avg_latency"</span>: { <span class="key">"avg"</span>: { <span class="key">"field"</span>: <span class="string">"latency"</span> } }
+      }
+    },
+    <span class="key">"regular_users"</span>: {
+      <span class="key">"filter"</span>: { <span class="key">"wildcard"</span>: { <span class="key">"user_id.keyword"</span>: <span class="string">"USER_*"</span> } },
+      <span class="key">"aggs"</span>: {
+        <span class="key">"avg_latency"</span>: { <span class="key">"avg"</span>: { <span class="key">"field"</span>: <span class="string">"latency"</span> } }
+      }
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Use <code>filters</code> (plural) aggregation when you need multiple named filters in one go. It's more efficient than running separate queries.
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Compare error counts between production environment (<code>env: "prod"</code>) and staging environment (<code>env: "staging"</code>) using filter aggregations.
+                    </div>
+                    <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
+                        <strong>💡 Quick Exercise:</strong> Add a <code>global</code> aggregation to calculate overall statistics alongside your filtered results.
+                    </div>
+                </div>
+            </section>
+            <!-- Path 3 -->
+            <section id="path3">
+                <h2 class="section-title">Path 3: Automation & Complex Processing</h2>
+                <div class="lesson" id="lesson3-1">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 3.1</span>
+                        <span class="lesson-title">Nested Objects: Precise Array Filtering</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Find documents where a user has <code>name="admin"</code> AND <code>permission="write"</code> within the same object in the <code>users</code> array.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"query"</span>: {
+    <span class="key">"nested"</span>: {
+      <span class="key">"path"</span>: <span class="string">"users"</span>,
+      <span class="key">"query"</span>: {
+        <span class="key">"bool"</span>: {
+          <span class="key">"must"</span>: [
+            { <span class="key">"term"</span>: { <span class="key">"users.name"</span>: <span class="string">"admin"</span> } },
+            { <span class="key">"term"</span>: { <span class="key">"users.permission"</span>: <span class="string">"write"</span> } }
+          ]
+        }
+      }
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Without <code>nested</code>, Elasticsearch flattens arrays, leading to incorrect matches (e.g., user A with name="admin" and user B with permission="write" would incorrectly match).
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Write a nested query to find logs where an item in the <code>products</code> array has both <code>category="electronics"</code> AND <code>price > 1000</code>.
+                    </div>
+                    <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
+                        <strong>💡 Quick Exercise:</strong> Try combining nested queries with regular queries to filter documents that have specific nested properties AND top-level properties.
+                    </div>
+                </div>
+                <div class="lesson" id="lesson3-2">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 3.2</span>
+                        <span class="lesson-title">Scripting (Painless): Custom Logic Power</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Filter documents based on complex calculations between fields that don't have built-in operators, or transform data on-the-fly.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"query"</span>: {
+    <span class="key">"script"</span>: {
+      <span class="key">"script"</span>: {
+        <span class="key">"source"</span>: <span class="string">"doc['actual_latency'].value > doc['expected_latency'].value * params.threshold"</span>,
+        <span class="key">"params"</span>: { <span class="key">"threshold"</span>: <span class="number">1.5</span> }
+      }
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Painless scripting is powerful but resource-intensive. Always try standard queries first. Use <code>params</code> for better performance and caching.
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Write a script query that finds documents where <code>response_time</code> exceeds the average by more than 2 standard deviations.
+                    </div>
+                    <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
+                        <strong>💡 Quick Exercise:</strong> Create a runtime field using Painless to calculate the difference between two timestamp fields.
+                    </div>
+                </div>
+                <div class="lesson" id="lesson3-3">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 3.3</span>
+                        <span class="lesson-title">Performance Analysis: Profile API</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Your query is running slow? Use <code>profile: true</code> to see exactly how much time Elasticsearch spends on each step of query execution.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"profile"</span>: <span class="number">true</span>,
+  <span class="key">"query"</span>: {
+    <span class="key">"match"</span>: { <span class="key">"message"</span>: <span class="string">"critical error"</span> }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> The profile output shows query rewrite time, shard-level execution, and collector times. Look for bottlenecks in specific query clauses.
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Profile a complex bool query with multiple conditions and identify which clause takes the longest to execute.
+                    </div>
+                </div>
+                <div class="lesson" id="lesson3-4">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 3.4</span>
+                        <span class="lesson-title">Query Optimization Best Practices</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Optimize slow queries by understanding filter caching, query restructuring, and index design principles.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL - Optimized Query</span></div>
+                        <pre>{
+  <span class="key">"query"</span>: {
+    <span class="key">"bool"</span>: {
+      <span class="key">"filter"</span>: [
+        { <span class="key">"range"</span>: { <span class="key">"@timestamp"</span>: { <span class="key">"gte"</span>: <span class="string">"now-1d"</span> } } },
+        { <span class="key">"term"</span>: { <span class="key">"status_code"</span>: <span class="number">500</span> } }
+      ],
+      <span class="key">"must"</span>: [
+        { <span class="key">"match"</span>: { <span class="key">"message"</span>: <span class="string">"database connection failed"</span> } }
+      ]
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong>
+                        <ul style="margin-top: 10px; padding-left: 20px;">
+                            <li>Put selective filters first (they reduce the search space fastest)</li>
+                            <li>Use <code>filter</code> context for boolean conditions (cached, no scoring)</li>
+                            <li>Avoid leading wildcards (<code>*term</code>) - they can't use indexes efficiently</li>
+                            <li>Use <code>size: 0</code> when you only need aggregations</li>
+                        </ul>
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Take a slow query from your work and apply at least 3 optimization techniques from this lesson.
+                    </div>
+                    <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
+                        <strong>💡 Quick Exercise:</strong> Compare query execution time before and after moving range filters from <code>must</code> to <code>filter</code> context.
+                    </div>
+                </div>
+            </section>
+            <!-- Path 4 -->
+            <section id="path4">
+                <h2 class="section-title">Path 4: Performance Engineering</h2>
+                <div class="lesson" id="lesson4-1">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 4.1</span>
+                        <span class="lesson-title">Advanced Profiling Techniques</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Deep-dive into query performance using explain API, node stats, and slow query logs to identify systemic issues.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL - Explain API</span></div>
+                        <pre>{
+  <span class="key">"explain"</span>: <span class="number">true</span>,
+  <span class="key">"query"</span>: {
+    <span class="key">"bool"</span>: {
+      <span class="key">"must"</span>: [
+        { <span class="key">"match"</span>: { <span class="key">"message"</span>: <span class="string">"error"</span> } }
+      ]
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Enable slow query logging in elasticsearch.yml: <code>index.search.slowlog.threshold.query.warn: 10s</code>. This helps identify problematic queries in production.
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Set up slow query logging and analyze the top 10 slowest queries from the past week.
+                    </div>
+                </div>
+                <div class="lesson" id="lesson4-2">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 4.2</span>
+                        <span class="lesson-title">Caching Strategies</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Understand and leverage Elasticsearch's query cache, request cache, and fielddata to maximize performance for repeated queries.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>Cache Configuration</span></div>
+                        <pre><span class="comment"># In elasticsearch.yml or via API</span>
+<span class="key">indices.queries.cache.size</span>: <span class="string">"10%"</span>
+<span class="key">indices.requests.cache.enable</span>: <span class="string">true</span>
+<span class="key">indices.requests.cache.size</span>: <span class="string">"1%"</span>
+<span class="comment"># Force refresh to clear caches for testing</span>
+POST /_cache/clear</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong>
+                        <ul style="margin-top: 10px; padding-left: 20px;">
+                            <li>Filter context queries are cached automatically</li>
+                            <li>Request cache works best for aggregations with <code>size: 0</code></li>
+                            <li>Avoid fielddata on high-cardinality text fields (use keyword instead)</li>
+                        </ul>
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Monitor cache hit rates using <code>GET /_nodes/stats/indices/query_cache</code> and optimize queries with low hit rates.
+                    </div>
+                </div>
+                <div class="lesson" id="lesson4-3">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 4.3</span>
+                        <span class="lesson-title">Index Design for Performance</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Design optimal index mappings, shard strategies, and rollover policies for large-scale log analysis systems.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>Optimized Index Template</span></div>
+                        <pre>{
+  <span class="key">"index_patterns"</span>: [<span class="string">"logs-*"</span>],
+  <span class="key">"template"</span>: {
+    <span class="key">"settings"</span>: {
+      <span class="key">"number_of_shards"</span>: <span class="number">3</span>,
+      <span class="key">"number_of_replicas"</span>: <span class="number">1</span>,
+      <span class="key">"refresh_interval"</span>: <span class="string">"30s"</span>
+    },
+    <span class="key">"mappings"</span>: {
+      <span class="key">"properties"</span>: {
+        <span class="key">"@timestamp"</span>: { <span class="key">"type"</span>: <span class="string">"date"</span> },
+        <span class="key">"message"</span>: {
+          <span class="key">"type"</span>: <span class="string">"text"</span>,
+          <span class="key">"fields"</span>: { <span class="key">"keyword"</span>: { <span class="key">"type"</span>: <span class="string">"keyword"</span>, <span class="key">"ignore_above"</span>: <span class="number">256</span> } }
+        },
+        <span class="key">"service"</span>: { <span class="key">"type"</span>: <span class="string">"keyword"</span> }
+      }
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong>
+                        <ul style="margin-top: 10px; padding-left: 20px;">
+                            <li>Size shards between 10-50GB for optimal performance</li>
+                            <li>Use ILM (Index Lifecycle Management) for automatic rollover</li>
+                            <li>Set appropriate <code>ignore_above</code> for keyword fields to save memory</li>
+                            <li>Consider using <code>constant_keyword</code> for fields with same value across all docs</li>
+                        </ul>
+                    </div>
+                    <div class="challenge">
+                        <strong>Final Capstone Challenge:</strong> Design a complete query that:
+                        <ol style="margin-top: 10px; padding-left: 20px;">
+                            <li>Finds all logs from service <code>payment</code> in the last 24 hours</li>
+                            <li>Contains error message <code>"timeout"</code></li>
+                            <li>Groups results by hour</li>
+                            <li>For each hour, counts unique <code>customer_id</code> values affected</li>
+                            <li>Calculates P95 latency for affected requests</li>
+                            <li>Is optimized using all techniques learned (filters, caching, proper field types)</li>
+                        </ol>
+                    </div>
+                    <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
+                        <strong>🏆 Congratulations!</strong> You've completed all learning paths! Now go apply these skills to real-world problems and continue mastering Elasticsearch Query DSL.
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <footer>
+        <p>&copy; 2024 - Mastering Elasticsearch for Testers. Type commands to truly master!</p>
+        <p style="margin-top: 10px; font-size: 0.85rem; color: #94a3b8;">💡 Tip: Practice daily, experiment often, and always profile your queries!</p>
+    </footer>
+    <script>
+        // Highlight active link in sidebar on scroll
+        window.addEventListener('scroll', () => {
+            let current = '';
+            const sections = document.querySelectorAll('div.lesson');
+            const navLinks = document.querySelectorAll('.sidebar-nav a');
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
