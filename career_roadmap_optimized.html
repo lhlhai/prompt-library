@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lộ trình 3 năm - Automation Tester to Expert (OPTIMIZED)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f9fafb;
+            --text-color: #1f2937;
+            --track1: #1E88E5;
+            --track2: #43A047;
+            --track3: #8E24AA;
+            --track4: #E53935;
+            --track5: #FB8C00;
+            --timeline-line: #e5e7eb;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --success: #10B981;
+            --warning: #F59E0B;
+            --info: #3B82F6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #1E88E5, #8E24AA);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .legend-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 8px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fff;
+            color: #4b5563;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            border-color: var(--track1);
+            color: var(--track1);
+        }
+
+        .control-btn.active {
+            background: var(--track1);
+            color: #fff;
+            border-color: var(--track1);
+        }
+
+        /* Filter by Track */
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 20px;
+            background: #fff;
+            color: #4b5563;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-btn::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .filter-btn[data-track="1"]::before { background: var(--track1); }
+        .filter-btn[data-track="2"]::before { background: var(--track2); }
+        .filter-btn[data-track="3"]::before { background: var(--track3); }
+        .filter-btn[data-track="4"]::before { background: var(--track4); }
+        .filter-btn[data-track="5"]::before { background: var(--track5); }
+
+        .filter-btn.active {
+            transform: scale(1.05);
+        }
+
+        .filter-btn:not(.active) {
+            opacity: 0.5;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Dependency Graph View */
+        .graph-view {
+            position: relative;
+            background: #fff;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        .graph-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #374151;
+        }
+
+        .phase-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .phase-card {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid var(--track1);
+        }
+
+        .phase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .phase-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #1f2937;
+        }
+
+        .phase-duration {
+            font-size: 0.75rem;
+            color: #6b7280;
+            background: #e5e7eb;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .milestone-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .milestone-item {
+            background: #fff;
+            border-radius: 6px;
+            padding: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .milestone-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .milestone-item.locked {
+            opacity: 0.6;
+            filter: grayscale(0.5);
+        }
+
+        .milestone-item.completed {
+            border-color: var(--success);
+            background: #ecfdf5;
+        }
+
+        .milestone-item.current {
+            border-color: var(--warning);
+            background: #fffbeb;
+        }
+
+        .milestone-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .milestone-track {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .milestone-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #1f2937;
+        }
+
+        .milestone-status {
+            margin-left: auto;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .status-pending { background: #f3f4f6; color: #6b7280; }
+        .status-ready { background: #dbeafe; color: var(--track1); }
+        .status-in-progress { background: #fef3c7; color: var(--warning); }
+        .status-completed { background: #d1fae5; color: var(--success); }
+
+        .milestone-desc {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        .prerequisites {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .prereq-tag {
+            font-size: 0.7rem;
+            background: #f3f4f6;
+            color: #6b7280;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .prereq-tag::before {
+            content: "🔗";
+            font-size: 10px;
+        }
+
+        .prereq-tag.met {
+            background: #d1fae5;
+            color: var(--success);
+        }
+
+        /* Parallel Learning Indicator */
+        .parallel-group {
+            background: linear-gradient(135deg, rgba(59,130,246,0.05) 0%, rgba(139,92,246,0.05) 100%);
+            border: 2px dashed var(--info);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .parallel-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--info);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .parallel-title::before {
+            content: "⚡";
+        }
+
+        /* Detail Panel */
+        .detail-panel {
+            background: #fff;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-top: 30px;
+            display: none;
+        }
+
+        .detail-panel.active {
+            display: block;
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .detail-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .close-detail {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #9ca3af;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .detail-section {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .detail-section-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #6b7280;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 0.05em;
+        }
+
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .tech-tag {
+            background: #fff;
+            color: #374151;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border-left: 3px solid var(--track1);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .progress-title {
+            font-weight: 700;
+            color: #374151;
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: #e5e7eb;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--track1), var(--track3));
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .phase-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🚀 LỘ TRÌNH PHÁT TRIỂN SỰ NGHIỆP 3 NĂM</h1>
+        <p class="subtitle">Automation Tester (8+ năm) → Expert | Phiên bản TỐI ƯU - Dependency-Aware</p>
+    </header>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-icon" style="background: var(--success); color: white;">✓</div>
+            <span>Hoàn thành</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-icon" style="background: var(--warning); color: white;">●</div>
+            <span>Đang học</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-icon" style="background: var(--track1); color: white;">○</div>
+            <span>Sẵn sàng học</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-icon" style="background: #f3f4f6; color: #9ca3af;">🔒</div>
+            <span>Chờ prerequisite</span>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn active" data-view="phases">📋 Theo Giai đoạn</button>
+        <button class="control-btn" data-view="tracks">🎯 Theo Track</button>
+        <button class="control-btn" data-view="skills">💡 Theo Kỹ năng</button>
+    </div>
+
+    <div class="filters" id="filters">
+        <button class="filter-btn active" data-track="all">Tất cả</button>
+        <button class="filter-btn" data-track="1">SDET</button>
+        <button class="filter-btn" data-track="2">DevOps</button>
+        <button class="filter-btn" data-track="3">AI/ML</button>
+        <button class="filter-btn" data-track="4">Security</button>
+        <button class="filter-btn" data-track="5">Leadership</button>
+    </div>
+
+    <div class="container">
+        <!-- Progress Overview -->
+        <div class="progress-container">
+            <div class="progress-header">
+                <span class="progress-title">Tiến độ tổng thể</span>
+                <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <div class="progress-stats">
+                <div class="stat-item">
+                    <div class="stat-dot" style="background: var(--success)"></div>
+                    <span id="completedCount">0已完成</span>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-dot" style="background: var(--warning)"></div>
+                    <span id="inProgressCount">0正在学习</span>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-dot" style="background: var(--track1)"></div>
+                    <span id="readyCount">0可学习</span>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-dot" style="background: #f3f4f6"></div>
+                    <span id="lockedCount">0被锁定</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Graph View -->
+        <div class="graph-view">
+            <h3 class="graph-title">📍 Lộ trình được tối ưu hóa với Dependencies</h3>
+            <div class="phase-container" id="phaseContainer">
+                <!-- Dynamically generated phases -->
+            </div>
+        </div>
+
+        <!-- Detail Panel -->
+        <div class="detail-panel" id="detailPanel">
+            <div class="detail-header">
+                <div>
+                    <span class="modal-track-tag" id="detailTrackTag" style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.7rem;font-weight:700;text-transform:uppercase;margin-bottom:8px;"></span>
+                    <h2 class="detail-title" id="detailTitle"></h2>
+                </div>
+                <button class="close-detail" id="closeDetail">&times;</button>
+            </div>
+            <div class="detail-grid">
+                <div class="detail-section">
+                    <div class="detail-section-title">🎯 Mục tiêu</div>
+                    <div id="detailObjective"></div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-section-title">💡 Kiến thức</div>
+                    <div id="detailKnowledge"></div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-section-title">🛠️ Công cụ</div>
+                    <div id="detailTools" class="tech-tags"></div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-section-title">📚 Domain</div>
+                    <div id="detailDomain"></div>
+                </div>
+                <div class="detail-section" id="detailPrereqSection">
+                    <div class="detail-section-title">🔗 Prerequisites</div>
+                    <div id="detailPrereqs" class="tech-tags"></div>
+                </div>
+                <div class="detail-section" id="detailLeadsToSection">
+                    <div class="detail-section-title">➡️ Mở đường cho</div>
+                    <div id="detailLeadsTo" class="tech-tags"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Optimized roadmap data with explicit dependencies
+        const roadmapData = [
+            // ========== FOUNDATION PHASE (Months 1-6) ==========
+            {
+                id: "f1", track: 1, phase: 1, title: "Lập trình OOP nâng cao",
+                objective: "Nắm vững SOLID, Design Patterns, Functional Programming",
+                knowledge: "Generics, Streams, Lambda, SOLID, Reflection, Annotations",
+                tools: ["Java 17+", "TypeScript 5.0+", "Design Patterns"],
+                domain: "Thiết kế framework scalable, maintainable",
+                prerequisites: [],
+                duration: "2 tháng"
+            },
+            {
+                id: "f2", track: 2, phase: 1, title: "Docker & Containerization",
+                objective: "Container hóa test environment, reproducible builds",
+                knowledge: "Docker architecture, Multi-stage builds, Compose, Networking",
+                tools: ["Docker", "Docker Compose", "Dockerfile"],
+                domain: "Reproducible test environments, CI/CD ready",
+                prerequisites: [],
+                duration: "1.5 tháng",
+                parallelWith: ["f1"]
+            },
+            {
+                id: "f3", track: 1, phase: 1, title: "Test Framework Architecture",
+                objective: "Xây dựng Hybrid Framework (POM + Keyword + Data-driven)",
+                knowledge: "Page Object Model, Fluent API, Test Data Management",
+                tools: ["Selenium WebDriver", "TestNG", "Cucumber", "Allure Report"],
+                domain: "Framework design, Reporting, BDD integration",
+                prerequisites: ["f1"],
+                duration: "2 tháng"
+            },
+            {
+                id: "f4", track: 5, phase: 1, title: "Leadership Fundamentals",
+                objective: "Kỹ năng giao tiếp, quản lý thời gian, agile mindset",
+                knowledge: "Communication strategies, Time management, Agile principles",
+                tools: ["Jira", "Confluence", "Retrospective techniques"],
+                domain: "Team collaboration, Stakeholder management",
+                prerequisites: [],
+                duration: "ongoing",
+                parallelWith: ["f1", "f2", "f3"]
+            },
+            {
+                id: "f5", track: 2, phase: 1, title: "CI/CD Pipeline Basics",
+                objective: "Thiết lập pipeline cơ bản từ commit đến test execution",
+                knowledge: "Pipeline as Code, Artifacts, Secrets management",
+                tools: ["Jenkins", "GitHub Actions", "GitLab CI"],
+                domain: "Automated testing workflow, Fast feedback",
+                prerequisites: ["f2", "f3"],
+                duration: "1.5 tháng"
+            },
+            {
+                id: "f6", track: 4, phase: 1, title: "Web Security Fundamentals",
+                objective: "Hiểu OWASP Top 10 và cách test security cơ bản",
+                knowledge: "OWASP Top 10, XSS, SQL Injection, CSRF, Authentication flaws",
+                tools: ["OWASP ZAP", "Burp Suite Community"],
+                domain: "Security awareness, Vulnerability detection",
+                prerequisites: [],
+                duration: "1 tháng",
+                parallelWith: ["f3"]
+            },
+
+            // ========== INTERMEDIATE PHASE (Months 7-12) ==========
+            {
+                id: "i1", track: 2, phase: 2, title: "Kubernetes Fundamentals",
+                objective: "Orchestrate test infrastructure at scale",
+                knowledge: "Pods, Services, Deployments, ConfigMaps, Helm charts",
+                tools: ["Kubernetes", "Helm", "kubectl"],
+                domain: "Scalable test infrastructure, Resource management",
+                prerequisites: ["f2", "f5"],
+                duration: "2 tháng"
+            },
+            {
+                id: "i2", track: 1, phase: 2, title: "Advanced CI/CD & Parallel Execution",
+                objective: "Tối ưu pipeline với parallel test execution",
+                knowledge: "Parallel strategies, Test distribution, Failure analysis",
+                tools: ["Jenkins Pipeline", "Docker Swarm", "Selenium Grid 4"],
+                domain: "Execution optimization, Flaky test management",
+                prerequisites: ["f5", "f3"],
+                duration: "1.5 tháng"
+            },
+            {
+                id: "i3", track: 3, phase: 2, title: "Data Science & Python for Testing",
+                objective: "Nền tảng data science áp dụng vào test analytics",
+                knowledge: "Python basics, Pandas, NumPy, Statistical analysis",
+                tools: ["Python", "Pandas", "NumPy", "Jupyter"],
+                domain: "Test data analysis, Pattern recognition",
+                prerequisites: ["f1"],
+                duration: "2 tháng",
+                parallelWith: ["i1", "i2"]
+            },
+            {
+                id: "i4", track: 4, phase: 2, title: "API Security Testing",
+                objective: "Test REST/GraphQL APIs cho security vulnerabilities",
+                knowledge: "REST security, OAuth/OIDC, JWT, Rate limiting",
+                tools: ["Postman", "OWASP ZAP API", "Burp Suite"],
+                domain: "API security, Authentication/Authorization testing",
+                prerequisites: ["f6"],
+                duration: "1.5 tháng"
+            },
+            {
+                id: "i5", track: 2, phase: 2, title: "Monitoring & Observability",
+                objective: "Xây dựng monitoring cho test infrastructure",
+                knowledge: "Metrics, Logs, Traces, Alerting, Dashboards",
+                tools: ["Prometheus", "Grafana", "ELK Stack"],
+                domain: "Infrastructure monitoring, Incident response",
+                prerequisites: ["i1"],
+                duration: "1.5 tháng"
+            },
+            {
+                id: "i6", track: 5, phase: 2, title: "Agile Coaching & Quality Strategy",
+                objective: "Lead quality initiatives trong agile team",
+                knowledge: "Agile coaching, Quality metrics, Risk-based testing",
+                tools: ["Quality dashboards", "Metrics tracking"],
+                domain: "Quality culture, Continuous improvement",
+                prerequisites: ["f4"],
+                duration: "ongoing",
+                parallelWith: ["i1", "i2", "i3"]
+            },
+
+            // ========== ADVANCED PHASE (Year 2) ==========
+            {
+                id: "a1", track: 1, phase: 3, title: "Microservices Contract Testing",
+                objective: "Consumer-Driven Contract Testing cho microservices",
+                knowledge: "CDC patterns, Pact specification, API versioning",
+                tools: ["Pact", "Spring Cloud Contract", "WireMock"],
+                domain: "Service integration, Contract validation",
+                prerequisites: ["i2", "f3"],
+                duration: "2 tháng"
+            },
+            {
+                id: "a2", track: 1, phase: 3, title: "Performance Testing Integration",
+                objective: "Tích hợp performance testing vào CI/CD",
+                knowledge: "Load testing, Baseline, SLA, Bottleneck analysis",
+                tools: ["k6", "Gatling", "JMeter", "InfluxDB", "Grafana"],
+                domain: "Performance regression, Capacity planning",
+                prerequisites: ["i2", "i5"],
+                duration: "2 tháng",
+                parallelWith: ["a1"]
+            },
+            {
+                id: "a3", track: 3, phase: 3, title: "Machine Learning for Testing",
+                objective: "Ứng dụng ML vào test case generation và optimization",
+                knowledge: "ML basics, Classification, Clustering, Feature engineering",
+                tools: ["Scikit-learn", "TensorFlow basics", "MLflow"],
+                domain: "Intelligent test selection, Anomaly detection",
+                prerequisites: ["i3"],
+                duration: "2.5 tháng"
+            },
+            {
+                id: "a4", track: 2, phase: 3, title: "Infrastructure as Code",
+                objective: "Quản lý infrastructure bằng code",
+                knowledge: "IaC patterns, State management, Modules",
+                tools: ["Terraform", "Ansible", "CloudFormation"],
+                domain: "Infrastructure automation, Version control",
+                prerequisites: ["i1", "i5"],
+                duration: "2 tháng",
+                parallelWith: ["a1", "a2"]
+            },
+            {
+                id: "a5", track: 4, phase: 3, title: "DevSecOps Integration",
+                objective: "Shift-left security trong pipeline",
+                knowledge: "SAST, DAST, SCA, Security gates",
+                tools: ["SonarQube", "Trivy", "Snyk", "Checkmarx"],
+                domain: "Automated security testing, Compliance",
+                prerequisites: ["i4", "f5"],
+                duration: "2 tháng"
+            },
+            {
+                id: "a6", track: 1, phase: 3, title: "Mobile Automation Advanced",
+                objective: "Appium 2.0 và mobile testing strategies",
+                knowledge: "Appium architecture, Gestures, Native/Hybrid apps",
+                tools: ["Appium 2.0", "XCUITest", "UiAutomator2"],
+                domain: "Cross-platform mobile testing",
+                prerequisites: ["f3"],
+                duration: "2 tháng",
+                parallelWith: ["a1", "a2"]
+            },
+            {
+                id: "a7", track: 5, phase: 3, title: "Test Management & Mentoring",
+                objective: "Quản lý test projects và mentor junior members",
+                knowledge: "Project planning, Team mentoring, Knowledge sharing",
+                tools: ["Test management tools", "Documentation systems"],
+                domain: "Team leadership, Knowledge transfer",
+                prerequisites: ["i6"],
+                duration: "ongoing"
+            },
+
+            // ========== EXPERT PHASE (Year 3) ==========
+            {
+                id: "e1", track: 3, phase: 4, title: "AI-Powered Test Automation",
+                objective: "Sử dụng LLMs để sinh test cases và self-healing tests",
+                knowledge: "LLM APIs, Prompt engineering, Self-healing locators",
+                tools: ["OpenAI API", "Claude API", "Healenium", "Testim"],
+                domain: "AI-augmented testing, Reduced maintenance",
+                prerequisites: ["a3", "f3"],
+                duration: "3 tháng"
+            },
+            {
+                id: "e2", track: 2, phase: 4, title: "Cloud Native Architecture",
+                objective: "Thiết kế cloud-native test infrastructure",
+                knowledge: "Serverless, Event-driven, Multi-cloud strategies",
+                tools: ["AWS Lambda", "Azure Functions", "GCP Cloud Run"],
+                domain: "Cloud optimization, Cost management",
+                prerequisites: ["a4", "i1"],
+                duration: "2.5 tháng",
+                parallelWith: ["e1"]
+            },
+            {
+                id: "e3", track: 4, phase: 4, title: "Advanced Penetration Testing",
+                objective: "Thực hiện penetration tests chuyên sâu",
+                knowledge: "Advanced exploitation, Red team techniques",
+                tools: ["Metasploit", "Advanced Burp Suite", "Custom scripts"],
+                domain: "Security assessment, Vulnerability research",
+                prerequisites: ["a5", "i4"],
+                duration: "3 tháng"
+            },
+            {
+                id: "e4", track: 1, phase: 4, title: "SRE & Synthetic Monitoring",
+                objective: "Implement SRE practices và synthetic monitoring",
+                knowledge: "SLO/SLI, Error budgets, Synthetic tests",
+                tools: ["Prometheus", "Datadog", "New Relic", "OpenTelemetry"],
+                domain: "Production monitoring, Incident prevention",
+                prerequisites: ["a2", "i5"],
+                duration: "2 tháng",
+                parallelWith: ["e1", "e2"]
+            },
+            {
+                id: "e5", track: 5, phase: 4, title: "Thought Leadership & Strategy",
+                objective: "Xây dựng personal brand và quality strategy ở cấp organization",
+                knowledge: "Public speaking, Writing, Strategic planning",
+                tools: ["Conference talks", "Blog posts", "Open source"],
+                domain: "Industry influence, Organizational change",
+                prerequisites: ["a7"],
+                duration: "ongoing"
+            },
+            {
+                id: "e6", track: 3, phase: 4, title: "MLOps & Model Testing",
+                objective: "Test và deploy ML models production-ready",
+                knowledge: "Model validation, Drift detection, A/B testing",
+                tools: ["MLflow", "Kubeflow", "Evidently AI"],
+                domain: "ML model quality, Production monitoring",
+                prerequisites: ["a3"],
+                duration: "2.5 tháng",
+                parallelWith: ["e1"]
+            }
+        ];
+
+        // Track colors
+        const trackColors = {
+            1: '#1E88E5',
+            2: '#43A047',
+            3: '#8E24AA',
+            4: '#E53935',
+            5: '#FB8C00'
+        };
+
+        const trackNames = {
+            1: 'SDET & Architecture',
+            2: 'DevOps & Cloud',
+            3: 'AI/ML Testing',
+            4: 'Cybersecurity',
+            5: 'Leadership'
+        };
+
+        // State
+        let completedItems = new Set();
+        let inProgressItem = null;
+        let activeFilter = 'all';
+        let activeView = 'phases';
+
+        // Initialize
+        function init() {
+            renderPhases();
+            updateProgress();
+            setupEventListeners();
+        }
+
+        // Check if item is ready to learn
+        function isReady(item) {
+            if (completedItems.has(item.id)) return false;
+            return item.prerequisites.every(prereq => completedItems.has(prereq));
+        }
+
+        // Check if item is locked
+        function isLocked(item) {
+            if (completedItems.has(item.id)) return false;
+            return !item.prerequisites.every(prereq => completedItems.has(prereq));
+        }
+
+        // Get items that can be learned in parallel
+        function getParallelGroup(item) {
+            if (!item.parallelWith) return [];
+            return item.parallelWith.filter(id => 
+                roadmapData.find(i => i.id === id)
+            );
+        }
+
+        // Render phases
+        function renderPhases() {
+            const container = document.getElementById('phaseContainer');
+            const phases = [
+                { id: 1, title: '📚 Nền tảng (Tháng 1-6)', description: 'Xây dựng foundation vững chắc' },
+                { id: 2, title: '🔧 Trung cấp (Tháng 7-12)', description: 'Mở rộng kỹ năng cốt lõi' },
+                { id: 3, title: '🚀 Nâng cao (Năm 2)', description: 'Chuyên sâu theo hướng' },
+                { id: 4, title: '🎓 Expert (Năm 3)', description: 'Thành thạo và dẫn dắt' }
+            ];
+
+            container.innerHTML = phases.map(phase => {
+                const items = roadmapData.filter(item => 
+                    item.phase === phase.id && 
+                    (activeFilter === 'all' || item.track == activeFilter)
+                );
+
+                return `
+                    <div class="phase-card" style="border-left-color: ${trackColors[1]}">
+                        <div class="phase-header">
+                            <span class="phase-title">${phase.title}</span>
+                            <span class="phase-duration">${items.length} modules</span>
+                        </div>
+                        <p style="font-size:0.8rem;color:#6b7280;margin-bottom:15px">${phase.description}</p>
+                        <div class="milestone-list">
+                            ${items.map(item => renderMilestoneItem(item)).join('')}
+                        </div>
+                        ${getParallelGroupHint(items)}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render single milestone item
+        function renderMilestoneItem(item) {
+            const isCompleted = completedItems.has(item.id);
+            const isInProgress = inProgressItem === item.id;
+            const ready = isReady(item);
+            const locked = isLocked(item);
+
+            let statusClass = 'status-pending';
+            let statusText = 'Pending';
+            
+            if (isCompleted) {
+                statusClass = 'status-completed';
+                statusText = '✓ Done';
+            } else if (isInProgress) {
+                statusClass = 'status-in-progress';
+                statusText = '● Learning';
+            } else if (ready) {
+                statusClass = 'status-ready';
+                statusText = '○ Ready';
+            }
+
+            const itemClass = [
+                'milestone-item',
+                isCompleted ? 'completed' : '',
+                isInProgress ? 'current' : '',
+                locked ? 'locked' : ''
+            ].join(' ');
+
+            const prereqsHtml = item.prerequisites.length > 0 ? `
+                <div class="prerequisites">
+                    ${item.prerequisites.map(prereq => {
+                        const prereqItem = roadmapData.find(i => i.id === prereq);
+                        const met = completedItems.has(prereq);
+                        return `<span class="prereq-tag ${met ? 'met' : ''}">${prereqItem?.title || prereq}</span>`;
+                    }).join('')}
+                </div>
+            ` : '';
+
+            return `
+                <div class="${itemClass}" data-id="${item.id}" onclick="showDetail('${item.id}')">
+                    <div class="milestone-header">
+                        <div class="milestone-track" style="background: ${trackColors[item.track]}"></div>
+                        <span class="milestone-title">${item.title}</span>
+                        <span class="milestone-status ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="milestone-desc">${item.objective}</div>
+                    <div style="font-size:0.7rem;color:#9ca3af;margin-bottom:5px">⏱️ ${item.duration}</div>
+                    ${prereqsHtml}
+                </div>
+            `;
+        }
+
+        // Get parallel group hint
+        function getParallelGroupHint(items) {
+            const parallelGroups = [];
+            items.forEach(item => {
+                if (item.parallelWith) {
+                    const parallel = item.parallelWith.filter(id => 
+                        roadmapData.find(i => i.id === id) && 
+                        roadmapData.find(i => i.id === id).phase === item.phase
+                    );
+                    if (parallel.length > 0) {
+                        parallelGroups.push({ main: item.title, parallel: parallel });
+                    }
+                }
+            });
+
+            if (parallelGroups.length === 0) return '';
+
+            return `
+                <div class="parallel-group">
+                    <div class="parallel-title">Có thể học song song</div>
+                    <div style="font-size:0.75rem;color:#6b7280">
+                        ⚡ Các modules trong phase này có thể được học đồng thời để tiết kiệm thời gian
+                    </div>
+                </div>
+            `;
+        }
+
+        // Show detail panel
+        function showDetail(itemId) {
+            const item = roadmapData.find(i => i.id === itemId);
+            if (!item) return;
+
+            document.getElementById('detailTrackTag').textContent = trackNames[item.track];
+            document.getElementById('detailTrackTag').style.background = trackColors[item.track] + '20';
+            document.getElementById('detailTrackTag').style.color = trackColors[item.track];
+            document.getElementById('detailTitle').textContent = item.title;
+            document.getElementById('detailObjective').textContent = item.objective;
+            document.getElementById('detailKnowledge').textContent = item.knowledge;
+            document.getElementById('detailDomain').textContent = item.domain;
+            document.getElementById('detailTools').innerHTML = item.tools.map(t => 
+                `<span class="tech-tag" style="border-left-color:${trackColors[item.track]}">${t}</span>`
+            ).join('');
+
+            // Prerequisites
+            const prereqsContainer = document.getElementById('detailPrereqs');
+            if (item.prerequisites.length > 0) {
+                document.getElementById('detailPrereqSection').style.display = 'block';
+                prereqsContainer.innerHTML = item.prerequisites.map(prereq => {
+                    const prereqItem = roadmapData.find(i => i.id === prereq);
+                    const met = completedItems.has(prereq);
+                    return `<span class="tech-tag" style="border-left-color:${met ? 'var(--success)' : 'var(--warning)'}">${met ? '✓' : '🔒'} ${prereqItem?.title || prereq}</span>`;
+                }).join('');
+            } else {
+                document.getElementById('detailPrereqSection').style.display = 'none';
+            }
+
+            // Leads to
+            const leadsTo = roadmapData.filter(i => i.prerequisites.includes(item.id));
+            const leadsToContainer = document.getElementById('detailLeadsTo');
+            if (leadsTo.length > 0) {
+                document.getElementById('detailLeadsToSection').style.display = 'block';
+                leadsToContainer.innerHTML = leadsTo.map(i => 
+                    `<span class="tech-tag" style="border-left-color:${trackColors[i.track]}">➡️ ${i.title}</span>`
+                ).join('');
+            } else {
+                document.getElementById('detailLeadsToSection').style.display = 'none';
+            }
+
+            document.getElementById('detailPanel').classList.add('active');
+            document.getElementById('detailPanel').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Update progress
+        function updateProgress() {
+            const total = roadmapData.length;
+            const completed = completedItems.size;
+            const inProgress = inProgressItem ? 1 : 0;
+            const ready = roadmapData.filter(item => isReady(item)).length;
+            const locked = roadmapData.filter(item => isLocked(item)).length;
+
+            const percent = Math.round((completed / total) * 100);
+
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('progressPercent').textContent = percent + '%';
+            document.getElementById('completedCount').textContent = `${completed}/${total} Hoàn thành`;
+            document.getElementById('inProgressCount').textContent = `${inProgress} Đang học`;
+            document.getElementById('readyCount').textContent = `${ready} Sẵn sàng`;
+            document.getElementById('lockedCount').textContent = `${locked} Bị khóa`;
+
+            renderPhases();
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    activeFilter = btn.dataset.track;
+                    renderPhases();
+                });
+            });
+
+            // View buttons
+            document.querySelectorAll('.control-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.control-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    activeView = btn.dataset.view;
+                    // Could implement different views here
+                });
+            });
+
+            // Close detail
+            document.getElementById('closeDetail').addEventListener('click', () => {
+                document.getElementById('detailPanel').classList.remove('active');
+            });
+        }
+
+        // Start
+        init();
+    </script>
+</body>
+</html>
