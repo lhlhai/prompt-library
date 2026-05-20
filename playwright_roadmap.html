@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lộ Trình Playwright + Python + Pytest Cho Manual Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .principles {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .principles h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .principles ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .principles li {
+            color: #555;
+            margin: 8px 0;
+            position: relative;
+        }
+
+        .principles li::before {
+            content: "✓";
+            color: #4CAF50;
+            font-weight: bold;
+            position: absolute;
+            left: -20px;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+        }
+
+        .phase-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .phase-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .phase-card.phase-0 { border-left: 6px solid #4CAF50; }
+        .phase-card.phase-1 { border-left: 6px solid #2196F3; }
+        .phase-card.phase-2 { border-left: 6px solid #FFC107; }
+        .phase-card.phase-3 { border-left: 6px solid #FF9800; }
+        .phase-card.phase-4 { border-left: 6px solid #9C27B0; }
+        .phase-card.phase-5 { border-left: 6px solid #FF5722; }
+
+        .phase-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .phase-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .phase-badge {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .phase-0 .phase-badge { background: #4CAF50; }
+        .phase-1 .phase-badge { background: #2196F3; }
+        .phase-2 .phase-badge { background: #FFC107; }
+        .phase-3 .phase-badge { background: #FF9800; }
+        .phase-4 .phase-badge { background: #9C27B0; }
+        .phase-5 .phase-badge { background: #FF5722; }
+
+        .phase-name h2 {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .phase-duration {
+            background: #f0f0f0;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .phase-section {
+            margin: 20px 0;
+        }
+
+        .phase-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .phase-section h3::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: currentColor;
+            border-radius: 2px;
+        }
+
+        .phase-0 .phase-section h3 { color: #4CAF50; }
+        .phase-1 .phase-section h3 { color: #2196F3; }
+        .phase-2 .phase-section h3 { color: #FFC107; }
+        .phase-3 .phase-section h3 { color: #FF9800; }
+        .phase-4 .phase-section h3 { color: #9C27B0; }
+        .phase-5 .phase-section h3 { color: #FF5722; }
+
+        .phase-section ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .phase-section li {
+            color: #555;
+            margin: 10px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .phase-section li:last-child {
+            border-bottom: none;
+        }
+
+        .checkpoint {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .checkpoint h3 {
+            color: white !important;
+            margin-bottom: 15px;
+        }
+
+        .checkpoint h3::before {
+            background: white;
+        }
+
+        .checkpoint ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .checkpoint li {
+            color: white;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .checkpoint li::before {
+            content: "⚠";
+            position: absolute;
+            left: -25px;
+            font-weight: bold;
+        }
+
+        .checkpoint-rule {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-style: italic;
+        }
+
+        .progress-tracker {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 40px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .progress-tracker h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar-container {
+            background: #f0f0f0;
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%);
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .phase-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .phase-checkbox:hover {
+            background: #e8e8e8;
+        }
+
+        .phase-checkbox input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .phase-checkbox label {
+            flex: 1;
+            cursor: pointer;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .phase-checkbox.completed {
+            background: #d4edda;
+        }
+
+        .phase-checkbox.completed label {
+            color: #155724;
+            text-decoration: line-through;
+        }
+
+        .advanced-lock {
+            display: inline-block;
+            background: #FF5722;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .timeline::before {
+                left: 20px;
+            }
+
+            .phase-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .phase-name h2 {
+                font-size: 1.4em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📘 LỘ TRÌNH PLAYWRIGHT + PYTHON + PYTEST</h1>
+            <p>Dành cho Manual Tester muốn chuyển sang Automation Testing</p>
+        </header>
+
+        <div class="principles">
+            <h3>🎯 Mục tiêu tổng quát</h3>
+            <p style="color: #555; margin-bottom: 15px;">Thành thạo viết test tự động, debug, tích hợp CI/CD trước khi động tay vào framework.</p>
+            <h3>⚙️ Nguyên tắc vận hành</h3>
+            <ul>
+                <li>Không chuyển phase khi chưa đạt 100% Checkpoint</li>
+                <li>Ưu tiên API sync, không dùng async ở giai đoạn đầu</li>
+                <li>Thực hành liên tục, không học lý thuyết suông</li>
+            </ul>
+        </div>
+
+        <div class="timeline">
+            <!-- PHASE 0 -->
+            <div class="phase-card phase-0" id="phase-0">
+                <div class="phase-header">
+                    <div class="phase-title">
+                        <div class="phase-badge">0</div>
+                        <div class="phase-name">
+                            <h2>NỀN TẢNG PYTHON & PYTEST</h2>
+                            <span class="phase-duration">⏱️ 2–3 TUẦN</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="phase-section">
+                    <h3>Mục tiêu</h3>
+                    <ul>
+                        <li>Hiểu tư duy lập trình cơ bản, quản lý môi trường, cấu trúc project</li>
+                        <li>Nắm vững Pytest: fixture, assertion, parametrize, test lifecycle</li>
+                    </ul>
+                </div>
+
+                <div class="phase-section">
+                    <h3>Nội dung cốt lõi</h3>
+                    <ul>
+                        <li><strong>Python:</strong> variables, list/dict, loop, function, class/OOP cơ bản, module/package</li>
+                        <li><strong>Môi trường:</strong> venv, pip, requirements.txt</li>
+                        <li><strong>Pytest:</strong> setup/teardown, fixtures (scope: function/module/session), assert, @pytest.mark, @pytest.mark.parametrize, pytest.ini</li>
+                        <li><strong>Tư duy:</strong> Test case → Test script, Data-driven mindset</li>
+                    </ul>
+                </div>
+
+                <div class="phase-section">
+                    <h3>Bài thực hành</h3>
+                    <ul>
+                        <li>Viết script đọc CSV → tính toán → xuất kết quả</li>
+                        <li>Viết 8 test case Pytest cho 1 module tính toán đơn giản (dùng fixture, parametrize, custom mark)</li>
+                        <li>Tạo conftest.py với fixture setup_data reuse cho nhiều test</li>
+                    </ul>
+                </div>
+
+                <div class="checkpoint">
+                    <h3>✅ CHECKPOINT (BẮT BUỘC)</h3>
+                    <ul>
+                        <li>Chạy pytest -v không lỗi môi trường, hiểu rõ scope của fixture</li>
+                        <li>Không dùng print() để debug, dùng logging hoặc pytest report</li>
+                        <li>Tự viết được assertion custom, hiểu tại sao test fail/pass</li>
+                    </ul>
+                    <div class="checkpoint-rule">
+                        <strong>Rule:</strong> Chưa đạt → ôn lại OOP + fixture. Không được nhảy sang Playwright.
+                    </div>
+                </div>
+            </div>
+
+            <!-- PHASE 1 -->
+            <div class="phase-card phase-1" id="phase-1">
+                <div class="phase-header">
+                    <div class="phase-title">
+                        <div class="phase-badge">1</div>
+                        <div class="phase-name">
+                            <h2>PLAYWRIGHT CORE – LÀM CHỦ BROWSER AUTOMATION</h2>
+                            <span class="phase-duration">⏱️ 3–4 TUẦN</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="phase-section">
+                    <h3>Mục tiêu</h3>
+                    <ul>
+                        <li>Hiểu kiến trúc Playwright, selector strategy, auto-wait, context isolation</li>
+                        <li>Viết script automation ổn định, không phụ thuộc time.sleep()</li>
+                    </ul>
+                </div>
+
+                <div class="phase-section">
+                    <h3>Nội dung cốt lõi</h3>
+                    <ul>
+                        <li><strong>Cài đặt:</strong> pip install playwright && playwright install</li>
+                        <li><strong>Sync API:</strong> sync_playwright(), browser, context, page</li>
+                        <li><strong>Selector:</strong> CSS, text=, role=, get_by_* (khuyến nghị)</li>
+                        <li><strong>Actions:</strong> click(), fill(), select_option(), check(), press()</li>
+                        <li><strong>Wait & Stability:</strong> Auto-wait mechanism, expect(), handling dynamic DOM</li>
+                        <li><strong>Advanced UI:</strong> Dialog, iframe, file upload/download, screenshot/video</li>
+                    </ul>
+                </div>
+
+                <div class="phase-section">
+                    <h3>Bài thực hành</h3>
+                    <ul>
+                        <li>Automate flow: Login → Search → Filter → Extract table data → Logout</li>
+                        <li>Xử lý: Modal popup, dropdown async load, form validation error</li>
+                        <li>Capture screenshot/video khi test fail</li>
+                    </ul>
+                </div>
+
+                <div class="checkpoint">
+                    <h3>✅ CHECKPOINT (BẮT BUỘC)</h3>
+                    <ul>
+                        <li>Chạy ổn định trên Chromium, Firefox, WebKit (không crash)</li>
+                        <li>0 lần dùng time.sleep(), chỉ dùng auto-wait hoặc expect().to_be_visible()</li>
+                        <li>Xử lý được iframe & file download trong cùng context</li>
+                    </ul>
+                    <div class="checkpoint-rule">
+                        <strong>Rule:</strong> Script còn flaky → quay lại học expect() & selector strategy.
+                    </div>
+                </div>
+            </div>
+
+            <!-- PHASE 2 -->
+            <div class="phase-card phase-2" id="phase-2">
+                <div class="phase-header">
+                    <div class="phase-title">
+                        <div class="phase-badge">2</div>
+                        <div class="phase-name">
+                            <h2>PLAYWRIGHT + PYTEST INTEGRATION</h2>
+                            <span class="phase-duration">⏱️ 2–3 TUẦN</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="phase-section">
+                    <h3>Mục tiêu</h3>
+                    <ul>
+                        <li>Tích hợp Playwright vào Pytest, tận dụng plugin chính thức</li>
+                        <li>Chạy parallel, quản lý browser/context qua fixture, generate report</li>
+                    </ul>
+                </div>
+
+                <div class="phase-section">
+                    <h3>Nội dung cốt lõi</h3>
+                    <ul>
+                        <li><strong>Plugin:</strong> pytest-playwright</li>
+                        <li><strong>Fixture built-in:</strong> page, browser, browser_context</li>
+                        <li><strong>conftest.py:</strong> Override fixture, login setup once per session</li>
+                        <li><strong>Parallel:</strong> pytest -n auto, thread-safety trong Playwright</li>
+                        <li><strong>Report:</strong> pytest-html, allure-playwright (optional)</li>
+                        <li><strong>Config:</strong> pytest.ini, playwright.config.py (nếu cần)</li>
+                    </ul>
+                </div>
+
+                <div class="phase-section">
+                    <h3>Bài thực hành</h3>
+                    <ul>
+                        <li>Refactor toàn bộ Phase 1 thành Pytest tests</li>
+                        <li>Tạo fixture authenticated_page (login 1 lần, reuse context)</li>
+                        <li>Chạy pytest -n 4 → verify không conflict state giữa workers</li>
+                        <li>Generate HTML report + attach screenshot on failure</li>
+                    </ul>
+                </div>
+
+                <div class="checkpoint">
+                    <h3>✅ CHECKPOINT (BẮT BUỘC)</h3>
+                    <ul>
+                        <li>Parallel run 100% pass, không leak memory/context</li>
+                        <li>Fixture scope="session" hoạt động đúng, không login lại mỗi test</li>
+                        <li>Report hiển thị rõ: test name, duration, screenshot, browser version</li>
+                    </ul>
+                    <div class="checkpoint-rule">
+                        <strong>Rule:</strong> Parallel fail → kiểm tra context isolation & fixture scope.
+                    </div>
+                </div>
+            </div>
+
+            <!-- PHASE 3 -->
+            <div class="phase-card phase-3" id="phase-3">
+                <div class="phase-header">
+                    <div class="phase-title">
+                        <div class="phase-badge">3</div>
+                        <div class="phase-name">
+                            <h2>TEST DESIGN & ADVANCED PLAYWRIGHT</h2>
+                            <span class="phase-duration">⏱️ 3–4 TUẦN</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="phase-section">
+                    <h3>Mục tiêu</h3>
+                    <ul>
+                        <li>Viết test maintainable, xử lý scenario phức tạp, mock network, debug chuyên sâu</li>
+                        <li>Áp dụng Page Object Model (POM) cơ bản</li>
+                    </ul>
+                </div>
+
+                <div class="phase-section">
+                    <h3>Nội dung cốt lõi</h3>
+                    <ul>
+                        <li><strong>POM:</strong> Tách locator + action thành class, reuse flow</li>
+                        <li><strong>Network:</strong> route(), mock, abort, intercept API response</li>
+                        <li><strong>Auth:</strong> storage_state.json, bypass login</li>
+                        <li><strong>Debug:</strong> Trace Viewer (playwright show-trace), pause(), network panel</li>
+                        <li><strong>Anti-pattern:</strong> Hardcoded wait, CSS brittle, over-reuse page instance</li>
+                        <li><strong>Retry & Flaky control:</strong> pytest-rerunfailures, pytest.mark.flaky</li>
+                    </ul>
+                </div>
+
+                <div class="phase-section">
+                    <h3>Bài thực hành</h3>
+                    <ul>
+                        <li>Implement POM cho e2e flow: E-commerce checkout (3 page classes)</li>
+                        <li>Mock API /products → trả về JSON custom, verify UI update</li>
+                        <li>Lưu storage_state sau login → inject vào test khác</li>
+                        <li>Dùng Trace Viewer debug 1 test fail → fix root cause</li>
+                    </ul>
+                </div>
+
+                <div class="checkpoint">
+                    <h3>✅ CHECKPOINT (BẮT BUỘC)</h3>
+                    <ul>
+                        <li>Flaky rate < 5% sau 50 lần run liên tiếp</li>
+                        <li>POM code clean: không có locator trùng, không expose page ra ngoài test</li>
+                        <li>Mock hoạt động chính xác, không gọi real API</li>
+                    </ul>
+                    <div class="checkpoint-rule">
+                        <strong>Rule:</strong> Chưa đạt → refactor POM + luyện Trace Viewer đến khi debug thành thạo.
+                    </div>
+                </div>
+            </div>
+
+            <!-- PHASE 4 -->
+            <div class="phase-card phase-4" id="phase-4">
+                <div class="phase-header">
+                    <div class="phase-title">
+                        <div class="phase-badge">4</div>
+                        <div class="phase-name">
+                            <h2>BEST PRACTICES & CI/CD PIPELINE</h2>
+                            <span class="phase-duration">⏱️ 2 TUẦN</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="phase-section">
+                    <h3>Mục tiêu</h3>
+                    <ul>
+                        <li>Đưa test vào pipeline tự động, đảm bảo chất lượng code, thông báo kết quả</li>
+                    </ul>
+                </div>
+
+                <div class="phase-section">
+                    <h3>Nội dung cốt lõi</h3>
+                    <ul>
+                        <li><strong>Linting/Formatting:</strong> ruff, black, isort</li>
+                        <li><strong>Pre-commit:</strong> pre-commit hook, block push nếu fail lint/test</li>
+                        <li><strong>CI/CD:</strong> GitHub Actions / GitLab CI, matrix strategy (browser × OS)</li>
+                        <li><strong>Caching:</strong> playwright install cache, pip cache</li>
+                        <li><strong>Tagging:</strong> @smoke, @regression, @api → chạy selective</li>
+                        <li><strong>Notification:</strong> Slack/Email webhook khi pipeline fail</li>
+                    </ul>
+                </div>
+
+                <div class="phase-section">
+                    <h3>Bài thực hành</h3>
+                    <ul>
+                        <li>Tạo .github/workflows/e2e.yml → chạy trên PR push</li>
+                        <li>Config matrix: browser: [chromium, firefox], os: [ubuntu-latest]</li>
+                        <li>Thêm ruff + black vào pipeline, block merge nếu fail</li>
+                        <li>Gửi report summary + screenshot link về Slack khi fail</li>
+                    </ul>
+                </div>
+
+                <div class="checkpoint">
+                    <h3>✅ CHECKPOINT (BẮT BUỘC)</h3>
+                    <ul>
+                        <li>Pipeline xanh 100% khi push code đúng chuẩn</li>
+                        <li>Matrix run đúng 2 browser × 1 OS, thời gian < 10 phút</li>
+                        <li>Code pass lint, không có warning ruff</li>
+                    </ul>
+                    <div class="checkpoint-rule">
+                        <strong>Rule:</strong> Pipeline đỏ → fix ngay, không merge. Không sang Phase 5.
+                    </div>
+                </div>
+            </div>
+
+            <!-- PHASE 5 -->
+            <div class="phase-card phase-5" id="phase-5">
+                <div class="phase-header">
+                    <div class="phase-title">
+                        <div class="phase-badge">5</div>
+                        <div class="phase-name">
+                            <h2>ADVANCED – BUILD FRAMEWORK FROM ZERO <span class="advanced-lock">🔒 Requires Mastery</span></h2>
+                            <span class="phase-duration">⏱️ NÂNG CAO</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="phase-section">
+                    <h3>Lưu ý quan trọng</h3>
+                    <ul>
+                        <li>Đây là bước nâng cao. Chỉ triển khai khi team đã thành thạo Phase 0–4</li>
+                        <li>Không vội vàng, phải nắm vững nền tảng trước</li>
+                    </ul>
+                </div>
+
+                <div class="phase-section">
+                    <h3>Nội dung</h3>
+                    <ul>
+                        <li><strong>Config management:</strong> pydantic, dotenv, environment profiles</li>
+                        <li><strong>Logging:</strong> structlog, structured JSON log</li>
+                        <li><strong>Custom reporter:</strong> Allure advanced, JUnit XML, custom dashboard</li>
+                        <li><strong>Data-driven:</strong> YAML/JSON/DB data source, schema validation</li>
+                        <li><strong>Dockerization:</strong> playwright:latest image, headless CI run</li>
+                        <li><strong>Advanced POM:</strong> BasePage, component reuse, dynamic locator strategy</li>
+                        <li><strong>Performance/Baseline:</strong> playwright-trace, load comparison, screenshot diff</li>
+                        <li><strong>Documentation:</strong> mkdocs, onboarding guide, coding standard</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Tracker -->
+        <div class="progress-tracker">
+            <h2>📊 Progress Tracker</h2>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar">0%</div>
+            </div>
+            <div id="phaseCheckboxes">
+                <div class="phase-checkbox" onclick="togglePhase(this, 'phase-0')">
+                    <input type="checkbox" id="check-phase-0">
+                    <label for="check-phase-0">Phase 0: Nền tảng Python & Pytest</label>
+                </div>
+                <div class="phase-checkbox" onclick="togglePhase(this, 'phase-1')">
+                    <input type="checkbox" id="check-phase-1">
+                    <label for="check-phase-1">Phase 1: Playwright Core</label>
+                </div>
+                <div class="phase-checkbox" onclick="togglePhase(this, 'phase-2')">
+                    <input type="checkbox" id="check-phase-2">
+                    <label for="check-phase-2">Phase 2: Playwright + Pytest Integration</label>
+                </div>
+                <div class="phase-checkbox" onclick="togglePhase(this, 'phase-3')">
+                    <input type="checkbox" id="check-phase-3">
+                    <label for="check-phase-3">Phase 3: Test Design & Advanced Playwright</label>
+                </div>
+                <div class="phase-checkbox" onclick="togglePhase(this, 'phase-4')">
+                    <input type="checkbox" id="check-phase-4">
+                    <label for="check-phase-4">Phase 4: Best Practices & CI/CD</label>
+                </div>
+                <div class="phase-checkbox" onclick="togglePhase(this, 'phase-5')">
+                    <input type="checkbox" id="check-phase-5">
+                    <label for="check-phase-5">Phase 5: Advanced Framework (Unlock sau khi hoàn thành Phase 0-4)</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Progress tracking with localStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProgress();
+            updateProgressBar();
+        });
+
+        function togglePhase(element, phaseId) {
+            const checkbox = element.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+            
+            if (checkbox.checked) {
+                element.classList.add('completed');
+            } else {
+                element.classList.remove('completed');
+            }
+            
+            saveProgress();
+            updateProgressBar();
+        }
+
+        function saveProgress() {
+            const progress = {};
+            document.querySelectorAll('#phaseCheckboxes input[type="checkbox"]').forEach((checkbox, index) => {
+                progress['phase-' + index] = checkbox.checked;
+            });
+            localStorage.setItem('playwrightRoadmapProgress', JSON.stringify(progress));
+        }
+
+        function loadProgress() {
+            const savedProgress = localStorage.getItem('playwrightRoadmapProgress');
+            if (savedProgress) {
+                const progress = JSON.parse(savedProgress);
+                Object.keys(progress).forEach(phaseId => {
+                    const checkbox = document.getElementById('check-' + phaseId);
+                    const parentElement = checkbox.closest('.phase-checkbox');
+                    if (checkbox && progress[phaseId]) {
+                        checkbox.checked = true;
+                        parentElement.classList.add('completed');
+                    }
+                });
+            }
+        }
+
+        function updateProgressBar() {
+            const checkboxes = document.querySelectorAll('#phaseCheckboxes input[type="checkbox"]');
+            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const percentage = Math.round((checkedCount / checkboxes.length) * 100);
+            
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = percentage + '%';
+            progressBar.textContent = percentage + '%';
+        }
+    </script>
+</body>
+</html>
