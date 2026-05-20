@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playwright Core - Interactive Learning Platform</title>
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --secondary: #1565c0;
+            --accent: #ff6f00;
+            --danger: #c62828;
+            --success: #2e7d32;
+            --warning: #f9a825;
+            --dark: #1a1a2e;
+            --light: #f5f5f5;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --code-bg: #1e1e1e;
+            --text-primary: #333;
+            --text-secondary: #666;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            color: white;
+            margin-bottom: 30px;
+        }
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .progress-container {
+            background: rgba(255,255,255,0.2);
+            border-radius: 50px;
+            padding: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+        .progress-bar {
+            background: rgba(255,255,255,0.3);
+            border-radius: 25px;
+            height: 30px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #00c853, #69f0ae);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 15px;
+            color: white;
+            font-weight: bold;
+        }
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        .module-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            border-left: 5px solid var(--primary);
+        }
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        .module-card.completed {
+            border-left-color: var(--success);
+            opacity: 0.8;
+        }
+        .module-card.locked {
+            border-left-color: #ccc;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .module-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .module-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .module-card.completed .module-icon {
+            background: var(--success);
+        }
+        .module-card.locked .module-icon {
+            background: #ccc;
+        }
+        .module-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--dark);
+        }
+        .module-description {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+        .module-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status-pending {
+            background: #fff3e0;
+            color: var(--accent);
+        }
+        .status-completed {
+            background: #e8f5e9;
+            color: var(--success);
+        }
+        .status-locked {
+            background: #f5f5f5;
+            color: #999;
+        }
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .modal.active {
+            display: block;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 30px;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #f44336;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .close-btn:hover {
+            background: #d32f2f;
+        }
+        .lesson-section {
+            margin-bottom: 30px;
+        }
+        .lesson-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 10px;
+        }
+        .concept-box {
+            background: #e3f2fd;
+            border-left: 4px solid var(--secondary);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .concept-title {
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        .code-editor {
+            background: var(--code-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+        }
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+        .code-tabs {
+            display: flex;
+            gap: 10px;
+        }
+        .code-tab {
+            padding: 8px 15px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .code-tab.active {
+            background: var(--primary);
+        }
+        .code-area {
+            width: 100%;
+            min-height: 300px;
+            background: #2d2d2d;
+            border: none;
+            color: #f8f8f2;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            padding: 15px;
+            border-radius: 5px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+        .run-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .run-btn:hover {
+            background: #1b5e20;
+        }
+        .output-console {
+            background: #1a1a1a;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 150px;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        .quiz-container {
+            background: #fff9c4;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        .quiz-question {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .quiz-option {
+            padding: 15px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .quiz-option:hover {
+            border-color: var(--primary);
+            background: #e8f5e9;
+        }
+        .quiz-option.selected {
+            border-color: var(--primary);
+            background: #c8e6c9;
+            font-weight: bold;
+        }
+        .quiz-option.correct {
+            border-color: var(--success);
+            background: #a5d6a7;
+        }
+        .quiz-option.incorrect {
+            border-color: var(--danger);
+            background: #ef9a9a;
+        }
+        .check-answer-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.3s;
+        }
+        .check-answer-btn:hover {
+            background: #0d47a1;
+        }
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        .feedback.correct {
+            background: #e8f5e9;
+            color: var(--success);
+            border: 2px solid var(--success);
+            display: block;
+        }
+        .feedback.incorrect {
+            background: #ffebee;
+            color: var(--danger);
+            border: 2px solid var(--danger);
+            display: block;
+        }
+        .complete-module-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 30px;
+            transition: background 0.3s;
+        }
+        .complete-module-btn:hover {
+            background: #1b5e20;
+        }
+        .complete-module-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .toc {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .toc-title {
+            font-size: 1.3rem;
+            color: var(--dark);
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+        }
+        .toc-list {
+            list-style: none;
+        }
+        .toc-item {
+            padding: 10px 15px;
+            margin: 5px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toc-item:hover {
+            background: #e3f2fd;
+        }
+        .toc-item.completed {
+            color: var(--success);
+            font-weight: bold;
+        }
+        .toc-item::before {
+            content: '⬜';
+            font-size: 1.2rem;
+        }
+        .toc-item.completed::before {
+            content: '✅';
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        .badge-beginner {
+            background: #e3f2fd;
+            color: var(--secondary);
+        }
+        .badge-intermediate {
+            background: #fff3e0;
+            color: var(--accent);
+        }
+        .badge-advanced {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+        .interactive-demo {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            color: white;
+        }
+        .demo-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .demo-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .demo-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .demo-button {
+            padding: 12px 25px;
+            background: white;
+            color: var(--primary);
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .demo-button:hover {
+            transform: scale(1.05);
+        }
+        .demo-output {
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 100px;
+            font-family: 'Courier New', monospace;
+        }
+        @media (max-width: 768px) {
+            .module-grid {
+                grid-template-columns: 1fr;
+            }
+            header h1 {
+                font-size: 2rem;
+            }
+            .modal-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎭 Playwright Core Mastery</h1>
+            <p>Học tương tác - Thực hành ngay - Thành thạo Browser Automation</p>
+        </header>
+        <div class="progress-container">
+            <h3 style="color: white; margin-bottom: 15px;">Tiến độ học tập của bạn</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill">0%</div>
+            </div>
+            <p style="color: white; margin-top: 10px; text-align: center;">
+                Hoàn thành <span id="completedCount">0</span> / <span id="totalCount">0</span> modules
+            </p>
+        </div>
+        <div class="toc">
+            <h3 class="toc-title">📚 Mục lục các Module</h3>
+            <ul class="toc-list" id="tocList">
+                <!-- Generated by JS -->
+            </ul>
+        </div>
+        <div class="module-grid" id="moduleGrid">
+            <!-- Modules will be generated by JavaScript -->
+        </div>
+    </div>
+    <!-- Modal for Module Content -->
+    <div class="modal" id="moduleModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <div id="modalBody">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+    <script>
+        // Course Data Structure
+        const courseData = {
+            modules: [
+                {
+                    id: 1,
+                    title: "Giới thiệu Playwright & Cài đặt",
+                    description: "Hiểu kiến trúc Playwright, cài đặt môi trường và chạy script đầu tiên",
+                    icon: "🚀",
+                    status: "pending",
+                    badge: "beginner",
+                    lessons: [
+                        {
+                            title: "Playwright là gì?",
+                            content: `
+                                <div class="concept-box">
+                                    <div class="concept-title">💡 Khái niệm cốt lõi</div>
+                                    <p>Playwright là thư viện automation mã nguồn mở do Microsoft phát triển, hỗ trợ đa browser (Chromium, Firefox, WebKit) và đa ngôn ngữ (Python, JavaScript, Java, .NET).</p>
+                                    <ul style="margin-top: 10px; margin-left: 20px;">
+                                        <li>✅ Auto-wait thông minh</li>
+                                        <li>✅ Selector engine mạnh mẽ</li>
+                                        <li>✅ Context isolation</li>
+                                        <li>✅ Trace viewer để debug</li>
+                                    </ul>
+                                </div>
+                            `,
+                            codeExample: `# Cài đặt Playwright cho Python
+pip install playwright
+playwright install
+# Script đầu tiên
+from playwright.sync_api import sync_playwright
+def run():
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=False)
+        page = browser.new_page()
+        page.goto("https://example.com")
+        print(f"Title: {page.title()}")
+        browser.close()
+if __name__ == "__main__":
+    run()`,
+                            quiz: {
+                                question: "Playwright hỗ trợ những browser nào?",
+                                options: [
+                                    "Chỉ Chrome",
+                                    "Chromium, Firefox, WebKit",
+                                    "Chỉ Firefox và Safari",
+                                    "Tất cả browser trừ IE"
+                                ],
+                                correct: 1,
+                                explanation: "Playwright hỗ trợ 3 engine: Chromium (Chrome/Edge), Firefox, và WebKit (Safari)."
+                            }
+                        },
+                        {
+                            title: "Cài đặt môi trường",
+                            content: `
+                                <div class="concept-box">
+                                    <div class="concept-title">🔧 Các bước cài đặt</div>
+                                    <ol style="margin-left: 20px;">
+                                        <li>Cài Python 3.8+</li>
+                                        <li>Tạo virtual environment</li>
+                                        <li>Cài playwright package</li>
+                                        <li>Download browser binaries</li>
+                                    </ol>
+                                </div>
+                                <div class="interactive-demo">
+                                    <div class="demo-title">🎮 Thử nghiệm cài đặt ảo</div>
+                                    <p>Nhập lệnh để cài đặt:</p>
+                                    <div class="demo-controls">
+                                        <input type="text" class="demo-input" id="installCommand" placeholder="pip install playwright">
+                                        <button class="demo-button" onclick="runInstallDemo()">Run</button>
+                                    </div>
+                                    <div class="demo-output" id="installOutput">Kết quả sẽ hiện ở đây...</div>
+                                </div>
+                            `,
+                            codeExample: `# Tạo virtual environment
+python -m venv venv
+# Kích hoạt venv (Windows)
+venv\\Scripts\\activate
+# Kích hoạt venv (Mac/Linux)
+source venv/bin/activate
+# Cài đặt
+pip install playwright
+playwright install chromium`,
+                            quiz: {
+                                question: "Lệnh nào dùng để download browser binaries?",
+                                options: [
+                                    "pip install browsers",
+                                    "playwright download",
+                                    "playwright install",
+                                    "npm install browsers"
+                                ],
+                                correct: 2,
+                                explanation: "Lệnh 'playwright install' sẽ download tất cả browser supported."
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: 2,
+                    title: "Selector Strategies",
+                    description: "Thành thạo các chiến lược chọn element: CSS, text, role, get_by_*",
+                    icon: "🎯",
+                    status: "locked",
+                    badge: "beginner",
+                    lessons: [
+                        {
+                            title: "CSS Selectors cơ bản",
+                            content: `
+                                <div class="concept-box">
+                                    <div class="concept-title">📍 Các loại CSS selector</div>
+                                    <ul style="margin-left: 20px;">
+                                        <li><code>#id</code> - Chọn theo ID</li>
+                                        <li><code>.class</code> - Chọn theo class</li>
+                                        <li><code>tag</code> - Chọn theo tag name</li>
+                                        <li><code>parent > child</code> - Direct child</li>
+                                        <li><code>ancestor descendant</code> - Any descendant</li>
+                                        <li><code>[attribute=value]</code> - Attribute selector</li>
+                                    </ul>
+                                </div>
+                            `,
+                            codeExample: `# Các ví dụ CSS selector
+page.locator("#login-btn")           # Theo ID
+page.locator(".submit-button")       # Theo class
+page.locator("button")               # Theo tag
+page.locator("form > input")         # Direct child
+page.locator("div .username")        # Descendant
+page.locator("[data-testid='email']") # Attribute`,
+                            quiz: {
+                                question: "Selector nào chọn direct child?",
+                                options: [
+                                    "div descendant",
+                                    "div > child",
+                                    "div child",
+                                    "div + child"
+                                ],
+                                correct: 1,
+                                explanation: "Dấu '>' chọn direct child (con trực tiếp)."
+                            }
+                        },
+                        {
+                            title: "Text & Role Selectors",
+                            content: `
+                                <div class="concept-box">
+                                    <div class="concept-title">📝 Text-based selectors</div>
+                                    <p>Playwright cung cấp các selector dựa trên nội dung text và semantic role:</p>
+                                    <ul style="margin-left: 20px;">
+                                        <li><code>text=Hello</code> - Exact text</li>
+                                        <li><code>text=/hello/i</code> - Regex</li>
+                                        <li><code>role=button</code> - ARIA role</li>
+                                        <li><code>get_by_text()</code> - Method tiện lợi</li>
+                                    </ul>
+                                </div>
+                            `,
+                            codeExample: `# Text selectors
+page.locator("text=Login")
+page.locator("text=/welcome.*/i")  # Regex
+# Role selectors
+page.locator("role=button")
+page.locator("role=link[name='Home']")
+# Get_by methods (recommended)
+page.get_by_text("Login")
+page.get_by_role("button", name="Submit")
+page.get_by_label("Email")
+page.get_by_placeholder("Enter password")
+page.get_by_alt_text("Logo")`,
+                            quiz: {
+                                question: "Phương thức nào được khuyến nghị trong Playwright mới?",
+                                options: [
+                                    "page.locator('text=...')",
+                                    "page.get_by_text(...)",
+                                    "page.find_element(...)",
+                                    "page.querySelector(...)"
+                                ],
+                                correct: 1,
+                                explanation: "get_by_* methods được khuyến nghị vì readability và maintainability tốt hơn."
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: 3,
+                    title: "Actions & Interactions",
+                    description: "Thực hiện click, fill, select, check và các tương tác phức tạp",
+                    icon: "🖱️",
+                    status: "locked",
+                    badge: "intermediate",
+                    lessons: [
+                        {
+                            title: "Basic Actions",
+                            content: `
+                                <div class="concept-box">
+                                    <div class="concept-title">⚡ Các action cơ bản</div>
+                                    <p>Playwright tự động wait element sẵn sàng trước khi thực hiện action:</p>
+                                    <ul style="margin-left: 20px;">
+                                        <li>✅ Click, double click, right click</li>
+                                        <li>✅ Fill text vào input</li>
+                                        <li>✅ Select option trong dropdown</li>
+                                        <li>✅ Check/uncheck checkbox</li>
+                                        <li>✅ Press keyboard keys</li>
+                                    </ul>
+                                </div>
+                            `,
+                            codeExample: `# Click actions
+page.locator("#submit").click()
+page.locator("#item").dblclick()
+page.locator("#menu").click(button="right")
+# Fill actions
+page.locator("#email").fill("test@example.com")
+page.locator("#password").type("secret123")  # Chậm hơn, như thật hơn
+# Select options
+page.locator("#country").select_option("Vietnam")
+page.locator("#colors").select_option(["red", "blue"])
+# Checkbox & Radio
+page.locator("#agree").check()
+page.locator("#remember").uncheck()
+page.locator('input[type="radio"][value="male"]').check()
+# Keyboard
+page.locator("#search").press("Enter")
+page.keyboard.press("Control+A")
+page.keyboard.type("Hello World")`,
+                            quiz: {
+                                question: "Phương thức nào tự động wait element sẵn sàng?",
+                                options: [
+                                    "Chỉ click()",
+                                    "Chỉ fill()",
+                                    "Tất cả actions",
+                                    "Không có phương thức nào"
+                                ],
+                                correct: 2,
+                                explanation: "Tất cả actions trong Playwright đều có auto-wait built-in."
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: 4,
+                    title: "Auto-wait & Assertions",
+                    description: "Hiểu cơ chế auto-wait và sử dụng expect() cho assertions",
+                    icon: "⏳",
+                    status: "locked",
+                    badge: "intermediate",
+                    lessons: [
+                        {
+                            title: "Auto-wait Mechanism",
+                            content: `
+                                <div class="concept-box">
+                                    <div class="concept-title">🔄 Tại sao không cần time.sleep()?</div>
+                                    <p>Playwright tự động wait trước khi thực hiện actions, kiểm tra:</p>
+                                    <ul style="margin-left: 20px;">
+                                        <li>Element attached to DOM</li>
+                                        <li>Element visible</li>
+                                        <li>Element stable (không animating)</li>
+                                        <li>Element receives events</li>
+                                    </ul>
+                                    <p style="color: #c62828; font-weight: bold; margin-top: 10px;">❌ KHÔNG BAO GIỜ dùng time.sleep() trong test!</p>
+                                </div>
+                            `,
+                            codeExample: `# ❌ WRONG - Không bao giờ làm thế này!
+import time
+time.sleep(5)
+page.locator("#btn").click()
+# ✅ CORRECT - Playwright tự wait
+page.locator("#btn").click()
+# Explicit wait khi cần
+page.wait_for_selector("#dynamic-element")
+page.wait_for_load_state("networkidle")
+page.wait_for_timeout(1000)  # Chỉ dùng khi thật sự cần`,
+                            quiz: {
+                                question: "Khi nào nên dùng wait_for_timeout()?",
+                                options: [
+                                    "Luôn luôn dùng thay cho auto-wait",
+                                    "Không bao giờ dùng",
+                                    "Chỉ khi thật sự cần wait thời gian cụ thể",
+                                    "Dùng cho mọi test case"
+                                ],
+                                correct: 2,
+                                explanation: "wait_for_timeout() chỉ dùng khi thật sự cần, ưu tiên auto-wait và explicit waits."
+                            }
+                        },
+                        {
+                            title: "Expect Assertions",
+                            content: `
+                                <div class="concept-box">
+                                    <div class="concept-title">✅ Assertion với expect()</div>
+                                    <p>Sử dụng expect() từ @playwright/test hoặc pytest-playwright:</p>
+                                </div>
+                            `,
+                            codeExample: `from playwright.sync_api import expect
+# Visibility
+expect(page.locator("#modal")).to_be_visible()
+expect(page.locator("#loading")).to_be_hidden()
+# Text content
+expect(page.locator("#title")).to_contain_text("Welcome")
+expect(page.locator("#count")).to_have_text("5")
+# Attributes
+expect(page.locator("#input")).to_have_value("test")
+expect(page.locator("#link")).to_have_attribute("href", "/home")
+# Count
+expect(page.locator(".item")).to_have_count(3)
+# With timeout
+expect(page.locator("#result")).to_be_visible(timeout=5000)`,
+                            quiz: {
+                                question: "Phương thức nào kiểm tra text chứa một phần?",
+                                options: [
+                                    "to_have_text()",
+                                    "to_contain_text()",
+                                    "to_include_text()",
+                                    "to_match_text()"
+                                ],
+                                correct: 1,
+                                explanation: "to_contain_text() kiểm tra nếu text chứa substring được chỉ định."
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: 5,
+                    title: "Advanced UI Handling",
+                    description: "Xử lý dialog, iframe, file upload/download, screenshot/video",
+                    icon: "🎨",
+                    status: "locked",
+                    badge: "advanced",
+                    lessons: [
+                        {
+                            title: "Dialogs & Popups",
+                            content: `
+                                <div class="concept-box">
+                                    <div class="concept-title">💬 Xử lý Alert/Confirm/Prompt</div>
+                                    <p>Sử dụng page.on('dialog') để handle dialogs:</p>
+                                </div>
+                            `,
+                            codeExample: `# Handle alert
+page.on("dialog", lambda dialog: dialog.accept())
+page.locator("#show-alert").click()
+# Handle confirm with custom response
+def handle_confirm(dialog):
+    if dialog.message == "Are you sure?":
+        dialog.accept()
+    else:
+        dialog.dismiss()
+page.on("dialog", handle_confirm)
+page.locator("#delete-btn").click()
+# Handle prompt
+page.on("dialog", lambda dialog: dialog.accept("My answer"))
+page.locator("#show-prompt").click()`,
+                            quiz: {
+                                question: "Làm thế nào để accept một dialog?",
+                                options: [
+                                    "dialog.click()",
+                                    "dialog.accept()",
+                                    "dialog.ok()",
+                                    "dialog.confirm()"
+                                ],
+                                correct: 1,
+                                explanation: "dialog.accept() dùng để chấp nhận dialog, có thể truyền thêm value cho prompt."
+                            }
+                        },
+                        {
+                            title: "File Upload & Download",
+                            content: `
+                                <div class="concept-box">
+                                    <div class="concept-title">📁 File handling</div>
+                                </div>
+                            `,
+                            codeExample: `# File upload
+page.locator('input[type="file"]').set_input_files("path/to/file.pdf")
+# Multiple files
+page.locator('input[type="file"]').set_input_files([
+    "file1.jpg",
+    "file2.png"
+])
+# File download
+with page.expect_download() as download_info:
+    page.locator("#download-btn").click()
+download = download_info.value
+download_path = download.path()
+download.save_as("saved_file.pdf")
+# Get download filename
+print(download.suggested_filename)`,
+                            quiz: {
+                                question: "Phương thức nào dùng để upload file?",
+                                options: [
+                                    "upload_file()",
+                                    "set_input_files()",
+                                    "attach_file()",
+                                    "send_file()"
+                                ],
+                                correct: 1,
+                                explanation: "set_input_files() là phương thức chuẩn để upload file trong Playwright."
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: 6,
+                    title: "Debugging với Trace Viewer",
+                    description: "Sử dụng Trace Viewer để debug test failures hiệu quả",
+                    icon: "🐛",
+                    status: "locked",
+                    badge: "advanced",
+                    lessons: [
+                        {
+                            title: "Trace Viewer Basics",
+                            content: `
+                                <div class="concept-box">
+                                    <div class="concept-title">🔍 Trace Viewer là gì?</div>
+                                    <p>Trace Viewer ghi lại toàn bộ execution của test bao gồm:</p>
+                                    <ul style="margin-left: 20px;">
+                                        <li>Screenshots từng action</li>
+                                        <li>Network requests/responses</li>
+                                        <li>Console logs</li>
+                                        <li>DOM snapshots</li>
+                                        <li>Source code timeline</li>
+                                    </ul>
+                                </div>
+                            `,
+                            codeExample: `# Enable tracing in pytest
+# In conftest.py or pytest.ini
+# Command line để xem trace
+playwright show-trace trace.zip
+# Programmatic tracing
+context.tracing.start(screenshots=True, snapshots=True, sources=True)
+# ... your test code ...
+context.tracing.stop(path="trace.zip")`,
+                            quiz: {
+                                question: "Trace Viewer KHÔNG ghi lại thông tin nào?",
+                                options: [
+                                    "Screenshots",
+                                    "Network requests",
+                                    "Database queries",
+                                    "Console logs"
+                                ],
+                                correct: 2,
+                                explanation: "Trace Viewer không ghi lại database queries trực tiếp, chỉ ghi network requests."
+                            }
+                        }
+                    ]
+                }
+            ]
+        };
+        // Initialize the application
+        function init() {
+            loadProgress();
+            renderModules();
+            renderTOC();
+            updateProgress();
+        }
+        // Load progress from localStorage
+        function loadProgress() {
+            const saved = localStorage.getItem('playwrightProgress');
+            if (saved) {
+                const progress = JSON.parse(saved);
+                courseData.modules.forEach(module => {
+                    const savedModule = progress.find(m => m.id === module.id);
+                    if (savedModule) {
+                        module.status = savedModule.status;
+                    }
+                });
+            }
+        }
+        // Save progress to localStorage
+        function saveProgress() {
+            const progress = courseData.modules.map(m => ({
+                id: m.id,
+                status: m.status
+            }));
+            localStorage.setItem('playwrightProgress', JSON.stringify(progress));
+        }
+        // Render module cards
+        function renderModules() {
+            const grid = document.getElementById('moduleGrid');
+            grid.innerHTML = '';
+            courseData.modules.forEach((module, index) => {
+                const card = document.createElement('div');
+                card.className = `module-card ${module.status} ${index > 0 && courseData.modules[index-1].status === 'locked' ? 'locked' : ''}`;
+                card.onclick = () => module.status !== 'locked' ? openModule(module.id) : null;
+                const badgeClass = `badge-${module.badge}`;
+                const badgeText = module.badge === 'beginner' ? 'Cơ bản' : module.badge === 'intermediate' ? 'Trung cấp' : 'Nâng cao';
+                card.innerHTML = `
+                    <div class="module-header">
+                        <div class="module-icon">${module.icon}</div>
+                        <div>
+                            <div class="module-title">${module.title}</div>
+                            <span class="badge ${badgeClass}">${badgeText}</span>
+                        </div>
+                    </div>
+                    <p class="module-description">${module.description}</p>
+                    <span class="module-status status-${module.status}">
+                        ${module.status === 'completed' ? '✅ Hoàn thành' : module.status === 'pending' ? '⏳ Chưa học' : '🔒 Khóa'}
+                    </span>
+                `;
+                grid.appendChild(card);
+            });
+            document.getElementById('totalCount').textContent = courseData.modules.length;
+        }
+        // Render Table of Contents
+        function renderTOC() {
+            const tocList = document.getElementById('tocList');
+            tocList.innerHTML = '';
+            courseData.modules.forEach(module => {
+                const li = document.createElement('li');
+                li.className = `toc-item ${module.status}`;
+                li.textContent = module.title;
+                li.onclick = () => module.status !== 'locked' ? openModule(module.id) : null;
+                tocList.appendChild(li);
+            });
+        }
+        // Open module modal
+        function openModule(moduleId) {
+            const module = courseData.modules.find(m => m.id === moduleId);
+            if (!module || module.status === 'locked') return;
+            const modal = document.getElementById('moduleModal');
+            const modalBody = document.getElementById('modalBody');
+            let lessonsHTML = '';
+            module.lessons.forEach((lesson, index) => {
+                lessonsHTML += `
+                    <div class="lesson-section">
+                        <h3 class="lesson-title">Bài ${index + 1}: ${lesson.title}</h3>
+                        ${lesson.content}
+                        <div class="code-editor">
+                            <div class="code-header">
+                                <div class="code-tabs">
+                                    <button class="code-tab active">Python</button>
+                                </div>
+                                <button class="run-btn" onclick="simulateRun(this)">
+                                    ▶ Chạy code
+                                </button>
+                            </div>
+                            <textarea class="code-area">${lesson.codeExample}</textarea>
+                            <div class="output-console">Console output sẽ hiện ở đây...</div>
+                        </div>
+                        <div class="quiz-container">
+                            <div class="quiz-question">❓ ${lesson.quiz.question}</div>
+                            <div class="quiz-options">
+                                ${lesson.quiz.options.map((opt, i) =>
+                                    `<div class="quiz-option" data-index="${i}" onclick="selectOption(this)">${opt}</div>`
+                                ).join('')}
+                            </div>
+                            <button class="check-answer-btn" onclick="checkAnswer(this, ${lesson.quiz.correct}, '${lesson.quiz.explanation.replace(/'/g, "\\'")}')">
+                                Kiểm tra đáp án
+                            </button>
+                            <div class="feedback"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            modalBody.innerHTML = `
+                <h2 style="color: var(--primary); margin-bottom: 20px;">${module.icon} ${module.title}</h2>
+                ${lessonsHTML}
+                <button class="complete-module-btn" onclick="completeModule(${module.id})">
+                    ✅ Đánh dấu hoàn thành module này
+                </button>
+            `;
+            modal.classList.add('active');
+        }
+        // Close modal
+        function closeModal() {
+            document.getElementById('moduleModal').classList.remove('active');
+        }
+        // Select quiz option
+        function selectOption(element) {
+            const options = element.parentElement.querySelectorAll('.quiz-option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+        // Check quiz answer
+        function checkAnswer(button, correctIndex, explanation) {
+            const container = button.closest('.quiz-container');
+            const options = container.querySelectorAll('.quiz-option');
+            const feedback = container.querySelector('.feedback');
+            const selected = container.querySelector('.quiz-option.selected');
+            if (!selected) {
+                alert('Vui lòng chọn một đáp án!');
+                return;
+            }
+            const selectedIndex = parseInt(selected.dataset.index);
+            options.forEach(opt => {
+                opt.classList.remove('correct', 'incorrect');
+                if (parseInt(opt.dataset.index) === correctIndex) {
+                    opt.classList.add('correct');
+                }
+            });
+            if (selectedIndex === correctIndex) {
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = `<strong>✅ Đúng rồi!</strong><br>${explanation}`;
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `<strong>❌ Sai rồi!</strong><br>${explanation}`;
+            }
+        }
+        // Simulate code run
+        function simulateRun(button) {
+            const editor = button.closest('.code-editor');
+            const output = editor.querySelector('.output-console');
+            const code = editor.querySelector('.code-area').value;
+            output.textContent = 'Đang chạy...\n';
+            setTimeout(() => {
+                output.textContent = `✅ Code executed successfully!\n\n`;
+                output.textContent += `Mô phỏng kết quả:\n`;
+                output.textContent += `-------------------\n`;
+                if (code.includes('page.goto')) {
+                    output.textContent += `Navigated to page\n`;
+                }
+                if (code.includes('fill')) {
+                    output.textContent += `Filled input field\n`;
+                }
+                if (code.includes('click')) {
+                    output.textContent += `Clicked element\n`;
+                }
+                if (code.includes('print')) {
+                    output.textContent += `Output: Test completed\n`;
+                }
+                output.textContent += `\n✨ No errors detected!`;
+            }, 1000);
+        }
+        // Install demo
+        function runInstallDemo() {
+            const command = document.getElementById('installCommand').value.trim();
+            const output = document.getElementById('installOutput');
+            output.textContent = 'Đang xử lý...\n';
+            setTimeout(() => {
+                if (command === 'pip install playwright') {
+                    output.textContent = `✅ Success!\n\nCollecting playwright\n  Downloading playwright-1.40.0-py3-none-manylinux1_x86_64.whl\nInstalling collected packages: playwright\nSuccessfully installed playwright-1.40.0\n\nBây giờ chạy: playwright install`;
+                } else if (command === 'playwright install') {
+                    output.textContent = `✅ Downloading browsers...\n\nChromium: 100% complete\nFirefox: 100% complete\nWebKit: 100% complete\n\nBrowsers ready to use!`;
+                } else {
+                    output.textContent = `❌ Invalid command!\n\nTry: pip install playwright`;
+                }
+            }, 800);
+        }
+        // Complete module
+        function completeModule(moduleId) {
+            const module = courseData.modules.find(m => m.id === moduleId);
+            if (module) {
+                module.status = 'completed';
+                // Unlock next module
+                const currentIndex = courseData.modules.findIndex(m => m.id === moduleId);
+                if (currentIndex < courseData.modules.length - 1) {
+                    courseData.modules[currentIndex + 1].status = 'pending';
+                }
+                saveProgress();
+                renderModules();
+                renderTOC();
+                updateProgress();
+                closeModal();
+                alert(`🎉 Chúc mừng! Bạn đã hoàn thành module "${module.title}"`);
+            }
+        }
+        // Update progress bar
+        function updateProgress() {
+            const completed = courseData.modules.filter(m => m.status === 'completed').length;
+            const total = courseData.modules.length;
+            const percentage = Math.round((completed / total) * 100);
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressFill').textContent = percentage + '%';
+            document.getElementById('completedCount').textContent = completed;
+        }
+        // Close modal when clicking outside
+        document.getElementById('moduleModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
