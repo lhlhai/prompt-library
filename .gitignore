@@ -1,4 +1,4 @@
 ```
 # Data files for 100 days project
-100-days/data/*.json
+# 100-days/data/*.json (Do not ignore project data)
 ```
