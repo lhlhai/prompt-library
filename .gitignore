@@ -1,1 +1,4 @@
-Nothing needs to be added to .gitignore since only an HTML file was added, which is a source file that should be tracked in version control.
+```
+# Data files for 100 days project
+100-days/data/*.json
+```
