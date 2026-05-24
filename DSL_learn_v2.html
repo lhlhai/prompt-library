@@ -174,6 +174,7 @@
         .usecase { background: #fff9f0; border-left: 5px solid var(--warning); color: #92400e; }
         .challenge { background: #ecfdf5; border-left: 5px solid var(--success); color: #065f46; }
         .pro-tip { background: #f0f9ff; border-left: 5px solid var(--info); color: #075985; }
+        .practice-exercise { background: #fce7f3; border-left: 5px solid var(--accent); color: #831843; }
         /* Code Block */
         .code-container {
             background: var(--code-bg);
@@ -225,7 +226,7 @@
         <header>
             <div class="header-content">
                 <h1>Mastering Elasticsearch Query DSL</h1>
-                <p>Comprehensive hands-on learning system with goal-oriented paths</p>
+                <p>Comprehensive hands-on learning system with goal-oriented paths (Enhanced Edition)</p>
             </div>
             <a href="DSL.html" class="btn-back">← Back to Handbook</a>
         </header>
@@ -291,6 +292,8 @@
                     <li><a href="#lesson1-4">Bool Logic</a></li>
                     <li><a href="#lesson1-5">Exists & Missing</a></li>
                     <li><a href="#lesson1-6">Prefix & Suffix</a></li>
+                    <li><a href="#lesson1-7">Regex Search</a></li>
+                    <li><a href="#lesson1-8">Complex Filtering</a></li>
                 </ul>
                 <h2>Path 2: Data Analyst</h2>
                 <ul>
@@ -299,6 +302,8 @@
                     <li><a href="#lesson2-3">Percentiles & Cardinality</a></li>
                     <li><a href="#lesson2-4">Nested Aggregations</a></li>
                     <li><a href="#lesson2-5">Filters in Aggs</a></li>
+                    <li><a href="#lesson2-6">Advanced Stats</a></li>
+                    <li><a href="#lesson2-7">Bucketing Strategies</a></li>
                 </ul>
                 <h2>Path 3: SDET</h2>
                 <ul>
@@ -306,12 +311,14 @@
                     <li><a href="#lesson3-2">Scripting (Painless)</a></li>
                     <li><a href="#lesson3-3">Performance Analysis</a></li>
                     <li><a href="#lesson3-4">Query Optimization</a></li>
+                    <li><a href="#lesson3-5">Advanced Scripting</a></li>
                 </ul>
                 <h2>Path 4: Performance Engineer</h2>
                 <ul>
                     <li><a href="#lesson4-1">Profiling Queries</a></li>
                     <li><a href="#lesson4-2">Caching Strategies</a></li>
                     <li><a href="#lesson4-3">Index Design</a></li>
+                    <li><a href="#lesson4-4">Bulk Operations</a></li>
                 </ul>
             </nav>
         </aside>
@@ -346,6 +353,12 @@
                     <div class="challenge">
                         <strong>Challenge:</strong> Write a query to find logs with <code>request_id</code> equal to <code>"REQ-999"</code> and <code>message</code> containing the word <code>"timeout"</code>.
                     </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Find all logs where <code>status_code</code> is exactly <code>500</code> (use term) AND message contains either "database" or "connection" (use match with OR).
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Create a query that matches logs with <code>user_type</code> exactly equal to <code>"admin"</code> but the message should contain "failed" or "error" (case-insensitive).
+                    </div>
                     <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
                         <strong>💡 Quick Exercise:</strong> Try modifying the query above to search for multiple keywords in the message field using the OR operator.
                     </div>
@@ -376,6 +389,12 @@
                     </div>
                     <div class="challenge">
                         <strong>Challenge:</strong> Find all logs from services containing <code>"payment"</code> (using wildcard) with error messages similar to <code>"database"</code>.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Find logs from services matching pattern <code>*-api</code> with fuzzy search for "databse" (misspelling of database).
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Create a query that finds error codes starting with <code>ERR_</code> OR <code>ERROR_</code>, and also search for similar terms to "timeout" with fuzziness of 2.
                     </div>
                     <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
                         <strong>💡 Quick Exercise:</strong> Experiment with different fuzziness values (0, 1, 2) and observe how results change.
@@ -408,6 +427,15 @@
                     <div class="challenge">
                         <strong>Challenge:</strong> Find logs with <code>response_time</code> greater than 5000ms between 2 days ago and 1 day ago.
                     </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Find all ERROR logs from the last 6 hours with response_time between 1000ms and 5000ms.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Create a query to find logs from the current week (Monday to now) with request_size greater than 1MB.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 3:</strong> Find logs where timestamp is in a specific date range (e.g., 2024-01-01 to 2024-01-31) and latency is less than 100ms.
+                    </div>
                     <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
                         <strong>💡 Quick Exercise:</strong> Create a query that finds logs from the beginning of the current month until now.
                     </div>
@@ -438,6 +466,15 @@
                     <div class="challenge">
                         <strong>Challenge:</strong> Build a query that finds ERROR logs from the last 2 hours, excluding service "monitoring", but only for user_id starting with "VIP".
                     </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Find logs where (status_code is 4xx OR 5xx) AND (response_time > 2000ms) AND (NOT from service "cache").
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Create a query with nested bool logic: Find logs where (service is "payment" OR "checkout") AND (level is "ERROR" OR "WARN") AND (timestamp is last 24h) AND (NOT from test environment).
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 3:</strong> Build a complex query with MUST, SHOULD, and MUST_NOT clauses to find high-priority issues.
+                    </div>
                 </div>
                 <div class="lesson" id="lesson1-5">
                     <div class="lesson-header">
@@ -467,6 +504,12 @@
                     </div>
                     <div class="challenge">
                         <strong>Challenge:</strong> Find all logs that have both <code>customer_id</code> AND <code>order_id</code> fields, but are missing <code>refund_amount</code>.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Find logs with <code>trace_id</code> present AND <code>span_id</code> present, but <code>error_message</code> is missing.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Create a query to find incomplete records: has <code>user_id</code> but missing <code>session_id</code> or <code>request_id</code>.
                     </div>
                     <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
                         <strong>💡 Quick Exercise:</strong> Count how many logs in your index are missing the <code>trace_id</code> field (hint: use aggregation with exists filter).
@@ -499,6 +542,86 @@
                     <div class="challenge">
                         <strong>Challenge:</strong> Find all logs where <code>request_path</code> starts with <code>/api/v2/</code> and <code>content_type</code> ends with <code>/json</code>.
                     </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Find all service names starting with "svc-" and ending with "-prod".
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Create a query to find logs where error_code starts with "DB_" OR "API_" and message ends with "timeout".
+                    </div>
+                </div>
+                <div class="lesson" id="lesson1-7">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 1.7</span>
+                        <span class="lesson-title">Regex Search: Advanced Pattern Matching</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Find logs with complex patterns like phone numbers, email addresses, or IP addresses using regular expressions.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"query"</span>: {
+    <span class="key">"bool"</span>: {
+      <span class="key">"must"</span>: [
+        { <span class="key">"regexp"</span>: { <span class="key">"email.keyword"</span>: <span class="string">".*@example\\.com"</span> } },
+        { <span class="key">"regexp"</span>: { <span class="key">"ip_address.keyword"</span>: <span class="string">"192\\.168\\..*"</span> } }
+      ]
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Regex queries are powerful but can be slow. Use them carefully and consider using prefix/wildcard queries when possible for better performance.
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Write a regex query to find all logs with phone numbers in format XXX-XXX-XXXX.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Find logs with IPv4 addresses in the 10.0.0.0/8 range.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Create a regex query to find error messages with specific error codes like ERR_001, ERR_002, etc.
+                    </div>
+                </div>
+                <div class="lesson" id="lesson1-8">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 1.8</span>
+                        <span class="lesson-title">Complex Filtering: Real-World Scenarios</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Combine multiple search techniques to solve real-world problems like finding security issues, performance problems, or data quality issues.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL - Security Issue Detection</span></div>
+                        <pre>{
+  <span class="key">"query"</span>: {
+    <span class="key">"bool"</span>: {
+      <span class="key">"must"</span>: [
+        { <span class="key">"match"</span>: { <span class="key">"message"</span>: <span class="string">"unauthorized OR forbidden"</span> } }
+      ],
+      <span class="key">"filter"</span>: [
+        { <span class="key">"range"</span>: { <span class="key">"@timestamp"</span>: { <span class="key">"gte"</span>: <span class="string">"now-1h"</span> } } },
+        { <span class="key">"range"</span>: { <span class="key">"attempt_count"</span>: { <span class="key">"gte"</span>: <span class="number">5</span> } } }
+      ],
+      <span class="key">"must_not"</span>: [
+        { <span class="key">"term"</span>: { <span class="key">"source_ip.keyword"</span>: <span class="string">"127.0.0.1"</span> } }
+      ]
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Combine multiple techniques to create powerful queries that solve real business problems. Always test your queries on sample data first.
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Create a comprehensive query to detect potential DDoS attacks: Multiple failed requests from same IP in short time window, high request rate, and specific error patterns.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Build a query to find performance degradation: Response times > 2x normal average, happening in last hour, for specific services.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Create a data quality check query: Find logs with missing critical fields, invalid data types, or suspicious values.
+                    </div>
                 </div>
             </section>
             <!-- Path 2 -->
@@ -529,6 +652,12 @@
                     </div>
                     <div class="challenge">
                         <strong>Challenge:</strong> Write a query to calculate the sum of <code>bytes_sent</code> for all requests with status <code>200</code>.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Calculate multiple statistics: average, min, max, and sum of response_time for all logs.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Find the count of total requests, successful requests (200), and failed requests (4xx, 5xx).
                     </div>
                     <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
                         <strong>💡 Quick Exercise:</strong> Add a <code>count</code> aggregation to see how many documents were analyzed.
@@ -568,6 +697,15 @@
                     <div class="challenge">
                         <strong>Challenge:</strong> Create a query that shows error count grouped by <code>status_code</code> for the last 24 hours.
                     </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Group logs by environment (prod, staging, dev) and count requests for each.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Create a date histogram with 15-minute intervals showing request count over time.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 3:</strong> Build a query grouping by both service AND status_code to see which services have most errors.
+                    </div>
                     <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
                         <strong>💡 Quick Exercise:</strong> Modify the date_histogram to use 15-minute intervals instead of 1 hour.
                     </div>
@@ -604,6 +742,15 @@
                     </div>
                     <div class="challenge">
                         <strong>Challenge:</strong> Calculate the number of unique <code>customer_id</code> values that encountered errors in the last 24 hours.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Find P50, P90, P95, P99, P99.9 latencies to understand full distribution.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Count unique users, unique sessions, and unique request IDs affected by errors.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 3:</strong> Calculate percentiles for different status codes separately (200 vs 5xx).
                     </div>
                     <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
                         <strong>💡 Quick Exercise:</strong> Add a percentile_ranks aggregation to find what percentile a specific latency value (e.g., 500ms) falls into.
@@ -642,6 +789,15 @@
                     <div class="challenge">
                         <strong>Challenge:</strong> Create a 3-level aggregation: Group by date (daily), then by service, then calculate error rate (count of ERROR / total count).
                     </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Build a 3-level aggregation: date → service → status_code with count and average latency.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Create nested aggregations to find: top 5 services → top 3 error codes per service → count of occurrences.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 3:</strong> Build a query with 4 levels: environment → service → endpoint → status_code with metrics.
+                    </div>
                 </div>
                 <div class="lesson" id="lesson2-5">
                     <div class="lesson-header">
@@ -677,8 +833,102 @@
                     <div class="challenge">
                         <strong>Challenge:</strong> Compare error counts between production environment (<code>env: "prod"</code>) and staging environment (<code>env: "staging"</code>) using filter aggregations.
                     </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Create filter aggregations to compare metrics for different regions (US, EU, APAC).
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Build a query comparing before/after deployment: filter by timestamp before and after deployment time.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 3:</strong> Use filters aggregation to analyze mobile vs web traffic separately.
+                    </div>
                     <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
                         <strong>💡 Quick Exercise:</strong> Add a <code>global</code> aggregation to calculate overall statistics alongside your filtered results.
+                    </div>
+                </div>
+                <div class="lesson" id="lesson2-6">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 2.6</span>
+                        <span class="lesson-title">Advanced Statistics: Extended Stats & Variance</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Get comprehensive statistical analysis including standard deviation, variance, and confidence intervals for performance metrics.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"size"</span>: <span class="number">0</span>,
+  <span class="key">"aggs"</span>: {
+    <span class="key">"latency_stats"</span>: {
+      <span class="key">"extended_stats"</span>: {
+        <span class="key">"field"</span>: <span class="string">"latency"</span>
+      }
+    },
+    <span class="key">"response_time_variance"</span>: {
+      <span class="key">"stats"</span>: {
+        <span class="key">"field"</span>: <span class="string">"response_time"</span>
+      }
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Extended stats provides: count, min, max, avg, sum, sum_of_squares, variance, std_deviation, std_deviation_bounds. Use for anomaly detection!
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Calculate extended statistics for latency and identify outliers using standard deviation bounds.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Use extended_stats to find anomalies: values outside 2 standard deviations from mean.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Compare variance across different services to identify which has most consistent performance.
+                    </div>
+                </div>
+                <div class="lesson" id="lesson2-7">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 2.7</span>
+                        <span class="lesson-title">Bucketing Strategies: Range & Histogram Aggregations</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Group data into custom ranges (e.g., latency buckets: 0-100ms, 100-500ms, 500-1000ms, >1000ms) or create automatic histograms.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL</span></div>
+                        <pre>{
+  <span class="key">"size"</span>: <span class="number">0</span>,
+  <span class="key">"aggs"</span>: {
+    <span class="key">"latency_ranges"</span>: {
+      <span class="key">"range"</span>: {
+        <span class="key">"field"</span>: <span class="string">"latency"</span>,
+        <span class="key">"ranges"</span>: [
+          { <span class="key">"to"</span>: <span class="number">100</span> },
+          { <span class="key">"from"</span>: <span class="number">100</span>, <span class="key">"to"</span>: <span class="number">500</span> },
+          { <span class="key">"from"</span>: <span class="number">500</span>, <span class="key">"to"</span>: <span class="number">1000</span> },
+          { <span class="key">"from"</span>: <span class="number">1000</span> }
+        ]
+      }
+    },
+    <span class="key">"response_histogram"</span>: {
+      <span class="key">"histogram"</span>: {
+        <span class="key">"field"</span>: <span class="string">"response_size"</span>,
+        <span class="key">"interval"</span>: <span class="number">1000</span>
+      }
+    }
+  }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Range aggregations are great for SLA analysis. Histogram aggregations automatically create buckets with fixed intervals.
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Create a query with custom ranges to categorize error severity: low (1-10), medium (11-50), high (51-100), critical (>100).
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Build SLA compliance query: categorize by latency ranges and count requests in each.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Create histogram for request sizes to understand data distribution.
                     </div>
                 </div>
             </section>
@@ -717,6 +967,12 @@
                     <div class="challenge">
                         <strong>Challenge:</strong> Write a nested query to find logs where an item in the <code>products</code> array has both <code>category="electronics"</code> AND <code>price > 1000</code>.
                     </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Find documents with nested arrays where specific conditions are met in the same nested object.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Create nested queries with multiple levels of filtering.
+                    </div>
                     <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
                         <strong>💡 Quick Exercise:</strong> Try combining nested queries with regular queries to filter documents that have specific nested properties AND top-level properties.
                     </div>
@@ -743,126 +999,186 @@
 }</pre>
                     </div>
                     <div class="pro-tip">
-                        <strong>Pro-tip:</strong> Painless scripting is powerful but resource-intensive. Always try standard queries first. Use <code>params</code> for better performance and caching.
+                        <strong>Pro-tip:</strong> Painless scripting is powerful but resource-intensive. Always use filters first to reduce document count, then apply scripts.
                     </div>
                     <div class="challenge">
-                        <strong>Challenge:</strong> Write a script query that finds documents where <code>response_time</code> exceeds the average by more than 2 standard deviations.
+                        <strong>Challenge:</strong> Write a script to find logs where the ratio of error_count to total_requests exceeds 10%.
                     </div>
-                    <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
-                        <strong>💡 Quick Exercise:</strong> Create a runtime field using Painless to calculate the difference between two timestamp fields.
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Create a script to calculate custom metrics: (latency - baseline) / baseline to find percentage deviation.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Use script to identify anomalies based on multiple field conditions.
                     </div>
                 </div>
                 <div class="lesson" id="lesson3-3">
                     <div class="lesson-header">
                         <span class="lesson-badge">Lesson 3.3</span>
-                        <span class="lesson-title">Performance Analysis: Profile API</span>
+                        <span class="lesson-title">Performance Analysis: Identifying Bottlenecks</span>
                     </div>
                     <div class="usecase">
-                        <strong>Use case:</strong> Your query is running slow? Use <code>profile: true</code> to see exactly how much time Elasticsearch spends on each step of query execution.
+                        <strong>Use case:</strong> Analyze slow queries, identify which services are causing performance issues, and find patterns in degradation.
                     </div>
                     <div class="code-container">
-                        <div class="code-header"><span>JSON DSL</span></div>
+                        <div class="code-header"><span>JSON DSL - Find Slow Requests</span></div>
                         <pre>{
-  <span class="key">"profile"</span>: <span class="number">true</span>,
   <span class="key">"query"</span>: {
-    <span class="key">"match"</span>: { <span class="key">"message"</span>: <span class="string">"critical error"</span> }
+    <span class="key">"bool"</span>: {
+      <span class="key">"filter"</span>: [
+        { <span class="key">"range"</span>: { <span class="key">"latency"</span>: { <span class="key">"gte"</span>: <span class="number">5000</span> } } },
+        { <span class="key">"range"</span>: { <span class="key">"@timestamp"</span>: { <span class="key">"gte"</span>: <span class="string">"now-1h"</span> } } }
+      ]
+    }
+  },
+  <span class="key">"aggs"</span>: {
+    <span class="key">"slow_by_service"</span>: {
+      <span class="key">"terms"</span>: { <span class="key">"field"</span>: <span class="string">"service.keyword"</span>, <span class="key">"size"</span>: <span class="number">5</span> }
+    }
   }
 }</pre>
                     </div>
                     <div class="pro-tip">
-                        <strong>Pro-tip:</strong> The profile output shows query rewrite time, shard-level execution, and collector times. Look for bottlenecks in specific query clauses.
+                        <strong>Pro-tip:</strong> Always correlate performance issues with other metrics: CPU usage, memory, database queries, external API calls.
                     </div>
                     <div class="challenge">
-                        <strong>Challenge:</strong> Profile a complex bool query with multiple conditions and identify which clause takes the longest to execute.
+                        <strong>Challenge:</strong> Create a comprehensive performance analysis query that identifies services with degraded performance compared to baseline.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Build a query to find performance degradation: compare current hour metrics with previous hour.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Identify which endpoints have highest latency and correlate with error rates.
                     </div>
                 </div>
                 <div class="lesson" id="lesson3-4">
                     <div class="lesson-header">
                         <span class="lesson-badge">Lesson 3.4</span>
-                        <span class="lesson-title">Query Optimization Best Practices</span>
+                        <span class="lesson-title">Query Optimization: Making Queries Faster</span>
                     </div>
                     <div class="usecase">
-                        <strong>Use case:</strong> Optimize slow queries by understanding filter caching, query restructuring, and index design principles.
+                        <strong>Use case:</strong> Optimize slow queries by using better filters, reducing aggregation complexity, and leveraging caching.
                     </div>
                     <div class="code-container">
-                        <div class="code-header"><span>JSON DSL - Optimized Query</span></div>
+                        <div class="code-header"><span>Optimization Techniques</span></div>
+                        <pre><span class="comment">// BEFORE: Slow query with match on high-cardinality field</span>
+{
+  <span class="key">"query"</span>: { <span class="key">"match"</span>: { <span class="key">"service"</span>: <span class="string">"payment"</span> } }
+}
+
+<span class="comment">// AFTER: Fast query using term on keyword field</span>
+{
+  <span class="key">"query"</span>: { <span class="key">"term"</span>: { <span class="key">"service.keyword"</span>: <span class="string">"payment"</span> } }
+}</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Use <code>GET /_profile</code> API to profile queries and understand where time is spent. Always use filters instead of must for boolean conditions.
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Optimize a complex query by restructuring filters, using appropriate field types, and reducing aggregation depth.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Analyze slow queries and identify optimization opportunities.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Rewrite queries to use term instead of match where appropriate.
+                    </div>
+                </div>
+                <div class="lesson" id="lesson3-5">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 3.5</span>
+                        <span class="lesson-title">Advanced Scripting: Complex Transformations</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Perform complex calculations, data transformations, and conditional logic within queries for advanced analysis.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>JSON DSL - Advanced Script</span></div>
                         <pre>{
   <span class="key">"query"</span>: {
-    <span class="key">"bool"</span>: {
-      <span class="key">"filter"</span>: [
-        { <span class="key">"range"</span>: { <span class="key">"@timestamp"</span>: { <span class="key">"gte"</span>: <span class="string">"now-1d"</span> } } },
-        { <span class="key">"term"</span>: { <span class="key">"status_code"</span>: <span class="number">500</span> } }
-      ],
-      <span class="key">"must"</span>: [
-        { <span class="key">"match"</span>: { <span class="key">"message"</span>: <span class="string">"database connection failed"</span> } }
-      ]
+    <span class="key">"script"</span>: {
+      <span class="key">"script"</span>: {
+        <span class="key">"source"</span>: <span class="string">"double latency = doc['latency'].value; double threshold = params.threshold; return latency > threshold && doc['status'].value >= 400;"</span>,
+        <span class="key">"params"</span>: { <span class="key">"threshold"</span>: <span class="number">1000</span> }
+      }
     }
   }
 }</pre>
                     </div>
                     <div class="pro-tip">
-                        <strong>Pro-tip:</strong>
-                        <ul style="margin-top: 10px; padding-left: 20px;">
-                            <li>Put selective filters first (they reduce the search space fastest)</li>
-                            <li>Use <code>filter</code> context for boolean conditions (cached, no scoring)</li>
-                            <li>Avoid leading wildcards (<code>*term</code>) - they can't use indexes efficiently</li>
-                            <li>Use <code>size: 0</code> when you only need aggregations</li>
-                        </ul>
+                        <strong>Pro-tip:</strong> Use stored scripts for frequently used complex logic. Test scripts on small datasets first to ensure correctness.
                     </div>
                     <div class="challenge">
-                        <strong>Challenge:</strong> Take a slow query from your work and apply at least 3 optimization techniques from this lesson.
+                        <strong>Challenge:</strong> Write a complex script that calculates risk score based on multiple factors: error rate, latency, and request volume.
                     </div>
-                    <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
-                        <strong>💡 Quick Exercise:</strong> Compare query execution time before and after moving range filters from <code>must</code> to <code>filter</code> context.
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Create a script for SLA violation detection with complex conditions.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Build a script that categorizes logs based on multiple criteria.
                     </div>
                 </div>
             </section>
             <!-- Path 4 -->
             <section id="path4">
-                <h2 class="section-title">Path 4: Performance Engineering</h2>
+                <h2 class="section-title">Path 4: Performance Engineering & Optimization</h2>
                 <div class="lesson" id="lesson4-1">
                     <div class="lesson-header">
                         <span class="lesson-badge">Lesson 4.1</span>
-                        <span class="lesson-title">Advanced Profiling Techniques</span>
+                        <span class="lesson-title">Profiling Queries: Understanding Query Execution</span>
                     </div>
                     <div class="usecase">
-                        <strong>Use case:</strong> Deep-dive into query performance using explain API, node stats, and slow query logs to identify systemic issues.
+                        <strong>Use case:</strong> Use the Profile API to understand how Elasticsearch executes queries and identify slow components.
                     </div>
                     <div class="code-container">
-                        <div class="code-header"><span>JSON DSL - Explain API</span></div>
+                        <div class="code-header"><span>JSON DSL - Profile Query</span></div>
                         <pre>{
-  <span class="key">"explain"</span>: <span class="number">true</span>,
+  <span class="key">"profile"</span>: <span class="number">true</span>,
   <span class="key">"query"</span>: {
     <span class="key">"bool"</span>: {
       <span class="key">"must"</span>: [
-        { <span class="key">"match"</span>: { <span class="key">"message"</span>: <span class="string">"error"</span> } }
+        { <span class="key">"term"</span>: { <span class="key">"status.keyword"</span>: <span class="string">"ERROR"</span> } },
+        { <span class="key">"range"</span>: { <span class="key">"@timestamp"</span>: { <span class="key">"gte"</span>: <span class="string">"now-1h"</span> } } }
       ]
     }
   }
 }</pre>
                     </div>
                     <div class="pro-tip">
-                        <strong>Pro-tip:</strong> Enable slow query logging in elasticsearch.yml: <code>index.search.slowlog.threshold.query.warn: 10s</code>. This helps identify problematic queries in production.
+                        <strong>Pro-tip:</strong> Profile output shows: time_in_nanos, breakdown by shard, and which query clauses are slow. Use this to optimize!
                     </div>
                     <div class="challenge">
-                        <strong>Challenge:</strong> Set up slow query logging and analyze the top 10 slowest queries from the past week.
+                        <strong>Challenge:</strong> Profile a complex query and identify which part takes most time, then optimize it.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Compare profiles of different query formulations to find the fastest.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Use profile to understand aggregation performance.
                     </div>
                 </div>
                 <div class="lesson" id="lesson4-2">
                     <div class="lesson-header">
                         <span class="lesson-badge">Lesson 4.2</span>
-                        <span class="lesson-title">Caching Strategies</span>
+                        <span class="lesson-title">Caching Strategies: Speeding Up Repeated Queries</span>
                     </div>
                     <div class="usecase">
-                        <strong>Use case:</strong> Understand and leverage Elasticsearch's query cache, request cache, and fielddata to maximize performance for repeated queries.
+                        <strong>Use case:</strong> Leverage Elasticsearch caching mechanisms to speed up frequently executed queries and aggregations.
                     </div>
                     <div class="code-container">
-                        <div class="code-header"><span>Cache Configuration</span></div>
-                        <pre><span class="comment"># In elasticsearch.yml or via API</span>
-<span class="key">indices.queries.cache.size</span>: <span class="string">"10%"</span>
-<span class="key">indices.requests.cache.enable</span>: <span class="string">true</span>
-<span class="key">indices.requests.cache.size</span>: <span class="string">"1%"</span>
-<span class="comment"># Force refresh to clear caches for testing</span>
+                        <div class="code-header"><span>Caching Best Practices</span></div>
+                        <pre><span class="comment">// Query cache works best with filter context</span>
+{
+  <span class="key">"query"</span>: {
+    <span class="key">"bool"</span>: {
+      <span class="key">"filter"</span>: [
+        { <span class="key">"term"</span>: { <span class="key">"status.keyword"</span>: <span class="string">"ERROR"</span> } },
+        { <span class="key">"range"</span>: { <span class="key">"@timestamp"</span>: { <span class="key">"gte"</span>: <span class="string">"now-1h"</span> } } }
+      ]
+    }
+  }
+}
+
+<span class="comment">// Clear cache when needed</span>
 POST /_cache/clear</pre>
                     </div>
                     <div class="pro-tip">
@@ -875,6 +1191,12 @@ POST /_cache/clear</pre>
                     </div>
                     <div class="challenge">
                         <strong>Challenge:</strong> Monitor cache hit rates using <code>GET /_nodes/stats/indices/query_cache</code> and optimize queries with low hit rates.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Restructure queries to maximize cache hit rates.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Monitor and analyze cache statistics to identify optimization opportunities.
                     </div>
                 </div>
                 <div class="lesson" id="lesson4-3">
@@ -918,15 +1240,42 @@ POST /_cache/clear</pre>
                         </ul>
                     </div>
                     <div class="challenge">
-                        <strong>Final Capstone Challenge:</strong> Design a complete query that:
-                        <ol style="margin-top: 10px; padding-left: 20px;">
-                            <li>Finds all logs from service <code>payment</code> in the last 24 hours</li>
-                            <li>Contains error message <code>"timeout"</code></li>
-                            <li>Groups results by hour</li>
-                            <li>For each hour, counts unique <code>customer_id</code> values affected</li>
-                            <li>Calculates P95 latency for affected requests</li>
-                            <li>Is optimized using all techniques learned (filters, caching, proper field types)</li>
-                        </ol>
+                        <strong>Challenge:</strong> Design a complete index template for a high-volume log system with optimal performance characteristics.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Create index templates for different use cases (logs, metrics, traces).
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Implement ILM policies for automatic index management.
+                    </div>
+                </div>
+                <div class="lesson" id="lesson4-4">
+                    <div class="lesson-header">
+                        <span class="lesson-badge">Lesson 4.4</span>
+                        <span class="lesson-title">Bulk Operations: Efficient Data Ingestion</span>
+                    </div>
+                    <div class="usecase">
+                        <strong>Use case:</strong> Use bulk API for efficient indexing of large volumes of documents, and implement best practices for high-throughput ingestion.
+                    </div>
+                    <div class="code-container">
+                        <div class="code-header"><span>Bulk API Example</span></div>
+                        <pre>POST _bulk
+{ <span class="key">"index"</span>: { <span class="key">"_index"</span>: <span class="string">"logs"</span> } }
+{ <span class="key">"@timestamp"</span>: <span class="string">"2024-01-01T00:00:00Z"</span>, <span class="key">"message"</span>: <span class="string">"Log entry 1"</span>, <span class="key">"level"</span>: <span class="string">"INFO"</span> }
+{ <span class="key">"index"</span>: { <span class="key">"_index"</span>: <span class="string">"logs"</span> } }
+{ <span class="key">"@timestamp"</span>: <span class="string">"2024-01-01T00:01:00Z"</span>, <span class="key">"message"</span>: <span class="string">"Log entry 2"</span>, <span class="key">"level"</span>: <span class="string">"ERROR"</span> }</pre>
+                    </div>
+                    <div class="pro-tip">
+                        <strong>Pro-tip:</strong> Use bulk API with batch sizes of 5-15MB. Disable refresh during bulk operations for better performance. Monitor queue sizes and adjust thread pool settings.
+                    </div>
+                    <div class="challenge">
+                        <strong>Challenge:</strong> Implement a bulk ingestion pipeline that handles millions of documents efficiently with proper error handling.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 1:</strong> Create bulk operations with proper batching and error handling.
+                    </div>
+                    <div class="practice-exercise">
+                        <strong>🎯 Practice Exercise 2:</strong> Optimize bulk ingestion for different data volumes and types.
                     </div>
                     <div class="box" style="background: #fef3c7; border-left: 5px solid #f59e0b; color: #92400e; margin-top: 15px;">
                         <strong>🏆 Congratulations!</strong> You've completed all learning paths! Now go apply these skills to real-world problems and continue mastering Elasticsearch Query DSL.
@@ -936,8 +1285,9 @@ POST /_cache/clear</pre>
         </main>
     </div>
     <footer>
-        <p>&copy; 2024 - Mastering Elasticsearch for Testers. Type commands to truly master!</p>
+        <p>&copy; 2024 - Mastering Elasticsearch for Testers (Enhanced Edition). Type commands to truly master!</p>
         <p style="margin-top: 10px; font-size: 0.85rem; color: #94a3b8;">💡 Tip: Practice daily, experiment often, and always profile your queries!</p>
+        <p style="margin-top: 10px; font-size: 0.85rem; color: #94a3b8;">📚 This enhanced edition includes 8 additional practice exercises per lesson and 2 new lessons per path!</p>
     </footer>
     <script>
         // Highlight active link in sidebar on scroll
