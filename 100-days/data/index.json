@@ -1,6 +1,51 @@
 {
     "posts": [
         {
+            "id": 25,
+            "file": "025.json",
+            "day": "Day 25",
+            "title": "Performance Testing Basics – Đảm Bảo Ứng Dụng Nhanh và Ổn Định",
+            "category": "Performance & Load",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
+            "id": 24,
+            "file": "024.json",
+            "day": "Day 24",
+            "title": "Database Testing: Beyond SQL Queries – Kiểm Tra Sâu Hơn",
+            "category": "SQL & Data",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
+            "id": 23,
+            "file": "023.json",
+            "day": "Day 23",
+            "title": "SQL for Testers – Kiểm Tra Dữ Liệu Trong Database",
+            "category": "SQL & Data",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
+            "id": 22,
+            "file": "022.json",
+            "day": "Day 22",
+            "title": "Thực hành API Testing với Postman – Nắm Vững Công Cụ Vàng",
+            "category": "API Testing",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
+            "id": 21,
+            "file": "021.json",
+            "day": "Day 21",
+            "title": "API Testing Fundamentals – Kiểm Tra Trái Tim Của Ứng Dụng",
+            "category": "API Testing",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
             "id": 20,
             "file": "020.json",
             "day": "Day 20",
@@ -31,7 +76,7 @@
             "id": 17,
             "file": "017.json",
             "day": "Day 17",
-            "title": "Error Guessing & Anti-patterns – Mẹo 'Bắt Bug' Từ Kinh Nghiệm",
+            "title": "Error Guessing & Anti-patterns – Mẹo \'Bắt Bug\' Từ Kinh Nghiệm",
             "category": "TEST DESIGN",
             "author": "The Manual Authority",
             "image": null
@@ -58,7 +103,7 @@
             "id": 14,
             "file": "014.json",
             "day": "Day 14",
-            "title": "State Transition – Khi Hệ Thống Có 'Nhớ'",
+            "title": "State Transition – Khi Hệ Thống Có \'Nhớ\'",
             "category": "TEST DESIGN",
             "author": "The Manual Authority",
             "image": null
@@ -197,7 +242,9 @@
         "TEST DESIGN",
         "TEST LEVELS",
         "TEST MANAGEMENT",
-        "TEST TYPES"
+        "TEST TYPES",
+        "SQL & Data",
+        "Performance & Load"
     ],
     "categoryDetails": [
         {
@@ -222,7 +269,7 @@
             "id": "api-integration",
             "title": "API & Integration",
             "description": "Verifying data integrity between services without a graphical interface.",
-            "lessons": 18,
+            "lessons": 20,
             "icon": "⚙️",
             "color": "#10b981",
             "featured": false
@@ -240,7 +287,7 @@
             "id": "sql-data",
             "title": "SQL & Data",
             "description": "Verifying back-end operations, schema changes, and complex data migrations.",
-            "lessons": 9,
+            "lessons": 11,
             "icon": "🗄️",
             "color": "#6b7280",
             "featured": false
@@ -259,7 +306,7 @@
             "id": "performance-load",
             "title": "Performance & Load",
             "description": "Simulating high-traffic scenarios and identifying bottleneck thresholds before they affect the end-user experience.",
-            "lessons": 11,
+            "lessons": 12,
             "icon": "🚀",
             "color": "#ef4444",
             "featured": false,

@@ -1,0 +1,52 @@
+{
+    "id": 22,
+    "day": "Day 22",
+    "title": "Thực hành API Testing với Postman – Nắm Vững Công Cụ Vàng",
+    "excerpt": "Postman là công cụ không thể thiếu cho bất kỳ ai làm việc với API. Từ việc gửi request đơn giản đến tự động hóa test suite phức tạp, Postman giúp bạn kiểm tra API một cách hiệu quả và trực quan. Hãy cùng khám phá sức mạnh của nó!",
+    "category": "API Testing",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "image": null,
+    "content": "<p>Hôm nay, chúng ta sẽ đi sâu vào thực hành với <strong>Postman</strong> – công cụ được mệnh danh là \"con dao Thụy Sĩ\" của API Testing. Postman không chỉ giúp bạn gửi các HTTP request và xem response, mà còn cung cấp một môi trường mạnh mẽ để tổ chức các request, tạo test script, và tự động hóa toàn bộ quy trình kiểm thử API.</p><div class=\'tip-box\' style=\'background:#eef2ff; padding:16px; border-radius:12px; border-left:4px solid #3b82f6; margin:20px 0\'><strong>💡 Tại sao Postman lại phổ biến?</strong> Giao diện trực quan, hỗ trợ đa nền tảng, khả năng tạo Collections để tổ chức request, viết test script bằng JavaScript, tích hợp CI/CD, và cộng đồng người dùng lớn.</div><h3>1. Cài đặt và làm quen giao diện Postman</h3><ul><li><strong>Tải và cài đặt:</strong> Truy cập <a href=\'https://www.postman.com/downloads/\' target=\'_blank\'>postman.com/downloads/</a> để tải phiên bản phù hợp với hệ điều hành của bạn.</li><li><strong>Giao diện chính:</strong><br/>• <strong>Sidebar:</strong> Nơi quản lý Collections, APIs, Environments, History.<br/>• <strong>Workspace:</strong> Khu vực làm việc chính, nơi bạn tạo và gửi request.<br/>• <strong>Request Builder:</strong> Nơi bạn nhập URL, chọn method, thêm headers, body, params.<br/>• <strong>Response Viewer:</strong> Nơi hiển thị kết quả trả về từ server (status code, headers, body).</li></ul><h3>2. Gửi các loại Request cơ bản</h3><h4>a. GET Request</h4><p>Dùng để lấy dữ liệu. Ví dụ: lấy danh sách người dùng từ JSONPlaceholder.</p><div class=\'code-container\'><div class=\'code-header\'><span>Postman GET Request</span></div><pre>Method: GET
+URL: https://jsonplaceholder.typicode.com/users</pre></div><p><strong>Thực hành:</strong></p><ol><li>Mở Postman, tạo một request mới.</li><li>Chọn method là <code>GET</code>.</li><li>Nhập URL: <code>https://jsonplaceholder.typicode.com/users</code>.</li><li>Nhấn <code>Send</code> và quan sát response (status code 200 OK, body chứa mảng các user).</li></ol><h4>b. POST Request</h4><p>Dùng để tạo tài nguyên mới. Ví dụ: tạo một bài viết mới.</p><div class=\'code-container\'><div class=\'code-header\'><span>Postman POST Request</span></div><pre>Method: POST
+URL: https://jsonplaceholder.typicode.com/posts
+Headers:
+  Content-Type: application/json
+Body (raw JSON):
+{
+  "title": "foo",
+  "body": "bar",
+  "userId": 1
+}</pre></div><p><strong>Thực hành:</strong></p><ol><li>Tạo request mới, chọn method là <code>POST</code>.</li><li>Nhập URL: <code>https://jsonplaceholder.typicode.com/posts</code>.</li><li>Trong tab <code>Headers</code>, thêm <code>Content-Type: application/json</code>.</li><li>Trong tab <code>Body</code>, chọn <code>raw</code> và <code>JSON</code>, sau đó nhập JSON body như trên.</li><li>Nhấn <code>Send</code>. Quan sát response (status code 201 Created, body chứa dữ liệu bài viết vừa tạo kèm theo <code>id</code>).</li></ol><h4>c. PUT/PATCH Request</h4><p>Dùng để cập nhật tài nguyên. PUT cập nhật toàn bộ, PATCH cập nhật một phần.</p><div class=\'code-container\'><div class=\'code-header\'><span>Postman PUT Request</span></div><pre>Method: PUT
+URL: https://jsonplaceholder.typicode.com/posts/1
+Headers:
+  Content-Type: application/json
+Body (raw JSON):
+{
+  "id": 1,
+  "title": "foo updated",
+  "body": "bar updated",
+  "userId": 1
+}</pre></div><p><strong>Thực hành:</strong></p><ol><li>Tạo request mới, chọn method là <code>PUT</code>.</li><li>Nhập URL: <code>https://jsonplaceholder.typicode.com/posts/1</code> (cập nhật bài viết có ID là 1).</li><li>Thêm <code>Content-Type: application/json</code> trong Headers.</li><li>Trong Body, nhập JSON body như trên.</li><li>Nhấn <code>Send</code>. Quan sát response (status code 200 OK, body chứa dữ liệu đã cập nhật).</li></ol><h4>d. DELETE Request</h4><p>Dùng để xóa tài nguyên.</p><div class=\'code-container\'><div class=\'code-header\'><span>Postman DELETE Request</span></div><pre>Method: DELETE
+URL: https://jsonplaceholder.typicode.com/posts/1</pre></div><p><strong>Thực hành:</strong></p><ol><li>Tạo request mới, chọn method là <code>DELETE</code>.</li><li>Nhập URL: <code>https://jsonplaceholder.typicode.com/posts/1</code>.</li><li>Nhấn <code>Send</code>. Quan sát response (status code 200 OK, body rỗng).</li></ol><h3>3. Tổ chức Request với Collections và Environments</h3><ul><li><strong>Collections:</strong> Tập hợp các request liên quan. Giúp tổ chức test suite theo chức năng, module.</li><li><strong>Environments:</strong> Lưu trữ các biến (variables) như base URL, token, username/password. Giúp dễ dàng chuyển đổi giữa các môi trường (dev, staging, prod) mà không cần sửa từng request.</li></ul><div class=\'highlight\' style=\'background:#fef9c3; padding:16px; border-radius:12px; margin:20px 0\'><strong>🧪 Thực tế:</strong> Bạn có thể tạo một Environment \"Development\" với biến <code>baseUrl = https://dev.api.example.com</code> và một Environment \"Production\" với <code>baseUrl = https://prod.api.example.com</code>. Khi chuyển môi trường, tất cả request trong Collection sẽ tự động sử dụng đúng URL.</div><h3>4. Viết Test Script trong Postman</h3><p>Postman cho phép bạn viết JavaScript trong tab <code>Tests</code> để xác minh response.</p><div class=\'code-container\'><div class=\'code-header\'><span>Postman Test Script (JavaScript)</span></div><pre><span class=\'comment\'>// Kiểm tra status code</span>
+pm.test(\"Status code is 200\", function () {
+    pm.response.to.have.status(200);
+});
+
+<span class=\'comment\'>// Kiểm tra body có chứa một chuỗi</span>
+pm.test(\"Body contains \\"foo updated\\"\", function () {
+    pm.expect(pm.response.text()).to.include(\"foo updated\");
+});
+
+<span class=\'comment\'>// Kiểm tra giá trị JSON</span>
+pm.test(\"Title is correct\", function () {
+    var jsonData = pm.response.json();
+    pm.expect(jsonData.title).to.eql(\"foo updated\");
+});
+
+<span class=\'comment\'>// Lưu một giá trị từ response vào biến môi trường</span>
+pm.test(\"Set post ID as environment variable\", function () {
+    var jsonData = pm.response.json();
+    pm.environment.set(\"postId\", jsonData.id);
+});</pre></div><p><strong>Thực hành:</strong></p><ol><li>Trong request POST bạn vừa tạo, chuyển sang tab <code>Tests</code>.</li><li>Nhập các script trên vào.</li><li>Gửi lại request và quan sát kết quả trong tab <code>Test Results</code>.</li></ol><h3>5. Bài tập thực hành cho ngày 22</h3><p>Tiếp tục với JSONPlaceholder hoặc một Public API khác:</p><ol><li>Tạo một Collection mới có tên \"My API Tests\".</li><li>Trong Collection đó, tạo các request sau và thêm ít nhất 2 test script cho mỗi request:<br/>• <strong>GET /posts:</strong> Lấy tất cả bài viết. Test: status code 200, response là một mảng, số lượng bài viết > 0.<br/>• <strong>GET /posts/1:</strong> Lấy bài viết có ID 1. Test: status code 200, ID trong response là 1, title không rỗng.<br/>• <strong>POST /posts:</strong> Tạo bài viết mới. Test: status code 201, title và body trong response khớp với dữ liệu gửi đi, ID được tạo ra.<br/>• <strong>PUT /posts/1:</strong> Cập nhật bài viết ID 1. Test: status code 200, title trong response đã được cập nhật.<br/>• <strong>DELETE /posts/1:</strong> Xóa bài viết ID 1. Test: status code 200, body rỗng.<br/>• <strong>GET /posts/9999 (không tồn tại):</strong> Test: status code 404, body rỗng hoặc thông báo lỗi phù hợp.</li><li>Tạo một Environment \"Development\" và đặt biến <code>baseUrl = https://jsonplaceholder.typicode.com</code>. Sử dụng biến này trong tất cả các request của bạn.</li><li>Chạy toàn bộ Collection bằng Collection Runner và kiểm tra kết quả.</li></ol><p><strong>Kết luận ngày 22:</strong> Postman là một công cụ cực kỳ mạnh mẽ giúp bạn kiểm thử API hiệu quả. Việc thành thạo Postman sẽ nâng cao đáng kể năng suất và chất lượng công việc của bạn với vai trò là một tester. Hãy tiếp tục khám phá các tính năng nâng cao của nó!</p><p><strong>Ngày 23:</strong> Chúng ta sẽ tìm hiểu về <strong>SQL for Testers – Kiểm Tra Dữ Liệu Trong Database</strong>. Hẹn bạn ở ngày mai!</p>"
+}
