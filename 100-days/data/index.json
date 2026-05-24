@@ -76,7 +76,7 @@
             "id": 17,
             "file": "017.json",
             "day": "Day 17",
-            "title": "Error Guessing & Anti-patterns – Mẹo \'Bắt Bug\' Từ Kinh Nghiệm",
+            "title": "Error Guessing & Anti-patterns – Mẹo 'Bắt Bug' Từ Kinh Nghiệm",
             "category": "TEST DESIGN",
             "author": "The Manual Authority",
             "image": null
@@ -103,7 +103,7 @@
             "id": 14,
             "file": "014.json",
             "day": "Day 14",
-            "title": "State Transition – Khi Hệ Thống Có \'Nhớ\'",
+            "title": "State Transition – Khi Hệ Thống Có 'Nhớ'",
             "category": "TEST DESIGN",
             "author": "The Manual Authority",
             "image": null
@@ -236,15 +236,15 @@
         "Best Practices",
         "Fundamentals",
         "BUG MANAGEMENT",
+        "Performance & Load",
         "REGRESSION",
+        "SQL & Data",
         "STATIC",
         "TECHNIQUES",
         "TEST DESIGN",
         "TEST LEVELS",
         "TEST MANAGEMENT",
-        "TEST TYPES",
-        "SQL & Data",
-        "Performance & Load"
+        "TEST TYPES"
     ],
     "categoryDetails": [
         {
