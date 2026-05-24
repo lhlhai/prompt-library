@@ -1,6 +1,51 @@
 {
     "posts": [
         {
+            "id": 30,
+            "file": "030.json",
+            "day": "Day 30",
+            "title": "Selenium & Webdriver – Công Cụ Tự Động Hóa Web Phổ Biến Nhất",
+            "category": "Automation Testing",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
+            "id": 29,
+            "file": "029.json",
+            "day": "Day 29",
+            "title": "Automation Testing Introduction – Khi Máy Móc Thay Thế Con Người",
+            "category": "Automation Testing",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
+            "id": 28,
+            "file": "028.json",
+            "day": "Day 28",
+            "title": "Broken Authentication – Khi Cửa Nhà Không Khóa Kỹ",
+            "category": "Security Testing",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
+            "id": 27,
+            "file": "027.json",
+            "day": "Day 27",
+            "title": "Cross-Site Scripting (XSS) – Lỗ Hổng Phổ Biến Nhất Trên Web",
+            "category": "Security Testing",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
+            "id": 26,
+            "file": "026.json",
+            "day": "Day 26",
+            "title": "Security Testing Basics – Bảo Vệ Ứng Dụng Khỏi Các Mối Đe Dọa",
+            "category": "Security Testing",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
             "id": 25,
             "file": "025.json",
             "day": "Day 25",
@@ -235,11 +280,13 @@
         "Tools",
         "Best Practices",
         "Fundamentals",
+        "Automation Testing",
         "BUG MANAGEMENT",
         "Performance & Load",
         "REGRESSION",
         "SQL & Data",
         "STATIC",
+        "Security Testing",
         "TECHNIQUES",
         "TEST DESIGN",
         "TEST LEVELS",

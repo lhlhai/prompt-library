@@ -1,0 +1,10 @@
+{
+    "id": 29,
+    "day": "Day 29",
+    "title": "Automation Testing Introduction – Khi Máy Móc Thay Thế Con Người",
+    "excerpt": "Automation Testing là việc sử dụng các công cụ phần mềm để thực thi các bài kiểm thử một cách tự động. Nó giúp tăng tốc độ, độ chính xác và khả năng lặp lại, giải phóng tester khỏi những công việc nhàm chán.",
+    "category": "Automation Testing",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. Tại sao cần Automation Testing?</h3><ul><li><strong>Tốc độ:</strong> Máy chạy nhanh hơn người rất nhiều.</li><li><strong>Độ tin cậy:</strong> Máy không biết mệt mỏi và không mắc lỗi do sơ suất.</li><li><strong>Tái sử dụng:</strong> Có thể chạy lại các script nhiều lần mà không tốn thêm công sức.</li><li><strong>Hỗ trợ CI/CD:</strong> Là thành phần cốt lõi của quy trình phát triển hiện đại.</li></ul><h3>2. Khi nào nên tự động hóa?</h3><ul><li>Regression Testing (Kiểm thử hồi quy).</li><li>Các bài test cần thực hiện với lượng dữ liệu lớn.</li><li>Các chức năng ổn định, ít thay đổi.</li></ul><p><strong>Ngày 30:</strong> Chúng ta sẽ tìm hiểu về <strong>Selenium & Webdriver – Công Cụ Tự Động Hóa Web Phổ Biến Nhất</strong>. Hẹn gặp lại!</p>"
+}

@@ -1,0 +1,10 @@
+{
+    "id": 28,
+    "day": "Day 28",
+    "title": "Broken Authentication – Khi Cửa Nhà Không Khóa Kỹ",
+    "excerpt": "Lỗi xác thực cho phép kẻ tấn công thỏa hiệp mật khẩu, khóa hoặc token phiên làm việc, từ đó giả mạo danh tính của người dùng khác. Đây là rủi ro nghiêm trọng đe dọa trực tiếp đến tài khoản người dùng.",
+    "category": "Security Testing",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. Các biểu hiện của Broken Authentication</h3><ul><li>Cho phép các cuộc tấn công Brute Force (thử mật khẩu liên tục).</li><li>Cho phép mật khẩu yếu hoặc phổ biến (123456, password).</li><li>Quản lý phiên (Session Management) kém: ID phiên hiển thị trên URL, không hết hạn sau khi logout.</li><li>Hệ thống khôi phục mật khẩu không an toàn.</li></ul><h3>2. Cách phòng chống</h3><ul><li>Sử dụng Multi-Factor Authentication (MFA).</li><li>Triển khai chính sách mật khẩu mạnh.</li><li>Sử dụng các thư viện quản lý phiên an toàn và hiện đại.</li></ul><p><strong>Ngày 29:</strong> Chúng ta sẽ tìm hiểu về <strong>Automation Testing Introduction – Khi Máy Móc Thay Thế Con Người</strong>. Hẹn gặp lại!</p>"
+}

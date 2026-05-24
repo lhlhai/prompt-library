@@ -1,0 +1,10 @@
+{
+    "id": 27,
+    "day": "Day 27",
+    "title": "Cross-Site Scripting (XSS) – Lỗ Hổng Phổ Biến Nhất Trên Web",
+    "excerpt": "XSS cho phép kẻ tấn công chèn các đoạn mã script độc hại vào trang web mà người dùng khác sẽ xem. Đây là một trong những lỗ hổng web phổ biến nhất và có thể dẫn đến việc mất tài khoản hoặc đánh cắp thông tin cá nhân.",
+    "category": "Security Testing",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. XSS là gì?</h3><p>Cross-Site Scripting (XSS) xảy ra khi một ứng dụng web lấy dữ liệu không tin cậy và gửi nó đến trình duyệt web mà không có sự kiểm tra hoặc mã hóa thích hợp. Script độc hại này sau đó có thể thực thi trong trình duyệt của nạn nhân.</p><h3>2. Các loại XSS</h3><ul><li><strong>Stored XSS:</strong> Script độc hại được lưu trữ vĩnh viễn trên server (ví dụ: trong bình luận, hồ sơ người dùng).</li><li><strong>Reflected XSS:</strong> Script được \"phản chiếu\" từ request của người dùng (ví dụ: qua các tham số URL).</li><li><strong>DOM-based XSS:</strong> Lỗ hổng nằm ở phía client-side script thay vì server-side.</li></ul><h3>3. Cách kiểm tra XSS đơn giản</h3><p>Thử nhập đoạn mã sau vào các ô input: <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code>. Nếu một hộp thoại hiện lên, ứng dụng của bạn có khả năng bị lỗi XSS.</p><p><strong>Ngày 28:</strong> Chúng ta sẽ nói về <strong>Broken Authentication – Khi Cửa Nhà Không Khóa Kỹ</strong>. Hẹn gặp lại!</p>"
+}
