@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Engineer Learning Path - From Automation Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 40px;
+        }
+        .intro {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid #f5576c;
+        }
+        .intro h2 {
+            color: #f5576c;
+            margin-bottom: 15px;
+        }
+        .module {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+        .module:hover {
+            border-color: #f5576c;
+            box-shadow: 0 5px 20px rgba(245, 87, 108, 0.2);
+            transform: translateY(-2px);
+        }
+        .module-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .module-number {
+            background: #f5576c;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .module-title {
+            font-size: 1.4em;
+            color: #333;
+            font-weight: 600;
+        }
+        .module-duration {
+            margin-left: auto;
+            background: #fce4ec;
+            color: #f5576c;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        .module-content {
+            margin-top: 15px;
+        }
+        .module-content h3 {
+            color: #f5576c;
+            margin: 15px 0 10px 0;
+            font-size: 1.1em;
+        }
+        .module-content ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .module-content li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        .module-content li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #f5576c;
+            font-weight: bold;
+        }
+        .skills-transfer {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .skills-transfer h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .skills-transfer p {
+            color: #856404;
+            font-size: 0.95em;
+        }
+        .tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .tool-tag {
+            background: #f5576c;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+        }
+        .project {
+            background: #d4edda;
+            border: 1px solid #28a745;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .project h4 {
+            color: #155724;
+            margin-bottom: 10px;
+        }
+        .project p {
+            color: #155724;
+        }
+        .roadmap {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        .roadmap h3 {
+            color: #f5576c;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        .timeline:before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #f5576c;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .timeline-item:before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 5px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #f5576c;
+        }
+        .comparison {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        .comparison h3 {
+            color: #1976d2;
+            margin-bottom: 15px;
+        }
+        .comparison table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .comparison th, .comparison td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .comparison th {
+            background: #1976d2;
+            color: white;
+        }
+        .comparison tr:hover {
+            background: #f5f5f5;
+        }
+        footer {
+            background: #f8f9fa;
+            padding: 25px 40px;
+            text-align: center;
+            border-top: 2px solid #e0e0e0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #f5576c;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .difficulty-badge {
+            display: inline-block;
+            background: #ff9800;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚙️ Data Engineer Learning Path</h1>
+            <p>Từ Automation Tester (Python) đến Data Engineer</p>
+        </header>
+        <div class="content">
+            <div class="intro">
+                <h2>🎯 Tại sao phù hợp với bạn?</h2>
+                <p>Là một Automation Tester với 4-5 năm kinh nghiệm Python, bạn có lợi thế lớn để chuyển sang Data Engineer:</p>
+                <ul style="margin-top: 10px; padding-left: 20px;">
+                    <li><strong>Python automation:</strong> Đã quen viết scripts, xử lý files, APIs</li>
+                    <li><strong>CI/CD pipelines:</strong> Hiểu về workflows, scheduling, monitoring</li>
+                    <li><strong>Linux/Shell:</strong> Có thể đã dùng cho test environments</li>
+                    <li><strong>Database interactions:</strong> Query, verify data trong tests</li>
+                    <li><strong>Problem-solving:</strong> Debugging complex systems</li>
+                    <li><strong>Cloud exposure:</strong> AWS/GCP/Azure trong testing infrastructure</li>
+                </ul>
+                <span class="difficulty-badge">⚠️ Độ khó: Cao hơn Data Analyst - Cần đầu tư 6-8 tháng</span>
+            </div>
+            <!-- Module 1 -->
+            <div class="module">
+                <div class="module-header">
+                    <div class="module-number">1</div>
+                    <div class="module-title">Advanced Python for Data Engineering</div>
+                    <div class="module-duration">3-4 tuần</div>
+                </div>
+                <div class="module-content">
+                    <h3>Nội dung học:</h3>
+                    <ul>
+                        <li><strong>Advanced Python:</strong> Generators, decorators, context managers, async/await</li>
+                        <li><strong>Data structures:</strong> Efficient memory usage, iterators</li>
+                        <li><strong>File processing:</strong> CSV, JSON, Parquet, Avro formats</li>
+                        <li><strong>APIs & Web scraping:</strong> REST, GraphQL, BeautifulSoup, Scrapy</li>
+                        <li><strong>Error handling & logging:</strong> Production-grade code</li>
+                    </ul>
+                    <div class="skills-transfer">
+                        <h4>💡 Chuyển đổi từ kỹ năng sẵn có:</h4>
+                        <p>Bạn đã viết automation scripts → Nâng cấp lên production-quality code với error handling, logging, và optimization.</p>
+                    </div>
+                    <div class="tools">
+                        <span class="tool-tag">Python Advanced</span>
+                        <span class="tool-tag">PySpark</span>
+                        <span class="tool-tag">Requests</span>
+                        <span class="tool-tag">FastAPI</span>
+                        <span class="tool-tag">Logging</span>
+                    </div>
+                    <div class="project">
+                        <h4>🎁 Project thực hành:</h4>
+                        <p>Xây dựng ETL script提取 data từ multiple APIs, transform và load vào database. Include retry logic, error handling, và monitoring.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Module 2 -->
+            <div class="module">
+                <div class="module-header">
+                    <div class="module-number">2</div>
+                    <div class="module-title">SQL & Database Systems</div>
+                    <div class="module-duration">4-5 tuần</div>
+                </div>
+                <div class="module-content">
+                    <h3>Nội dung học:</h3>
+                    <ul>
+                        <li><strong>Advanced SQL:</strong> Window functions, query optimization, indexing</li>
+                        <li><strong>Relational DBs:</strong> PostgreSQL, MySQL - architecture, tuning</li>
+                        <li><strong>NoSQL:</strong> MongoDB, Cassandra, Redis</li>
+                        <li><strong>Data Warehousing:</strong> Snowflake, Redshift, BigQuery</li>
+                        <li><strong>Database design:</strong> Normalization, star schema, data modeling</li>
+                    </ul>
+                    <div class="skills-transfer">
+                        <h4>💡 Chuyển đổi từ kỹ năng sẵn có:</h4>
+                        <p>Kinh nghiệm query databases trong testing → Mở rộng sang database design, optimization, và architectural decisions.</p>
+                    </div>
+                    <div class="tools">
+                        <span class="tool-tag">PostgreSQL</span>
+                        <span class="tool-tag">MongoDB</span>
+                        <span class="tool-tag">Redis</span>
+                        <span class="tool-tag">Snowflake</span>
+                        <span class="tool-tag">BigQuery</span>
+                    </div>
+                    <div class="project">
+                        <h4>🎁 Project thực hành:</h4>
+                        <p>Design data warehouse schema cho e-commerce platform. Implement ETL pipeline với optimized queries và indexing strategy.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Module 3 -->
+            <div class="module">
+                <div class="module-header">
+                    <div class="module-number">3</div>
+                    <div class="module-title">Big Data Technologies</div>
+                    <div class="module-duration">5-6 tuần</div>
+                </div>
+                <div class="module-content">
+                    <h3>Nội dung học:</h3>
+                    <ul>
+                        <li><strong>Apache Spark:</strong> RDDs, DataFrames, Spark SQL, performance tuning</li>
+                        <li><strong>Distributed computing:</strong> MapReduce concepts, partitioning</li>
+                        <li><strong>Stream processing:</strong> Kafka, Kafka Streams, Spark Streaming</li>
+                        <li><strong>Data lakes:</strong> Delta Lake, Iceberg, Hudi</li>
+                        <li><strong>Batch vs Streaming:</strong> Lambda & Kappa architectures</li>
+                    </ul>
+                    <div class="skills-transfer">
+                        <h4>💡 Chuyển đổi từ kỹ năng sẵn có:</h4>
+                        <p>Tư duy automation giúp hiểu distributed systems. Kinh nghiệm parallel test execution giúp grasp concepts nhanh hơn.</p>
+                    </div>
+                    <div class="tools">
+                        <span class="tool-tag">Apache Spark</span>
+                        <span class="tool-tag">PySpark</span>
+                        <span class="tool-tag">Apache Kafka</span>
+                        <span class="tool-tag">Hadoop</span>
+                        <span class="tool-tag">Delta Lake</span>
+                    </div>
+                    <div class="project">
+                        <h4>🎁 Project thực hành:</h4>
+                        <p>Xây dựng real-time data pipeline xử lý log events với Kafka + Spark Streaming. Aggregate metrics và store vào data lake.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Module 4 -->
+            <div class="module">
+                <div class="module-header">
+                    <div class="module-number">4</div>
+                    <div class="module-title">Cloud Platforms & Infrastructure</div>
+                    <div class="module-duration">5-6 tuần</div>
+                </div>
+                <div class="module-content">
+                    <h3>Nội dung học:</h3>
+                    <ul>
+                        <li><strong>Cloud provider:</strong> AWS/GCP/Azure (chọn 1)</li>
+                        <li><strong>Compute services:</strong> EC2, Lambda, EMR, Dataproc</li>
+                        <li><strong>Storage:</strong> S3, GCS, Blob Storage</li>
+                        <li><strong>Data services:</strong> Glue, Data Factory, Databricks</li>
+                        <li><strong>IaC:</strong> Terraform, CloudFormation</li>
+                        <li><strong>Containerization:</strong> Docker, Kubernetes basics</li>
+                    </ul>
+                    <div class="skills-transfer">
+                        <h4>💡 Chuyển đổi từ kỹ năng sẵn có:</h4>
+                        <p>Nếu bạn đã setup test environments trên cloud, giờ mở rộng sang production data infrastructure.</p>
+                    </div>
+                    <div class="tools">
+                        <span class="tool-tag">AWS/GCP/Azure</span>
+                        <span class="tool-tag">Terraform</span>
+                        <span class="tool-tag">Docker</span>
+                        <span class="tool-tag">Kubernetes</span>
+                        <span class="tool-tag">Airflow</span>
+                    </div>
+                    <div class="project">
+                        <h4>🎁 Project thực hành:</h4>
+                        <p>Deploy end-to-end data pipeline trên cloud: ingestion → transformation → storage → orchestration với Airflow.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Module 5 -->
+            <div class="module">
+                <div class="module-header">
+                    <div class="module-number">5</div>
+                    <div class="module-title">Data Pipeline Orchestration</div>
+                    <div class="module-duration">3-4 tuần</div>
+                </div>
+                <div class="module-content">
+                    <h3>Nội dung học:</h3>
+                    <ul>
+                        <li><strong>Workflow orchestration:</strong> Apache Airflow, Prefect, Dagster</li>
+                        <li><strong>Pipeline design patterns:</strong> DAGs, dependencies, retries</li>
+                        <li><strong>Scheduling:</strong> Cron, event-based triggers</li>
+                        <li><strong>Monitoring & alerting:</strong> Logging, metrics, notifications</li>
+                        <li><strong>Data quality:</strong> Great Expectations, dbt tests</li>
+                    </ul>
+                    <div class="skills-transfer">
+                        <h4>💡 Chuyển đổi từ kỹ năng sẵn có:</h4>
+                        <p>Đây là mảng gần nhất với automation testing! Bạn đã quen với CI/CD pipelines, scheduling tests, monitoring results.</p>
+                    </div>
+                    <div class="tools">
+                        <span class="tool-tag">Apache Airflow</span>
+                        <span class="tool-tag">Prefect</span>
+                        <span class="tool-tag">dbt</span>
+                        <span class="tool-tag">Great Expectations</span>
+                        <span class="tool-tag">Prometheus</span>
+                    </div>
+                    <div class="project">
+                        <h4>🎁 Project thực hành:</h4>
+                        <p>Build production ETL pipeline với Airflow: schedule daily jobs, implement data quality checks, setup alerting system.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Module 6 -->
+            <div class="module">
+                <div class="module-header">
+                    <div class="module-number">6</div>
+                    <div class="module-title">DevOps & Best Practices</div>
+                    <div class="module-duration">3-4 tuần</div>
+                </div>
+                <div class="module-content">
+                    <h3>Nội dung học:</h3>
+                    <ul>
+                        <li><strong>Version control:</strong> Git workflows, branching strategies</li>
+                        <li><strong>CI/CD:</strong> GitHub Actions, Jenkins, GitLab CI</li>
+                        <li><strong>Code quality:</strong> Testing, linting, code reviews</li>
+                        <li><strong>Security:</strong> Data encryption, access control, compliance</li>
+                        <li><strong>Performance tuning:</strong> Optimization techniques</li>
+                    </ul>
+                    <div class="skills-transfer">
+                        <h4>💡 Chuyển đổi từ kỹ năng sẵn có:</h4>
+                        <p>Lợi thế CỰC LỚN! Bạn đã làm automation testing → Đã hiểu CI/CD, testing practices, code quality standards.</p>
+                    </div>
+                    <div class="tools">
+                        <span class="tool-tag">Git</span>
+                        <span class="tool-tag">GitHub Actions</span>
+                        <span class="tool-tag">Jenkins</span>
+                        <span class="tool-tag">pytest</span>
+                        <span class="tool-tag">SonarQube</span>
+                    </div>
+                    <div class="project">
+                        <h4>🎁 Project thực hành:</h4>
+                        <p>Setup complete CI/CD pipeline cho data projects: automated testing, code quality checks, deployment automation.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Roadmap -->
+            <div class="roadmap">
+                <h3>📅 Lộ trình tổng thể (6-8 tháng)</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <strong>Tháng 1-2:</strong> Advanced Python + SQL & Database Systems
+                    </div>
+                    <div class="timeline-item">
+                        <strong>Tháng 3-4:</strong> Big Data Technologies (Spark, Kafka)
+                    </div>
+                    <div class="timeline-item">
+                        <strong>Tháng 5-6:</strong> Cloud Platforms + Orchestration (Airflow)
+                    </div>
+                    <div class="timeline-item">
+                        <strong>Tháng 7-8:</strong> DevOps practices + Portfolio projects + Job preparation
+                    </div>
+                </div>
+            </div>
+            <!-- Comparison Table -->
+            <div class="comparison">
+                <h3>🆚 So sánh: Data Analyst vs Data Engineer</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Yếu tố</th>
+                            <th>Data Analyst</th>
+                            <th>Data Engineer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Focus</strong></td>
+                            <td>Phân tích, insights, reporting</td>
+                            <td>Xây dựng pipelines, infrastructure</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Technical depth</strong></td>
+                            <td>Trung bình</td>
+                            <td>Sâu (engineering heavy)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Learning curve</strong></td>
+                            <td>3-4 tháng</td>
+                            <td>6-8 tháng</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Programming</strong></td>
+                            <td>Python (Pandas), SQL</td>
+                            <td>Python, SQL, Scala, Java</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tools</strong></td>
+                            <td>Tableau, Power BI, Excel</td>
+                            <td>Spark, Kafka, Airflow, Cloud</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Salary (VN)</strong></td>
+                            <td>$1,000 - $2,500</td>
+                            <td>$1,500 - $3,500+</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phù hợp với Tester</strong></td>
+                            <td>⭐⭐⭐⭐⭐ (Dễ chuyển)</td>
+                            <td>⭐⭐⭐⭐ (Cần effort hơn)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="intro" style="margin-top: 30px;">
+                <h2>📚 Tài nguyên học tập</h2>
+                <ul style="padding-left: 20px;">
+                    <li><strong>Courses:</strong> Coursera "Data Engineering with GCP/AWS", Udemy "Data Engineering Bootcamp"</li>
+                    <li><strong>Books:</strong> "Fundamentals of Data Engineering", "Designing Data-Intensive Applications"</li>
+                    <li><strong>Practice:</strong> Build personal projects, contribute to open source</li>
+                    <li><strong>Community:</strong> r/dataengineering, Data Engineering Podcast, LinkedIn groups</li>
+                    <li><strong>Certifications:</strong> AWS Certified Data Analytics, Google Professional Data Engineer</li>
+                </ul>
+            </div>
+            <div class="intro" style="margin-top: 20px; background: #e8f5e9; border-left-color: #4caf50;">
+                <h2>💡 Lời khuyên từ Automation Tester</h2>
+                <p><strong>Lợi thế của bạn:</strong></p>
+                <ul style="margin-top: 10px; padding-left: 20px;">
+                    <li>✅ Đã quen với Python scripting → Dễ học PySpark, Airflow DAGs</li>
+                    <li>✅ Hiểu CI/CD pipelines → Dễ grasp orchestration concepts</li>
+                    <li>✅ Testing mindset → Data quality assurance sẽ rất tự nhiên</li>
+                    <li>✅ Debugging skills → Essential cho troubleshooting pipelines</li>
+                </ul>
+                <p style="margin-top: 15px;"><strong>Recommendation:</strong> Nếu muốn transition nhanh → Chọn <strong>Data Analyst</strong>. Nếu thích engineering challenges và đầu tư dài hạn → Chọn <strong>Data Engineer</strong>.</p>
+            </div>
+        </div>
+        <footer>
+            <p><strong>💼 Career Opportunities:</strong> Junior DE → Data Engineer → Senior DE → Lead DE / Data Architect</p>
+            <p style="margin-top: 10px; color: #666;">Testing background là lợi thế trong data quality, pipeline testing, và DevOps aspects!</p>
+            <a href="#" class="back-link">← Quay lại trang chính</a>
+        </footer>
+    </div>
+</body>
+</html>
