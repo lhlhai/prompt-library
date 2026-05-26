@@ -37,24 +37,6 @@
             "image": null
         },
         {
-            "id": 46,
-            "file": "046.json",
-            "day": "Day 46",
-            "title": "BDD – Khi Tester, Dev và PO Nói Cùng Một Ngôn Ngữ",
-            "category": "BDD & Cucumber",
-            "author": "The Manual Authority",
-            "image": null
-        },
-        {
-            "id": 45,
-            "file": "045.json",
-            "day": "Day 45",
-            "title": "Sprint Review & Retrospective – Cải Tiến Chất Lượng Sau Mỗi Kỳ Sprint",
-            "category": "Agile Testing",
-            "author": "The Manual Authority",
-            "image": null
-        },
-        {
             "id": 40,
             "file": "040.json",
             "day": "Day 40",
@@ -370,7 +352,6 @@
         "Tools",
         "Best Practices",
         "Fundamentals",
-        "Agile Testing",
         "Automation Testing",
         "BDD & Cucumber",
         "BUG MANAGEMENT",
