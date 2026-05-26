@@ -19,24 +19,6 @@
             "image": null
         },
         {
-            "id": 48,
-            "file": "048.json",
-            "day": "Day 48",
-            "title": "Scenario Outline – Đừng Lặp Lại Chính Mình (DRY)",
-            "category": "BDD & Cucumber",
-            "author": "The Manual Authority",
-            "image": null
-        },
-        {
-            "id": 47,
-            "file": "047.json",
-            "day": "Day 47",
-            "title": "Gherkin Syntax – Viết Kịch Bản Như Viết Văn",
-            "category": "BDD & Cucumber",
-            "author": "The Manual Authority",
-            "image": null
-        },
-        {
             "id": 40,
             "file": "040.json",
             "day": "Day 40",
