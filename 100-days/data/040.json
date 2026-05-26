@@ -1,0 +1,10 @@
+{
+    "id": 40,
+    "day": "Day 40",
+    "title": "Test Reporting & Metrics – Đo Lường Chất Lượng Sản Phẩm",
+    "excerpt": "Làm sao để biết sản phẩm đã đủ tốt để phát hành? Câu trả lời nằm ở các chỉ số (metrics) và báo cáo kiểm thử. Học cách trình bày dữ liệu một cách thông minh để hỗ trợ việc ra quyết định.",
+    "category": "Test Management",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. Các chỉ số quan trọng (Test Metrics)</h3><ul><li><strong>Defect Density:</strong> Số lượng bug trên mỗi module/KLOC.</li><li><strong>Test Case Pass Rate:</strong> Tỷ lệ bài test thành công.</li><li><strong>Defect Leakage:</strong> Số lượng bug bị lọt ra môi trường sản phẩm.</li><li><strong>Test Execution Status:</strong> Tiến độ thực hiện kiểm thử.</li></ul><h3>2. Test Summary Report (TSR)</h3><p>Đây là tài liệu cuối cùng tổng kết quá trình kiểm thử, đánh giá xem sản phẩm có đạt tiêu chuẩn để \"Go-live\" hay không dựa trên các tiêu chí đã đề ra trong Test Plan.</p><p><strong>Kết thúc ngày 40:</strong> Chúc mừng bạn đã hoàn thành khối kiến thức về quản lý! Bạn đã có cái nhìn của một người dẫn dắt dự án.</p>"
+}

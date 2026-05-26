@@ -1,0 +1,10 @@
+{
+    "id": 39,
+    "day": "Day 39",
+    "title": "Risk Management – Xác Định & Quản Lý Rủi Ro",
+    "excerpt": "Kiểm thử thực chất là quản lý rủi ro. Việc xác định sớm các rủi ro về sản phẩm và dự án giúp bạn ưu tiên nguồn lực vào những phần quan trọng nhất, giảm thiểu thiệt hại khi có sự cố xảy ra.",
+    "category": "Test Management",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. Các loại rủi ro trong kiểm thử</h3><ul><li><strong>Project Risks:</strong> Thiếu nhân sự, chậm trễ tiến độ, thay đổi yêu cầu liên tục.</li><li><strong>Product Risks:</strong> Các tính năng phức tạp dễ lỗi, rủi ro về bảo mật, hiệu năng không đạt yêu cầu.</li></ul><h3>2. Quy trình quản lý rủi ro</h3><ol><li><strong>Identification:</strong> Liệt kê tất cả rủi ro có thể xảy ra.</li><li><strong>Analysis:</strong> Đánh giá mức độ ảnh hưởng và khả năng xảy ra.</li><li><strong>Mitigation:</strong> Lập kế hoạch để giảm thiểu rủi ro.</li><li><strong>Contingency:</strong> Kế hoạch dự phòng nếu rủi ro thực sự xảy ra.</li></ol><p><strong>Ngày 40:</strong> Chúng ta sẽ nói về <strong>Test Reporting & Metrics – Đo Lường Chất Lượng Sản Phẩm</strong>. Hẹn gặp lại!</p>"
+}

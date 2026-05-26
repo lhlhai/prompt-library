@@ -1,0 +1,10 @@
+{
+    "id": 38,
+    "day": "Day 38",
+    "title": "Test Estimation – Kỹ Thuật Ước Lượng Thời Gian & Nguồn Lực",
+    "excerpt": "Ước lượng chính xác là một trong những kỹ năng khó nhất của Test Manager. Học các kỹ thuật như Poker, Three-point estimation giúp bạn đưa ra những con số thực tế và đáng tin cậy.",
+    "category": "Test Management",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. Tại sao cần Test Estimation?</h3><p>Ước lượng giúp quản lý kỳ vọng của khách hàng, lập kế hoạch nguồn lực hợp lý và tránh tình trạng quá tải cho đội ngũ tester.</p><h3>2. Các kỹ thuật phổ biến</h3><ul><li><strong>Three-Point Estimation:</strong> Dựa trên 3 kịch bản: Tốt nhất (Optimistic), Xấu nhất (Pessimistic) và Khả thi nhất (Most Likely). Công thức: (O + 4M + P) / 6.</li><li><strong>Wideband Delphi (Poker):</strong> Cả team cùng thảo luận và đưa ra con số dựa trên sự đồng thuận.</li><li><strong>Experience-based:</strong> Dựa trên dữ liệu từ các dự án tương tự trong quá khứ.</li></ul><p><strong>Ngày 39:</strong> Chúng ta sẽ tìm hiểu về <strong>Risk Management – Xác Định & Quản Lý Rủi Ro</strong>. Hẹn gặp lại!</p>"
+}

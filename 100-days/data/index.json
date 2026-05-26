@@ -1,6 +1,51 @@
 {
     "posts": [
         {
+            "id": 40,
+            "file": "040.json",
+            "day": "Day 40",
+            "title": "Test Reporting & Metrics – Đo Lường Chất Lượng Sản Phẩm",
+            "category": "Test Management",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
+            "id": 39,
+            "file": "039.json",
+            "day": "Day 39",
+            "title": "Risk Management – Xác Định & Quản Lý Rủi Ro",
+            "category": "Test Management",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
+            "id": 38,
+            "file": "038.json",
+            "day": "Day 38",
+            "title": "Test Estimation – Kỹ Thuật Ước Lượng Thời Gian & Nguồn Lực",
+            "category": "Test Management",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
+            "id": 37,
+            "file": "037.json",
+            "day": "Day 37",
+            "title": "Test Strategy – Xây Dựng Chiến Lược Kiểm Thử Tổng Thể",
+            "category": "Test Management",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
+            "id": 36,
+            "file": "036.json",
+            "day": "Day 36",
+            "title": "Test Planning – Cách Lập Kế Hoạch Kiểm Thử Hiệu Quả",
+            "category": "Test Management",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
             "id": 35,
             "file": "035.json",
             "day": "Day 35",

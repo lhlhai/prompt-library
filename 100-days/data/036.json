@@ -1,0 +1,10 @@
+{
+    "id": 36,
+    "day": "Day 36",
+    "title": "Test Planning – Cách Lập Kế Hoạch Kiểm Thử Hiệu Quả",
+    "excerpt": "Test Plan là tài liệu chi tiết mô tả mục tiêu, phạm vi, cách tiếp cận và các nguồn lực cần thiết cho một hoạt động kiểm thử. Một kế hoạch tốt là chìa khóa để đảm bảo dự án đi đúng hướng và thành công.",
+    "category": "Test Management",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. Test Plan là gì?</h3><p>Test Plan (Kế hoạch kiểm thử) là một tài liệu cung cấp cái nhìn tổng quan về các nỗ lực kiểm thử cho một dự án. Nó trả lời các câu hỏi: Test cái gì? Test như thế nào? Khi nào test? Và ai sẽ test?</p><h3>2. Các thành phần chính của Test Plan (theo chuẩn IEEE 829)</h3><ul><li><strong>Scope (Phạm vi):</strong> Những tính năng nào sẽ được test và những tính năng nào KHÔNG được test.</li><li><strong>Test Objectives:</strong> Mục tiêu cần đạt được sau đợt kiểm thử.</li><li><strong>Resources:</strong> Nhân sự, thiết bị, môi trường cần thiết.</li><li><strong>Schedule:</strong> Mốc thời gian bắt đầu và kết thúc cho từng giai đoạn.</li><li><strong>Deliverables:</strong> Các sản phẩm bàn giao (Test cases, Bug reports, Test Summary Report).</li></ul><p><strong>Ngày 37:</strong> Chúng ta sẽ tìm hiểu về <strong>Test Strategy – Xây Dựng Chiến Lược Kiểm Thử Tổng Thể</strong>. Hẹn gặp lại!</p>"
+}

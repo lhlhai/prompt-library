@@ -1,0 +1,10 @@
+{
+    "id": 37,
+    "day": "Day 37",
+    "title": "Test Strategy – Xây Dựng Chiến Lược Kiểm Thử Tổng Thể",
+    "excerpt": "Test Strategy là tài liệu cấp cao định nghĩa cách tiếp cận kiểm thử cho toàn bộ tổ chức hoặc dự án lớn. Nó giúp đảm bảo tính nhất quán và hiệu quả trong mọi hoạt động kiểm soát chất lượng.",
+    "category": "Test Management",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. Test Strategy vs Test Plan</h3><p>Trong khi Test Plan tập trung vào một dự án cụ thể, Test Strategy mang tính định hướng dài hạn. Chiến lược trả lời câu hỏi \"Chúng ta sẽ tiếp cận việc kiểm thử như thế nào một cách tổng thể?\"</p><h3>2. Nội dung của Test Strategy</h3><ul><li><strong>Test Levels:</strong> Unit, Integration, System, UAT.</li><li><strong>Test Types:</strong> Functional, Security, Performance.</li><li><strong>Tools:</strong> Các công cụ sẽ được sử dụng thống nhất.</li><li><strong>Regression Testing Approach:</strong> Cách thực hiện kiểm thử hồi quy.</li><li><strong>Environment Requirements:</strong> Tiêu chuẩn cho môi trường test.</li></ul><p><strong>Ngày 38:</strong> Chúng ta sẽ nói về <strong>Test Estimation – Kỹ Thuật Ước Lượng Thời Gian & Nguồn Lực</strong>. Hẹn gặp lại!</p>"
+}
