@@ -1,0 +1,10 @@
+{
+    "id": 34,
+    "day": "Day 34",
+    "title": "GitHub Actions – Công Cụ CI/CD Ngay Trong Tầm Tay",
+    "excerpt": "GitHub Actions cho phép bạn tự động hóa quy trình làm việc (workflow) trực tiếp trên kho lưu trữ GitHub. Đây là công cụ cực kỳ mạnh mẽ và dễ tiếp cận để triển khai CI/CD cho các dự án automation.",
+    "category": "DevOps & CI/CD",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. Các khái niệm cơ bản trong GitHub Actions</h3><ul><li><strong>Workflow:</strong> Quy trình tự động được định nghĩa trong file YAML.</li><li><strong>Event:</strong> Sự kiện kích hoạt workflow (ví dụ: push code, pull request).</li><li><strong>Job:</strong> Tập hợp các bước (steps) chạy trên cùng một runner.</li><li><strong>Action:</strong> Các đơn vị công việc độc lập có thể tái sử dụng.</li></ul><h3>2. Ví dụ một Workflow đơn giản</h3><p>Bạn có thể cấu hình để mỗi khi push code lên nhánh main, GitHub Actions sẽ tự động cài đặt môi trường và chạy toàn bộ script Selenium của bạn.</p><p><strong>Ngày 35:</strong> Chúng ta sẽ nói về <strong>API Automation Testing – Nhanh Hơn, Ổn Định Hơn</strong>. Hẹn gặp lại!</p>"
+}

@@ -1,0 +1,10 @@
+{
+    "id": 35,
+    "day": "Day 35",
+    "title": "API Automation Testing – Nhanh Hơn, Ổn Định Hơn",
+    "excerpt": "Kiểm thử API tự động mang lại giá trị cực lớn vì nó nhanh hơn và ổn định hơn so với UI Automation. Sử dụng các thư viện như RestAssured hoặc Requests để đưa API testing lên một tầm cao mới.",
+    "category": "Automation Testing",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. Tại sao nên ưu tiên API Automation?</h3><ul><li><strong>Tốc độ thực thi:</strong> Nhanh hơn hàng chục lần so với test trên giao diện.</li><li><strong>Độ ổn định:</strong> Ít bị ảnh hưởng bởi những thay đổi nhỏ về UI.</li><li><strong>Phát hiện lỗi sớm:</strong> Kiểm tra logic nghiệp vụ ngay tại tầng dịch vụ.</li></ul><h3>2. Các công cụ phổ biến</h3><ul><li><strong>RestAssured (Java):</strong> Thư viện mạnh mẽ với cú pháp dễ hiểu.</li><li><strong>Requests (Python):</strong> Thư viện đơn giản nhưng cực kỳ linh hoạt.</li><li><strong>Postman Newman:</strong> Công cụ dòng lệnh để chạy các Postman Collections trong CI/CD.</li></ul><p><strong>Kết thúc ngày 35:</strong> Bạn đã nắm vững các khái niệm cốt lõi về Automation và CI/CD. Chặng đường tiếp theo sẽ còn nhiều điều thú vị!</p>"
+}

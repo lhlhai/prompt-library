@@ -1,0 +1,10 @@
+{
+    "id": 32,
+    "day": "Day 32",
+    "title": "Test Frameworks: Pytest & TestNG – Quản Lý Bài Test Hiệu Quả",
+    "excerpt": "Test Framework cung cấp cấu trúc và các công cụ hỗ trợ để viết, tổ chức và thực thi các bài test. Pytest (Python) và TestNG (Java) là hai cái tên hàng đầu giúp tester quản lý test suite một cách chuyên nghiệp.",
+    "category": "Automation Testing",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. Các tính năng chính của Test Framework</h3><ul><li><strong>Assertions:</strong> Các câu lệnh kiểm tra kết quả mong đợi.</li><li><strong>Annotations/Fixtures:</strong> Quản lý trạng thái trước và sau khi chạy test (Setup/Teardown).</li><li><strong>Test Suites:</strong> Nhóm các bài test liên quan lại với nhau.</li><li><strong>Reporting:</strong> Tự động tạo báo cáo kết quả sau khi thực thi.</li></ul><h3>2. So sánh nhanh Pytest và TestNG</h3><p>Cả hai đều mạnh mẽ, lựa chọn tùy thuộc vào ngôn ngữ lập trình bạn sử dụng. Pytest nổi tiếng với sự đơn giản và linh hoạt, trong khi TestNG mạnh về cấu hình và các tính năng nâng cao cho Java.</p><p><strong>Ngày 33:</strong> Chúng ta sẽ nói về <strong>CI/CD for Testers – Tự Động Hóa Quy Trình Triển Khai</strong>. Hẹn gặp lại!</p>"
+}

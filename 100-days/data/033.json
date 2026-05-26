@@ -1,0 +1,10 @@
+{
+    "id": 33,
+    "day": "Day 33",
+    "title": "CI/CD for Testers – Tự Động Hóa Quy Trình Triển Khai",
+    "excerpt": "Continuous Integration (CI) và Continuous Deployment (CD) là trái tim của DevOps. Đối với tester, CI/CD giúp chạy các bài test tự động ngay khi có thay đổi code, đảm bảo lỗi được phát hiện tức thì.",
+    "category": "DevOps & CI/CD",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. CI/CD là gì?</h3><ul><li><strong>CI (Continuous Integration):</strong> Tự động tích hợp code từ nhiều thành viên và chạy test ngay lập tức.</li><li><strong>CD (Continuous Delivery/Deployment):</strong> Tự động đưa code đã qua kiểm thử lên các môi trường staging hoặc production.</li></ul><h3>2. Vai trò của Tester trong CI/CD</h3><p>Tester chịu trách nhiệm tích hợp các bộ test tự động (Regression, Smoke test) vào pipeline để hệ thống tự động kiểm tra chất lượng mỗi khi có build mới.</p><p><strong>Ngày 34:</strong> Chúng ta sẽ tìm hiểu về <strong>GitHub Actions – Công Cụ CI/CD Ngay Trong Tầm Tay</strong>. Hẹn gặp lại!</p>"
+}

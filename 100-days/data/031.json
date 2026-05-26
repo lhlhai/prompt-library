@@ -1,0 +1,10 @@
+{
+    "id": 31,
+    "day": "Day 31",
+    "title": "Page Object Model (POM) – Tổ Chức Code Automation Chuyên Nghiệp",
+    "excerpt": "Page Object Model là một design pattern phổ biến trong Automation Testing giúp giảm thiểu việc lặp lại code và làm cho script dễ bảo trì hơn bằng cách tách biệt logic của trang web khỏi logic kiểm thử.",
+    "category": "Automation Testing",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. Page Object Model (POM) là gì?</h3><p>POM là một mẫu thiết kế mà trong đó mỗi trang web (hoặc một phần của trang) được đại diện bởi một class. Các thành phần trên trang (elements) và các hành động trên trang đó (methods) được định nghĩa trong class này.</p><h3>2. Tại sao nên dùng POM?</h3><ul><li><strong>Dễ bảo trì:</strong> Khi giao diện thay đổi, bạn chỉ cần cập nhật ở một nơi duy nhất (Page Class).</li><li><strong>Tái sử dụng code:</strong> Các phương thức trong Page Class có thể được dùng lại ở nhiều bài test khác nhau.</li><li><strong>Code sạch hơn:</strong> Script test sẽ dễ đọc hơn vì nó chỉ chứa các bước logic nghiệp vụ.</li></ul><p><strong>Ngày 32:</strong> Chúng ta sẽ tìm hiểu về <strong>Test Frameworks: Pytest & TestNG – Quản Lý Bài Test Hiệu Quả</strong>. Hẹn gặp lại!</p>"
+}

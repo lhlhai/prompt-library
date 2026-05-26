@@ -1,6 +1,51 @@
 {
     "posts": [
         {
+            "id": 35,
+            "file": "035.json",
+            "day": "Day 35",
+            "title": "API Automation Testing – Nhanh Hơn, Ổn Định Hơn",
+            "category": "Automation Testing",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
+            "id": 34,
+            "file": "034.json",
+            "day": "Day 34",
+            "title": "GitHub Actions – Công Cụ CI/CD Ngay Trong Tầm Tay",
+            "category": "DevOps & CI/CD",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
+            "id": 33,
+            "file": "033.json",
+            "day": "Day 33",
+            "title": "CI/CD for Testers – Tự Động Hóa Quy Trình Triển Khai",
+            "category": "DevOps & CI/CD",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
+            "id": 32,
+            "file": "032.json",
+            "day": "Day 32",
+            "title": "Test Frameworks: Pytest & TestNG – Quản Lý Bài Test Hiệu Quả",
+            "category": "Automation Testing",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
+            "id": 31,
+            "file": "031.json",
+            "day": "Day 31",
+            "title": "Page Object Model (POM) – Tổ Chức Code Automation Chuyên Nghiệp",
+            "category": "Automation Testing",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
             "id": 30,
             "file": "030.json",
             "day": "Day 30",
@@ -282,6 +327,7 @@
         "Fundamentals",
         "Automation Testing",
         "BUG MANAGEMENT",
+        "DevOps & CI/CD",
         "Performance & Load",
         "REGRESSION",
         "SQL & Data",
