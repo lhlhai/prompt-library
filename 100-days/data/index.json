@@ -1,24 +1,6 @@
 {
     "posts": [
         {
-            "id": 50,
-            "file": "050.json",
-            "day": "Day 50",
-            "title": "Cucumber & Step Definitions – Khi Phép Màu Xảy Ra",
-            "category": "BDD & Cucumber",
-            "author": "The Manual Authority",
-            "image": null
-        },
-        {
-            "id": 49,
-            "file": "049.json",
-            "day": "Day 49",
-            "title": "BDD Anti-patterns – Đừng Để BDD Trở Thành Gánh Nặng",
-            "category": "BDD & Cucumber",
-            "author": "The Manual Authority",
-            "image": null
-        },
-        {
             "id": 40,
             "file": "040.json",
             "day": "Day 40",
@@ -335,7 +317,6 @@
         "Best Practices",
         "Fundamentals",
         "Automation Testing",
-        "BDD & Cucumber",
         "BUG MANAGEMENT",
         "DevOps & CI/CD",
         "Performance & Load",
