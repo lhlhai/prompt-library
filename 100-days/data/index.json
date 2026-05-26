@@ -1,96 +1,6 @@
 {
     "posts": [
         {
-            "id": 50,
-            "file": "050.json",
-            "day": "Day 50",
-            "title": "Cucumber & Step Definitions – Khi Phép Màu Xảy Ra",
-            "category": "BDD & Cucumber",
-            "author": "The Manual Authority",
-            "image": null
-        },
-        {
-            "id": 49,
-            "file": "049.json",
-            "day": "Day 49",
-            "title": "BDD Anti-patterns – Đừng Để BDD Trở Thành Gánh Nặng",
-            "category": "BDD & Cucumber",
-            "author": "The Manual Authority",
-            "image": null
-        },
-        {
-            "id": 48,
-            "file": "048.json",
-            "day": "Day 48",
-            "title": "Scenario Outline – Đừng Lặp Lại Chính Mình (DRY)",
-            "category": "BDD & Cucumber",
-            "author": "The Manual Authority",
-            "image": null
-        },
-        {
-            "id": 47,
-            "file": "047.json",
-            "day": "Day 47",
-            "title": "Gherkin Syntax – Viết Kịch Bản Như Viết Văn",
-            "category": "BDD & Cucumber",
-            "author": "The Manual Authority",
-            "image": null
-        },
-        {
-            "id": 46,
-            "file": "046.json",
-            "day": "Day 46",
-            "title": "BDD – Khi Tester, Dev và PO Nói Cùng Một Ngôn Ngữ",
-            "category": "BDD & Cucumber",
-            "author": "The Manual Authority",
-            "image": null
-        },
-        {
-            "id": 45,
-            "file": "045.json",
-            "day": "Day 45",
-            "title": "Sprint Review & Retrospective – Cải Tiến Chất Lượng Sau Mỗi Kỳ Sprint",
-            "category": "Agile Testing",
-            "author": "The Manual Authority",
-            "image": null
-        },
-        {
-            "id": 44,
-            "file": "044.json",
-            "day": "Day 44",
-            "title": "Sprint Planning & Daily Standup – Tester Làm Gì Trong Các Buổi Họp?",
-            "category": "Agile Testing",
-            "author": "The Manual Authority",
-            "image": null
-        },
-        {
-            "id": 43,
-            "file": "043.json",
-            "day": "Day 43",
-            "title": "User Stories & Acceptance Criteria – Hiểu Để Test Đúng",
-            "category": "Agile Testing",
-            "author": "The Manual Authority",
-            "image": null
-        },
-        {
-            "id": 42,
-            "file": "042.json",
-            "day": "Day 42",
-            "title": "Scrum Framework for Testers – Vai Trò Của Tester Trong Nhóm Scrum",
-            "category": "Agile Testing",
-            "author": "The Manual Authority",
-            "image": null
-        },
-        {
-            "id": 41,
-            "file": "041.json",
-            "day": "Day 41",
-            "title": "Introduction to Agile Testing – Tư Duy Kiểm Thử Linh Hoạt",
-            "category": "Agile Testing",
-            "author": "The Manual Authority",
-            "image": null
-        },
-        {
             "id": 40,
             "file": "040.json",
             "day": "Day 40",
@@ -168,60 +78,6 @@
             "day": "Day 32",
             "title": "Test Frameworks: Pytest & TestNG – Quản Lý Bài Test Hiệu Quả",
             "category": "Automation Testing",
-            "author": "The Manual Authority",
-            "image": null
-        },
-        {
-            "id": 31,
-            "file": "031.json",
-            "day": "Day 31",
-            "title": "Page Object Model (POM) – Tổ Chức Code Automation Chuyên Nghiệp",
-            "category": "Automation Testing",
-            "author": "The Manual Authority",
-            "image": null
-        },
-        {
-            "id": 30,
-            "file": "030.json",
-            "day": "Day 30",
-            "title": "Selenium & Webdriver – Công Cụ Tự Động Hóa Web Phổ Biến Nhất",
-            "category": "Automation Testing",
-            "author": "The Manual Authority",
-            "image": null
-        },
-        {
-            "id": 29,
-            "file": "029.json",
-            "day": "Day 29",
-            "title": "Automation Testing Introduction – Khi Máy Móc Thay Thế Con Người",
-            "category": "Automation Testing",
-            "author": "The Manual Authority",
-            "image": null
-        },
-        {
-            "id": 28,
-            "file": "028.json",
-            "day": "Day 28",
-            "title": "Broken Authentication – Khi Cửa Nhà Không Khóa Kỹ",
-            "category": "Security Testing",
-            "author": "The Manual Authority",
-            "image": null
-        },
-        {
-            "id": 27,
-            "file": "027.json",
-            "day": "Day 27",
-            "title": "Cross-Site Scripting (XSS) – Lỗ Hổng Phổ Biến Nhất Trên Web",
-            "category": "Security Testing",
-            "author": "The Manual Authority",
-            "image": null
-        },
-        {
-            "id": 26,
-            "file": "026.json",
-            "day": "Day 26",
-            "title": "Security Testing Basics – Bảo Vệ Ứng Dụng Khỏi Các Mối Đe Dọa",
-            "category": "Security Testing",
             "author": "The Manual Authority",
             "image": null
         },
@@ -460,16 +316,13 @@
         "Tools",
         "Best Practices",
         "Fundamentals",
-        "Agile Testing",
         "Automation Testing",
-        "BDD & Cucumber",
         "BUG MANAGEMENT",
         "DevOps & CI/CD",
         "Performance & Load",
         "REGRESSION",
         "SQL & Data",
         "STATIC",
-        "Security Testing",
         "TECHNIQUES",
         "TEST DESIGN",
         "TEST LEVELS",
