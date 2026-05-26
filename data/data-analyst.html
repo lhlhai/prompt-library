@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Analyst Learning Path - From Automation Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 40px;
+        }
+        .intro {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+        .intro h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        .module {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+        .module:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+        .module-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .module-number {
+            background: #667eea;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .module-title {
+            font-size: 1.4em;
+            color: #333;
+            font-weight: 600;
+        }
+        .module-duration {
+            margin-left: auto;
+            background: #e8f4f8;
+            color: #667eea;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        .module-content {
+            margin-top: 15px;
+        }
+        .module-content h3 {
+            color: #667eea;
+            margin: 15px 0 10px 0;
+            font-size: 1.1em;
+        }
+        .module-content ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .module-content li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        .module-content li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+        .skills-transfer {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .skills-transfer h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .skills-transfer p {
+            color: #856404;
+            font-size: 0.95em;
+        }
+        .tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .tool-tag {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+        }
+        .project {
+            background: #d4edda;
+            border: 1px solid #28a745;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .project h4 {
+            color: #155724;
+            margin-bottom: 10px;
+        }
+        .project p {
+            color: #155724;
+        }
+        .roadmap {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        .roadmap h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        .timeline:before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #667eea;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .timeline-item:before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 5px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #667eea;
+        }
+        footer {
+            background: #f8f9fa;
+            padding: 25px 40px;
+            text-align: center;
+            border-top: 2px solid #e0e0e0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Data Analyst Learning Path</h1>
+            <p>Từ Automation Tester (Python) đến Data Analyst</p>
+        </header>
+        <div class="content">
+            <div class="intro">
+                <h2>🎯 Tại sao phù hợp với bạn?</h2>
+                <p>Là một Automation Tester với 4-5 năm kinh nghiệm Python, bạn đã có nền tảng tuyệt vời để chuyển sang Data Analyst:</p>
+                <ul style="margin-top: 10px; padding-left: 20px;">
+                    <li><strong>Python programming:</strong> Đã thành thạo syntax, data structures, functions</li>
+                    <li><strong>Data handling:</strong> Quen với JSON, XML, CSV trong test data</li>
+                    <li><strong>Debugging skills:</strong> Khả năng phân tích log và tìm root cause</li>
+                    <li><strong>SQL basics:</strong> Có thể đã dùng để query database trong testing</li>
+                    <li><strong>Attention to detail:</strong> Tư duy kiểm tra chất lượng dữ liệu</li>
+                </ul>
+            </div>
+            <!-- Module 1 -->
+            <div class="module">
+                <div class="module-header">
+                    <div class="module-number">1</div>
+                    <div class="module-title">Python for Data Analysis</div>
+                    <div class="module-duration">2-3 tuần</div>
+                </div>
+                <div class="module-content">
+                    <h3>Nội dung học:</h3>
+                    <ul>
+                        <li><strong>Pandas:</strong> DataFrame, Series, data manipulation, filtering, grouping</li>
+                        <li><strong>NumPy:</strong> Arrays, mathematical operations, statistical functions</li>
+                        <li><strong>Data cleaning:</strong> Handling missing values, outliers, data transformation</li>
+                        <li><strong>Data aggregation:</strong> pivot_table, groupby, merge, join</li>
+                    </ul>
+                    <div class="skills-transfer">
+                        <h4>💡 Chuyển đổi từ kỹ năng sẵn có:</h4>
+                        <p>Bạn đã quen với list/dict comprehension → Pandas operations sẽ rất tự nhiên. Kinh nghiệm xử lý test data giúp hiểu nhanh data cleaning.</p>
+                    </div>
+                    <div class="tools">
+                        <span class="tool-tag">Pandas</span>
+                        <span class="tool-tag">NumPy</span>
+                        <span class="tool-tag">Jupyter Notebook</span>
+                        <span class="tool-tag">Google Colab</span>
+                    </div>
+                    <div class="project">
+                        <h4>🎁 Project thực hành:</h4>
+                        <p>Phân tích dataset test results từ automation framework của bạn. Tạo báo cáo về pass/fail rate, trend analysis theo thời gian.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Module 2 -->
+            <div class="module">
+                <div class="module-header">
+                    <div class="module-number">2</div>
+                    <div class="module-title">SQL Nâng cao cho Analytics</div>
+                    <div class="module-duration">2-3 tuần</div>
+                </div>
+                <div class="module-content">
+                    <h3>Nội dung học:</h3>
+                    <ul>
+                        <li><strong>Advanced queries:</strong> Subqueries, CTEs, window functions</li>
+                        <li><strong>Aggregations:</strong> GROUP BY, HAVING,ROLLUP, CUBE</li>
+                        <li><strong>Joins:</strong> INNER, LEFT, RIGHT, FULL, CROSS, SELF joins</li>
+                        <li><strong>Performance:</strong> Indexing, query optimization, execution plans</li>
+                        <li><strong>Analytical functions:</strong> ROW_NUMBER, RANK, DENSE_RANK, LEAD/LAG</li>
+                    </ul>
+                    <div class="skills-transfer">
+                        <h4>💡 Chuyển đổi từ kỹ năng sẵn có:</h4>
+                        <p>Nếu bạn đã viết SQL queries để verify data trong tests, giờ chỉ cần mở rộng sang analytical queries phức tạp hơn.</p>
+                    </div>
+                    <div class="tools">
+                        <span class="tool-tag">PostgreSQL</span>
+                        <span class="tool-tag">MySQL</span>
+                        <span class="tool-tag">BigQuery</span>
+                        <span class="tool-tag">SQLAlchemy</span>
+                    </div>
+                    <div class="project">
+                        <h4>🎁 Project thực hành:</h4>
+                        <p>Xây dựng dashboard queries để phân tích user behavior từ database. Tính retention rate, conversion funnel, cohort analysis.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Module 3 -->
+            <div class="module">
+                <div class="module-header">
+                    <div class="module-number">3</div>
+                    <div class="module-title">Data Visualization</div>
+                    <div class="module-duration">2-3 tuần</div>
+                </div>
+                <div class="module-content">
+                    <h3>Nội dung học:</h3>
+                    <ul>
+                        <li><strong>Matplotlib:</strong> Basic plots, customization, subplots</li>
+                        <li><strong>Seaborn:</strong> Statistical plots, heatmaps, pair plots</li>
+                        <li><strong>Plotly:</strong> Interactive visualizations, dashboards</li>
+                        <li><strong>Tableau/Power BI:</strong> Drag-and-drop visualization tools</li>
+                        <li><strong>Storytelling with data:</strong> Cách trình bày insights hiệu quả</li>
+                    </ul>
+                    <div class="skills-transfer">
+                        <h4>💡 Chuyển đổi từ kỹ năng sẵn có:</h4>
+                        <p>Kinh nghiệm tạo test reports và metrics giúp bạn hiểu cách communicate findings qua visualization.</p>
+                    </div>
+                    <div class="tools">
+                        <span class="tool-tag">Matplotlib</span>
+                        <span class="tool-tag">Seaborn</span>
+                        <span class="tool-tag">Plotly</span>
+                        <span class="tool-tag">Tableau</span>
+                        <span class="tool-tag">Power BI</span>
+                    </div>
+                    <div class="project">
+                        <h4>🎁 Project thực hành:</h4>
+                        <p>Tạo interactive dashboard cho QA metrics: defect density, test coverage, bug trends. Present insights cho stakeholders.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Module 4 -->
+            <div class="module">
+                <div class="module-header">
+                    <div class="module-number">4</div>
+                    <div class="module-title">Statistics & Exploratory Data Analysis</div>
+                    <div class="module-duration">3-4 tuần</div>
+                </div>
+                <div class="module-content">
+                    <h3>Nội dung học:</h3>
+                    <ul>
+                        <li><strong>Descriptive statistics:</strong> Mean, median, mode, variance, std deviation</li>
+                        <li><strong>Distributions:</strong> Normal, binomial, poisson distributions</li>
+                        <li><strong>Hypothesis testing:</strong> A/B testing, t-tests, chi-square</li>
+                        <li><strong>Correlation & regression:</strong> Understanding relationships</li>
+                        <li><strong>EDA techniques:</strong> Pattern recognition, anomaly detection</li>
+                    </ul>
+                    <div class="skills-transfer">
+                        <h4>💡 Chuyển đổi từ kỹ năng sẵn có:</h4>
+                        <p>Tư duy phân tích root cause trong debugging giúp tiếp cận statistical analysis logic hơn.</p>
+                    </div>
+                    <div class="tools">
+                        <span class="tool-tag">SciPy</span>
+                        <span class="tool-tag">Statsmodels</span>
+                        <span class="tool-tag">Scikit-learn (basic)</span>
+                    </div>
+                    <div class="project">
+                        <h4>🎁 Project thực hành:</h4>
+                        <p>Thực hiện A/B test analysis cho feature mới. Phân tích impact và đưa ra recommendation dựa trên statistical significance.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Module 5 -->
+            <div class="module">
+                <div class="module-header">
+                    <div class="module-number">5</div>
+                    <div class="module-title">Business Intelligence & Domain Knowledge</div>
+                    <div class="module-duration">2-3 tuần</div>
+                </div>
+                <div class="module-content">
+                    <h3>Nội dung học:</h3>
+                    <ul>
+                        <li><strong>KPIs & Metrics:</strong> Defining and tracking business metrics</li>
+                        <li><strong>Dashboard design:</strong> Best practices for executive reporting</li>
+                        <li><strong>Domain knowledge:</strong> Finance, E-commerce, SaaS, etc.</li>
+                        <li><strong>Communication:</strong> Presenting insights to non-technical stakeholders</li>
+                        <li><strong>ETL basics:</strong> Understanding data pipelines</li>
+                    </ul>
+                    <div class="skills-transfer">
+                        <h4>💡 Chuyển đổi từ kỹ năng sẵn có:</h4>
+                        <p>Kinh nghiệm làm việc với product owners và stakeholders giúp communication skills tốt hơn.</p>
+                    </div>
+                    <div class="tools">
+                        <span class="tool-tag">Excel Advanced</span>
+                        <span class="tool-tag">Google Data Studio</span>
+                        <span class="tool-tag">Looker</span>
+                    </div>
+                    <div class="project">
+                        <h4>🎁 Project thực hành:</h4>
+                        <p>Xây dựng executive dashboard cho business team. Include KPIs, trends, và actionable recommendations.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Roadmap -->
+            <div class="roadmap">
+                <h3>📅 Lộ trình tổng thể (3-4 tháng)</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <strong>Tháng 1:</strong> Python for Data Analysis (Pandas, NumPy) + SQL nâng cao
+                    </div>
+                    <div class="timeline-item">
+                        <strong>Tháng 2:</strong> Data Visualization + Statistics & EDA
+                    </div>
+                    <div class="timeline-item">
+                        <strong>Tháng 3:</strong> Business Intelligence + Portfolio projects
+                    </div>
+                    <div class="timeline-item">
+                        <strong>Tháng 4:</strong> Thực tế project, build portfolio, apply positions
+                    </div>
+                </div>
+            </div>
+            <div class="intro" style="margin-top: 30px;">
+                <h2>📚 Tài nguyên học tập</h2>
+                <ul style="padding-left: 20px;">
+                    <li><strong>Courses:</strong> Coursera "Google Data Analytics", DataCamp, Udemy</li>
+                    <li><strong>Practice:</strong> Kaggle datasets, LeetCode SQL, HackerRank</li>
+                    <li><strong>Books:</strong> "Python for Data Analysis", "Storytelling with Data"</li>
+                    <li><strong>Community:</strong> r/dataanalysis, Towards Data Science, LinkedIn groups</li>
+                </ul>
+            </div>
+        </div>
+        <footer>
+            <p><strong>💼 Career Opportunities:</strong> Junior Data Analyst → Data Analyst → Senior Data Analyst → Lead DA / Data Scientist</p>
+            <p style="margin-top: 10px; color: #666;">Leverage testing background: Quality assurance mindset là lợi thế trong data quality roles!</p>
+            <a href="#" class="back-link">← Quay lại trang chính</a>
+        </footer>
+    </div>
+</body>
+</html>
