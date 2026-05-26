@@ -1,0 +1,10 @@
+{
+    "id": 49,
+    "day": "Day 49",
+    "title": "BDD Anti-patterns – Đừng Để BDD Trở Thành Gánh Nặng",
+    "excerpt": "Nhiều nhóm hào hứng áp dụng BDD nhưng sau 3 tháng lại bỏ cuộc vì nó quá mệt mỏi. Tại sao? Vì họ đã mắc phải những sai lầm kinh điển. Hãy học cách tránh những 'vết xe đổ' này.",
+    "category": "BDD & Cucumber",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. Sai lầm 1: Viết kịch bản quá chi tiết về kỹ thuật</h3><p>Đừng viết kịch bản mà PO đọc vào không hiểu gì. Nếu kịch bản đầy rẫy những từ như 'Database', 'JSON', 'API', bạn đang làm sai mục đích của BDD.</p><h3>2. Sai lầm 2: Tester tự làm một mình</h3><p>BDD là sự cộng tác. Nếu Tester tự ngồi viết kịch bản mà không hỏi Dev hay PO, thì đó chỉ là 'Test case viết bằng tiếng Anh' chứ không phải BDD.</p><h3>3. Sai lầm 3: Quá nhiều kịch bản vụn vặt</h3><p>Hãy tập trung vào những kịch bản mang lại giá trị kinh doanh (Business Value) thay vì cố gắng bao phủ 100% mọi ngóc ngách bằng Gherkin.</p><p><strong>Ngày 50:</strong> Chúng ta sẽ học về <strong>Cucumber & Step Definitions – Biến Chữ Viết Thành Hành Động</strong>. Hẹn gặp lại!</p>"
+}

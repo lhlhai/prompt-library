@@ -1,0 +1,10 @@
+{
+    "id": 46,
+    "day": "Day 46",
+    "title": "BDD – Khi Tester, Dev và PO Nói Cùng Một Ngôn Ngữ",
+    "excerpt": "Bạn đã bao giờ rơi vào cảnh Dev làm một đằng, Tester hiểu một nẻo, còn PO thì lắc đầu chưa? BDD (Behavior Driven Development) sinh ra để giải quyết cái 'hố ngăn cách' đó. Hãy học cách biến yêu cầu thành những kịch bản sống động.",
+    "category": "BDD & Cucumber",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. Cái hố ngăn cách mang tên 'Yêu cầu'</h3><p>Trong các dự án truyền thống, yêu cầu thường nằm trong những file doc dài dằng dặc mà chẳng ai muốn đọc hết. Dev đọc xong code theo ý mình, Tester đọc xong test theo ý mình. Kết quả? Bug xuất hiện ngay từ khâu hiểu sai.</p><div class='highlight' style='background:#fef9c3; padding:16px; border-radius:12px; margin:20px 0'><strong>💡 BDD là gì?</strong> Không phải là một công cụ test, BDD là một quy trình giúp cả nhóm cộng tác để hiểu rõ <strong>hành vi</strong> của ứng dụng thông qua các ví dụ thực tế.</div><h3>2. Tại sao BDD lại 'xịn'?</h3><ul><li><strong>Ngôn ngữ chung (Ubiquitous Language):</strong> Dùng tiếng người (thường là tiếng Anh hoặc tiếng Việt đơn giản) để mô tả tính năng.</li><li><strong>Sống động:</strong> Thay vì nói 'Hệ thống phải báo lỗi khi sai pass', BDD nói 'Khi tôi nhập pass sai 3 lần, tài khoản của tôi phải bị khóa'.</li><li><strong>Tài liệu sống:</strong> Các kịch bản này vừa là yêu cầu, vừa là test case, vừa có thể chạy tự động.</li></ul><p><strong>Ngày 47:</strong> Chúng ta sẽ học cách viết <strong>Gherkin – Ngôn Ngữ Của Những Kịch Bản Chuẩn 'Chỉnh'</strong>. Hẹn gặp lại!</p>"
+}

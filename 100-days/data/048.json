@@ -1,0 +1,10 @@
+{
+    "id": 48,
+    "day": "Day 48",
+    "title": "Scenario Outline – Đừng Lặp Lại Chính Mình (DRY)",
+    "excerpt": "Bạn có 10 bộ dữ liệu cần test cho một tính năng? Đừng copy-paste 10 kịch bản giống hệt nhau! Scenario Outline sẽ giúp bạn tối ưu hóa kịch bản, làm cho nó gọn gàng và chuyên nghiệp hơn bao giờ hết.",
+    "category": "BDD & Cucumber",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. Vấn đề của sự lặp lại</h3><p>Nếu bạn viết 5 kịch bản chỉ khác nhau mỗi cái username và password để test login, bạn đang làm lãng phí thời gian và khiến bộ test case trở nên cồng kềnh.</p><h3>2. Scenario Outline + Examples</h3><p>Sử dụng các biến đặt trong dấu <code>&lt; &gt;</code> và một bảng <code>Examples</code> bên dưới. Cucumber sẽ tự động chạy kịch bản đó nhiều lần tương ứng với số dòng dữ liệu trong bảng.</p><div class='highlight' style='background:#fef9c3; padding:16px; border-radius:12px; margin:20px 0'><strong>Ví dụ:</strong><br/>Scenario Outline: Đăng nhập với nhiều tài khoản<br/>Given tôi ở trang login<br/>When tôi nhập &lt;user&gt; và &lt;pass&gt;<br/>Then tôi thấy &lt;result&gt;<br/><br/>Examples:<br/>| user | pass | result |<br/>| admin | 123 | thành công |<br/>| guest | 456 | thất bại |</div><p><strong>Ngày 49:</strong> Chúng ta sẽ nói về <strong>BDD Anti-patterns – Những Sai Lầm 'Chết Người' Khi Làm BDD</strong>. Hẹn gặp lại!</p>"
+}

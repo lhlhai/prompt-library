@@ -1,0 +1,10 @@
+{
+    "id": 50,
+    "day": "Day 50",
+    "title": "Cucumber & Step Definitions – Khi Phép Màu Xảy Ra",
+    "excerpt": "Làm sao máy tính hiểu được những câu chữ Given, When, Then bạn viết? Câu trả lời là Step Definitions. Đây là cầu nối giữa ngôn ngữ tự nhiên và code thực thi. Chào mừng bạn đến với nửa chặng đường 100 ngày!",
+    "category": "BDD & Cucumber",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. Step Definitions là gì?</h3><p>Đó là những đoạn code (Java, Python, JS...) sử dụng Regular Expressions hoặc Annotations để 'khớp' (map) một câu trong file Gherkin với một hàm xử lý cụ thể.</p><h3>2. Luồng hoạt động</h3><ol><li>Bạn viết kịch bản trong file <code>.feature</code>.</li><li>Cucumber quét các file <code>Step Definitions</code> để tìm đoạn code tương ứng.</li><li>Code thực thi các hành động (như mở trình duyệt, click nút) thông qua Selenium hoặc các công cụ khác.</li></ol><h3>3. Tổng kết 50 ngày đầu tiên</h3><div class='tip-box' style='background:#f0fdf4; padding:16px; border-radius:12px; border-left:4px solid #22c55e; margin:20px 0'><strong>Chúc mừng!</strong> Bạn đã đi được 1/2 chặng đường. Từ một người mới bắt đầu, bạn đã hiểu về quy trình, kỹ thuật test, database, API, automation và giờ là BDD. Hãy tự thưởng cho mình một ly cà phê và sẵn sàng cho 50 ngày bùng nổ tiếp theo!</div>"
+}

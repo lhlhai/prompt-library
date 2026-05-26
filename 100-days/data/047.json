@@ -1,0 +1,10 @@
+{
+    "id": 47,
+    "day": "Day 47",
+    "title": "Gherkin Syntax – Viết Kịch Bản Như Viết Văn",
+    "excerpt": "Given, When, Then... Nghe có vẻ đơn giản nhưng để viết được một kịch bản Gherkin chuẩn, không dư thừa và dễ hiểu cho cả sếp lẫn lính là cả một nghệ thuật. Hãy cùng khám phá các 'tuyệt chiêu' viết Gherkin.",
+    "category": "BDD & Cucumber",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. Bộ khung Given - When - Then</h3><ul><li><strong>Given (Bối cảnh):</strong> Trạng thái ban đầu (Ví dụ: Tôi đã đăng nhập).</li><li><strong>When (Hành động):</strong> Người dùng làm gì đó (Ví dụ: Tôi nhấn nút thanh toán).</li><li><strong>Then (Kết quả):</strong> Điều gì xảy ra (Ví dụ: Tôi nhận được email xác nhận).</li></ul><h3>2. Pro-tips để Gherkin không bị 'rác'</h3><div class='tip-box' style='background:#eef2ff; padding:16px; border-radius:12px; border-left:4px solid #3b82f6; margin:20px 0'><strong>Mẹo:</strong> Đừng viết quá chi tiết về UI như 'Nhấn vào nút màu đỏ tọa độ X, Y'. Hãy tập trung vào <strong>hành vi</strong>: 'Nhấn xác nhận đơn hàng'. UI thay đổi, kịch bản vẫn đúng!</div><h3>3. Bài tập thử thách</h3><p>Hãy viết một kịch bản cho tính năng 'Thêm sản phẩm vào giỏ hàng'. Nhớ sử dụng <code>And</code> và <code>But</code> để kịch bản mượt mà hơn nhé!</p><p><strong>Ngày 48:</strong> Chúng ta sẽ tìm hiểu về <strong>Scenario Outline – Cách Xử Lý Hàng Tá Dữ Liệu Trong Một Nốt Nhạc</strong>. Hẹn gặp lại!</p>"
+}
