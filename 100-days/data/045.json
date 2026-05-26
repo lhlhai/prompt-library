@@ -1,0 +1,10 @@
+{
+    "id": 45,
+    "day": "Day 45",
+    "title": "Sprint Review & Retrospective – Cải Tiến Chất Lượng Sau Mỗi Kỳ Sprint",
+    "excerpt": "Kết thúc mỗi Sprint là cơ hội để nhìn lại những gì đã làm được và những gì cần cải thiện. Tester đóng vai trò quan trọng trong việc trình bày chất lượng sản phẩm và đề xuất các cải tiến quy trình.",
+    "category": "Agile Testing",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. Sprint Review (Demo)</h3><p>Nhóm trình bày các tính năng đã hoàn thành cho PO và khách hàng. Tester đảm bảo rằng những gì demo đều đạt tiêu chuẩn chất lượng và khớp với Acceptance Criteria.</p><h3>2. Sprint Retrospective (Họp cải tiến)</h3><p>Nhóm thảo luận về quy trình: Cái gì tốt? Cái gì chưa tốt? Hành động cải tiến là gì? Tester có thể đề xuất các cách để phối hợp với Developer tốt hơn hoặc cải thiện bộ test case.</p><p><strong>Kết thúc ngày 45:</strong> Bạn đã nắm vững cách hoạt động của một tester trong môi trường Agile chuyên nghiệp!</p>"
+}

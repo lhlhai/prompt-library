@@ -1,0 +1,10 @@
+{
+    "id": 43,
+    "day": "Day 43",
+    "title": "User Stories & Acceptance Criteria – Hiểu Để Test Đúng",
+    "excerpt": "User Story là cách mô tả yêu cầu từ góc nhìn của người dùng. Acceptance Criteria (Tiêu chí chấp nhận) là thước đo để xác định xem yêu cầu đó đã được hoàn thành đúng hay chưa.",
+    "category": "Agile Testing",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. Cấu trúc của một User Story</h3><p>Thường theo format: \"As a [user], I want [action], so that [value]\". Ví dụ: \"Là một khách hàng, tôi muốn có thể đặt lại mật khẩu để có thể truy cập tài khoản khi quên\".</p><h3>2. Acceptance Criteria (AC) là gì?</h3><p>AC là danh sách các điều kiện mà sản phẩm phải thỏa mãn để được coi là hoàn thành. Tester dựa vào AC để viết test cases. AC càng rõ ràng, việc kiểm thử càng chính xác.</p><h3>3. Nguyên tắc INVEST cho User Story</h3><ul><li>Independent, Negotiable, Valuable, Estimable, Small, Testable.</li></ul><p><strong>Ngày 44:</strong> Chúng ta sẽ tìm hiểu về <strong>Sprint Planning & Daily Standup – Tester Làm Gì Trong Các Buổi Họp?</strong> Hẹn gặp lại!</p>"
+}

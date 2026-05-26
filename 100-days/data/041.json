@@ -1,0 +1,10 @@
+{
+    "id": 41,
+    "day": "Day 41",
+    "title": "Introduction to Agile Testing – Tư Duy Kiểm Thử Linh Hoạt",
+    "excerpt": "Agile Testing không chỉ là một phương pháp, mà là một tư duy. Nó tập trung vào việc kiểm thử liên tục, phản hồi sớm và sự cộng tác chặt chẽ giữa các thành viên trong nhóm để tạo ra sản phẩm chất lượng.",
+    "category": "Agile Testing",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. Agile Testing là gì?</h3><p>Agile Testing là một phương pháp kiểm thử phần mềm tuân theo các nguyên tắc của phát triển phần mềm linh hoạt (Agile). Khác với mô hình Waterfall, kiểm thử trong Agile diễn ra liên tục ngay từ khi bắt đầu dự án.</p><h3>2. Các nguyên tắc cốt lõi</h3><ul><li><strong>Kiểm thử liên tục:</strong> Test không phải là một giai đoạn cuối cùng, mà là một hoạt động diễn ra song song với phát triển.</li><li><strong>Phản hồi liên tục:</strong> Cung cấp thông tin về chất lượng sản phẩm cho nhóm phát triển một cách nhanh nhất.</li><li><strong>Cả nhóm chịu trách nhiệm về chất lượng:</strong> Không chỉ tester, mà cả developer và PO đều có trách nhiệm đảm bảo sản phẩm hoạt động tốt.</li><li><strong>Giao tiếp trực tiếp:</strong> Ưu tiên trao đổi trực tiếp thay vì chỉ dựa vào tài liệu.</li></ul><p><strong>Ngày 42:</strong> Chúng ta sẽ tìm hiểu về <strong>Scrum Framework for Testers – Vai Trò Của Tester Trong Nhóm Scrum</strong>. Hẹn gặp lại!</p>"
+}

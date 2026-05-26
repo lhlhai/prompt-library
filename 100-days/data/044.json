@@ -1,0 +1,10 @@
+{
+    "id": 44,
+    "day": "Day 44",
+    "title": "Sprint Planning & Daily Standup – Tester Làm Gì Trong Các Buổi Họp?",
+    "excerpt": "Các buổi họp trong Scrum không chỉ để báo cáo tiến độ. Đối với tester, đây là cơ hội để làm rõ yêu cầu, xác định rủi ro và lên kế hoạch kiểm thử phù hợp với nhịp độ của Sprint.",
+    "category": "Agile Testing",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. Sprint Planning</h3><p>Tester tham gia để ước lượng độ phức tạp của các task (Story Points), xác định các kịch bản kiểm thử quan trọng và đảm bảo các User Story đều có tiêu chí chấp nhận rõ ràng.</p><h3>2. Daily Standup (Họp đứng hàng ngày)</h3><p>Mỗi thành viên trả lời 3 câu hỏi: Hôm qua đã làm gì? Hôm nay sẽ làm gì? Có gặp khó khăn gì không? Tester dùng buổi này để thông báo về tình hình bug và tiến độ test.</p><p><strong>Ngày 45:</strong> Chúng ta sẽ nói về <strong>Sprint Review & Retrospective – Cải Tiến Chất Lượng Sau Mỗi Kỳ Sprint</strong>. Hẹn gặp lại!</p>"
+}

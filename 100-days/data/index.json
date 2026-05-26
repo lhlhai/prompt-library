@@ -1,6 +1,51 @@
 {
     "posts": [
         {
+            "id": 45,
+            "file": "045.json",
+            "day": "Day 45",
+            "title": "Sprint Review & Retrospective – Cải Tiến Chất Lượng Sau Mỗi Kỳ Sprint",
+            "category": "Agile Testing",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
+            "id": 44,
+            "file": "044.json",
+            "day": "Day 44",
+            "title": "Sprint Planning & Daily Standup – Tester Làm Gì Trong Các Buổi Họp?",
+            "category": "Agile Testing",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
+            "id": 43,
+            "file": "043.json",
+            "day": "Day 43",
+            "title": "User Stories & Acceptance Criteria – Hiểu Để Test Đúng",
+            "category": "Agile Testing",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
+            "id": 42,
+            "file": "042.json",
+            "day": "Day 42",
+            "title": "Scrum Framework for Testers – Vai Trò Của Tester Trong Nhóm Scrum",
+            "category": "Agile Testing",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
+            "id": 41,
+            "file": "041.json",
+            "day": "Day 41",
+            "title": "Introduction to Agile Testing – Tư Duy Kiểm Thử Linh Hoạt",
+            "category": "Agile Testing",
+            "author": "The Manual Authority",
+            "image": null
+        },
+        {
             "id": 40,
             "file": "040.json",
             "day": "Day 40",
@@ -370,6 +415,7 @@
         "Tools",
         "Best Practices",
         "Fundamentals",
+        "Agile Testing",
         "Automation Testing",
         "BUG MANAGEMENT",
         "DevOps & CI/CD",

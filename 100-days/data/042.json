@@ -1,0 +1,10 @@
+{
+    "id": 42,
+    "day": "Day 42",
+    "title": "Scrum Framework for Testers – Vai Trò Của Tester Trong Nhóm Scrum",
+    "excerpt": "Scrum là khung làm việc Agile phổ biến nhất. Hiểu rõ các vai trò và quy trình trong Scrum giúp tester phối hợp nhịp nhàng và đóng góp tối đa giá trị cho nhóm.",
+    "category": "Agile Testing",
+    "author": "The Manual Authority",
+    "source": "100 Days Manual Testing Series",
+    "content": "<h3>1. Các vai trò trong Scrum</h3><ul><li><strong>Product Owner (PO):</strong> Người định nghĩa yêu cầu và ưu tiên công việc.</li><li><strong>Scrum Master:</strong> Người đảm bảo nhóm tuân thủ quy trình Scrum và loại bỏ các rào cản.</li><li><strong>Development Team:</strong> Nhóm đa chức năng bao gồm cả Developer và Tester.</li></ul><h3>2. Tester làm gì trong Scrum?</h3><p>Trong Scrum, tester là một thành viên của Development Team. Tester tham gia vào mọi hoạt động từ việc phân tích User Story, viết test case, thực hiện test đến việc tham gia các buổi họp cải tiến quy trình.</p><p><strong>Ngày 43:</strong> Chúng ta sẽ nói về <strong>User Stories & Acceptance Criteria – Hiểu Để Test Đúng</strong>. Hẹn gặp lại!</p>"
+}
