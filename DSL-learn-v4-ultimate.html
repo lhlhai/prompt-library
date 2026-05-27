@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elasticsearch Query DSL v4 - Ultimate Learning Experience</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Highlight.js for Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/tokyo-night-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/json.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #0ea5e9;
+            --accent: #f43f5e;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --code-bg: #0b0f1a;
+            
+            --level-easy: #10b981;
+            --level-medium: #f59e0b;
+            --level-hard: #ef4444;
+            
+            --section-basic: rgba(16, 185, 129, 0.1);
+            --section-intermediate: rgba(245, 158, 11, 0.1);
+            --section-advanced: rgba(239, 68, 68, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+        }
+
+        header {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 40px;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content h1 { 
+            font-size: 2.5rem; 
+            font-weight: 800; 
+            margin-bottom: 10px; 
+            background: linear-gradient(to right, #818cf8, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header-content p { font-size: 1rem; color: var(--text-muted); max-width: 700px; }
+        
+        .progress-stat {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            min-width: 150px;
+            border: 1px solid var(--border);
+        }
+        .progress-stat .val { font-size: 2rem; font-weight: 800; color: var(--level-easy); }
+        .progress-stat .label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
+
+        aside {
+            position: sticky;
+            top: 20px;
+            height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .sidebar-nav {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .sidebar-nav h2 { 
+            font-size: 0.7rem; 
+            text-transform: uppercase; 
+            color: var(--primary); 
+            margin: 20px 0 10px; 
+            letter-spacing: 0.15em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sidebar-nav ul { list-style: none; }
+        .sidebar-nav a { 
+            text-decoration: none; 
+            color: var(--text-muted); 
+            font-size: 0.85rem; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px; 
+            border-radius: 10px; 
+            transition: all 0.2s;
+            margin-bottom: 2px;
+        }
+        .sidebar-nav a:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
+        .sidebar-nav a.active { background: var(--primary); color: white; }
+        
+        .progress-dot { width: 8px; height: 8px; border-radius: 50%; background: #334155; }
+        .completed .progress-dot { background: var(--level-easy); box-shadow: 0 0 8px var(--level-easy); }
+
+        main { display: flex; flex-direction: column; gap: 40px; }
+
+        .level-section {
+            padding: 30px;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+        }
+        .section-basic-bg { background-color: var(--section-basic); }
+        .section-inter-bg { background-color: var(--section-intermediate); }
+        .section-adv-bg { background-color: var(--section-advanced); }
+
+        .level-header-ui {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .level-header-ui i { font-size: 1.5rem; color: var(--primary); }
+        .level-header-ui h2 { font-size: 1.8rem; font-weight: 700; }
+
+        .lesson-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .lesson-card:hover { transform: translateY(-2px); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); }
+
+        .lesson-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .lesson-title-group h3 { font-size: 1.4rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px; }
+        .owasp-tag { font-size: 0.7rem; font-weight: 700; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 4px 10px; border-radius: 6px; display: inline-block; margin-bottom: 8px; }
+
+        .badge-difficulty { font-size: 0.65rem; font-weight: 800; padding: 4px 12px; border-radius: 100px; text-transform: uppercase; }
+        .easy { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .medium { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .hard { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+        .lesson-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { color: var(--text-main); background: rgba(255,255,255,0.05); }
+        .tab-btn.active { color: var(--text-main); background: var(--primary); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .scenario-box {
+            background: rgba(14, 165, 233, 0.1);
+            border-left: 4px solid var(--secondary);
+            padding: 15px 20px;
+            border-radius: 0 12px 12px 0;
+            margin-bottom: 20px;
+        }
+        .scenario-box strong { color: var(--secondary); display: block; margin-bottom: 5px; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+
+        .code-container {
+            margin: 15px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+        }
+        .code-header {
+            padding: 8px 16px;
+            background: #111827;
+            color: #64748b;
+            font-size: 0.7rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .copy-btn { cursor: pointer; transition: color 0.2s; }
+        .copy-btn:hover { color: var(--text-main); }
+
+        .use-case-list { margin: 15px 0; padding-left: 20px; }
+        .use-case-list li { margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted); }
+        .use-case-list li strong { color: var(--text-main); }
+
+        .exercise-box {
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px dashed var(--level-easy);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        .exercise-box h5 { color: var(--level-easy); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+
+        .solution-toggle {
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: var(--primary);
+            cursor: pointer;
+            display: inline-block;
+            font-weight: 600;
+        }
+        .solution-content {
+            display: none;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+
+        .complete-toggle {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: rgba(255,255,255,0.05);
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        .complete-toggle input { cursor: pointer; accent-color: var(--level-easy); }
+        .complete-toggle:hover { background: rgba(255,255,255,0.1); }
+
+        .cheat-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-top: 20px;
+            border: 1px solid var(--border);
+        }
+        .cheat-table th, .cheat-table td { padding: 15px; border: 1px solid var(--border); text-align: left; font-size: 0.9rem; }
+        .cheat-table th { background: rgba(255,255,255,0.05); color: var(--primary); font-weight: 700; }
+
+        @media (max-width: 1100px) {
+            .container { grid-template-columns: 1fr; padding: 15px; }
+            aside { display: none; }
+            header { flex-direction: column; text-align: center; gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>Elasticsearch DSL v4</h1>
+                <p>Nâng tầm kỹ năng truy vấn dữ liệu & bảo mật với lộ trình học tập thực chiến. Mapping OWASP Top 10:2025.</p>
+            </div>
+            <div class="progress-stat">
+                <div class="val" id="overall-progress">0%</div>
+                <div class="label">Tiến độ</div>
+            </div>
+        </header>
+
+        <aside>
+            <div class="sidebar-nav">
+                <h2><i class="fas fa-seedling"></i> Cơ Bản (Bài 1-6)</h2>
+                <ul id="nav-basic"></ul>
+                <h2><i class="fas fa-chart-line"></i> Trung Cấp (Bài 7-12)</h2>
+                <ul id="nav-inter"></ul>
+                <h2><i class="fas fa-rocket"></i> Nâng Cao (Bài 13-18)</h2>
+                <ul id="nav-adv"></ul>
+                <h2><i class="fas fa-shield-alt"></i> OWASP Cases</h2>
+                <ul id="nav-owasp"></ul>
+                <h2><i class="fas fa-book"></i> Tài liệu</h2>
+                <ul><li><a href="#cheat-sheet"><i class="fas fa-bolt"></i> Tra cứu nhanh</a></li></ul>
+            </div>
+        </aside>
+
+        <main>
+            <!-- MODULE 1: CƠ BẢN -->
+            <section id="basic-section" class="level-section section-basic-bg">
+                <div class="level-header-ui">
+                    <i class="fas fa-seedling"></i>
+                    <h2>Module 1: Search Fundamentals</h2>
+                </div>
+                
+                <!-- BÀI 1 -->
+                <div class="lesson-card" id="lesson-1">
+                    <label class="complete-toggle"><input type="checkbox" onchange="toggleLesson(1)"> Hoàn thành</label>
+                    <div class="lesson-header">
+                        <div class="lesson-title-group">
+                            <span class="owasp-tag">OWASP A09:2025 - Security Logging Failures</span>
+                            <h3>Bài 1: Exists Query - Tìm kiếm "Dữ liệu mất tích"</h3>
+                        </div>
+                        <span class="badge-difficulty easy">Dễ</span>
+                    </div>
+
+                    <div class="lesson-tabs">
+                        <button class="tab-btn active" onclick="switchTab(this, 'theory')">Lý thuyết</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'usecase')">Use Cases</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'practice')">Thực hành</button>
+                    </div>
+
+                    <div class="tab-content theory active">
+                        <div class="scenario-box">
+                            <strong>Tình huống:</strong> Sau khi nâng cấp hệ thống, bạn nghi ngờ một số log đăng nhập không được ghi nhận kết quả (field <code>event.outcome</code> bị thiếu).
+                        </div>
+                        <p>Query <code>exists</code> giúp tìm các tài liệu có chứa một trường cụ thể. Khi kết hợp với <code>must_not</code>, nó trở thành công cụ đắc lực để tìm các bản ghi bị lỗi mapping hoặc thiếu dữ liệu quan trọng.</p>
+                        <div class="code-container">
+                            <div class="code-header"><span>JSON - Elasticsearch DSL</span><i class="far fa-copy copy-btn"></i></div>
+                            <pre><code class="language-json">GET logs-*/_search
+{
+  "query": {
+    "bool": {
+      "must_not": [
+        { "exists": { "field": "event.outcome" } }
+      ]
+    }
+  }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="tab-content usecase">
+                        <ul class="use-case-list">
+                            <li><strong>Kiểm tra chất lượng Log:</strong> Phát hiện các bản ghi thiếu <code>@timestamp</code> hoặc <code>service.name</code>.</li>
+                            <li><strong>Bảo mật:</strong> Tìm các request không có <code>user.id</code> (có thể là truy cập ẩn danh trái phép).</li>
+                            <li><strong>Debug:</strong> Tìm các transaction thiếu <code>trace.id</code> để xử lý lỗi tracing.</li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-content practice">
+                        <div class="exercise-box">
+                            <h5><i class="fas fa-tasks"></i> Thử thách cho bạn</h5>
+                            <p>Viết query tìm tất cả các log từ service <code>auth-gateway</code> mà thiếu trường <code>source.ip</code>.</p>
+                            <div class="solution-toggle" onclick="toggleSolution(this)">Xem đáp án</div>
+                            <div class="solution-content">
+                                <pre><code class="language-json">{
+  "query": {
+    "bool": {
+      "must": [{ "term": { "service.name": "auth-gateway" } }],
+      "must_not": [{ "exists": { "field": "source.ip" } }]
+    }
+  }
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BÀI 2 -->
+                <div class="lesson-card" id="lesson-2">
+                    <label class="complete-toggle"><input type="checkbox" onchange="toggleLesson(2)"> Hoàn thành</label>
+                    <div class="lesson-header">
+                        <div class="lesson-title-group">
+                            <span class="owasp-tag">OWASP A02:2025 - Cryptographic Failures</span>
+                            <h3>Bài 2: Match Phrase - Săn tìm dữ liệu nhạy cảm</h3>
+                        </div>
+                        <span class="badge-difficulty easy">Dễ</span>
+                    </div>
+
+                    <div class="lesson-tabs">
+                        <button class="tab-btn active" onclick="switchTab(this, 'theory')">Lý thuyết</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'usecase')">Use Cases</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'practice')">Thực hành</button>
+                    </div>
+
+                    <div class="tab-content theory active">
+                        <div class="scenario-box">
+                            <strong>Tình huống:</strong> Developer vô tình bật log debug trên production, khiến các chuỗi nhạy cảm như <code>"password="</code> hoặc <code>"bearer token"</code> xuất hiện trong log.
+                        </div>
+                        <p><code>match_phrase</code> yêu cầu các từ phải xuất hiện đúng thứ tự và nằm cạnh nhau, giúp giảm nhiễu (False Positive) so với <code>match</code> thông thường.</p>
+                        <div class="code-container">
+                            <div class="code-header"><span>JSON - Elasticsearch DSL</span><i class="far fa-copy copy-btn"></i></div>
+                            <pre><code class="language-json">GET logs-*/_search
+{
+  "query": {
+    "match_phrase": {
+      "message": "password is"
+    }
+  }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="tab-content usecase">
+                        <ul class="use-case-list">
+                            <li><strong>DLP (Data Loss Prevention):</strong> Tìm kiếm số thẻ tín dụng, email, hoặc API key rò rỉ trong log.</li>
+                            <li><strong>Audit:</strong> Tìm các hành động cụ thể như "deleted database" hoặc "changed permissions".</li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-content practice">
+                        <div class="exercise-box">
+                            <h5><i class="fas fa-tasks"></i> Thử thách cho bạn</h5>
+                            <p>Viết query tìm log chứa cụm từ chính xác <code>"access denied for user admin"</code>.</p>
+                            <div class="solution-toggle" onclick="toggleSolution(this)">Xem đáp án</div>
+                            <div class="solution-content">
+                                <pre><code class="language-json">{
+  "query": {
+    "match_phrase": {
+      "message": "access denied for user admin"
+    }
+  }
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MODULE 2: TRUNG CẤP -->
+            <section id="inter-section" class="level-section section-inter-bg">
+                <div class="level-header-ui">
+                    <i class="fas fa-chart-line"></i>
+                    <h2>Module 2: Advanced Filtering & Aggs</h2>
+                </div>
+
+                <!-- BÀI 7 -->
+                <div class="lesson-card" id="lesson-7">
+                    <label class="complete-toggle"><input type="checkbox" onchange="toggleLesson(7)"> Hoàn thành</label>
+                    <div class="lesson-header">
+                        <div class="lesson-title-group">
+                            <span class="owasp-tag">OWASP A07:2025 - Identification & Auth Failures</span>
+                            <h3>Bài 7: Terms Aggregation - Phát hiện Brute Force</h3>
+                        </div>
+                        <span class="badge-difficulty medium">Trung bình</span>
+                    </div>
+
+                    <div class="lesson-tabs">
+                        <button class="tab-btn active" onclick="switchTab(this, 'theory')">Lý thuyết</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'usecase')">Use Cases</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'practice')">Thực hành</button>
+                    </div>
+
+                    <div class="tab-content theory active">
+                        <div class="scenario-box">
+                            <strong>Tình huống:</strong> Bạn cần tìm ra những IP nào đang thử đăng nhập sai quá nhiều lần trong 5 phút qua.
+                        </div>
+                        <p>Sử dụng <code>aggs</code> (Aggregations) để nhóm dữ liệu theo <code>source.ip</code> và lọc những nhóm có số lượng bản ghi lớn hơn một ngưỡng nhất định bằng <code>min_doc_count</code>.</p>
+                        <div class="code-container">
+                            <div class="code-header"><span>JSON - Aggregation</span><i class="far fa-copy copy-btn"></i></div>
+                            <pre><code class="language-json">GET logs-*/_search
+{
+  "size": 0,
+  "query": {
+    "bool": {
+      "filter": [
+        { "term": { "event.outcome": "failure" } },
+        { "range": { "@timestamp": { "gte": "now-5m" } } }
+      ]
+    }
+  },
+  "aggs": {
+    "suspicious_ips": {
+      "terms": {
+        "field": "source.ip",
+        "size": 10,
+        "min_doc_count": 100
+      }
+    }
+  }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="tab-content usecase">
+                        <ul class="use-case-list">
+                            <li><strong>Security:</strong> Phát hiện tấn công Brute Force, Credential Stuffing.</li>
+                            <li><strong>Marketing:</strong> Tìm Top 10 sản phẩm được xem nhiều nhất.</li>
+                            <li><strong>SRE:</strong> Tìm các service đang gây ra nhiều lỗi 5xx nhất.</li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-content practice">
+                        <div class="exercise-box">
+                            <h5><i class="fas fa-tasks"></i> Thử thách cho bạn</h5>
+                            <p>Thống kê Top 5 người dùng (<code>user.name</code>) có số lượng request bị lỗi 403 (<code>http.response.status_code</code>) cao nhất.</p>
+                            <div class="solution-toggle" onclick="toggleSolution(this)">Xem đáp án</div>
+                            <div class="solution-content">
+                                <pre><code class="language-json">{
+  "size": 0,
+  "query": {
+    "term": { "http.response.status_code": 403 }
+  },
+  "aggs": {
+    "top_violators": {
+      "terms": {
+        "field": "user.name",
+        "size": 5
+      }
+    }
+  }
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CHEAT SHEET -->
+            <section id="cheat-sheet">
+                <div class="level-header-ui">
+                    <i class="fas fa-bolt"></i>
+                    <h2>Quick Reference Cheat Sheet</h2>
+                </div>
+                <table class="cheat-table">
+                    <thead>
+                        <tr>
+                            <th>Mục tiêu</th>
+                            <th>Query Type</th>
+                            <th>Ghi chú quan trọng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Tìm giá trị chính xác</td>
+                            <td><code>term</code></td>
+                            <td>Dùng cho keyword, không dùng cho text đã qua phân tách (analyzed).</td>
+                        </tr>
+                        <tr>
+                            <td>Tìm kiếm văn bản</td>
+                            <td><code>match</code></td>
+                            <td>Hỗ trợ tìm kiếm mờ, không phân biệt hoa thường.</td>
+                        </tr>
+                        <tr>
+                            <td>Lọc theo thời gian/số</td>
+                            <td><code>range</code></td>
+                            <td>Dùng <code>gte</code> (>=), <code>lte</code> (<=), <code>gt</code> (>), <code>lt</code> (<).</td>
+                        </tr>
+                        <tr>
+                            <td>Kết hợp nhiều điều kiện</td>
+                            <td><code>bool</code></td>
+                            <td><code>must</code> (AND), <code>should</code> (OR), <code>must_not</code> (NOT), <code>filter</code> (AND - No score).</td>
+                        </tr>
+                        <tr>
+                            <td>Phân tích/Thống kê</td>
+                            <td><code>aggs</code></td>
+                            <td>Đặt <code>"size": 0</code> nếu chỉ muốn lấy kết quả thống kê, không lấy tài liệu.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const totalLessons = 24;
+        let completedLessons = JSON.parse(localStorage.getItem('dsl_progress_v4')) || [];
+
+        function initProgress() {
+            completedLessons.forEach(id => {
+                const checkbox = document.querySelector(`#lesson-${id} input`);
+                if (checkbox) checkbox.checked = true;
+            });
+            updateProgressBar();
+            generateSidebar();
+        }
+
+        function toggleLesson(id) {
+            const index = completedLessons.indexOf(id);
+            if (index === -1) completedLessons.push(id);
+            else completedLessons.splice(index, 1);
+            localStorage.setItem('dsl_progress_v4', JSON.stringify(completedLessons));
+            updateProgressBar();
+            refreshSidebar();
+        }
+
+        function updateProgressBar() {
+            const percent = Math.round((completedLessons.length / totalLessons) * 100);
+            document.getElementById('overall-progress').innerText = percent + '%';
+        }
+
+        function generateSidebar() {
+            const lessons = [
+                { id: 1, title: "Bài 1: Exists Query", level: 'basic' },
+                { id: 2, title: "Bài 2: Match Phrase", level: 'basic' },
+                { id: 3, title: "Bài 3: Range Filter", level: 'basic' },
+                { id: 4, title: "Bài 4: Bool Logic", level: 'basic' },
+                { id: 5, title: "Bài 5: Wildcard", level: 'basic' },
+                { id: 6, title: "Bài 6: Prefix Query", level: 'basic' },
+                { id: 7, title: "Bài 7: Terms Aggs", level: 'inter' },
+                { id: 8, title: "Bài 8: Date Histogram", level: 'inter' },
+                { id: 9, title: "Bài 9: Nested Objects", level: 'inter' },
+                { id: 10, title: "Bài 10: Multi-match", level: 'inter' },
+                { id: 11, title: "Bài 11: Scripting", level: 'inter' },
+                { id: 12, title: "Bài 12: Runtime Fields", level: 'inter' },
+                { id: 'owasp-1', title: "SSRF Detection", level: 'owasp' },
+                { id: 'owasp-2', title: "SQLi Patterns", level: 'owasp' }
+            ];
+            
+            lessons.forEach(l => {
+                const li = document.createElement('li');
+                li.id = `nav-item-${l.id}`;
+                li.className = completedLessons.includes(l.id) ? 'completed' : '';
+                li.innerHTML = `<a href="#lesson-${l.id}">${l.title} <span class="progress-dot"></span></a>`;
+                document.getElementById(`nav-${l.level}`).appendChild(li);
+            });
+        }
+
+        function refreshSidebar() {
+            const items = document.querySelectorAll('.sidebar-nav li');
+            items.forEach(item => {
+                const id = item.id.replace('nav-item-', '');
+                // Try to convert to number if possible
+                const finalId = isNaN(id) ? id : parseInt(id);
+                item.className = completedLessons.includes(finalId) ? 'completed' : '';
+            });
+        }
+
+        function switchTab(btn, tabName) {
+            const card = btn.closest('.lesson-card');
+            card.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            card.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            btn.classList.add('active');
+            card.querySelector(`.tab-content.${tabName}`).classList.add('active');
+        }
+
+        function toggleSolution(btn) {
+            const content = btn.nextElementSibling;
+            if (content.style.display === 'block') {
+                content.style.display = 'none';
+                btn.innerText = 'Xem đáp án';
+            } else {
+                content.style.display = 'block';
+                btn.innerText = 'Ẩn đáp án';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            hljs.highlightAll();
+            initProgress();
+            
+            // Handle smooth scroll for sidebar links
+            document.querySelectorAll('.sidebar-nav a').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href.startsWith('#')) {
+                        e.preventDefault();
+                        const target = document.querySelector(href);
+                        if (target) {
+                            target.scrollIntoView({ behavior: 'smooth' });
+                            // Update active state
+                            document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+                            this.classList.add('active');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
