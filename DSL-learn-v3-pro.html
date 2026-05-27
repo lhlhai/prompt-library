@@ -9,33 +9,32 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Highlight.js for Syntax Highlighting -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/tokyo-night-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/Area/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/json.min.js"></script>
 
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
+            --primary: #0f172a;
             --secondary: #0ea5e9;
             --accent: #f43f5e;
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f1f5f9;
-            --text-muted: #94a3b8;
-            --border: #334155;
-            --code-bg: #0b0f1a;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --code-bg: #0f172a;
+            --code-text: #e2e8f0;
             
             --level-easy: #10b981;
             --level-medium: #f59e0b;
             --level-hard: #ef4444;
             
-            --section-basic: rgba(16, 185, 129, 0.05);
-            --section-intermediate: rgba(245, 158, 11, 0.05);
-            --section-advanced: rgba(239, 68, 68, 0.05);
+            --section-basic: #f0fdf4;
+            --section-intermediate: #fffbeb;
+            --section-advanced: #fef2f2;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -51,109 +50,82 @@
         .container {
             max-width: 1600px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 40px;
             display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 30px;
+            grid-template-columns: 320px 1fr;
+            gap: 40px;
         }
 
         header {
             grid-column: 1 / -1;
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            padding: 40px;
-            border-radius: 24px;
+            background: white;
+            padding: 60px;
+            border-radius: 32px;
             border: 1px solid var(--border);
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
 
-        .header-content h1 { 
-            font-size: 2.5rem; 
-            font-weight: 800; 
-            margin-bottom: 10px; 
-            background: linear-gradient(to right, #818cf8, #38bdf8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .header-content p { font-size: 1rem; color: var(--text-muted); max-width: 700px; }
+        .header-content h1 { font-size: 3rem; font-weight: 800; margin-bottom: 15px; color: var(--primary); }
+        .header-content p { font-size: 1.1rem; color: var(--text-muted); max-width: 800px; }
         
-        .progress-stat {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 20px;
-            border-radius: 20px;
-            text-align: center;
-            min-width: 150px;
-            border: 1px solid var(--border);
-        }
-        .progress-stat .val { font-size: 2rem; font-weight: 800; color: var(--level-easy); }
-        .progress-stat .label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
-
         aside {
             position: sticky;
-            top: 20px;
-            height: calc(100vh - 40px);
+            top: 40px;
+            height: calc(100vh - 80px);
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
 
         .sidebar-nav {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 20px;
+            background: white;
+            padding: 25px;
+            border-radius: 24px;
             border: 1px solid var(--border);
             overflow-y: auto;
             flex-grow: 1;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
         }
 
-        .sidebar-nav h2 { 
-            font-size: 0.7rem; 
-            text-transform: uppercase; 
-            color: var(--primary); 
-            margin: 20px 0 10px; 
-            letter-spacing: 0.15em;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .sidebar-nav h2 { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin: 20px 0 10px; letter-spacing: 0.1em; }
         .sidebar-nav ul { list-style: none; }
         .sidebar-nav a { 
             text-decoration: none; 
-            color: var(--text-muted); 
+            color: var(--text-main); 
             font-size: 0.85rem; 
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 12px; 
-            border-radius: 10px; 
+            padding: 8px 12px; 
+            border-radius: 8px; 
             transition: all 0.2s;
-            margin-bottom: 2px;
         }
-        .sidebar-nav a:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
-        .sidebar-nav a.active { background: var(--primary); color: white; }
-        
-        .progress-dot { width: 8px; height: 8px; border-radius: 50%; background: #334155; }
-        .completed .progress-dot { background: var(--level-easy); box-shadow: 0 0 8px var(--level-easy); }
+        .sidebar-nav a:hover { background: #f1f5f9; color: var(--secondary); }
+        .sidebar-nav .progress-dot { width: 8px; height: 8px; border-radius: 50%; background: #e2e8f0; }
+        .sidebar-nav .completed .progress-dot { background: var(--level-easy); box-shadow: 0 0 8px var(--level-easy); }
 
-        main { display: flex; flex-direction: column; gap: 40px; }
+        main { display: flex; flex-direction: column; gap: 60px; }
 
         .level-section {
-            padding: 30px;
-            border-radius: 24px;
+            padding: 40px;
+            border-radius: 32px;
             border: 1px solid var(--border);
         }
-        .section-basic-bg { background-color: var(--section-basic); }
-        .section-inter-bg { background-color: var(--section-intermediate); }
-        .section-adv-bg { background-color: var(--section-advanced); }
+        .section-basic-bg { background-color: var(--section-basic); border-color: #dcfce7; }
+        .section-inter-bg { background-color: var(--section-intermediate); border-color: #fef3c7; }
+        .section-adv-bg { background-color: var(--section-advanced); border-color: #fee2e2; }
+
+        .level-title { font-size: 2rem; font-weight: 800; margin-bottom: 40px; color: var(--primary); display: flex; align-items: center; gap: 15px; }
 
         .lesson-card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 25px;
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 30px;
             border: 1px solid var(--border);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
+            transition: transform 0.2s;
             position: relative;
         }
 
@@ -161,114 +133,90 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
-        .lesson-title-group h3 { font-size: 1.4rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px; }
-        .owasp-tag { font-size: 0.7rem; font-weight: 700; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 4px 10px; border-radius: 6px; display: inline-block; margin-bottom: 8px; }
+        .lesson-title-group h3 { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+        .owasp-tag { font-size: 0.75rem; font-weight: 700; background: #f1f5f9; color: var(--primary); padding: 4px 10px; border-radius: 6px; }
 
-        .badge-difficulty { font-size: 0.65rem; font-weight: 800; padding: 4px 12px; border-radius: 100px; text-transform: uppercase; }
-        .easy { background: rgba(16, 185, 129, 0.2); color: #34d399; }
-        .medium { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
-        .hard { background: rgba(239, 68, 68, 0.2); color: #f87171; }
-
-        .lesson-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
-        }
-        .tab-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            padding: 8px 16px;
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-        .tab-btn.active { color: var(--text-main); background: var(--primary); }
-
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .badge-difficulty { font-size: 0.7rem; font-weight: 800; padding: 4px 12px; border-radius: 100px; text-transform: uppercase; }
+        .easy { background: #dcfce7; color: #166534; }
+        .medium { background: #fef3c7; color: #92400e; }
+        .hard { background: #fee2e2; color: #991b1b; }
 
         .scenario-box {
-            background: rgba(14, 165, 233, 0.1);
+            background: #f8fafc;
             border-left: 4px solid var(--secondary);
-            padding: 15px 20px;
+            padding: 20px;
             border-radius: 0 12px 12px 0;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            font-style: italic;
+            color: var(--text-main);
         }
-        .scenario-box strong { color: var(--secondary); display: block; margin-bottom: 5px; text-transform: uppercase; font-size: 0.75rem; }
 
         .code-container {
-            margin: 15px 0;
-            border-radius: 12px;
+            margin: 25px 0;
+            border-radius: 16px;
             overflow: hidden;
             background: var(--code-bg);
-            border: 1px solid var(--border);
         }
         .code-header {
-            padding: 8px 16px;
-            background: #111827;
-            color: #64748b;
-            font-size: 0.7rem;
+            padding: 10px 20px;
+            background: #1e293b;
+            color: #94a3b8;
+            font-size: 0.75rem;
             display: flex;
             justify-content: space-between;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid #334155;
         }
 
-        .use-case-list { margin: 15px 0; padding-left: 20px; }
-        .use-case-list li { margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted); }
+        .anti-pattern {
+            background: #fff1f2;
+            border: 1px solid #fecdd3;
+            padding: 20px;
+            border-radius: 16px;
+            margin: 20px 0;
+        }
+        .anti-pattern h5 { color: #be123c; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
 
         .exercise-box {
-            background: rgba(16, 185, 129, 0.05);
-            border: 1px dashed var(--level-easy);
-            padding: 20px;
-            border-radius: 12px;
-            margin-top: 20px;
+            background: #f0fdf4;
+            border: 1px dashed #4ade80;
+            padding: 25px;
+            border-radius: 16px;
+            margin-top: 30px;
         }
-        .exercise-box h5 { color: var(--level-easy); margin-bottom: 10px; }
-
-        .solution-toggle {
-            margin-top: 15px;
-            font-size: 0.8rem;
-            color: var(--primary);
-            cursor: pointer;
-            font-weight: 600;
-        }
-        .solution-content { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
 
         .complete-toggle {
             position: absolute;
-            top: 30px;
-            right: 30px;
+            top: 40px;
+            right: 40px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             cursor: pointer;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 600;
             color: var(--text-muted);
         }
+        .complete-toggle input { width: 18px; height: 18px; cursor: pointer; accent-color: var(--level-easy); }
 
         .cheat-table {
             width: 100%;
             border-collapse: collapse;
-            background: var(--card-bg);
+            background: white;
             border-radius: 16px;
             overflow: hidden;
-            margin-top: 20px;
-            border: 1px solid var(--border);
+            margin-top: 30px;
         }
-        .cheat-table th, .cheat-table td { padding: 15px; border: 1px solid var(--border); text-align: left; font-size: 0.9rem; }
-        .cheat-table th { background: rgba(255, 255, 255, 0.05); color: var(--primary); }
+        .cheat-table th, .cheat-table td { padding: 15px; border: 1px solid var(--border); text-align: left; }
+        .cheat-table th { background: #f8fafc; font-weight: 700; }
 
         @media (max-width: 1100px) {
-            .container { grid-template-columns: 1fr; }
+            .container { grid-template-columns: 1fr; padding: 20px; }
             aside { display: none; }
+            header { padding: 40px 20px; }
+            pre { overflow-x: auto; }
         }
     </style>
 </head>
@@ -277,11 +225,7 @@
         <header>
             <div class="header-content">
                 <h1>Elasticsearch DSL: Ultimate Framework</h1>
-                <p>Nâng cấp trực tiếp: Bổ sung Use Case, Bài tập thực hành và Giao diện học tập tối ưu.</p>
-            </div>
-            <div class="progress-stat">
-                <div class="val" id="overall-progress">0%</div>
-                <div class="label">Tiến độ</div>
+                <p>Lộ trình học tập tương tác, cá nhân hóa. Mapping trực tiếp với OWASP Top 10:2025 dành cho Security Engineers & SREs.</p>
             </div>
         </header>
 
@@ -293,10 +237,18 @@
                 <ul id="nav-inter"></ul>
                 <h2>🔴 Nâng Cao (Bài 14-18)</h2>
                 <ul id="nav-adv"></ul>
-                <h2>🛡️ OWASP Cases</h2>
+                <h2>🛡️ OWASP Cases (Mới)</h2>
                 <ul id="nav-owasp"></ul>
                 <h2>📚 Cheat Sheet</h2>
                 <ul><li><a href="#cheat-sheet">Tra cứu nhanh</a></li></ul>
+            </div>
+            
+            <div class="sidebar-nav" style="flex-grow: 0; background: var(--section-basic);">
+                <h2 style="margin-top: 0;">Tiến độ học tập</h2>
+                <div style="font-size: 1.2rem; font-weight: 800; color: var(--level-easy);" id="overall-progress">0%</div>
+                <div style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; margin-top: 10px; overflow: hidden;">
+                    <div id="progress-bar" style="width: 0%; height: 100%; background: var(--level-easy); transition: width 0.3s;"></div>
+                </div>
             </div>
         </aside>
 
@@ -305,30 +257,18 @@
             <section id="basic-section" class="level-section section-basic-bg">
                 <h2 class="level-title">🟢 Module 1: Security Logging Foundations</h2>
                 
-                <!-- BÀI 1 -->
                 <div class="lesson-card" id="lesson-1">
-                    <label class="complete-toggle"><input type="checkbox" onchange="toggleLesson(1)"> Hoàn thành</label>
+                    <label class="complete-toggle"><input type="checkbox" onchange="toggleLesson(1)"> Đã hoàn thành</label>
                     <div class="lesson-header">
                         <div class="lesson-title-group">
-                            <span class="owasp-tag">OWASP A09:2025 - Security Logging Failures</span>
+                            <span class="owasp-tag">OWASP A09:2025 - CWE-223</span>
                             <h3>Bài 1: Exists Query - Phát hiện "Điểm mù"</h3>
                         </div>
                         <span class="badge-difficulty easy">Easy</span>
                     </div>
-
-                    <div class="lesson-tabs">
-                        <button class="tab-btn active" onclick="switchTab(this, 'theory')">Lý thuyết</button>
-                        <button class="tab-btn" onclick="switchTab(this, 'usecase')">Use Cases</button>
-                        <button class="tab-btn" onclick="switchTab(this, 'practice')">Thực hành</button>
-                    </div>
-
-                    <div class="tab-content theory active">
-                        <div class="scenario-box">
-                            <strong>Scenario:</strong> Sau một đợt cập nhật microservice, Parser bị lỗi khiến các sự kiện đăng nhập không ghi nhận kết quả (Success/Failure).
-                        </div>
-                        <div class="code-container">
-                            <div class="code-header"><span>JSON</span></div>
-                            <pre><code class="language-json">GET logs-*/_search
+                    <div class="scenario-box"><strong>Scenario:</strong> Sau một đợt cập nhật microservice, Parser bị lỗi khiến các sự kiện đăng nhập không ghi nhận kết quả (Success/Failure).</div>
+                    <div class="code-container">
+                        <pre><code class="language-json">GET logs-*/_search
 {
   "query": {
     "bool": {
@@ -337,38 +277,14 @@
     }
   }
 }</code></pre>
-                        </div>
                     </div>
-
-                    <div class="tab-content usecase">
-                        <ul class="use-case-list">
-                            <li><strong>Kiểm tra chất lượng Log:</strong> Tìm các bản ghi thiếu trường <code>@timestamp</code>.</li>
-                            <li><strong>Bảo mật:</strong> Phát hiện các request không có <code>user.id</code> trong hệ thống yêu cầu định danh.</li>
-                        </ul>
-                    </div>
-
-                    <div class="tab-content practice">
-                        <div class="exercise-box">
-                            <h5>🎯 Thử thách</h5>
-                            <p>Tìm log của service <code>payment-gateway</code> thiếu field <code>transaction.id</code>.</p>
-                            <div class="solution-toggle" onclick="toggleSolution(this)">Xem đáp án</div>
-                            <div class="solution-content">
-                                <pre><code class="language-json">{
-  "query": {
-    "bool": {
-      "must": [{ "term": { "service.name": "payment-gateway" } }],
-      "must_not": [{ "exists": { "field": "transaction.id" } }]
-    }
-  }
-}</code></pre>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="anti-pattern"><h5>❌ Anti-pattern</h5><p>Sử dụng <code>match: ""</code>. Elasticsearch coi field thiếu hoàn toàn khác với string rỗng.</p></div>
+                    <div class="exercise-box"><h5>🎯 Thực hành</h5><p>Tìm log của service <code>payment-gateway</code> thiếu field <code>transaction.id</code>.</p></div>
                 </div>
 
-                <!-- BÀI 2 -->
+                <!-- Bài 2-7 tương tự với nội dung nâng cấp -->
                 <div class="lesson-card" id="lesson-2">
-                    <label class="complete-toggle"><input type="checkbox" onchange="toggleLesson(2)"> Hoàn thành</label>
+                    <label class="complete-toggle"><input type="checkbox" onchange="toggleLesson(2)"> Đã hoàn thành</label>
                     <div class="lesson-header">
                         <div class="lesson-title-group">
                             <span class="owasp-tag">OWASP A02:2025 - Cryptographic Failures</span>
@@ -376,91 +292,37 @@
                         </div>
                         <span class="badge-difficulty easy">Easy</span>
                     </div>
-
-                    <div class="lesson-tabs">
-                        <button class="tab-btn active" onclick="switchTab(this, 'theory')">Lý thuyết</button>
-                        <button class="tab-btn" onclick="switchTab(this, 'usecase')">Use Cases</button>
-                        <button class="tab-btn" onclick="switchTab(this, 'practice')">Thực hành</button>
-                    </div>
-
-                    <div class="tab-content theory active">
-                        <div class="scenario-box">
-                            <strong>Scenario:</strong> Developer vô tình log toàn bộ request body chứa <code>password</code> hoặc <code>api_key</code> lên production.
-                        </div>
-                        <div class="code-container">
-                            <div class="code-header"><span>JSON</span></div>
-                            <pre><code class="language-json">GET logs-*/_search
+                    <div class="scenario-box"><strong>Scenario:</strong> Developer vô tình log toàn bộ request body chứa <code>password</code> hoặc <code>api_key</code> lên production.</div>
+                    <div class="code-container">
+                        <pre><code class="language-json">GET logs-*/_search
 {
   "query": {
     "bool": {
       "should": [
         { "match_phrase": { "message": "password" } },
-        { "match_phrase": { "message": "token" } }
+        { "match_phrase": { "message": "token" } },
+        { "match_phrase": { "message": "api_key" } }
       ],
       "minimum_should_match": 1
     }
   }
 }</code></pre>
-                        </div>
                     </div>
-
-                    <div class="tab-content usecase">
-                        <ul class="use-case-list">
-                            <li><strong>DLP:</strong> Săn tìm số thẻ tín dụng hoặc thông tin PII rò rỉ.</li>
-                            <li><strong>Compliance:</strong> Đảm bảo không có dữ liệu nhạy cảm nào được lưu trữ ở dạng clear-text trong log.</li>
-                        </ul>
-                    </div>
-
-                    <div class="tab-content practice">
-                        <div class="exercise-box">
-                            <h5>🎯 Thử thách</h5>
-                            <p>Thêm keyword <code>private_key</code> và <code>client_secret</code> vào query trên.</p>
-                            <div class="solution-toggle" onclick="toggleSolution(this)">Xem đáp án</div>
-                            <div class="solution-content">
-                                <pre><code class="language-json">{
-  "query": {
-    "bool": {
-      "should": [
-        { "match_phrase": { "message": "private_key" } },
-        { "match_phrase": { "message": "client_secret" } }
-      ],
-      "minimum_should_match": 1
-    }
-  }
-}</code></pre>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="exercise-box"><h5>🎯 Thực hành</h5><p>Thêm keyword <code>private_key</code> và <code>client_secret</code> vào query.</p></div>
                 </div>
-            </section>
 
-            <!-- MODULE 2: TRUNG CẤP -->
-            <section id="inter-section" class="level-section section-inter-bg">
-                <h2 class="level-title">🟡 Module 2: Observability & Behavioral Analysis</h2>
-                
-                <div class="lesson-card" id="lesson-7">
-                    <label class="complete-toggle"><input type="checkbox" onchange="toggleLesson(7)"> Hoàn thành</label>
+                <div class="lesson-card" id="lesson-4">
+                    <label class="complete-toggle"><input type="checkbox" onchange="toggleLesson(4)"> Đã hoàn thành</label>
                     <div class="lesson-header">
                         <div class="lesson-title-group">
                             <span class="owasp-tag">OWASP A07:2025 - Auth Failures</span>
-                            <h3>Bài 7: Brute Force - Phân tích ngưỡng</h3>
+                            <h3>Bài 4: Brute Force - Phân tích ngưỡng</h3>
                         </div>
                         <span class="badge-difficulty medium">Medium</span>
                     </div>
-
-                    <div class="lesson-tabs">
-                        <button class="tab-btn active" onclick="switchTab(this, 'theory')">Lý thuyết</button>
-                        <button class="tab-btn" onclick="switchTab(this, 'usecase')">Use Cases</button>
-                        <button class="tab-btn" onclick="switchTab(this, 'practice')">Thực hành</button>
-                    </div>
-
-                    <div class="tab-content theory active">
-                        <div class="scenario-box">
-                            <strong>Scenario:</strong> Phát hiện các IP có hành vi dò mật khẩu với tần suất cao (>20 lần/phút).
-                        </div>
-                        <div class="code-container">
-                            <div class="code-header"><span>JSON</span></div>
-                            <pre><code class="language-json">GET logs-*/_search
+                    <div class="scenario-box"><strong>Scenario:</strong> Phát hiện các IP có hành vi dò mật khẩu với tần suất cao (>20 lần/phút).</div>
+                    <div class="code-container">
+                        <pre><code class="language-json">GET logs-*/_search
 {
   "query": {
     "bool": {
@@ -474,59 +336,199 @@
     "suspicious_ips": { "terms": { "field": "source.ip", "min_doc_count": 20 } }
   }, "size": 0
 }</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MODULE 2: TRUNG CẤP -->
+            <section id="inter-section" class="level-section section-inter-bg">
+                <h2 class="level-title">🟡 Module 2: Observability & Behavioral Analysis</h2>
+                
+                <div class="lesson-card" id="lesson-8">
+                    <label class="complete-toggle"><input type="checkbox" onchange="toggleLesson(8)"> Đã hoàn thành</label>
+                    <div class="lesson-header">
+                        <div class="lesson-title-group">
+                            <span class="owasp-tag">OWASP A01:2025 - Broken Access Control</span>
+                            <h3>Bài 8: Nested Headers - Tìm Header Nhạy Cảm</h3>
                         </div>
+                        <span class="badge-difficulty medium">Medium</span>
                     </div>
-
-                    <div class="tab-content usecase">
-                        <ul class="use-case-list">
-                            <li><strong>Security:</strong> Chặn IP tấn công tự động.</li>
-                            <li><strong>Rate Limiting:</strong> Nhận diện các user đang spam API quá mức cho phép.</li>
-                        </ul>
-                    </div>
-
-                    <div class="tab-content practice">
-                        <div class="exercise-box">
-                            <h5>🎯 Thử thách</h5>
-                            <p>Thống kê Top 5 người dùng (<code>user.name</code>) có số lượng request bị lỗi 403 cao nhất.</p>
-                            <div class="solution-toggle" onclick="toggleSolution(this)">Xem đáp án</div>
-                            <div class="solution-content">
-                                <pre><code class="language-json">{
-  "size": 0,
-  "query": { "term": { "http.response.status_code": 403 } },
-  "aggs": {
-    "top_users": { "terms": { "field": "user.name", "size": 5 } }
+                    <div class="scenario-box"><strong>Scenario:</strong> Kiểm tra xem có request nào chứa <code>Authorization</code> header bị log ra ở dạng nested object không.</div>
+                    <div class="code-container">
+                        <pre><code class="language-json">GET logs-*/_search
+{
+  "query": {
+    "nested": {
+      "path": "http.request.headers",
+      "query": { "match": { "http.request.headers.name": "Authorization" } }
+    }
   }
 }</code></pre>
-                            </div>
+                    </div>
+                </div>
+
+                <div class="lesson-card" id="lesson-10">
+                    <label class="complete-toggle"><input type="checkbox" onchange="toggleLesson(10)"> Đã hoàn thành</label>
+                    <div class="lesson-header">
+                        <div class="lesson-title-group">
+                            <span class="owasp-tag">Risk Analysis</span>
+                            <h3>Bài 10: Painless Script - Chấm điểm rủi ro (Risk Scoring)</h3>
                         </div>
+                        <span class="badge-difficulty hard">Hard</span>
+                    </div>
+                    <div class="scenario-box"><strong>Scenario:</strong> Tự động tính điểm rủi ro cho mỗi log dựa trên status code và kết quả event.</div>
+                    <div class="code-container">
+                        <pre><code class="language-json">GET logs-*/_search
+{
+  "script_fields": {
+    "risk_score": {
+      "script": {
+        "source": "int s=0; if(doc['event.outcome.keyword'].value=='failure') s+=30; if(doc['http.response.status_code'].value >= 500) s+=40; return s;"
+      }
+    }
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MODULE 3: NÂNG CAO -->
+            <section id="adv-section" class="level-section section-adv-bg">
+                <h2 class="level-title">🔴 Module 3: Enterprise Security Architecture</h2>
+                
+                <div class="lesson-card" id="lesson-14">
+                    <label class="complete-toggle"><input type="checkbox" onchange="toggleLesson(14)"> Đã hoàn thành</label>
+                    <div class="lesson-header">
+                        <div class="lesson-title-group">
+                            <span class="owasp-tag">AI & ML Security</span>
+                            <h3>Bài 14: ML Anomaly Detection - Phát hiện "Unknown Threats"</h3>
+                        </div>
+                        <span class="badge-difficulty hard">Hard</span>
+                    </div>
+                    <div class="scenario-box"><strong>Scenario:</strong> Sử dụng Machine Learning để phát hiện các hành vi đăng nhập bất thường mà không cần cấu hình ngưỡng cứng.</div>
+                    <div class="code-container">
+                        <pre><code class="language-json">PUT _ml/anomaly_detectors/login-anomaly
+{
+  "analysis_config": {
+    "bucket_span": "15m",
+    "detectors": [{ "function": "high_count", "by_field_name": "user.name.keyword" }]
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MỚI: CÁC CASE OWASP BỔ SUNG -->
+            <section id="owasp-section" class="level-section section-adv-bg" style="background-color: #f5f3ff; border-color: #ddd6fe;">
+                <h2 class="level-title" style="color: #5b21b6;">🛡️ Module 4: Advanced OWASP Attack Detection</h2>
+
+                <!-- A01: Broken Access Control -->
+                <div class="lesson-card" id="lesson-a01">
+                    <label class="complete-toggle"><input type="checkbox" onchange="toggleLesson('a01')"> Đã hoàn thành</label>
+                    <div class="lesson-header">
+                        <div class="lesson-title-group">
+                            <span class="owasp-tag">OWASP A01:2025</span>
+                            <h3>Bài 20: Privilege Escalation - Leo thang đặc quyền</h3>
+                        </div>
+                        <span class="badge-difficulty hard">Hard</span>
+                    </div>
+                    <div class="scenario-box"><strong>Scenario:</strong> Phát hiện user thông thường cố gắng truy cập các endpoint quản trị hoặc thay đổi quyền hạn.</div>
+                    <div class="code-container">
+                        <pre><code class="language-json">GET logs-*/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": { "url.path": "/api/admin/*" } },
+        { "must_not": { "match": { "user.roles": "admin" } } }
+      ]
+    }
+  }
+}</code></pre>
+                    </div>
+                </div>
+
+                <!-- A05: Security Misconfiguration -->
+                <div class="lesson-card" id="lesson-a05">
+                    <label class="complete-toggle"><input type="checkbox" onchange="toggleLesson('a05')"> Đã hoàn thành</label>
+                    <div class="lesson-header">
+                        <div class="lesson-title-group">
+                            <span class="owasp-tag">OWASP A05:2025</span>
+                            <h3>Bài 21: Misconfiguration - Phát hiện Open Ports</h3>
+                        </div>
+                        <span class="badge-difficulty medium">Medium</span>
+                    </div>
+                    <div class="scenario-box"><strong>Scenario:</strong> Quét log network để tìm các traffic không mong muốn hướng tới các port nhạy cảm (22, 3389, 9200) từ internet.</div>
+                    <div class="code-container">
+                        <pre><code class="language-json">GET logs-*/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "terms": { "destination.port": [22, 3389, 9200] } },
+        { "must_not": { "match": { "source.ip": "internal-range-*" } } }
+      ]
+    }
+  }
+}</code></pre>
+                    </div>
+                </div>
+
+                <!-- A10: SSRF -->
+                <div class="lesson-card" id="lesson-ssrf">
+                    <label class="complete-toggle"><input type="checkbox" onchange="toggleLesson('ssrf')"> Đã hoàn thành</label>
+                    <div class="lesson-header">
+                        <div class="lesson-title-group">
+                            <span class="owasp-tag">OWASP A10:2025</span>
+                            <h3>Bài 19: SSRF - Outbound Request Audit</h3>
+                        </div>
+                        <span class="badge-difficulty hard">Hard</span>
+                    </div>
+                    <div class="scenario-box"><strong>Scenario:</strong> Phát hiện các request từ app server hướng tới dải IP nội bộ hoặc metadata service của Cloud (169.254.169.254).</div>
+                    <div class="code-container">
+                        <pre><code class="language-json">GET logs-*/_search
+{
+  "query": {
+    "bool": {
+      "filter": [
+        { "terms": { "destination.ip": ["10.0.0.0/8", "169.254.169.254", "127.0.0.1"] } }
+      ]
+    }
+  }
+}</code></pre>
                     </div>
                 </div>
             </section>
 
             <!-- CHEAT SHEET -->
-            <section id="cheat-sheet">
+            <section id="cheat-sheet" class="section-card">
                 <h2 class="level-title">📚 Ultimate Cheat Sheet</h2>
                 <table class="cheat-table">
                     <thead>
                         <tr>
+                            <th>Category</th>
                             <th>Mục tiêu</th>
                             <th>DSL Pattern</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td>A01: Access Control</td><td><code>bool.must[match: "unauthorized"]</code></td></tr>
-                        <tr><td>A03: Injection</td><td><code>regexp: ".*(UNION|SELECT|%0a).*"</code></td></tr>
-                        <tr><td>A07: Auth Failures</td><td><code>aggs.terms: { field: "source.ip", min_doc_count: 50 }</code></td></tr>
-                        <tr><td>A09: Logging Fail</td><td><code>bool.must_not[exists: { field: "..." }]</code></td></tr>
+                        <tr><td>A01: Access Control</td><td>Truy cập trái phép</td><td><code>bool.must[match: "unauthorized"]</code></td></tr>
+                        <tr><td>A03: Injection</td><td>SQL/Log Injection</td><td><code>regexp: ".*(UNION|SELECT|%0a).*"</code></td></tr>
+                        <tr><td>A07: Auth Failures</td><td>Brute Force</td><td><code>aggs.terms: { field: "source.ip", min_doc_count: 50 }</code></td></tr>
+                        <tr><td>A09: Logging Fail</td><td>Thiếu dữ liệu</td><td><code>bool.must_not[exists: { field: "..." }]</code></td></tr>
                     </tbody>
                 </table>
             </section>
         </main>
+
+        <footer>
+            <p>&copy; 2026 Elasticsearch Learning Framework | Ultimate OWASP Edition | lhlhai/prompt-library</p>
+        </footer>
     </div>
 
     <script>
-        const totalLessons = 24;
-        let completedLessons = JSON.parse(localStorage.getItem('dsl_progress_v3_upgraded')) || [];
+        const totalLessons = 18 + 6; // 18 gốc + 6 mới
+        let completedLessons = JSON.parse(localStorage.getItem('dsl_progress_v3')) || [];
 
         function initProgress() {
             completedLessons.forEach(id => {
@@ -541,7 +543,7 @@
             const index = completedLessons.indexOf(id);
             if (index === -1) completedLessons.push(id);
             else completedLessons.splice(index, 1);
-            localStorage.setItem('dsl_progress_v3_upgraded', JSON.stringify(completedLessons));
+            localStorage.setItem('dsl_progress_v3', JSON.stringify(completedLessons));
             updateProgressBar();
             refreshSidebar();
         }
@@ -549,13 +551,18 @@
         function updateProgressBar() {
             const percent = Math.round((completedLessons.length / totalLessons) * 100);
             document.getElementById('overall-progress').innerText = percent + '%';
+            document.getElementById('progress-bar').style.width = percent + '%';
         }
 
         function generateSidebar() {
             const lessons = [
                 { id: 1, title: "Bài 1: Exists Query", level: 'basic' },
                 { id: 2, title: "Bài 2: Sensitive Data", level: 'basic' },
-                { id: 7, title: "Bài 7: Brute Force", level: 'inter' }
+                { id: 4, title: "Bài 4: Brute Force", level: 'basic' },
+                { id: 8, title: "Bài 8: Nested Headers", level: 'inter' },
+                { id: 10, title: "Bài 10: Risk Scoring", level: 'inter' },
+                { id: 14, title: "Bài 14: ML Anomaly", level: 'adv' },
+                { id: 'ssrf', title: "Bài 19: SSRF Detection", level: 'owasp' }
             ];
             
             lessons.forEach(l => {
@@ -570,28 +577,9 @@
         function refreshSidebar() {
             const items = document.querySelectorAll('.sidebar-nav li');
             items.forEach(item => {
-                const id = parseInt(item.id.replace('nav-item-', ''));
+                const id = item.id.replace('nav-item-', '');
                 item.className = completedLessons.includes(id) ? 'completed' : '';
             });
-        }
-
-        function switchTab(btn, tabName) {
-            const card = btn.closest('.lesson-card');
-            card.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            card.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
-            card.querySelector(`.tab-content.${tabName}`).classList.add('active');
-        }
-
-        function toggleSolution(btn) {
-            const content = btn.nextElementSibling;
-            if (content.style.display === 'block') {
-                content.style.display = 'none';
-                btn.innerText = 'Xem đáp án';
-            } else {
-                content.style.display = 'block';
-                btn.innerText = 'Ẩn đáp án';
-            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
