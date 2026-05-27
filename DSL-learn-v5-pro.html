@@ -1,0 +1,2492 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ELK Query DSL v5 — Automation Tester · MES Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Literata:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<style>
+:root {
+  --bg:        #F4F1EC;
+  --surface:   #FDFCFA;
+  --surface2:  #EDEAE3;
+  --border:    #D9D4C8;
+  --border2:   #C8C2B4;
+
+  --ink:       #1C1A16;
+  --ink2:      #5A5548;
+  --ink3:      #918B7E;
+
+  /* Category accents */
+  --cat-func:  #1A5C3A;   /* Functional  — deep green */
+  --cat-qual:  #1D4ED8;   /* Log Quality — deep blue  */
+  --cat-sec:   #9A3412;   /* Security    — terracotta */
+  --cat-pipe:  #5B21B6;   /* Pipeline    — violet     */
+  --cat-k8s:   #0F766E;   /* K8s Cluster — teal       */
+  --cat-mes:   #B45309;   /* MES/OT      — amber      */
+
+  --cat-func-bg:  #ECFDF5;
+  --cat-qual-bg:  #EFF6FF;
+  --cat-sec-bg:   #FFF7ED;
+  --cat-pipe-bg:  #F5F3FF;
+  --cat-k8s-bg:   #F0FDFA;
+  --cat-mes-bg:   #FFFBEB;
+
+  --cat-func-bd:  #A7F3D0;
+  --cat-qual-bd:  #BFDBFE;
+  --cat-sec-bd:   #FED7AA;
+  --cat-pipe-bd:  #DDD6FE;
+  --cat-k8s-bd:   #99F6E4;
+  --cat-mes-bd:   #FDE68A;
+
+  --ai:        #4C1D95;
+  --ai-bg:     #F5F3FF;
+  --ai-bd:     #C4B5FD;
+
+  --pass:      #166534;
+  --fail:      #991B1B;
+  --warn:      #92400E;
+
+  --r:         10px;
+  --r-sm:      6px;
+  --sh-sm:     0 1px 4px rgba(0,0,0,.06);
+  --sh-md:     0 4px 20px rgba(0,0,0,.09);
+  --sh-lg:     0 20px 60px rgba(0,0,0,.14);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Literata',Georgia,serif;background:var(--bg);color:var(--ink);line-height:1.6;min-height:100vh}
+
+/* ─── LAYOUT ─── */
+.wrap{display:grid;grid-template-columns:300px 1fr;min-height:100vh}
+
+/* ─── SIDEBAR ─── */
+.sb{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column}
+.sb::-webkit-scrollbar{width:3px}
+.sb::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+.sb-brand{padding:28px 24px 20px;border-bottom:1px solid var(--border)}
+.sb-brand h1{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:-.01em;line-height:1.3;color:var(--ink)}
+.sb-brand p{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink3);margin-top:4px;letter-spacing:.05em}
+
+.sb-prog{padding:16px 24px;border-bottom:1px solid var(--border)}
+.sb-prog-top{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink3);margin-bottom:7px}
+.bar{background:var(--surface2);border-radius:100px;height:5px;overflow:hidden}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--cat-func),#34D399);border-radius:100px;transition:width .5s ease;width:0%}
+
+.sb-section{padding:14px 24px 4px}
+.sb-section-hd{display:flex;align-items:center;gap:7px;font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px}
+.sb-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+.sb-nav{list-style:none;padding:0 12px 8px}
+.sb-nav li a{display:flex;align-items:center;gap:8px;padding:5px 12px;border-radius:var(--r-sm);text-decoration:none;color:var(--ink2);font-family:'Syne',sans-serif;font-size:12px;font-weight:600;transition:all .15s}
+.sb-nav li a:hover{background:var(--surface2);color:var(--ink)}
+.sb-nav li a.active{background:var(--surface2);color:var(--ink)}
+.sb-chk{width:15px;height:15px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:8px;transition:all .2s}
+.sb-chk.done{background:var(--cat-func);border-color:var(--cat-func);color:#fff}
+
+/* ─── MAIN ─── */
+.main{max-width:920px}
+
+/* ─── HERO ─── */
+.hero{padding:56px 60px 44px;border-bottom:1px solid var(--border);position:relative;overflow:hidden;background:var(--surface)}
+.hero::after{content:'ELK';position:absolute;right:-20px;top:-20px;font-family:'Syne',sans-serif;font-size:180px;font-weight:800;color:rgba(0,0,0,.025);line-height:1;pointer-events:none;user-select:none}
+.hero-pill{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;padding:4px 12px;border-radius:100px;background:var(--cat-func-bg);border:1px solid var(--cat-func-bd);color:var(--cat-func);margin-bottom:20px}
+.hero h2{font-family:'Syne',sans-serif;font-size:44px;font-weight:800;line-height:1.12;letter-spacing:-.02em;color:var(--ink);margin-bottom:14px}
+.hero h2 span{font-style:italic;font-family:'Literata',serif;font-weight:400;color:var(--cat-func)}
+.hero-sub{font-size:15px;color:var(--ink2);max-width:540px;line-height:1.75;margin-bottom:32px}
+.hero-persona{display:flex;gap:12px;flex-wrap:wrap}
+.persona-tag{font-family:'JetBrains Mono',monospace;font-size:11px;padding:5px 12px;border-radius:100px;border:1px solid var(--border2);color:var(--ink2);background:var(--surface2)}
+.persona-tag strong{color:var(--ink);font-weight:600}
+.hero-stats{display:flex;gap:36px;margin-top:28px;padding-top:28px;border-top:1px solid var(--border)}
+.stat{display:flex;flex-direction:column;gap:2px}
+.stat-n{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;color:var(--ink);line-height:1}
+.stat-l{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink3);letter-spacing:.04em}
+
+/* ─── SECTION HEADER ─── */
+.sec-hd{padding:40px 60px 0}
+.sec-tag{display:inline-flex;align-items:center;gap:7px;font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:5px 14px;border-radius:100px;margin-bottom:10px}
+.sec-h{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--ink);letter-spacing:-.01em;margin-bottom:4px}
+.sec-d{font-size:13.5px;color:var(--ink2);font-style:italic}
+
+/* ─── LESSON LIST ─── */
+.llist{padding:20px 60px;display:flex;flex-direction:column;gap:16px}
+
+/* ─── CARD ─── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh-sm);transition:box-shadow .2s,transform .2s;overflow:hidden}
+.card:hover{box-shadow:var(--sh-md);transform:translateY(-1px)}
+
+/* left accent bar by category */
+.card[data-cat=func]{border-left:3px solid var(--cat-func)}
+.card[data-cat=qual]{border-left:3px solid var(--cat-qual)}
+.card[data-cat=sec] {border-left:3px solid var(--cat-sec)}
+.card[data-cat=pipe]{border-left:3px solid var(--cat-pipe)}
+.card[data-cat=k8s] {border-left:3px solid var(--cat-k8s)}
+.card[data-cat=mes] {border-left:3px solid var(--cat-mes)}
+
+.card-hd{padding:18px 22px 16px;display:flex;align-items:flex-start;gap:14px;cursor:pointer;user-select:none}
+.card-num{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--ink3);flex-shrink:0;padding-top:4px;letter-spacing:.04em}
+.card-meta{flex:1;min-width:0}
+.card-badges{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px}
+.badge{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;letter-spacing:.03em}
+.b-func{background:var(--cat-func-bg);color:var(--cat-func);border:1px solid var(--cat-func-bd)}
+.b-qual{background:var(--cat-qual-bg);color:var(--cat-qual);border:1px solid var(--cat-qual-bd)}
+.b-sec {background:var(--cat-sec-bg) ;color:var(--cat-sec) ;border:1px solid var(--cat-sec-bd)}
+.b-pipe{background:var(--cat-pipe-bg);color:var(--cat-pipe);border:1px solid var(--cat-pipe-bd)}
+.b-k8s {background:var(--cat-k8s-bg) ;color:var(--cat-k8s) ;border:1px solid var(--cat-k8s-bd)}
+.b-mes {background:var(--cat-mes-bg) ;color:var(--cat-mes) ;border:1px solid var(--cat-mes-bd)}
+.b-owasp{background:#EEF2FF;color:#3730A3;border:1px solid #C7D2FE}
+
+.card-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--ink);margin-bottom:3px;line-height:1.3}
+.card-sub{font-size:12.5px;color:var(--ink2);font-style:italic}
+.card-acts{display:flex;align-items:center;gap:7px;flex-shrink:0}
+
+.btn-ai{display:flex;align-items:center;gap:5px;background:var(--ai-bg);border:1px solid var(--ai-bd);color:var(--ai);font-family:'Syne',sans-serif;font-size:11px;font-weight:700;padding:6px 12px;border-radius:100px;cursor:pointer;transition:all .15s;white-space:nowrap;letter-spacing:.02em}
+.btn-ai:hover{background:#EDE9FE;border-color:#A78BFA;transform:scale(1.03)}
+.btn-done{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;color:transparent;font-size:12px}
+.btn-done:hover{border-color:var(--cat-func)}
+.btn-done.done{background:var(--cat-func);border-color:var(--cat-func);color:#fff}
+.btn-xp{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;color:var(--ink2)}
+.btn-xp:hover{background:var(--border)}
+.btn-xp svg{transition:transform .2s}
+.card.open .btn-xp svg{transform:rotate(180deg)}
+
+/* ─── CARD BODY ─── */
+.card-body{display:none;border-top:1px solid var(--border)}
+.card.open .card-body{display:block}
+
+/* Test Context block */
+.tc-block{display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:1px solid var(--border)}
+.tc-col{padding:14px 20px}
+.tc-col:first-child{border-right:1px solid var(--border);background:var(--surface2)}
+.tc-lbl{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.tc-text{font-size:13px;color:var(--ink2);line-height:1.65}
+.tc-text code{font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--border);padding:1px 5px;border-radius:3px;color:var(--ink)}
+
+/* Test Checklist */
+.chklist-block{padding:14px 20px;border-bottom:1px solid var(--border);background:var(--surface2)}
+.chklist-lbl{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+.chklist{display:flex;flex-direction:column;gap:5px}
+.chk-item{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--ink2);line-height:1.5}
+.chk-ic{font-size:13px;flex-shrink:0;line-height:1.4}
+
+/* Query block */
+.q-block{padding:14px 20px;border-bottom:1px solid var(--border)}
+.q-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.q-lbl{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);display:flex;align-items:center;gap:6px}
+.q-label-badge{font-family:'JetBrains Mono',monospace;font-size:9px;background:var(--ink);color:#fff;padding:2px 7px;border-radius:3px;letter-spacing:.04em}
+.btn-copy{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink2);background:var(--surface2);border:1px solid var(--border);padding:3px 10px;border-radius:5px;cursor:pointer;transition:all .15s}
+.btn-copy:hover{background:var(--border)}
+.btn-copy.ok{color:var(--pass);border-color:#A7F3D0}
+pre{margin:0;border-radius:var(--r-sm);overflow-x:auto;border:1px solid var(--border)}
+pre code{font-family:'JetBrains Mono',monospace !important;font-size:12px !important;line-height:1.65 !important}
+
+/* Expected result block */
+.exp-block{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:flex-start}
+.exp-icon{font-size:14px;flex-shrink:0;line-height:1.5}
+.exp-text{font-size:12.5px;color:var(--ink2);line-height:1.6}
+.exp-text strong{color:var(--ink);font-weight:600;font-family:'Syne',sans-serif}
+.exp-pass{background:#F0FDF4;border-left:3px solid var(--cat-func)}
+.exp-fail{background:#FFF5F5;border-left:3px solid var(--fail)}
+.exp-warn{background:#FFFBEB;border-left:3px solid var(--warn)}
+
+/* Anti-pattern */
+.anti-block{padding:12px 20px;border-bottom:1px solid var(--border);background:#FFF5F5;display:flex;gap:9px}
+.anti-text{font-size:12.5px;color:#7F1D1D;line-height:1.6}
+.anti-text strong{font-family:'Syne',sans-serif;font-weight:700}
+
+/* Exercises */
+.ex-block{padding:14px 20px}
+.ex-lbl{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+.ex-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.ex-list li{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--ink2);line-height:1.5}
+.ex-num{font-family:'JetBrains Mono',monospace;font-size:10px;background:var(--surface2);border:1px solid var(--border);color:var(--ink3);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+
+/* ─── AI MODAL ─── */
+.mo-ov{position:fixed;inset:0;background:rgba(28,26,22,.5);backdrop-filter:blur(6px);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}
+.mo-ov.open{opacity:1;pointer-events:all}
+.mo{background:var(--surface);border-radius:16px;box-shadow:var(--sh-lg);width:100%;max-width:640px;max-height:88vh;overflow-y:auto;transform:translateY(14px) scale(.97);transition:transform .25s ease}
+.mo-ov.open .mo{transform:none}
+.mo-hd{padding:24px 28px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:sticky;top:0;background:var(--surface);z-index:1}
+.mo-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ai);margin-bottom:4px}
+.mo-title{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;color:var(--ink);line-height:1.25;max-width:460px}
+.mo-close{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:16px;color:var(--ink2);display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.mo-close:hover{background:var(--border);color:var(--ink)}
+.mo-tabs{display:flex;padding:0 28px;border-bottom:1px solid var(--border);gap:0;overflow-x:auto}
+.mo-tab{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.03em;color:var(--ink3);background:none;border:none;border-bottom:2px solid transparent;padding:11px 14px;cursor:pointer;white-space:nowrap;transition:all .15s;margin-bottom:-1px}
+.mo-tab:hover{color:var(--ink)}
+.mo-tab.active{color:var(--ai);border-bottom-color:var(--ai)}
+.mo-body{padding:20px 28px}
+.mo-panel{display:none}
+.mo-panel.active{display:block}
+.mo-intro{font-size:12.5px;color:var(--ink2);line-height:1.65;padding:10px 14px;background:var(--ai-bg);border:1px solid var(--ai-bd);border-radius:var(--r-sm);margin-bottom:12px;font-style:italic}
+.mo-prompt{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:16px;font-family:'Literata',serif;font-size:13.5px;line-height:1.8;color:var(--ink);white-space:pre-wrap;margin-bottom:12px}
+.mo-prompt mark{background:#FEF3C7;color:#78350F;padding:1px 4px;border-radius:3px;font-weight:600;font-style:normal}
+.mo-acts{display:flex;gap:8px}
+.btn-cp-prompt{flex:1;background:var(--ai);color:#fff;border:none;border-radius:var(--r-sm);padding:10px 18px;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;letter-spacing:.02em}
+.btn-cp-prompt:hover{background:#3B0E77}
+.btn-cp-prompt.ok{background:var(--cat-func)}
+.btn-claude{background:var(--surface2);color:var(--ink2);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 14px;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;text-decoration:none;display:flex;align-items:center;gap:6px;white-space:nowrap;letter-spacing:.02em}
+.btn-claude:hover{background:var(--border);color:var(--ink)}
+
+/* ─── CHEAT SHEET ─── */
+.cheat-sec{padding:40px 60px;border-top:1px solid var(--border)}
+.cheat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:18px}
+.cheat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:16px;box-shadow:var(--sh-sm)}
+.cheat-card h4{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink2);margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.cheat-row{display:flex;align-items:baseline;gap:8px;font-size:12.5px;color:var(--ink2);margin-bottom:4px}
+.cheat-code{font-family:'JetBrains Mono',monospace;font-size:10.5px;background:var(--surface2);border:1px solid var(--border);padding:1px 6px;border-radius:3px;color:var(--ink);flex-shrink:0}
+
+/* ─── FOOTER ─── */
+.foot{padding:20px 60px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.foot-t{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink3)}
+
+/* ─── MOBILE ─── */
+@media(max-width:800px){
+  .wrap{grid-template-columns:1fr}
+  .sb{display:none}
+  .hero,.sec-hd,.cheat-sec,.foot{padding-left:24px;padding-right:24px}
+  .hero{padding-top:32px}
+  .llist{padding:14px 24px}
+  .card-hd{padding:14px 16px}
+  .tc-block{grid-template-columns:1fr}
+  .tc-col:first-child{border-right:none;border-bottom:1px solid var(--border)}
+  .q-block,.exp-block,.anti-block,.ex-block,.chklist-block{padding:12px 16px}
+  .cheat-grid{grid-template-columns:1fr}
+  .hero h2{font-size:28px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sb">
+  <div class="sb-brand">
+    <h1>ELK Query DSL<br>Automation Tester</h1>
+    <p>v5.0 · MES / K8s Edition</p>
+  </div>
+  <div class="sb-prog">
+    <div class="sb-prog-top"><span>Tiến độ học</span><span id="prog-txt">0 / 24</span></div>
+    <div class="bar"><div class="bar-fill" id="prog-fill"></div></div>
+  </div>
+  <div id="sb-body"></div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-pill">
+    <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3" fill="currentColor" opacity=".4"/><circle cx="4" cy="4" r="1.5" fill="currentColor"/></svg>
+    MES · K8s · ELK Central · 2026
+  </div>
+  <h2>ELK Query DSL<br><span>cho Automation Tester</span></h2>
+  <p class="hero-sub">Từ "chạy test xong" đến "hiểu log nói gì". 24 bài học thực chiến xoay quanh 6 góc nhìn testing — Functional, Log Quality, Security, Logstash Pipeline, K8s Multi-cluster và MES/OT use cases.</p>
+  <div class="hero-persona">
+    <span class="persona-tag"><strong>Role:</strong> Automation Tester</span>
+    <span class="persona-tag"><strong>Stack:</strong> ELK Central + K8s</span>
+    <span class="persona-tag"><strong>Domain:</strong> MES / Manufacturing</span>
+    <span class="persona-tag"><strong>Level:</strong> Mới bắt đầu → Thực chiến</span>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><span class="stat-n">24</span><span class="stat-l">Bài học</span></div>
+    <div class="stat"><span class="stat-n">6</span><span class="stat-l">Nhóm kỹ năng</span></div>
+    <div class="stat"><span class="stat-n">72</span><span class="stat-l">AI Prompts</span></div>
+    <div class="stat"><span class="stat-n">48</span><span class="stat-l">Test Checklist</span></div>
+  </div>
+</section>
+
+<!-- Sections injected by JS -->
+<div id="content"></div>
+
+<!-- CHEAT SHEET -->
+<div class="cheat-sec">
+  <div class="sec-tag" style="background:#F0FDF4;color:var(--cat-func);border:1px solid var(--cat-func-bd)">📋 Quick Reference</div>
+  <div class="sec-h">Cheat Sheet — Tester's DSL Toolkit</div>
+  <div class="cheat-grid">
+    <div class="cheat-card">
+      <h4>🧪 Functional Testing</h4>
+      <div class="cheat-row"><span class="cheat-code">exists</span>Verify field có trong log không</div>
+      <div class="cheat-row"><span class="cheat-code">term</span>Exact match giá trị event</div>
+      <div class="cheat-row"><span class="cheat-code">range</span>Kiểm tra giá trị numeric/time</div>
+      <div class="cheat-row"><span class="cheat-code">match</span>Full-text search trong message</div>
+    </div>
+    <div class="cheat-card">
+      <h4>📊 Log Quality</h4>
+      <div class="cheat-row"><span class="cheat-code">cardinality</span>Count unique values</div>
+      <div class="cheat-row"><span class="cheat-code">missing</span>Tìm field trống/null</div>
+      <div class="cheat-row"><span class="cheat-code">date_histogram</span>Phát hiện log gap</div>
+      <div class="cheat-row"><span class="cheat-code">value_count</span>Đếm tổng log theo condition</div>
+    </div>
+    <div class="cheat-card">
+      <h4>⚙️ Logstash Debug</h4>
+      <div class="cheat-row"><span class="cheat-code">_index</span>Xác định log vào đúng index</div>
+      <div class="cheat-row"><span class="cheat-code">tags</span>Detect parse failure / drop</div>
+      <div class="cheat-row"><span class="cheat-code">@metadata</span>Check pipeline routing</div>
+      <div class="cheat-row"><span class="cheat-code">terms agg</span>Group log theo pipeline source</div>
+    </div>
+    <div class="cheat-card">
+      <h4>🏭 MES / K8s</h4>
+      <div class="cheat-row"><span class="cheat-code">kubernetes.pod</span>Filter log theo pod/namespace</div>
+      <div class="cheat-row"><span class="cheat-code">machine_id</span>Trace log theo từng máy CNC</div>
+      <div class="cheat-row"><span class="cheat-code">batch_id</span>Correlate log theo production batch</div>
+      <div class="cheat-row"><span class="cheat-code">sensor.value</span>Range check sensor threshold</div>
+    </div>
+  </div>
+</div>
+
+<footer class="foot">
+  <span class="foot-t">© 2026 · lhlhai/prompt-library</span>
+  <span class="foot-t">ELK DSL v5.0 · MES Automation Tester Edition</span>
+</footer>
+
+</main>
+</div>
+
+<!-- AI MODAL -->
+<div class="mo-ov" id="mo-ov">
+  <div class="mo" role="dialog">
+    <div class="mo-hd">
+      <div>
+        <div class="mo-eyebrow">✦ AI Prompt Assistant · Tester Edition</div>
+        <div class="mo-title" id="mo-title">Bài học</div>
+      </div>
+      <button class="mo-close" id="mo-close">✕</button>
+    </div>
+    <div class="mo-tabs">
+      <button class="mo-tab active" data-tab="explain">🧠 Giải thích</button>
+      <button class="mo-tab" data-tab="apply">🛠 Áp dụng test</button>
+      <button class="mo-tab" data-tab="drill">🏋️ Bài tập</button>
+    </div>
+    <div class="mo-body">
+      <div class="mo-panel active" id="tab-explain">
+        <div class="mo-intro">Dùng prompt này để AI giải thích concept từ góc nhìn Automation Tester — không hàn lâm, tập trung vào "làm được gì với nó".</div>
+        <div class="mo-prompt" id="p-explain"></div>
+        <div class="mo-acts">
+          <button class="btn-cp-prompt" data-tab="explain">📋 Copy Prompt</button>
+          <a class="btn-claude" href="https://claude.ai" target="_blank">Mở Claude.ai ↗</a>
+        </div>
+      </div>
+      <div class="mo-panel" id="tab-apply">
+        <div class="mo-intro">Prompt giúp AI hướng dẫn bạn <strong>áp dụng query vào test case thực tế</strong> trên hệ thống MES/K8s — bao gồm cả cách integrate vào automation framework.</div>
+        <div class="mo-prompt" id="p-apply"></div>
+        <div class="mo-acts">
+          <button class="btn-cp-prompt" data-tab="apply">📋 Copy Prompt</button>
+          <a class="btn-claude" href="https://claude.ai" target="_blank">Mở Claude.ai ↗</a>
+        </div>
+      </div>
+      <div class="mo-panel" id="tab-drill">
+        <div class="mo-intro">Prompt tạo <strong>bài tập thực hành 3 cấp độ</strong> — từ query đơn đến scenario phức tạp trong môi trường manufacturing.</div>
+        <div class="mo-prompt" id="p-drill"></div>
+        <div class="mo-acts">
+          <button class="btn-cp-prompt" data-tab="drill">📋 Copy Prompt</button>
+          <a class="btn-claude" href="https://claude.ai" target="_blank">Mở Claude.ai ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// DATA — 24 bài học hoàn toàn mới
+// ════════════════════════════════════════
+const SECTIONS = [
+  {
+    key:'func', label:'🧪 Functional Log Testing', color:'var(--cat-func)', bg:'var(--cat-func-bg)', bd:'var(--cat-func-bd)',
+    desc:'Kiểm tra log có đúng không — đủ field, đúng giá trị, đúng thứ tự event.',
+    lessons: [
+      {
+        id:'f1', num:'01', cat:'func', catLabel:'Functional',
+        title:'Verify Event Tồn Tại Sau Khi Test Action',
+        sub:'Sau mỗi test step, log event có được ghi không?',
+        context:'Bạn viết test case: User nhấn "Start Production Order" trên MES. Câu hỏi: Elasticsearch có nhận được log event `production.order.started` không?',
+        whyMatters:'Automation test thường chỉ assert UI response. Nhưng nếu log event bị miss, downstream systems (reporting, billing, compliance) sẽ sai data. Log assertion là lớp bảo vệ thứ 2.',
+        query:`GET mes-logs-*/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "term": { "event.action.keyword": "production.order.started" } },
+        { "term": { "order.id.keyword": "WO-2024-00123" } },
+        { "range": {
+            "@timestamp": { "gte": "now-30s" }
+          }
+        }
+      ]
+    }
+  },
+  "sort": [{ "@timestamp": "desc" }],
+  "size": 1
+}`,
+        queryLabel:'Assert: Event tồn tại',
+        expected:'✅ PASS nếu `hits.total.value >= 1` trong vòng 30 giây sau action.',
+        expectedType:'pass',
+        antipattern:'Đừng query toàn bộ index không có time filter khi test — bạn có thể hit log từ test run trước, gây false pass. Luôn lọc `now-30s` hoặc dùng `test_run_id` để isolate.',
+        checks:['Event action đúng tên không?','order.id mapping với test data không?','Timestamp nằm trong window test không?','response.total = 1 hay nhiều hơn (duplicate event)?'],
+        exercises:['Viết query verify event `production.order.completed` sau 30s kể từ `started`','Kiểm tra event `quality.check.failed` có xuất hiện khi test inject defect data không'],
+        prompts:{
+          explain:`Tôi là Automation Tester mới bắt đầu học ELK. Tôi cần hiểu cách dùng Elasticsearch query để verify log event sau khi chạy test case trên hệ thống MES (Manufacturing Execution System).
+
+Hãy giải thích:
+1. Tại sao cần "Log Assertion" bên cạnh UI assertion trong automation test?
+2. Query này dùng bool + must + term + range — giải thích từng phần như cho người mới?
+3. "hits.total.value" trong response là gì và tôi đọc nó thế nào trong test script?
+4. Làm thế nào tôi integrate query này vào pytest/Java test framework (ví dụ dùng requests hoặc Elasticsearch client)?
+
+Cho ví dụ code Python snippet để gọi Elasticsearch và assert kết quả.`,
+          apply:`Tôi là Automation Tester đang viết log assertion cho test suite của MES system trên K8s với ELK Central.
+
+Scenario cụ thể: Sau khi test click "Start Work Order", tôi cần verify event được log đúng trong Elasticsearch.
+
+Hãy hướng dẫn tôi:
+1. Cách thiết kế "Log Assertion Helper" class trong Python/Java để reuse cho nhiều test cases?
+2. Timeout và retry strategy khi event chưa xuất hiện ngay (async processing)?
+3. Làm thế nào pass dynamic values (order_id, timestamp) từ test vào query?
+4. Cách handle false pass do event từ test run trước?
+5. Tích hợp vào CI/CD pipeline — khi nào log assertion nên chạy?
+
+Cho code example thực tế.`,
+          drill:`Tôi học cách verify log event bằng Elasticsearch query cho MES automation testing.
+
+Tạo 3 bài tập tăng dần:
+
+🟢 Cơ bản: Query verify event "machine.startup" xuất hiện sau khi gửi startup command đến máy CNC-001
+
+🟡 Trung cấp: Query verify SEQUENCE events đúng thứ tự: order.created → order.started → order.completed, với cùng order_id, trong vòng 5 phút
+
+🔴 Nâng cao: Query verify event không xuất hiện sau action bị rollback — ví dụ order bị cancel, phải KHÔNG có event "production.started". Viết assertion cho negative case này.
+
+Với mỗi bài: cho query, explain logic, và common test mistake.`
+        }
+      },
+      {
+        id:'f2', num:'02', cat:'func', catLabel:'Functional',
+        title:'Verify Field Values — Đúng Giá Trị Không?',
+        sub:'Log có đúng data không, hay chỉ có entry rỗng?',
+        context:'Test case tạo Production Order với quantity=500, machine="CNC-007", shift="night". Log event xuất hiện, nhưng giá trị có đúng không? Field bị null, sai type, hay bị truncate?',
+        whyMatters:'Event xuất hiện không đủ — giá trị sai còn tệ hơn không có log vì system tiếp tục chạy với data sai mà không ai biết. Field type mismatch trong Elasticsearch cũng gây mapping conflict.',
+        query:`GET mes-logs-*/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "term": { "event.action.keyword": "order.created" } },
+        { "term": { "order.id.keyword": "WO-2024-00456" } },
+        { "term": { "machine.id.keyword": "CNC-007" } },
+        { "range": { "order.quantity": { "gte": 499, "lte": 501 } } },
+        { "term": { "shift.name.keyword": "night" } }
+      ],
+      "must_not": [
+        { "term": { "machine.id.keyword": "" } },
+        { "term": { "shift.name.keyword": "" } }
+      ]
+    }
+  }
+}`,
+        queryLabel:'Assert: Giá trị field đúng',
+        expected:'✅ PASS nếu hits ≥ 1 với tất cả conditions match. ❌ FAIL nếu hits = 0 — nghĩa là ít nhất 1 field sai hoặc rỗng.',
+        expectedType:'pass',
+        antipattern:'Đừng chỉ check `hits.total.value > 0` sau khi filter theo event.action — bạn chưa verify giá trị bên trong. Cần assert từng field riêng hoặc dùng must với nhiều điều kiện.',
+        checks:['Order quantity: đúng số không? Có bị round/truncate không?','Machine ID: đúng format CNC-XXX không?','Shift name: đúng giá trị enum (morning/afternoon/night)?','Timestamp: timezone có đúng không (UTC vs local)?'],
+        exercises:['Verify field `product.code` có đúng format SKU (alphanumeric, max 12 chars) không','Assert field `operator.id` không null và tồn tại trong expected user list'],
+        prompts:{
+          explain:`Tôi học Elasticsearch để verify field values trong log của MES system sau khi chạy automation test.
+
+Giải thích:
+1. Sự khác biệt giữa term, match, và range query cho field assertion?
+2. Tại sao cần ".keyword" suffix cho term query? Khi nào không cần?
+3. must_not + term với empty string — cách detect field rỗng này có đúng không?
+4. Nếu field là nested object (ví dụ machine.specs.rpm), query thế nào?
+5. Elasticsearch mapping conflict xảy ra thế nào khi log gửi sai type (string thay vì number)?`,
+          apply:`Tôi cần thiết kế Log Field Assertion strategy cho MES automation testing với ELK.
+
+Các loại assertion tôi cần:
+- Exact value match (term)
+- Numeric range (range)
+- Không được null/empty (must_not + exists)
+- Enum validation (terms với allowed values list)
+- Format validation (regexp cho fields như SKU code)
+
+Hãy giúp tôi:
+1. Xây dựng reusable assertion library với Python và elasticsearch-py client?
+2. Thiết kế test data strategy — dùng unique ID mỗi test run để isolate?
+3. Khi assertion fail, làm thế nào extract đủ debug info (actual vs expected values)?
+4. Handling flaky test do log delay — retry với backoff thế nào?`,
+          drill:`Bài tập Elasticsearch Field Assertion cho MES Automation Testing.
+
+3 cấp độ:
+
+🟢 Cơ bản: Query verify event "quality.inspection" có field "defect.count" nằm trong range 0-10, "inspector.id" không rỗng, và "result" là một trong ["pass","fail","conditional_pass"]
+
+🟡 Trung cấp: Thiết kế assertion verify TOÀN BỘ required fields của một event type — nếu bất kỳ field nào sai/null thì report chính xác field nào fail (không chỉ "assertion failed")
+
+🔴 Nâng cao: Viết parameterized test helper nhận vào: event_type, expected_fields dict, time_window. Tự generate Elasticsearch query và return pass/fail với detailed diff report`
+        }
+      },
+      {
+        id:'f3', num:'03', cat:'func', catLabel:'Functional',
+        title:'Verify Event Sequence & Ordering',
+        sub:'Các event có xảy ra đúng thứ tự không?',
+        context:'MES workflow: `order.created` → `material.allocated` → `production.started` → `quality.checked` → `order.completed`. Automation test phải verify không chỉ từng event riêng mà còn đúng thứ tự và timing.',
+        whyMatters:'Race condition và async processing có thể khiến event arrive out-of-order trong Elasticsearch. Log có đủ events nhưng sai sequence = process bị broken mà system không biết.',
+        query:`GET mes-logs-*/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "term": { "order.id.keyword": "WO-2024-00789" } },
+        { "terms": { "event.action.keyword": [
+          "order.created",
+          "material.allocated",
+          "production.started",
+          "quality.checked",
+          "order.completed"
+        ]}}
+      ]
+    }
+  },
+  "sort": [{ "@timestamp": "asc" }],
+  "size": 10,
+  "_source": ["@timestamp", "event.action", "order.id"]
+}`,
+        queryLabel:'Assert: Event sequence',
+        expected:'✅ PASS nếu response trả đủ 5 events, sort by timestamp asc, đúng thứ tự expected. Kiểm tra trong test code bằng cách compare mảng action names.',
+        expectedType:'pass',
+        antipattern:'Đừng dùng `size: 1` khi cần verify sequence — bạn sẽ miss các event còn lại. Và đừng assume Elasticsearch sort đúng nếu không explicit set `sort`.',
+        checks:['Đủ 5 events không? Hay thiếu bước nào?','Timestamp tăng dần không? Không có event nào bị "ngược thời gian"?','Gap giữa các bước có nằm trong SLA không (ví dụ material.allocated phải xảy ra trong 60s sau order.created)?','Có event nào bị duplicate không?'],
+        exercises:['Verify event sequence cho cancellation flow: started → cancellation.requested → production.stopped → order.cancelled','Detect event sequence bị lặp (loop bug): production.started xuất hiện 2 lần với cùng order_id'],
+        prompts:{
+          explain:`Tôi học cách verify event sequence trong Elasticsearch cho MES automation testing.
+
+Giải thích:
+1. Tại sao "sort by @timestamp asc" là critical khi verify sequence?
+2. Làm thế nào trong test code (Python) tôi kiểm tra mảng event actions đúng thứ tự?
+3. "terms" query (số nhiều) khác "term" (số ít) thế nào?
+4. Elasticsearch guarantee ordering của documents trong một request không?
+5. Nếu 2 events có cùng timestamp (xảy ra cùng ms), tôi xử lý thế nào trong test assertion?`,
+          apply:`Tôi cần implement Event Sequence Assertion cho MES workflow testing trên ELK.
+
+Requirements:
+- Verify N events với fixed expected order
+- Verify timing constraints giữa events (e.g., step B phải xảy ra trong 60s sau step A)
+- Detect missing events trong sequence
+- Detect duplicate events
+- Detect out-of-order events
+
+Hướng dẫn implement:
+1. Python function nhận expected_sequence list và actual_events từ ES response?
+2. Cách tính và assert time delta giữa consecutive events?
+3. Khi sequence fail, error message phải đủ rõ để debug ngay — format thế nào?
+4. Chiến lược wait/retry vì events có thể arrive với độ trễ khác nhau?`,
+          drill:`Bài tập Event Sequence Testing cho MES (Elasticsearch DSL).
+
+3 cấp độ:
+
+🟢 Cơ bản: Query lấy tất cả events của order WO-TEST-001, verify đủ 3 bước: created → started → completed, đúng thứ tự
+
+🟡 Trung cấp: Verify sequence + timing: material.allocated phải xảy ra trong vòng 120s sau order.created; production.started phải sau material.allocated ít nhất 10s
+
+🔴 Nâng cao: Detect race condition — query tìm orders có production.started xảy ra TRƯỚC material.allocated (timestamp started < timestamp allocated). Report order_id nào bị affected và time difference`
+        }
+      },
+      {
+        id:'f4', num:'04', cat:'func', catLabel:'Functional',
+        title:'Negative Testing — Event Không Được Tồn Tại',
+        sub:'Verify rằng action bị block KHÔNG tạo ra log event sai',
+        context:'Tester gửi request tạo Production Order với invalid machine ID. Hệ thống phải reject. Câu hỏi: ELK có bị ghi nhận event `production.started` không? Nếu có — đó là bug nghiêm trọng.',
+        whyMatters:'Negative test với log assertion phát hiện "silent processing" — system thực thi action dù đã return error response. Rất phổ biến trong async MES systems.',
+        query:`GET mes-logs-*/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "term": { "order.id.keyword": "WO-INVALID-001" } },
+        { "terms": { "event.action.keyword": [
+          "production.started",
+          "material.allocated",
+          "order.completed"
+        ]}}
+      ],
+      "filter": [
+        { "range": { "@timestamp": { "gte": "now-60s" } } }
+      ]
+    }
+  }
+}`,
+        queryLabel:'Assert: Event KHÔNG tồn tại',
+        expected:'✅ PASS nếu `hits.total.value = 0`. ❌ FAIL nếu bất kỳ production event nào xuất hiện sau rejected order.',
+        expectedType:'fail',
+        antipattern:'Khi assert "không có event", luôn cần time window để tránh race condition. Wait ít nhất 5-10 giây sau action rồi mới query. Nếu query ngay lập tức, có thể false pass vì event chưa index xong.',
+        checks:['hits.total.value = 0 chưa?','Time window đủ rộng để wait async processing không?','Có event error/rejection được log không (đây là expected)?','order.id đúng với test case không?'],
+        exercises:['Negative test: User không có quyền không được tạo ra event `admin.action.*`','Verify cancelled order không sinh ra event `billing.charge` sau cancellation'],
+        prompts:{
+          explain:`Tôi học cách viết Negative Log Assertion trong Elasticsearch cho MES automation testing.
+
+Giải thích:
+1. Tại sao negative assertion (verify event KHÔNG xuất hiện) khó hơn positive assertion?
+2. "Race condition" trong log assertion là gì — tại sao phải wait rồi mới query?
+3. Làm thế nào tôi assert hits.total.value = 0 trong Python test code một cách reliable?
+4. Nếu system async — event có thể arrive sau 30 giây — tôi thiết kế wait strategy thế nào?
+5. Phân biệt: event không tồn tại (đúng) vs event tồn tại nhưng nằm ngoài time window (false pass)?`,
+          apply:`Tôi cần implement Negative Log Assertion strategy cho MES security và validation testing.
+
+Use cases cần cover:
+- Unauthorized action không được log production events
+- Validation failure không được trigger downstream events
+- Rolled-back transaction không để lại partial events
+
+Hướng dẫn:
+1. Polling strategy với timeout — kiểm tra mỗi 2s trong 30s?
+2. Cách differentiate giữa "event chưa arrive" và "event thực sự không tồn tại"?
+3. Nên wait bao lâu trước khi conclude "không có event"? Dựa vào gì?
+4. Combine positive assertion (error event exist) + negative assertion (success event not exist) trong cùng 1 test?`,
+          drill:`Bài tập Negative Log Assertion cho MES testing.
+
+3 cấp độ:
+
+🟢 Cơ bản: Verify rằng sau khi gửi duplicate order (same order_id), không có event "order.created" thứ 2 xuất hiện trong 60s
+
+🟡 Trung cấp: Verify authorization — user với role "operator" không tạo ra event "admin.user.deleted" hay "config.changed" sau khi UI reject unauthorized action
+
+🔴 Nâng cao: Design "Event Boundary Test" — tạo test matrix: mỗi test action (valid/invalid) × expected events (exist/not-exist). Implement generic assertion engine nhận matrix và report full pass/fail summary`
+        }
+      }
+    ]
+  },
+  {
+    key:'qual', label:'📊 Log Quality Testing', color:'var(--cat-qual)', bg:'var(--cat-qual-bg)', bd:'var(--cat-qual-bd)',
+    desc:'Test xem log có đủ, không dư, không sai format — quality gate trước khi ship.',
+    lessons: [
+      {
+        id:'q1', num:'05', cat:'qual', catLabel:'Log Quality',
+        title:'Log Completeness — Đủ Trường Bắt Buộc Không?',
+        sub:'Mọi event phải có đủ required fields theo schema',
+        context:'ELK nhận log từ 12 MES microservices. Mỗi service do team khác viết. Sau deploy mới, tester phải verify tất cả service log đúng schema: có đủ field bắt buộc hay không.',
+        whyMatters:'Log thiếu field là silent failure — system chạy bình thường nhưng alert rules, dashboards, và compliance report sẽ sai. Phát hiện sớm ở tester stage tiết kiệm hơn nhiều so với production incident.',
+        query:`GET mes-logs-*/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        { "bool": { "must_not": [{ "exists": { "field": "event.action" } }] } },
+        { "bool": { "must_not": [{ "exists": { "field": "service.name" } }] } },
+        { "bool": { "must_not": [{ "exists": { "field": "trace.id" } }] } },
+        { "bool": { "must_not": [{ "exists": { "field": "host.name" } }] } },
+        { "bool": { "must_not": [{ "exists": { "field": "event.outcome" } }] } }
+      ],
+      "minimum_should_match": 1,
+      "filter": [
+        { "range": { "@timestamp": { "gte": "now-1h" } } }
+      ]
+    }
+  },
+  "aggs": {
+    "missing_by_service": {
+      "terms": { "field": "service.name.keyword", "size": 30 }
+    }
+  },
+  "size": 5
+}`,
+        queryLabel:'Detect: Log thiếu required fields',
+        expected:'✅ PASS nếu hits.total.value = 0 — không có log nào thiếu field. Agg by service chỉ rõ service nào bị.',
+        expectedType:'pass',
+        antipattern:'Đừng chỉ check 1 field rồi báo pass. Required field list phải được define trong test schema và check đủ tất cả. Tạo config file chứa required_fields list để dễ maintain.',
+        checks:['Bao nhiêu % log thiếu field?','Service nào là offender nhiều nhất?','Field nào thường xuyên bị miss nhất?','Sau deploy mới, tỉ lệ này tăng hay giảm?'],
+        exercises:['Tạo completeness score: % field đầy đủ per service per hour','Alert khi completeness rate của bất kỳ service nào xuống dưới 95%'],
+        prompts:{
+          explain:`Tôi học Log Completeness Testing bằng Elasticsearch cho MES system.
+
+Giải thích:
+1. "Required fields" trong ELK log — ai define, store ở đâu, và check thế nào tự động?
+2. bool.should với minimum_should_match:1 — logic này thế nào? Tại sao không dùng must?
+3. Aggregation "by_service" trong context này cho tôi biết gì?
+4. Làm thế nào tôi turn query này thành automated test chạy sau mỗi deployment?
+5. ECS (Elastic Common Schema) liên quan thế nào đến required fields trong MES context?`,
+          apply:`Tôi cần build Log Schema Validation automated test cho MES microservices deployment.
+
+Requirements:
+- Schema định nghĩa required fields + optional fields + field types
+- Chạy tự động sau mỗi service deployment
+- Report: service nào fail, field nào thiếu, bao nhiêu % affected
+- Fail CI/CD pipeline nếu completeness < threshold
+
+Hướng dẫn thiết kế:
+1. Cách load schema từ YAML/JSON config file vào test?
+2. Elasticsearch query generation từ schema programmatically?
+3. Report format hữu ích nhất cho developer khi họ nhận fail notification?
+4. Threshold strategy: 100% strict hay chấp nhận tolerance?`,
+          drill:`Bài tập Log Completeness Testing cho MES automation.
+
+3 cấp độ:
+
+🟢 Cơ bản: Query tìm tất cả log trong 1h qua thiếu field "service.name", group by host.name để biết host nào gửi log lỗi
+
+🟡 Trung cấp: Tính "completeness score" per service: tổng log / log có đủ 5 required fields × 100%. Services dưới 95% phải fail test
+
+🔴 Nâng cao: Tạo schema regression test — compare completeness metrics giữa version hiện tại vs baseline (trước deployment). Nếu bất kỳ service nào giảm completeness > 2%, tự động fail build và generate root cause report`
+        }
+      },
+      {
+        id:'q2', num:'06', cat:'qual', catLabel:'Log Quality',
+        title:'Log Duplication — Phát Hiện Log Bị Ghi Trùng',
+        sub:'Cùng 1 event bị index nhiều lần — silent data corruption',
+        context:'Sau khi thêm retry logic vào MES order service, log event `order.created` bắt đầu xuất hiện 2-3 lần cho cùng 1 order_id. Billing system double-charge vì count event để tính fee.',
+        whyMatters:'Log duplication trong manufacturing dẫn đến: sai production count, double billing, sai inventory. Tester phải verify deduplication logic sau mỗi lần thay đổi retry/queue config.',
+        query:`GET mes-logs-*/_search
+{
+  "size": 0,
+  "query": {
+    "bool": {
+      "filter": [
+        { "term": { "event.action.keyword": "order.created" } },
+        { "range": { "@timestamp": { "gte": "now-1h" } } }
+      ]
+    }
+  },
+  "aggs": {
+    "by_order_id": {
+      "terms": {
+        "field": "order.id.keyword",
+        "size": 1000,
+        "min_doc_count": 2
+      },
+      "aggs": {
+        "event_count": { "value_count": { "field": "@timestamp" } },
+        "first_seen":  { "min": { "field": "@timestamp" } },
+        "last_seen":   { "max": { "field": "@timestamp" } }
+      }
+    }
+  }
+}`,
+        queryLabel:'Detect: Duplicate events',
+        expected:'✅ PASS nếu agg buckets rỗng — không có order_id nào có min_doc_count ≥ 2. ❌ FAIL nếu có bất kỳ bucket nào — báo cáo order_id, count, và time delta.',
+        expectedType:'fail',
+        antipattern:'`min_doc_count: 2` trong terms agg là trick quan trọng — chỉ return bucket có ít nhất 2 documents. Thiếu nó, bạn phải filter trong application code, rất inefficient với large dataset.',
+        checks:['Bao nhiêu order_id bị duplicate?','Time delta giữa duplicate events là bao lâu? (→ hint về retry interval)','Duplicate chỉ xảy ra sau deploy mới hay đã có trước?','Pattern: random hay có trigger cụ thể?'],
+        exercises:['Detect duplicate `quality.inspection` events: cùng machine_id + batch_id trong 30 giây','Đếm tỉ lệ duplicate event theo từng event.action type để biết loại nào bị nhiều nhất'],
+        prompts:{
+          explain:`Tôi học cách detect log duplication bằng Elasticsearch cho MES testing.
+
+Giải thích:
+1. "min_doc_count: 2" trong terms aggregation làm gì và tại sao đây là trick hiệu quả?
+2. Sự khác biệt giữa "first_seen" và "last_seen" agg cho debugging duplication?
+3. Tại sao log duplication xảy ra phổ biến trong hệ thống có retry logic?
+4. Elasticsearch "document deduplication" có built-in không? Nếu có, hoạt động thế nào?
+5. Idempotency key trong log — cách implement để prevent duplicate từ source?`,
+          apply:`Tôi cần implement Log Duplication Detection test cho MES system sau khi team thêm retry mechanism.
+
+Use cases cần test:
+- Order events không được duplicate (business critical)
+- Quality check events không được duplicate (compliance)
+- Machine status events: duplicate OK vì idempotent
+
+Thiết kế:
+1. Whitelist events được phép duplicate vs events phải unique?
+2. Test automation: chạy sau mỗi deployment, report ngay nếu duplicate rate > 0%?
+3. Khi phát hiện duplicate, làm thế nào trace root cause (retry count, queue config)?
+4. Nếu duplicate đã vào Elasticsearch rồi, cleanup strategy thế nào?`,
+          drill:`Bài tập Duplicate Event Detection cho MES ELK testing.
+
+3 cấp độ:
+
+🟢 Cơ bản: Tìm tất cả order.created events có cùng order.id xuất hiện > 1 lần trong 1 giờ qua
+
+🟡 Trung cấp: Phân tích pattern duplicate: group by (event.action, time_bucket_5min) — action nào trong time window nào bị duplicate nhiều nhất? Giúp identify retry storm
+
+🔴 Nâng cao: "Exact duplicate" vs "Near duplicate" — viết 2 queries: (1) cùng event_id (2) cùng business key (order_id + event_action) nhưng khác event_id. Phân tích tại sao cần detect cả 2 loại và risk khác nhau thế nào`
+        }
+      },
+      {
+        id:'q3', num:'07', cat:'qual', catLabel:'Log Quality',
+        title:'Log Noise — Lọc Log Thừa Không Cần Thiết',
+        sub:'Log dư thừa tăng cost, giảm signal-to-noise ratio',
+        context:'ELK ingestion tăng từ 10GB/day lên 80GB/day sau deploy mới. Analyst không tìm được log quan trọng vì bị chìm trong debug log từ K8s health-check endpoint `/actuator/health` gọi 1000 lần/phút.',
+        whyMatters:'Log noise trong manufacturing context gây: tăng storage cost, chậm query, miss critical alert. Tester phải baseline log volume và detect khi service nào đột ngột log quá nhiều.',
+        query:`GET mes-logs-*/_search
+{
+  "size": 0,
+  "query": {
+    "filter": [
+      { "range": { "@timestamp": { "gte": "now-1h" } } }
+    ]
+  },
+  "aggs": {
+    "by_endpoint": {
+      "terms": {
+        "field": "url.path.keyword",
+        "size": 20,
+        "order": { "_count": "desc" }
+      },
+      "aggs": {
+        "by_status": {
+          "terms": { "field": "http.response.status_code", "size": 5 }
+        },
+        "volume_per_minute": {
+          "date_histogram": {
+            "field": "@timestamp",
+            "fixed_interval": "1m"
+          }
+        }
+      }
+    },
+    "by_service_volume": {
+      "terms": {
+        "field": "service.name.keyword",
+        "size": 30,
+        "order": { "_count": "desc" }
+      }
+    }
+  }
+}`,
+        queryLabel:'Detect: Log volume bất thường',
+        expected:'✅ PASS nếu volume per endpoint nằm trong baseline ±20%. ❌ FAIL nếu bất kỳ endpoint nào vượt threshold (ví dụ /actuator/health > 100 lần/phút là noise).',
+        expectedType:'warn',
+        antipattern:'Đừng chỉ nhìn tổng log count — một service có thể dominate toàn bộ volume. Cần breakdown by service và by endpoint để tìm offender chính xác.',
+        checks:['Top 5 endpoint nào generate nhiều log nhất?','Service nào chiếm >30% tổng log volume?','Volume spike có pattern không (sau deploy, theo giờ)?','Health-check/heartbeat endpoint có bị log không cần thiết không?'],
+        exercises:['So sánh log volume hôm nay vs baseline 7 ngày qua, flag bất kỳ service nào tăng >200%','Tính chi phí storage cho log noise: 1GB/day noise × 365 ngày × storage cost = ?'],
+        prompts:{
+          explain:`Tôi học cách detect và analyze log noise trong ELK cho MES K8s system.
+
+Giải thích:
+1. "Terms agg ordered by _count desc" — cách này hoạt động thế nào để tìm top offender?
+2. Nested aggregation (by_endpoint → volume_per_minute) — cho tôi biết thêm gì?
+3. Làm thế nào define "noise threshold" một cách khoa học thay vì arbitrary number?
+4. Trong K8s context, log noise thường đến từ đâu (liveness probe, readiness probe, sidecar containers)?
+5. Logstash drop filter — cách implement để filter noise trước khi vào Elasticsearch?`,
+          apply:`Tôi cần thiết kế Log Volume Baseline và Noise Detection automated test cho MES K8s system.
+
+Requirements:
+- Baseline volume per service per hour từ 7 ngày qua
+- Alert khi volume deviation > 50% so với baseline
+- Identify "chatty" services gây noise
+- Report: cost impact estimate
+
+Design:
+1. Cách store và query baseline metrics?
+2. Automated noise report chạy daily — format và distribution thế nào?
+3. Recommend filter rules cho Logstash để reduce noise ngay lập tức?
+4. Khi volume tăng, distinguish: bug (noise) vs legitimate growth (feature rollout)?`,
+          drill:`Bài tập Log Noise Detection cho MES K8s ELK.
+
+3 cấp độ:
+
+🟢 Cơ bản: Query top 10 URL paths theo log count trong 1 giờ. Highlight bất kỳ path nào có count > 1000 (potential noise)
+
+🟡 Trung cấp: Compare log volume per service: hôm nay 1h qua vs cùng giờ hôm qua. Tính % change và flag service nào tăng > 100%
+
+🔴 Nâng cao: "Cost attribution" — tính estimated storage cost per service dựa trên log volume và avg document size. Report top 3 cost driver và recommend filter rules với estimated saving %`
+        }
+      },
+      {
+        id:'q4', num:'08', cat:'qual', catLabel:'Log Quality',
+        title:'Log Timestamp — Phát Hiện Clock Skew & Delay',
+        sub:'Log arrive trễ hoặc timestamp sai — ảnh hưởng correlation',
+        context:'K8s cluster có 5 nodes. Node MES-Worker-3 có clock drift +8 phút. Log từ node này arrive đúng trong Elasticsearch nhưng timestamp sai — khiến event sequence bị đảo lộn khi correlate cross-node.',
+        whyMatters:'Clock skew trong manufacturing monitoring có thể: đảo thứ tự causal events, tạo fake SLA violation, ẩn real incidents. Tester phải verify timestamp reliability sau cluster setup.',
+        query:`GET mes-logs-*/_search
+{
+  "size": 0,
+  "aggs": {
+    "by_host": {
+      "terms": { "field": "host.name.keyword", "size": 20 },
+      "aggs": {
+        "avg_ingest_delay": {
+          "avg": {
+            "script": {
+              "source": "doc['_ingest_timestamp'].value.toInstant().toEpochMilli() - doc['@timestamp'].value.toInstant().toEpochMilli()"
+            }
+          }
+        },
+        "max_delay_ms": {
+          "max": {
+            "script": {
+              "source": "Math.abs(doc['_ingest_timestamp'].value.toInstant().toEpochMilli() - doc['@timestamp'].value.toInstant().toEpochMilli())"
+            }
+          }
+        }
+      }
+    }
+  }
+}`,
+        queryLabel:'Detect: Clock skew per node',
+        expected:'✅ PASS nếu avg_ingest_delay < 5000ms (5 giây) cho tất cả hosts. ❌ FAIL nếu bất kỳ host nào có delay hoặc advance > 30 giây — cần check NTP sync.',
+        expectedType:'pass',
+        antipattern:'Negative delay (log timestamp > ingest time) là dấu hiệu clock đang fast, không phải data đến trước khi tạo. Đừng bỏ qua negative values — cũng là clock skew, chỉ ngược chiều.',
+        checks:['Host nào có max_delay_ms lớn nhất?','Average delay có stable không hay biến động nhiều?','Delay tương quan với network latency hay CPU load không?','Có host nào consistently sai không (NTP issue)?'],
+        exercises:['Alert khi bất kỳ node nào có clock skew > 60 giây so với ingest time','So sánh timestamp accuracy trước và sau NTP reconfiguration'],
+        prompts:{
+          explain:`Tôi học cách detect clock skew và timestamp issues trong ELK cho K8s MES cluster.
+
+Giải thích:
+1. "_ingest_timestamp" vs "@timestamp" — Elasticsearch set 2 field này khi nào?
+2. Script trong aggregation (Painless) — syntax cơ bản và tại sao cần .toInstant().toEpochMilli()?
+3. Clock skew trong K8s cluster — nguyên nhân phổ biến và cách NTP fix?
+4. Khi log timestamp sai, tìm kiếm trong Kibana sẽ bị ảnh hưởng thế nào?
+5. Logstash có thể override @timestamp không? Khi nào nên làm điều đó?`,
+          apply:`Tôi cần implement Clock Skew Detection test cho K8s MES cluster trước production deployment.
+
+Test scenarios:
+- Verify tất cả K8s nodes có NTP sync (clock skew < 1s)
+- Detect log processing delay (network + Logstash pipeline)
+- Identify hosts với persistent timestamp issues
+- Baseline acceptable delay cho different log types
+
+Hướng dẫn:
+1. Combine OS-level NTP check + Elasticsearch timestamp check?
+2. Acceptable thresholds: realtime sensor log vs batch report log khác nhau thế nào?
+3. Automated remediation: nếu detect clock skew, trigger NTP sync tự động?
+4. Monitoring: alerting khi clock drift increase trend (sắp vượt threshold)?`,
+          drill:`Bài tập Timestamp & Clock Skew Testing cho K8s ELK.
+
+3 cấp độ:
+
+🟢 Cơ bản: Query tìm tất cả log trong 1h có @timestamp trong tương lai (> now) — dấu hiệu clock quá fast
+
+🟡 Trung cấp: Group by host, tính P50/P95/P99 ingest delay. Hosts có P95 delay > 10 giây = cần investigation
+
+🔴 Nâng cao: Detect "timestamp jump" — host nào có log sequence với @timestamp gap > 5 phút trong khoảng thời gian mà các hosts khác log bình thường (localized outage vs clock issue detection)`
+        }
+      }
+    ]
+  },
+  {
+    key:'pipe', label:'⚙️ Logstash Pipeline Testing', color:'var(--cat-pipe)', bg:'var(--cat-pipe-bg)', bd:'var(--cat-pipe-bd)',
+    desc:'Verify cấu hình Logstash đúng — parse, route, transform không bị sai hay drop.',
+    lessons: [
+      {
+        id:'p1', num:'09', cat:'pipe', catLabel:'Logstash Pipeline',
+        title:'Parse Failure — Grok Pattern Bị Sai',
+        sub:'Log không parse được → vào index sai với tag _grokparsefailure',
+        context:'Team thay đổi log format của MES Order Service từ plain text sang structured JSON. Logstash grok filter cũ không match → 40% log bị drop vào dead-letter với tag `_grokparsefailure`. Developer không biết vì UI vẫn "xanh".',
+        whyMatters:'Parse failure = data loss. Tester phải verify sau mỗi lần change log format hoặc Logstash config. `_grokparsefailure` tag là dấu hiệu đầu tiên cần check.',
+        query:`GET logstash-*/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        { "term": { "tags.keyword": "_grokparsefailure" } },
+        { "term": { "tags.keyword": "_jsonparsefailure" } },
+        { "term": { "tags.keyword": "_dateparsefailure" } },
+        { "term": { "tags.keyword": "_mutate_error" } }
+      ],
+      "minimum_should_match": 1,
+      "filter": [
+        { "range": { "@timestamp": { "gte": "now-1h" } } }
+      ]
+    }
+  },
+  "aggs": {
+    "by_tag": {
+      "terms": { "field": "tags.keyword", "size": 10 }
+    },
+    "by_source": {
+      "terms": { "field": "log.file.path.keyword", "size": 20 }
+    },
+    "failure_trend": {
+      "date_histogram": {
+        "field": "@timestamp",
+        "fixed_interval": "5m",
+        "min_doc_count": 0
+      }
+    }
+  },
+  "size": 5,
+  "_source": ["@timestamp", "message", "tags", "log.file.path"]
+}`,
+        queryLabel:'Detect: Logstash parse failures',
+        expected:'✅ PASS nếu hits.total.value = 0 — không có parse failure nào. ❌ FAIL ngay khi có bất kỳ `_grokparsefailure` nào — cần fix Grok pattern trước khi deploy.',
+        expectedType:'fail',
+        antipattern:'Đừng chỉ query index `mes-logs-*` — parse failure thường bị route sang index khác (logstash-*, dead-letter-*). Check cả 2 index pattern. Và tìm sample document trong `_source.message` để debug grok pattern.',
+        checks:['Loại parse failure nào nhiều nhất (grok vs json vs date)?','Log file path nào bị affected nhiều nhất?','Failure rate tăng hay giảm theo thời gian?','Xem raw message của 1-2 failed document để debug grok pattern?'],
+        exercises:['Query lấy 5 sample raw messages từ _grokparsefailure để debug pattern','Monitor parse failure rate theo 5-minute window, alert nếu rate > 1%'],
+        prompts:{
+          explain:`Tôi học cách detect Logstash parse failures bằng Elasticsearch query. Tôi là Automation Tester mới với ELK.
+
+Giải thích:
+1. _grokparsefailure, _jsonparsefailure, _dateparsefailure — mỗi tag sinh ra khi nào?
+2. Khi parse failure xảy ra, Logstash xử lý document đó thế nào? Drop hay vẫn index?
+3. Làm thế nào tôi test Grok pattern trước khi deploy — Kibana Dev Tools hay tool khác?
+4. "Dead-letter queue" trong Logstash là gì và tôi query nó thế nào?
+5. Tại sao parse failure thường vào index khác (logstash-*) thay vì mes-logs-*?`,
+          apply:`Tôi cần implement Logstash Parse Failure automated test cho MES K8s deployment pipeline.
+
+Scenario: Mỗi khi team thay đổi log format hoặc Logstash config, cần automated gate:
+- Parse failure rate phải = 0% cho critical events
+- < 0.1% cho non-critical
+- Alert ngay khi failure spike > 5% trong 5 phút
+
+Design:
+1. Test strategy: deploy Logstash config → send test log samples → assert 0 parse failure?
+2. Synthetic log injection: cách generate test events với known format để verify pipeline?
+3. Rollback trigger: nếu parse failure > threshold, auto rollback Logstash config?
+4. Debug workflow: từ failure detection đến fix pattern đến re-deploy?`,
+          drill:`Bài tập Logstash Parse Failure Testing cho MES ELK.
+
+3 cấp độ:
+
+🟢 Cơ bản: Query tất cả documents có tag _grokparsefailure trong 30 phút qua, show raw message field để debug
+
+🟡 Trung cấp: Tính parse success rate per log source: (total - failure_count) / total × 100%. Sources < 99% success rate phải fail CI gate
+
+🔴 Nâng cao: "Pipeline Canary Test" — trước khi deploy Logstash config mới, inject 100 synthetic log messages với known format vào test index. Verify: (1) 100% parsed correctly (2) đúng fields extracted (3) route vào đúng index. Auto rollback nếu fail`
+        }
+      },
+      {
+        id:'p2', num:'10', cat:'pipe', catLabel:'Logstash Pipeline',
+        title:'Index Routing — Log Vào Đúng Index Không?',
+        sub:'Verify log từ đúng service/environment vào đúng index pattern',
+        context:'MES system có 3 môi trường: prod, staging, dev. Logstash route dựa trên tag. Sau khi thêm new service, tester phát hiện prod log từ `mes-payment-service` đang vào index `staging-mes-*` — silent data leak sang môi trường thấp hơn.',
+        whyMatters:'Sai index routing gây: compliance violation (prod data trong dev), sai dashboard metrics, ILM policy sai (dev data bị retain như prod = cost explosion).',
+        query:`GET _cat/indices/mes-*?h=index,docs.count,store.size&v
+
+GET mes-logs-prod-*/_search
+{
+  "size": 0,
+  "aggs": {
+    "by_service": {
+      "terms": { "field": "service.name.keyword", "size": 50 }
+    },
+    "by_env_tag": {
+      "terms": { "field": "environment.keyword", "size": 10 }
+    }
+  }
+}`,
+        queryLabel:'Verify: Index routing correctness',
+        expected:'✅ PASS nếu prod index chỉ chứa environment=production. ❌ FAIL nếu phát hiện environment=staging hay environment=dev trong mes-logs-prod-*.',
+        expectedType:'fail',
+        antipattern:'Đừng assume index name = environment. Service có thể send log với wrong environment tag, Logstash route dựa trên tag nên log sai env vào đúng index. Phải verify cả index routing VÀ environment field value.',
+        checks:['prod index có service nào không expected không?','staging index có log từ environment=production không?','Tổng document count có khớp với expected ingest rate không?','Index size bất thường (quá lớn hay quá nhỏ)?'],
+        exercises:['Verify new service "mes-inventory-service" route vào đúng index per environment','Detect log từ K8s namespace "production" nhưng environment tag = "staging" (misconfiguration)'],
+        prompts:{
+          explain:`Tôi học Index Routing verification bằng Elasticsearch cho MES multi-environment K8s setup.
+
+Giải thích:
+1. _cat/indices API là gì và khi nào dùng thay vì search API?
+2. Logstash routing logic — dựa trên gì để quyết định index đích?
+3. Index alias vs index pattern — tại sao alias quan trọng cho routing?
+4. ILM policy sai index = tốn tiền thế nào? Cho ví dụ cụ thể?
+5. Elasticsearch index template — liên quan thế nào đến routing?`,
+          apply:`Tôi cần implement Index Routing Verification test cho MES multi-env K8s deployment.
+
+Environments: prod, staging, dev, qa
+Services: 15 MES microservices
+
+Test requirements:
+- Mỗi service phải route vào đúng index per environment
+- prod index KHÔNG được chứa non-prod data
+- Index size phải trong expected range (±30% baseline)
+
+Design:
+1. Routing matrix: service × environment × expected_index?
+2. Test isolation: làm thế nào verify routing mà không cross-contaminate environments?
+3. Cleanup: sau test, delete test data khỏi prod index thế nào safely?
+4. Continuous monitoring: routing verification chạy mỗi 15 phút trong staging?`,
+          drill:`Bài tập Index Routing Testing cho MES K8s ELK.
+
+3 cấp độ:
+
+🟢 Cơ bản: Query prod index và verify 100% documents có environment="production". Nếu có environment khác → FAIL và list service offender
+
+🟡 Trung cấp: Cross-contamination check — query tất cả indices, tìm bất kỳ prod service name nào xuất hiện trong non-prod index (và ngược lại dev service trong prod index)
+
+🔴 Nâng cao: "Routing Audit Report" — với 15 services × 4 environments = 60 index combinations, tự động verify tất cả combinations, generate matrix report: ✅/❌ per cell, sorted by severity`
+        }
+      },
+      {
+        id:'p3', num:'11', cat:'pipe', catLabel:'Logstash Pipeline',
+        title:'Field Transformation — Dữ Liệu Sau Transform Đúng Không?',
+        sub:'Logstash mutate, convert, rename — kết quả có đúng không?',
+        context:'Logstash pipeline convert field `machine_temp` từ string sang float, rename `prod_line` thành `production.line_id`, và add tag `enriched`. Sau deploy, tester phải verify transformation đúng với 100% documents.',
+        whyMatters:'Silent transformation failure: field vẫn là string thay vì float → range query trên sensor data không hoạt động → temperature alert không fire → safety incident.',
+        query:`GET mes-logs-*/_search
+{
+  "query": {
+    "bool": {
+      "filter": [
+        { "term":  { "tags.keyword": "enriched" } },
+        { "range": { "@timestamp": { "gte": "now-30m" } } }
+      ]
+    }
+  },
+  "aggs": {
+    "temp_stats": {
+      "stats": { "field": "machine.temperature" }
+    },
+    "missing_temp": {
+      "missing": { "field": "machine.temperature" }
+    },
+    "missing_line_id": {
+      "missing": { "field": "production.line_id" }
+    },
+    "type_check": {
+      "terms": {
+        "script": {
+          "source": "doc['machine.temperature'].empty ? 'missing' : 'present'"
+        },
+        "size": 3
+      }
+    }
+  },
+  "size": 3,
+  "_source": ["machine.temperature", "production.line_id", "tags"]
+}`,
+        queryLabel:'Verify: Field transformations',
+        expected:'✅ PASS nếu: stats.count > 0, missing_temp.doc_count = 0, missing_line_id.doc_count = 0, và temp_stats.min/max nằm trong physical range (0-500°C).',
+        expectedType:'pass',
+        antipattern:'Đừng chỉ check field exists — check type bằng cách xem stats aggregation. Nếu field là string, stats sẽ return error hoặc null. Đó là cách detect type mismatch nhanh nhất.',
+        checks:['machine.temperature có numeric stats không (min/max/avg)?','production.line_id có xuất hiện không?','Tag "enriched" có present không?','Temperature values có nằm trong physical range không (sanity check)?'],
+        exercises:['Verify toàn bộ numeric fields sau conversion: stats agg không trả null','Detect documents có field type conflict: một số docs có machine.temperature là string, một số là float'],
+        prompts:{
+          explain:`Tôi học cách verify Logstash field transformation bằng Elasticsearch query.
+
+Giải thích:
+1. "missing" aggregation làm gì? Khác gì "exists" query?
+2. "stats" aggregation trả về gì? Tại sao useful để detect type issues?
+3. Làm thế nào Elasticsearch detect khi field type conflict (string vs float trong cùng index)?
+4. Logstash "mutate" filter — convert, rename, add_field — thứ tự execution có quan trọng không?
+5. Mapping explosion là gì và liên quan thế nào đến dynamic field transformation?`,
+          apply:`Tôi cần implement Field Transformation Verification test cho Logstash pipeline trong MES.
+
+Pipeline transforms cần verify:
+- Type conversion: string → float/int/boolean
+- Field rename: legacy names → new schema names
+- Field enrichment: add computed fields (e.g., temperature_celsius from fahrenheit)
+- Field removal: strip PII fields
+
+Test design:
+1. Input/output mapping specification — store trong test config?
+2. Cách inject known test documents và verify exact output?
+3. Type verification: cách assert field type programmatically?
+4. Edge cases: null values, extreme values, special characters trong transform?`,
+          drill:`Bài tập Field Transformation Testing cho MES Logstash Pipeline.
+
+3 cấp độ:
+
+🟢 Cơ bản: Verify sau transform, field "machine.temperature" là numeric (stats agg trả min/max), và "production.line_id" không null
+
+🟡 Trung cấp: "Transformation Regression Test" — inject 50 documents với known input → run through Logstash → query ES và compare output với expected mapping. Report bất kỳ field nào sai giá trị hoặc sai type
+
+🔴 Nâng cao: Detect "partial transformation failure" — trong batch 1000 documents, X documents được transform đúng, Y documents thiếu field sau transform. Tìm pattern: input gì khiến transform fail (null input, special chars, out-of-range values)?`
+        }
+      }
+    ]
+  },
+  {
+    key:'k8s', label:'☸️ K8s Multi-Cluster Testing', color:'var(--cat-k8s)', bg:'var(--cat-k8s-bg)', bd:'var(--cat-k8s-bd)',
+    desc:'Verify log collection đúng và đủ khi chạy nhiều K8s cluster với ELK Central.',
+    lessons: [
+      {
+        id:'k1', num:'12', cat:'k8s', catLabel:'K8s Cluster',
+        title:'Log Coverage — Mọi Pod Đều Được Collect Không?',
+        sub:'Verify không có pod nào bị miss trong ELK Central',
+        context:'MES chạy trên 3 K8s clusters (factory-cluster-A, B, C) với tổng 120 pods. ELK Central collect từ tất cả clusters. Tester phải verify 100% pods có log flowing vào ELK — không có "dark pod".',
+        whyMatters:'Dark pod = pod chạy nhưng không có log = hoàn toàn invisible. Trong manufacturing, một worker pod silent fail có thể gây production slowdown mà không ai biết trong nhiều giờ.',
+        query:`GET mes-logs-*/_search
+{
+  "size": 0,
+  "query": {
+    "range": { "@timestamp": { "gte": "now-15m" } }
+  },
+  "aggs": {
+    "by_cluster": {
+      "terms": { "field": "kubernetes.cluster.name.keyword", "size": 10 },
+      "aggs": {
+        "by_namespace": {
+          "terms": { "field": "kubernetes.namespace.keyword", "size": 20 },
+          "aggs": {
+            "unique_pods": {
+              "cardinality": { "field": "kubernetes.pod.name.keyword" }
+            },
+            "pod_list": {
+              "terms": { "field": "kubernetes.pod.name.keyword", "size": 200 }
+            }
+          }
+        }
+      }
+    }
+  }
+}`,
+        queryLabel:'Verify: Pod log coverage',
+        expected:'✅ PASS nếu tổng unique_pods khớp với expected pod count từ `kubectl get pods --all-namespaces`. ❌ FAIL nếu có pod nào thiếu.',
+        expectedType:'pass',
+        antipattern:'Query trong window 15 phút có thể miss pod vừa mới start hoặc pod ít activity. Với idle pods, mở rộng window lên 1h và kiểm tra cả `kubernets.pod.uid` thay vì chỉ pod name (pod có thể restart với tên mới).',
+        checks:['Số unique pod khớp với kubectl output không?','Cluster nào có ít pod log nhất?','Namespace nào bị miss?','Có pod name nào từ previous deploy vẫn trong ES (ghost pod)?'],
+        exercises:['Compare pod list từ Elasticsearch vs kubectl output, tìm delta','Alert khi pod count trong một namespace giảm đột ngột (pod crash không restart)'],
+        prompts:{
+          explain:`Tôi học cách verify K8s pod log coverage bằng Elasticsearch query.
+
+Giải thích:
+1. Fluent Bit / Filebeat collect log từ K8s pod thế nào? DaemonSet là gì?
+2. kubernetes.pod.name vs kubernetes.pod.uid — khi nào dùng cái nào?
+3. Cardinality aggregation cho "unique_pods" — tại sao không dùng terms + count?
+4. "Dark pod" trong K8s — nguyên nhân phổ biến (log driver config, DaemonSet missing node)?
+5. Khi pod restart, log có bị duplicate hay miss không?`,
+          apply:`Tôi cần implement K8s Pod Log Coverage verification test cho MES multi-cluster setup.
+
+Infrastructure: 3 clusters, ~120 pods, ELK Central nhận log từ tất cả.
+
+Test requirements:
+- Verify 100% pods có log trong 15 phút qua
+- Detect new pods chưa có log (startup delay?)
+- Alert khi pod count thay đổi unexpectedly
+- Cross-cluster comparison
+
+Design:
+1. Combine kubectl API + Elasticsearch query để compare expected vs actual?
+2. Handle pod churn (thường xuyên scale up/down) mà không false alarm?
+3. Distinguish: pod silent (bug) vs pod idle (no traffic) vs pod just started?
+4. Automated coverage report: daily summary per cluster per namespace?`,
+          drill:`Bài tập K8s Log Coverage Testing cho ELK Central.
+
+3 cấp độ:
+
+🟢 Cơ bản: Query list tất cả unique pod names trong cluster "factory-cluster-A" có log trong 30 phút. Compare với kubectl output manually
+
+🟡 Trung cấp: Phát hiện "silent pod" — pod có log trong 1h qua nhưng không có log trong 15 phút gần nhất (crashed hoặc hung?)
+
+🔴 Nâng cao: "Coverage Matrix" — per cluster × per namespace, tính % pod coverage. Auto-compare với previous hour. Flag bất kỳ drop > 0% và enrich với pod metadata (image version, restart count) để triage nhanh`
+        }
+      },
+      {
+        id:'k2', num:'13', cat:'k8s', catLabel:'K8s Cluster',
+        title:'Cross-Cluster Log Correlation',
+        sub:'Trace request qua nhiều cluster bằng trace.id',
+        context:'Một MES transaction chạy qua 3 cluster: factory-A (MES API) → factory-B (Order Processing) → factory-C (Inventory). Khi transaction fail, tester phải trace toàn bộ hành trình qua ELK Central với 1 trace.id.',
+        whyMatters:'Distributed tracing qua multiple K8s clusters là kỹ năng critical cho tester trong microservices manufacturing environment. Không có trace correlation, debugging distributed failure mất nhiều giờ.',
+        query:`GET mes-logs-*/_search
+{
+  "query": {
+    "term": { "trace.id.keyword": "abc123def456789" }
+  },
+  "sort": [{ "@timestamp": "asc" }],
+  "_source": [
+    "@timestamp",
+    "kubernetes.cluster.name",
+    "kubernetes.namespace",
+    "kubernetes.pod.name",
+    "service.name",
+    "event.action",
+    "event.outcome",
+    "http.response.status_code",
+    "trace.id",
+    "span.id"
+  ],
+  "size": 100
+}`,
+        queryLabel:'Trace: Cross-cluster transaction',
+        expected:'✅ PASS nếu trace tồn tại trong tất cả 3 clusters, event sequence đúng, và final outcome là "success". ❌ FAIL nếu trace bị đứt giữa chừng hoặc outcome là "failure".',
+        expectedType:'pass',
+        antipattern:'Trace.id phải được propagate đúng qua toàn bộ request chain (W3C Trace Context headers). Nếu một service không forward trace header, chain bị đứt và correlation impossible. Test trace propagation riêng trước.',
+        checks:['Trace có span từ tất cả 3 clusters không?','Thứ tự cluster trong trace đúng expected flow không?','Total latency qua toàn bộ chain là bao nhiêu?','Cluster nào có latency cao nhất (bottleneck)?'],
+        exercises:['Tìm trace có latency > 5 giây và identify slow hop','Verify trace propagation: từng service phải có parent.span.id của service trước đó'],
+        prompts:{
+          explain:`Tôi học Cross-Cluster Log Correlation bằng Elasticsearch trong MES K8s setup.
+
+Giải thích:
+1. "Distributed tracing" là gì — trace.id, span.id, parent.span.id?
+2. W3C Trace Context header — cách service propagate trace qua HTTP call?
+3. Tại sao trace chain bị đứt và cách detect?
+4. APM (Application Performance Monitoring) trong Elastic Stack liên quan thế nào?
+5. Khi trace span đến từ nhiều cluster, Elasticsearch query across clusters thế nào?`,
+          apply:`Tôi cần implement Distributed Trace Verification test cho MES cross-cluster setup.
+
+Test scenarios:
+- Happy path: trace đi qua đủ 3 clusters, outcome success
+- Failure path: trace bị đứt tại cluster B, cluster C không nhận
+- Timeout: trace tồn tại nhưng latency > SLA threshold
+- Partial success: một số spans fail nhưng overall transaction retry succeed
+
+Design:
+1. Làm thế nào inject trace.id vào test request và track trong assertion?
+2. Assert "complete trace": tất cả expected services đều có span với trace.id đó?
+3. Latency assertion: từng hop không quá Xms, total không quá Yms?
+4. Visualize trace path từ ES data để attach vào test report?`,
+          drill:`Bài tập Cross-Cluster Trace Verification cho MES ELK.
+
+3 cấp độ:
+
+🟢 Cơ bản: Query theo trace.id, sort by timestamp, show cluster name và service name cho mỗi hop — verify đúng thứ tự cluster A → B → C
+
+🟡 Trung cấp: "Broken trace detector" — tìm trace.id có log trong cluster A và C nhưng KHÔNG có log từ cluster B (missing middle hop = potential data loss)
+
+🔴 Nâng cao: Performance trace analysis — cho 1000 traces trong 1 giờ, tính: avg/P95/P99 latency per hop, % traces với broken chain, % traces exceeding 3s SLA. Output report giúp identify bottleneck cluster`
+        }
+      },
+      {
+        id:'k3', num:'14', cat:'k8s', catLabel:'K8s Cluster',
+        title:'Container Restart & OOM — Detect Crash Loop',
+        sub:'Pod crash để lại dấu vết trong log — tester phải catch',
+        context:'MES Order Processor pod đang crash loop: start → OOM kill → restart → start → OOM kill. Kubernetes restart 23 lần trong 1 giờ. Log vẫn chảy vào ELK từ mỗi lần restart nhưng không ai alert được.',
+        whyMatters:'Crash loop trong manufacturing = intermittent order processing failure. Transaction có thể bị drop giữa chừng. Tester phải verify sau deploy mới không có pod nào crash nhiều hơn threshold.',
+        query:`GET mes-logs-*/_search
+{
+  "size": 0,
+  "query": {
+    "bool": {
+      "should": [
+        { "match_phrase": { "message": "OOMKilled" } },
+        { "match_phrase": { "message": "CrashLoopBackOff" } },
+        { "match_phrase": { "message": "Back-off restarting failed container" } },
+        { "term": { "kubernetes.container.restart_count": 1 } }
+      ],
+      "minimum_should_match": 1,
+      "filter": [
+        { "range": { "@timestamp": { "gte": "now-1h" } } }
+      ]
+    }
+  },
+  "aggs": {
+    "crash_by_pod": {
+      "terms": { "field": "kubernetes.pod.name.keyword", "size": 20 },
+      "aggs": {
+        "restart_events": { "value_count": { "field": "@timestamp" } }
+      }
+    },
+    "crash_timeline": {
+      "date_histogram": {
+        "field": "@timestamp",
+        "fixed_interval": "5m",
+        "min_doc_count": 0
+      }
+    }
+  }
+}`,
+        queryLabel:'Detect: Container crash / OOM',
+        expected:'✅ PASS nếu hits = 0 và crash_by_pod agg rỗng. ❌ FAIL ngay nếu bất kỳ pod nào có crash event — zero tolerance sau deployment.',
+        expectedType:'fail',
+        antipattern:'Đừng chỉ check `kubernetes.container.restart_count` — counter này reset về 0 khi pod bị delete và recreate. Match_phrase trên message text reliable hơn để detect crash events.',
+        checks:['Pod nào crash nhiều nhất?','Crash xảy ra ở namespace nào?','OOM hay lý do khác?','Crash tập trung tại thời điểm nào (sau deploy? high load?)'],
+        exercises:['Alert khi bất kỳ pod nào restart > 3 lần trong 15 phút','Correlate crash events với resource usage metrics (nếu có trong log)'],
+        prompts:{
+          explain:`Tôi học cách detect K8s pod crash và OOM bằng Elasticsearch query cho MES testing.
+
+Giải thích:
+1. CrashLoopBackOff vs OOMKilled — khác nhau về nguyên nhân và cách fix?
+2. kubernetes.container.restart_count field — ai inject field này vào log (Filebeat? Fluent Bit?)?
+3. Tại sao restart_count không reliable và phải dùng message matching?
+4. K8s event log vs container log — Elasticsearch có cả 2 không? Query thế nào?
+5. Sau OOM kill, log có bị lost không (buffer flush không hoàn thành)?`,
+          apply:`Tôi cần implement Post-Deployment Crash Detection test cho MES K8s deployment.
+
+Test gate: sau deploy mới, run 10 phút observation period → nếu có crash → rollback tự động.
+
+Requirements:
+- Zero tolerance cho CrashLoopBackOff trong production namespace
+- Staging: max 1 restart per pod trong 5 phút
+- OOM events: must fix before promote to prod
+
+Design:
+1. "Soak test" — run 15 phút sau deploy và monitor crash rate?
+2. Differentiate: expected restart (rolling update) vs unexpected crash?
+3. Khi detect crash, auto-gather: logs from crashed pod + previous pod instance?
+4. Integration với deployment pipeline: fail deployment nếu crash detected?`,
+          drill:`Bài tập Container Crash Detection cho MES K8s ELK.
+
+3 cấp độ:
+
+🟢 Cơ bản: Query detect bất kỳ OOMKilled hoặc CrashLoopBackOff message trong 30 phút qua, list pod names bị affected
+
+🟡 Trung cấp: "Crash rate" per namespace — pods restart > 2 lần trong 1h = critical alert. Tính crash rate và compare với baseline (expected 0)
+
+🔴 Nâng cao: "Crash impact analysis" — correlate crash events với business events: mỗi lần pod crash, có bao nhiêu MES orders bị affected (drop/delay)? Cần correlate pod restart timeline với order processing gaps`
+        }
+      }
+    ]
+  },
+  {
+    key:'sec', label:'🔐 Security Log Testing', color:'var(--cat-sec)', bg:'var(--cat-sec-bg)', bd:'var(--cat-sec-bd)',
+    desc:'Test khía cạnh bảo mật của logging — không để lọt thông tin nhạy cảm, đủ audit trail.',
+    lessons: [
+      {
+        id:'s1', num:'15', cat:'sec', catLabel:'Security',
+        title:'PII & Sensitive Data Trong Log',
+        sub:'Tester phải verify log không chứa data nhạy cảm của operator/employee',
+        context:'MES log operator actions. Sau GDPR audit, phát hiện log chứa: operator full name, employee ID, IP address, và đôi khi cả password field từ login form submit. Compliance team require fix trong 48h.',
+        whyMatters:'PII trong log là GDPR violation + security risk. Tester phải verify masking/scrubbing pipeline hoạt động đúng sau mỗi Logstash config change.',
+        query:`GET mes-logs-*/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        { "match_phrase": { "message": "password" } },
+        { "match_phrase": { "message": "employee_id" } },
+        { "regexp": { "message.keyword": ".*\\d{3}-\\d{2}-\\d{4}.*" } },
+        { "regexp": { "operator.name.keyword": ".+" } },
+        { "exists": { "field": "user.full_name" } }
+      ],
+      "minimum_should_match": 1,
+      "filter": [
+        { "range": { "@timestamp": { "gte": "now-24h" } } }
+      ]
+    }
+  },
+  "aggs": {
+    "pii_by_service": {
+      "terms": { "field": "service.name.keyword", "size": 20 }
+    }
+  },
+  "_source": ["@timestamp", "service.name", "message"],
+  "size": 5
+}`,
+        queryLabel:'Detect: PII / sensitive data in logs',
+        expected:'✅ PASS nếu hits = 0 — không có PII nào. ❌ FAIL với bất kỳ hit nào — phải mask trước khi merge feature.',
+        expectedType:'fail',
+        antipattern:'Đừng log raw request body — chứa form data bao gồm passwords. Và đừng assume developer biết field nào là PII — tạo PII inventory và test list rõ ràng. Regexp detect SSN/phone number pattern trong log message.',
+        checks:['Loại PII nào xuất hiện nhiều nhất?','Service nào là offender?','Có pattern nào trong message field không (form submit log)?','Masking function có đang hoạt động hay bị bypass?'],
+        exercises:['Verify masking đúng: operator.id phải là "OP-XXXX" format, không phải real ID','Test rằng sau masking, value vẫn unique (để trace được) nhưng không reversible'],
+        prompts:{
+          explain:`Tôi học cách test PII Detection trong ELK log cho MES system — yêu cầu GDPR compliance.
+
+Giải thích:
+1. PII trong manufacturing context: loại data nào thường lộ trong log?
+2. regexp query trong Elasticsearch — syntax và performance considerations?
+3. Logstash "mutate + gsub" để mask PII — hoạt động thế nào?
+4. Elasticsearch "field masking" trong security plugin — alternative approach?
+5. GDPR yêu cầu gì cụ thể về log retention có chứa PII?`,
+          apply:`Tôi cần implement PII Detection automated test cho MES logging compliance.
+
+PII inventory cần check:
+- Operator personal info (name, employee ID, phone)
+- SSN/ID card patterns (regexp)
+- Password/credential strings
+- IP addresses (if personal under GDPR)
+- Raw form submissions
+
+Design:
+1. PII pattern library — maintain danh sách patterns trong config?
+2. Automated daily scan + report với evidence attachment?
+3. "Canary PII" — inject fake PII vào test và verify Logstash scrubs it?
+4. GDPR deletion request: làm thế nào delete specific person's data từ ES?`,
+          drill:`Bài tập PII Detection và Masking Testing cho MES ELK.
+
+3 cấp độ:
+
+🟢 Cơ bản: Query detect 5 PII patterns phổ biến (password keyword, email format, phone format, employee_id field, full_name field). Report count per service
+
+🟡 Trung cấp: "Masking verification" — inject document với known PII → run qua Logstash → verify output có PII bị masked đúng format (không còn recognizable nhưng vẫn có cấu trúc để trace)
+
+🔴 Nâng cao: "GDPR deletion test" — tạo test user với fake PII, verify log chứa đó, submit deletion request, sau 24h verify tất cả log liên quan đến test user đã bị purge hoặc anonymized`
+        }
+      },
+      {
+        id:'s2', num:'16', cat:'sec', catLabel:'Security',
+        title:'Audit Log Integrity — Không Ai Xóa Được Log',
+        sub:'Verify audit trail immutability và completeness',
+        context:'Factory security audit yêu cầu: mọi operator action phải được log và không thể bị xóa hay modify sau khi write. Tester phải verify audit log completeness và detect nếu có ai đó xóa log (insider threat).',
+        whyMatters:'Tampered audit log = failed compliance audit = potential shutdown order. Tester role: verify completeness trước audit, detect gaps, verify sequence integrity.',
+        query:`GET mes-audit-logs-*/_search
+{
+  "size": 0,
+  "query": {
+    "range": { "@timestamp": { "gte": "now-24h" } }
+  },
+  "aggs": {
+    "audit_coverage": {
+      "date_histogram": {
+        "field": "@timestamp",
+        "fixed_interval": "5m",
+        "min_doc_count": 0,
+        "extended_bounds": {
+          "min": "now-24h",
+          "max": "now"
+        }
+      },
+      "aggs": {
+        "action_types": {
+          "terms": { "field": "event.action.keyword", "size": 10 }
+        },
+        "is_gap": {
+          "bucket_selector": {
+            "buckets_path": { "count": "_count" },
+            "script": "params.count == 0"
+          }
+        }
+      }
+    },
+    "by_operator": {
+      "terms": { "field": "operator.id.keyword", "size": 50 },
+      "aggs": {
+        "action_count": { "value_count": { "field": "@timestamp" } }
+      }
+    }
+  }
+}`,
+        queryLabel:'Verify: Audit log completeness & gaps',
+        expected:'✅ PASS nếu: không có 5-minute gap nào, mọi operator có action log, và tổng count khớp với expected action volume.',
+        expectedType:'pass',
+        antipattern:'Audit log "completeness" không thể verify 100% chỉ bằng Elasticsearch — cần cross-check với application-level counters. Nếu app log "sent 100 events" nhưng ES chỉ có 95, đó là mismatch cần investigate.',
+        checks:['Có time gap nào trong audit log không?','Operator nào có action count bất thường (0 trong shift = suspicious)?','Action types có đủ expected categories không?','Sequence number (nếu có) liên tục không?'],
+        exercises:['Verify audit log không có gap > 10 phút trong giờ cao điểm (shift 6am-2pm)','Cross-check: số event trong ES vs counter trong application database'],
+        prompts:{
+          explain:`Tôi học Audit Log Integrity Testing bằng Elasticsearch cho MES compliance.
+
+Giải thích:
+1. "Immutable log" — Elasticsearch có thật sự immutable không? Cách enforce?
+2. extended_bounds trong date_histogram — tại sao critical cho gap detection?
+3. bucket_selector pipeline agg — cách hoạt động để filter chỉ empty buckets?
+4. Sequence number trong audit log — implement thế nào và verify thế nào trong ES?
+5. Elasticsearch "read-only" index — cách set và verify log không bị modify?`,
+          apply:`Tôi cần implement Audit Log Integrity Test suite cho MES factory compliance.
+
+Compliance requirements:
+- Không có gap > 5 phút trong audit log 24/7
+- Mọi operator action được log (truy vết được)
+- Log không thể bị delete hay modify sau write
+- Retention: 3 năm minimum
+
+Test design:
+1. Gap detection automation chạy continuous?
+2. Cross-check audit count với application counters?
+3. Verify index read-only lock không bị bypass?
+4. "Chaos test": simulate log deletion attempt → verify rejected và alert fired?`,
+          drill:`Bài tập Audit Log Integrity Testing cho MES ELK.
+
+3 cấp độ:
+
+🟢 Cơ bản: Query detect bất kỳ 5-minute window nào không có audit log trong shift 06:00-14:00 hôm nay
+
+🟡 Trung cấp: Operator coverage check — query tất cả active operators trong shift (từ HR system input), verify mỗi operator có ít nhất N audit events trong shift hours. Flag operator nào có 0 events (absent hoặc log missing?)
+
+🔴 Nâng cao: "Tamper detection" — implement sequence number verification: mỗi audit event có seq_num tăng dần. Query detect bất kỳ gap trong sequence (missing seq_num) hoặc duplicate (seq_num xuất hiện 2 lần). Tricky với distributed system — xử lý per-source thế nào?`
+        }
+      }
+    ]
+  },
+  {
+    key:'mes', label:'🏭 MES / Manufacturing Use Cases', color:'var(--cat-mes)', bg:'var(--cat-mes-bg)', bd:'var(--cat-mes-bd)',
+    desc:'Query DSL áp dụng trực tiếp vào bài toán manufacturing: OEE, quality, sensor, batch tracking.',
+    lessons: [
+      {
+        id:'m1', num:'17', cat:'mes', catLabel:'MES / OT',
+        title:'Machine OEE — Tính Hiệu Suất Máy Từ Log',
+        sub:'Overall Equipment Effectiveness từ Elasticsearch aggregation',
+        context:'OEE = Availability × Performance × Quality. Tất cả 3 yếu tố có thể tính từ log: machine status events cho Availability, actual vs planned speed cho Performance, pass/fail quality events cho Quality. Tester verify OEE calculation logic đúng.',
+        whyMatters:'OEE là KPI số 1 của manufacturing. Nếu tính sai (do log miss, wrong aggregation), cả factory làm việc theo target sai. Tester role: verify query logic và data completeness cho OEE dashboard.',
+        query:`GET mes-logs-*/_search
+{
+  "size": 0,
+  "query": {
+    "bool": {
+      "filter": [
+        { "term": { "machine.id.keyword": "CNC-007" } },
+        { "range": { "@timestamp": { "gte": "now-8h", "lte": "now" } } }
+      ]
+    }
+  },
+  "aggs": {
+    "availability": {
+      "filters": {
+        "filters": {
+          "running_time": { "term": { "machine.status.keyword": "running" } },
+          "downtime":     { "term": { "machine.status.keyword": "stopped" } },
+          "maintenance":  { "term": { "machine.status.keyword": "maintenance" } }
+        }
+      }
+    },
+    "quality_rate": {
+      "filters": {
+        "filters": {
+          "good_units": { "term": { "quality.result.keyword": "pass" } },
+          "reject_units":{ "term": { "quality.result.keyword": "fail" } }
+        }
+      }
+    },
+    "performance_trend": {
+      "date_histogram": {
+        "field": "@timestamp",
+        "fixed_interval": "30m"
+      },
+      "aggs": {
+        "avg_cycle_time": { "avg": { "field": "machine.cycle_time_ms" } },
+        "units_produced": { "sum": { "field": "production.units_count" } }
+      }
+    }
+  }
+}`,
+        queryLabel:'Calculate: OEE components',
+        expected:'Availability = running/(running+stopped+maintenance). Quality = good/(good+reject). Performance = actual_rate/planned_rate. OEE = A×P×Q × 100%.',
+        expectedType:'pass',
+        antipattern:'OEE từ log chỉ accurate nếu machine.status được log EVERY status change. Nếu log chỉ ghi khi có action (event-driven) chứ không ghi periodic heartbeat, availability calculation sẽ sai. Verify logging frequency trước.',
+        checks:['Machine status có log đủ granular không (mỗi status change)?','Cycle time field có numeric và đúng unit (ms) không?','Quality result có đúng 2 values (pass/fail) không hay có thêm categories?','8h window có đúng với shift duration không?'],
+        exercises:['Tính OEE cho toàn bộ production line (10 machines) và compare với manual calculation','Alert khi OEE của bất kỳ machine nào dưới 65% trong bất kỳ shift nào'],
+        prompts:{
+          explain:`Tôi học cách calculate OEE (Overall Equipment Effectiveness) từ Elasticsearch log cho MES system.
+
+Giải thích:
+1. OEE formula: Availability × Performance × Quality — từng component lấy từ log field nào?
+2. "filters" aggregation vs "terms" aggregation — tại sao dùng filters ở đây?
+3. date_histogram fixed_interval "30m" cho performance trend — ý nghĩa gì?
+4. Nếu machine không log status change (chỉ log khi active), tính availability thế nào?
+5. OEE world-class benchmark là bao nhiêu và tôi set threshold alert thế nào?`,
+          apply:`Tôi cần verify OEE calculation logic trong MES ELK dashboard là đúng.
+
+Testing approach:
+- Input: known machine log data (simulation/mock)
+- Expected: OEE = X% dựa trên manual calculation
+- Actual: query ES và compare
+
+Thiết kế test:
+1. Generate synthetic machine log với known availability/performance/quality values?
+2. Ingest vào test index, run OEE query, verify kết quả match manual calc?
+3. Edge cases: machine có 0 downtime (100% availability), machine không produce (0 performance)?
+4. Tolerance: OEE calculation có thể sai bao nhiêu % do log granularity?`,
+          drill:`Bài tập OEE Calculation Testing cho MES Elasticsearch.
+
+3 cấp độ:
+
+🟢 Cơ bản: Query Availability cho CNC-007 trong shift sáng (6h-14h): running_time/(running+stopped+maintenance) × 100%
+
+🟡 Trung cấp: Calculate OEE cho tất cả machines trong một production line, sort by OEE ascending để identify worst performer. Include confidence indicator (bao nhiêu data points? Log đủ granular?)
+
+🔴 Nâng cao: "OEE Regression Test" — define expected OEE baseline per machine per shift. After new firmware deploy, verify OEE metrics không drop > 5% từ baseline. Detect sự thay đổi có ý nghĩa thống kê vs noise`
+        }
+      },
+      {
+        id:'m2', num:'18', cat:'mes', catLabel:'MES / OT',
+        title:'Sensor Threshold Alerting Test',
+        sub:'Verify sensor anomaly detection logic trong ELK',
+        context:'Nhà máy có 200 IoT sensors: temperature, pressure, vibration. ELK nhận sensor data và trigger alert khi vượt threshold. Tester phải verify: (1) alert fire đúng lúc, (2) không fire khi trong range, (3) không miss khi vượt threshold.',
+        whyMatters:'Missed temperature alert trong manufacturing = equipment damage, safety incident, batch loss. False alert = alert fatigue, operator ignore real alerts. Cả 2 đều nguy hiểm. Test phải cover both.',
+        query:`GET mes-sensor-logs-*/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "range": {
+            "sensor.temperature_celsius": { "gt": 85 }
+          }
+        },
+        { "term": { "sensor.type.keyword": "temperature" } },
+        { "range": { "@timestamp": { "gte": "now-1h" } } }
+      ]
+    }
+  },
+  "aggs": {
+    "breach_by_machine": {
+      "terms": { "field": "machine.id.keyword", "size": 50 },
+      "aggs": {
+        "max_temp":   { "max":   { "field": "sensor.temperature_celsius" } },
+        "breach_cnt": { "value_count": { "field": "@timestamp" } },
+        "breach_timeline": {
+          "date_histogram": {
+            "field": "@timestamp",
+            "fixed_interval": "5m"
+          }
+        }
+      }
+    },
+    "temp_percentiles": {
+      "percentiles": {
+        "field": "sensor.temperature_celsius",
+        "percents": [50, 75, 90, 95, 99]
+      }
+    }
+  }
+}`,
+        queryLabel:'Detect: Sensor threshold breach',
+        expected:'✅ True Positive: alert fires khi temp > 85°C. ✅ True Negative: no alert khi temp < 85°C. ❌ False Negative: temp > 85°C nhưng không có alert log.',
+        expectedType:'warn',
+        antipattern:'Threshold test phải test boundary values: exactly at threshold (85.0), just below (84.9), just above (85.1). Đừng chỉ test extreme values (20°C và 200°C) — boundary bugs phổ biến nhất.',
+        checks:['Percentile distribution có hợp lý không (P99 có thể > threshold không)?','Alert event có xuất hiện trong alert index không (cross-index verify)?','Breach duration: máy nào vượt threshold lâu nhất?','Có sensor data gap (sensor offline?) không?'],
+        exercises:['Test boundary: inject data với temp=84.9, 85.0, 85.1 và verify alert behavior','Verify "clear" event khi temp trở về dưới 80°C sau khi đã vượt 85°C'],
+        prompts:{
+          explain:`Tôi học cách test sensor threshold alerting bằng Elasticsearch cho MES IoT system.
+
+Giải thích:
+1. Range query cho numeric fields — gte/gt/lte/lt khác nhau ra sao và khi nào quan trọng?
+2. Percentiles aggregation — khi nào dùng P95/P99 thay vì max để set threshold?
+3. Watcher alert trong Elasticsearch — trigger thế nào khi sensor data vượt threshold?
+4. "Sensor data gap" — làm thế nào detect khi sensor offline (không gửi data) vs sensor gửi data bình thường?
+5. Hysteresis trong alerting — tại sao cần "clear" threshold khác với "trigger" threshold?`,
+          apply:`Tôi cần thiết kế Sensor Alert Verification test suite cho MES IoT system với 200 sensors.
+
+Test types cần cover:
+- True Positive: threshold breach → alert fires
+- True Negative: normal range → no alert
+- False Positive: check for spurious alerts
+- False Negative: breach không có alert (worst case)
+- Boundary test: giá trị tại threshold
+
+Design:
+1. Synthetic sensor data injection với known values để test all cases?
+2. "Alert assertion" — verify alert document xuất hiện trong alert index sau breach?
+3. Timing test: alert phải fire trong X giây sau breach?
+4. Multi-sensor correlation: 2 sensors trên cùng machine breach cùng lúc — 1 hay 2 alerts?`,
+          drill:`Bài tập Sensor Threshold Testing cho MES ELK.
+
+3 cấp độ:
+
+🟢 Cơ bản: Query tìm tất cả temperature breach (> 85°C) trong 1h qua. Verify: có breach_cnt > 0 → verify alert cũng xuất hiện trong alert index trong vòng 30s
+
+🟡 Trung cấp: Boundary value testing — inject 6 temperature readings: [80, 84.9, 85.0, 85.1, 86, 90]. Verify: chỉ 85.1, 86, 90 trigger alert. 80, 84.9, 85.0 không trigger
+
+🔴 Nâng cao: "Alert Accuracy Score" cho toàn bộ sensor fleet: True Positive Rate, False Positive Rate, MTTD (mean time to detect từ breach đến alert). Generate sensor-by-sensor accuracy report và identify sensors cần threshold calibration`
+        }
+      },
+      {
+        id:'m3', num:'19', cat:'mes', catLabel:'MES / OT',
+        title:'Batch Traceability — Trace Production Batch End-to-End',
+        sub:'Từ raw material đến finished good qua log',
+        context:'Một batch sản phẩm có defect phải được recall. Compliance yêu cầu trace toàn bộ: từ raw material lot nào, qua machine nào, operator nào, shift nào, với inspection kết quả gì. Tất cả trong ELK log.',
+        whyMatters:'Batch traceability là regulatory requirement trong nhiều manufacturing sectors (automotive, pharma, food). Tester phải verify tracing capability TRƯỚC khi cần dùng thực — không phải sau recall.',
+        query:`GET mes-logs-*/_search
+{
+  "query": {
+    "term": { "batch.id.keyword": "BATCH-2024-06-001" }
+  },
+  "sort": [{ "@timestamp": "asc" }],
+  "_source": [
+    "@timestamp",
+    "event.action",
+    "batch.id",
+    "material.lot_id",
+    "machine.id",
+    "operator.id",
+    "shift.id",
+    "quality.inspection_result",
+    "production.line_id",
+    "event.outcome"
+  ],
+  "size": 500,
+  "aggs": {
+    "machines_used": {
+      "terms": { "field": "machine.id.keyword", "size": 20 }
+    },
+    "operators_involved": {
+      "terms": { "field": "operator.id.keyword", "size": 20 }
+    },
+    "quality_summary": {
+      "terms": { "field": "quality.inspection_result.keyword", "size": 5 }
+    },
+    "timeline": {
+      "date_histogram": {
+        "field": "@timestamp",
+        "calendar_interval": "hour"
+      }
+    }
+  }
+}`,
+        queryLabel:'Trace: Full batch lifecycle',
+        expected:'✅ PASS nếu: trace có đủ events từ material.received đến shipping.dispatched, không có gap > 30 phút, và quality inspection có kết quả rõ ràng.',
+        expectedType:'pass',
+        antipattern:'batch.id phải được propagate qua toàn bộ event chain — nếu một service không include batch.id trong log, chain bị đứt. Test propagation riêng cho từng service. Không thể "reconstruct" batch trace sau khi data missing.',
+        checks:['Tất cả production stages có trong trace không?','Material lot IDs có được link không?','Operator và machine ở mỗi stage?','Quality check results có đầy đủ không?'],
+        exercises:['Verify batch trace completeness: đủ 8 required event types không?','Find batches có quality inspection fail rate > 5%'],
+        prompts:{
+          explain:`Tôi học cách implement Batch Traceability query trong Elasticsearch cho MES system.
+
+Giải thích:
+1. Batch tracing vs distributed tracing (trace.id) — khác nhau về concept và implementation?
+2. Tại sao batch.id propagation quan trọng — và ai chịu trách nhiệm propagate?
+3. _source filter — tại sao chỉ lấy fields cần thiết thay vì tất cả?
+4. Với 500 documents cho 1 batch, pagination thế nào khi size > 10,000?
+5. Regulatory traceability requirements: ISO 9001, IATF 16949 yêu cầu gì?`,
+          apply:`Tôi cần verify và demo Batch Traceability capability cho MES system — upcoming regulatory audit.
+
+Test scenarios:
+- Full trace: raw material → production → quality → shipping
+- Partial trace: batch bị interrupt (machine breakdown) → trace shows exactly when/where
+- Cross-machine: batch đi qua 3 machines → trace shows handoff between machines
+- Multi-lot: batch dùng 2 material lots → both lots traceable
+
+Design:
+1. Test data: create "golden batch" với complete known trace để use as baseline?
+2. Trace completeness score: 8 required events → X events found = X/8 × 100%?
+3. Audit report generation: từ ES data → PDF trace report tự động?
+4. Performance: query tất cả 200 batches của một ngày — latency acceptable?`,
+          drill:`Bài tập Batch Traceability Testing cho MES ELK.
+
+3 cấp độ:
+
+🟢 Cơ bản: Query toàn bộ log của BATCH-TEST-001, sort by time, verify 8 required event types xuất hiện đủ
+
+🟡 Trung cấp: "Traceability completeness score" — với 100 batches trong hôm nay, tính % có đủ trace (8/8 event types). Batches dưới 100% → liệt kê missing events
+
+🔴 Nâng cao: "Forward + Backward trace" — (1) từ material lot tìm tất cả batches dùng lot đó (forward), (2) từ finished product order tìm material lots đã dùng (backward). Implement cả 2 directions và verify consistency`
+        }
+      },
+      {
+        id:'m4', num:'20', cat:'mes', catLabel:'MES / OT',
+        title:'Production Line Throughput Analysis',
+        sub:'Measure actual vs planned throughput từ log data',
+        context:'Production manager muốn biết: trong shift 8 tiếng, Line-3 sản xuất được bao nhiêu units và so với kế hoạch thế nào. Tất cả unit completion events đều được log trong ELK với timestamp.',
+        whyMatters:'Throughput analysis từ log là real-time manufacturing intelligence. Tester phải verify calculation accuracy vì số này ảnh hưởng trực tiếp đến bonus, planning, và customer delivery commitments.',
+        query:`GET mes-logs-*/_search
+{
+  "size": 0,
+  "query": {
+    "bool": {
+      "filter": [
+        { "term": { "production.line_id.keyword": "LINE-3" } },
+        { "term": { "event.action.keyword": "unit.completed" } },
+        { "range": {
+            "@timestamp": {
+              "gte": "2024-06-10T06:00:00+07:00",
+              "lte": "2024-06-10T14:00:00+07:00"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "aggs": {
+    "total_units": {
+      "value_count": { "field": "unit.id.keyword" }
+    },
+    "unique_units": {
+      "cardinality": { "field": "unit.id.keyword" }
+    },
+    "by_product_type": {
+      "terms": { "field": "product.type.keyword", "size": 20 },
+      "aggs": {
+        "unit_count": { "value_count": { "field": "unit.id.keyword" } }
+      }
+    },
+    "hourly_throughput": {
+      "date_histogram": {
+        "field": "@timestamp",
+        "calendar_interval": "hour"
+      },
+      "aggs": {
+        "units_per_hour": { "value_count": { "field": "unit.id.keyword" } }
+      }
+    }
+  }
+}`,
+        queryLabel:'Measure: Production throughput',
+        expected:'Compare total_units (có thể có duplicate) vs unique_units (actual). Nếu total > unique → có duplicate events → need to investigate. Throughput per hour nên consistent nếu line chạy ổn định.',
+        expectedType:'warn',
+        antipattern:'Dùng value_count (total) thay vì cardinality (unique) khi tính throughput sẽ inflate số liệu nếu có duplicate events. Luôn compare cả 2 và explain delta. Trong manufacturing, 1% duplicate = significant.',
+        checks:['total_units vs unique_units: có chênh lệch không?','Hourly throughput: consistent hay có drop (machine breakdown? shift change)?','Planned vs actual: cần external data để compare?','Product type breakdown có đúng production order mix không?'],
+        exercises:['Detect giờ nào trong shift có throughput thấp hơn 80% average (potential issue)','So sánh throughput LINE-3 vs LINE-4 trong cùng shift'],
+        prompts:{
+          explain:`Tôi học cách tính Production Throughput từ Elasticsearch log cho MES system.
+
+Giải thích:
+1. value_count vs cardinality aggregation — tại sao quan trọng phải dùng đúng loại khi count units?
+2. Timezone trong range query — tại sao +07:00 quan trọng với shift time range?
+3. calendar_interval "hour" vs "fixed_interval 1h" — khác nhau thế nào?
+4. Nếu unit completion event bị miss (machine log fail), throughput sẽ undercount — làm sao detect?
+5. "Cycle time" vs "throughput" — 2 metrics này liên quan thế nào và tính từ log thế nào?`,
+          apply:`Tôi cần implement Production Throughput Verification test cho MES reporting.
+
+Testing approach:
+- "Ground truth" từ MES database (actual production records)
+- ES query result
+- Compare: allowable variance < 0.1%
+
+Scenarios:
+- Normal shift: throughput đều đặn
+- Machine breakdown: throughput drop trong 1-2 giờ
+- Shift change overlap: potential duplicate counting
+- Rush production: throughput spike
+
+Design:
+1. Làm thế nào get "ground truth" từ MES DB để compare với ES?
+2. Acceptable variance khi compare ES vs DB (indexing delay, clock skew)?
+3. Automated reconciliation report: chạy daily, flag bất kỳ discrepancy > threshold?
+4. Root cause khi discrepancy: duplicate events vs missing events vs timing issue?`,
+          drill:`Bài tập Production Throughput Analysis cho MES ELK.
+
+3 cấp độ:
+
+🟢 Cơ bản: Tính tổng units completed cho LINE-3 trong shift sáng hôm qua. Compare value_count vs cardinality — có duplicate không?
+
+🟡 Trung cấp: "Throughput anomaly detection" — tính hourly throughput cho 7 ngày, identify giờ nào có throughput < P25 baseline (potential issue) và > P75 (rush production)
+
+🔴 Nâng cao: Multi-line throughput dashboard — 5 production lines, 3 shifts/ngày, 30 ngày. Tính: actual vs planned per line per shift, top bottleneck hours, efficiency trend. Output có thể serve production manager dashboard`
+        }
+      },
+      {
+        id:'m5', num:'21', cat:'mes', catLabel:'MES / OT',
+        title:'Downtime Root Cause Analysis',
+        sub:'Correlate machine stop events với error codes trong log',
+        context:'Machine CNC-012 stop 47 lần trong 1 tuần. Maintenance team muốn biết: stop do lỗi gì? Error code nào phổ biến nhất? Lỗi có xảy ra trước stop hay sau? Tester verify query logic cho downtime dashboard.',
+        whyMatters:'Downtime analysis accuracy ảnh hưởng trực tiếp đến maintenance scheduling và spare parts inventory. Sai data → sai decision → unplanned downtime.',
+        query:`GET mes-logs-*/_search
+{
+  "size": 0,
+  "query": {
+    "bool": {
+      "filter": [
+        { "term": { "machine.id.keyword": "CNC-012" } },
+        { "range": { "@timestamp": { "gte": "now-7d" } } }
+      ],
+      "should": [
+        { "term": { "machine.status.keyword": "stopped" } },
+        { "exists": { "field": "error.code" } }
+      ],
+      "minimum_should_match": 1
+    }
+  },
+  "aggs": {
+    "stop_events": {
+      "filter": { "term": { "machine.status.keyword": "stopped" } },
+      "aggs": {
+        "total_stops": { "value_count": { "field": "@timestamp" } },
+        "stop_by_hour": {
+          "date_histogram": {
+            "field": "@timestamp",
+            "calendar_interval": "hour"
+          }
+        }
+      }
+    },
+    "error_codes": {
+      "filter": { "exists": { "field": "error.code" } },
+      "aggs": {
+        "top_errors": {
+          "terms": { "field": "error.code.keyword", "size": 20 }
+        }
+      }
+    },
+    "downtime_duration": {
+      "avg": { "field": "machine.downtime_minutes" }
+    }
+  }
+}`,
+        queryLabel:'Analyze: Downtime root causes',
+        expected:'Trả về: total stop count, top error codes by frequency, average downtime per stop, và hourly distribution để identify pattern (shift change? specific operator?)',
+        expectedType:'warn',
+        antipattern:'Đừng assume error.code luôn xuất hiện cùng lúc với machine.stopped — có thể error log đến trước stop event vài giây. Cần correlate trong time window (ví dụ: error trong vòng 30s trước stop = likely cause).',
+        checks:['Top 5 error codes chiếm bao nhiêu % tổng stops?','Stop pattern theo giờ: tập trung ở shift nào?','Average downtime per stop type?','Có error code nào không có corresponding stop? (near miss)'],
+        exercises:['Correlate error code với downtime duration: error nào tốn nhiều thời gian fix nhất?','Compare downtime frequency trước và sau preventive maintenance'],
+        prompts:{
+          explain:`Tôi học Downtime Root Cause Analysis bằng Elasticsearch cho MES manufacturing.
+
+Giải thích:
+1. "filters" aggregation (số nhiều) trong query này — cách dùng và khi nào preferred hơn bool query?
+2. Làm thế nào correlate 2 event types (stopped + error.code) xảy ra gần nhau về thời gian?
+3. avg aggregation trên downtime_minutes — có thể bị misleading thế nào (outlier effect)?
+4. Trong manufacturing, "scheduled downtime" vs "unscheduled downtime" — tách ra trong Elasticsearch thế nào?
+5. MTTR (Mean Time to Repair) và MTBF (Mean Time Between Failures) — tính từ log thế nào?`,
+          apply:`Tôi cần verify Downtime Analysis logic trong MES ELK dashboard là accurate.
+
+Metrics cần verify:
+- Stop frequency per machine per shift
+- Top error codes and their frequency
+- Average downtime per error type
+- MTBF per machine per week
+
+Test approach:
+1. Synthetic downtime data với known stop events và error codes?
+2. Manual calculation vs ES aggregation — verify match?
+3. Edge cases: machine stop without error code (human stop), error without stop (transient)?
+4. Timezone handling cho shift-based analysis?`,
+          drill:`Bài tập Downtime Root Cause Analysis cho MES ELK.
+
+3 cấp độ:
+
+🟢 Cơ bản: Top 5 error codes cho CNC-012 trong 7 ngày, với count và % tổng stops
+
+🟡 Trung cấp: "Causal correlation" — với mỗi machine.stopped event, tìm error.code event trong vòng 60s trước đó. Nếu tìm thấy → gán error code là "likely cause". Report: bao nhiêu stops có identified cause vs unknown
+
+🔴 Nâng cao: MTBF per machine per week — (total_running_hours / number_of_failures). Trend: MTBF tăng hay giảm qua 4 tuần? Machine nào deteriorating fastest? Flag machines có MTBF < threshold để schedule preventive maintenance`
+        }
+      },
+      {
+        id:'m6', num:'22', cat:'mes', catLabel:'MES / OT',
+        title:'Quality Defect Pattern Detection',
+        sub:'Tìm correlation giữa defect và production parameters',
+        context:'Quality team thấy defect rate tăng từ 0.5% lên 2.3% trong tuần. Họ nghi ngờ liên quan đến: thay đổi raw material lot, adjustment nhiệt độ lò, hoặc operator mới. Tester verify query để tìm correlation.',
+        whyMatters:'Defect pattern detection từ log cho phép root cause analysis nhanh hơn nhiều so với manual tracking. Trong manufacturing, mỗi % defect = hàng nghìn USD waste.',
+        query:`GET mes-logs-*/_search
+{
+  "size": 0,
+  "query": {
+    "bool": {
+      "filter": [
+        { "term": { "event.action.keyword": "quality.inspection" } },
+        { "range": { "@timestamp": { "gte": "now-7d" } } }
+      ]
+    }
+  },
+  "aggs": {
+    "defect_rate_trend": {
+      "date_histogram": {
+        "field": "@timestamp",
+        "calendar_interval": "day"
+      },
+      "aggs": {
+        "total": { "value_count": { "field": "@timestamp" } },
+        "defects": {
+          "filter": { "term": { "quality.result.keyword": "fail" } }
+        },
+        "defect_rate": {
+          "bucket_script": {
+            "buckets_path": {
+              "fails": "defects._count",
+              "total": "total"
+            },
+            "script": "params.total > 0 ? (params.fails / params.total) * 100 : 0"
+          }
+        }
+      }
+    },
+    "defect_by_material_lot": {
+      "terms": { "field": "material.lot_id.keyword", "size": 20 },
+      "aggs": {
+        "defect_count": {
+          "filter": { "term": { "quality.result.keyword": "fail" } }
+        }
+      }
+    },
+    "defect_by_machine": {
+      "terms": { "field": "machine.id.keyword", "size": 20 },
+      "aggs": {
+        "defect_count": {
+          "filter": { "term": { "quality.result.keyword": "fail" } }
+        }
+      }
+    },
+    "defect_by_operator": {
+      "terms": { "field": "operator.id.keyword", "size": 20 },
+      "aggs": {
+        "defect_count": {
+          "filter": { "term": { "quality.result.keyword": "fail" } }
+        }
+      }
+    }
+  }
+}`,
+        queryLabel:'Analyze: Defect correlation patterns',
+        expected:'Trend chart theo ngày. Breakdown theo material lot, machine, operator — xác định dimension nào correlate mạnh nhất với defect spike.',
+        expectedType:'warn',
+        antipattern:'Correlation không phải causation — material lot X có defect cao có thể vì chỉ dùng trong shift với operator ít kinh nghiệm. Cần multi-dimensional analysis, không kết luận từ 1 dimension.',
+        checks:['Defect rate trend: khi nào spike bắt đầu?','Material lot nào có defect rate cao nhất?','Machine nào có defect cao nhất?','Operator nào có defect rate cao nhất?'],
+        exercises:['bucket_script để tính defect rate % — verify formula đúng với manual calc','Detect "defect cluster": nhiều defects trong window 30 phút (potential systematic issue vs random)'],
+        prompts:{
+          explain:`Tôi học Quality Defect Pattern Detection bằng Elasticsearch cho MES manufacturing.
+
+Giải thích:
+1. bucket_script trong Elasticsearch — tính toán derived metric từ sibling aggregation?
+2. "defect_by_material_lot" nested agg — filter inside terms agg hoạt động thế nào?
+3. Làm thế nào distinguish correlation vs causation từ agg data?
+4. Statistical significance — với sample size nhỏ, defect rate cao có thể chỉ là noise?
+5. Elasticsearch "significant_terms" aggregation — dùng để tìm anomalous terms thế nào?`,
+          apply:`Tôi cần implement Quality Defect Analysis test verification cho MES system.
+
+Test approach:
+- Inject synthetic defect data với known patterns (e.g., lot A có 10% defect rate)
+- Run analysis query
+- Verify: lot A phải xuất hiện trong top defect_by_material_lot
+
+Test scenarios:
+- Single root cause (one bad lot)
+- Multiple causes (bad lot + specific machine)
+- Operator skill gap pattern
+- Random noise (no pattern)
+
+Làm thế nào verify query logic đúng với tất cả scenarios?`,
+          drill:`Bài tập Defect Pattern Detection cho MES ELK.
+
+3 cấp độ:
+
+🟢 Cơ bản: Tính defect rate per day cho 7 ngày qua. Highlight ngày nào vượt 1% threshold
+
+🟡 Trung cấp: "3-dimensional correlation" — với defects trong ngày có defect_rate > 1%: tìm common denominator (cùng material lot? cùng machine? cùng shift?). Query trả về intersection analysis
+
+🔴 Nâng cao: "Statistical process control" query — tính mean và standard deviation của defect rate cho 30 ngày baseline. Alert khi defect rate > mean + 2σ (statistical outlier). Implement với Elasticsearch scripting và explain tại sao 2σ là standard threshold`
+        }
+      },
+      {
+        id:'m7', num:'23', cat:'mes', catLabel:'MES / OT',
+        title:'ELK Performance Testing cho MES Workload',
+        sub:'Verify ELK cluster handle được ingest và query load',
+        context:'MES peak ingest: 50,000 events/second trong shift cao điểm (end of day rush). Query: 20 concurrent dashboard users. Tester phải verify ELK cluster performance trước go-live.',
+        whyMatters:'ELK cluster overwhelmed = alert miss, dashboard lag, potential data loss. Tester phải establish performance baseline và run load test trước production.',
+        query:`GET _cat/nodes?v&h=name,heap.percent,cpu,load_1m,disk.avail
+
+GET _cluster/stats?human=true
+
+GET _nodes/stats/indices?human=true
+
+GET mes-logs-*/_search
+{
+  "query": { "range": { "@timestamp": { "gte": "now-1m" } } },
+  "aggs": {
+    "ingest_rate": {
+      "date_histogram": {
+        "field": "@timestamp",
+        "fixed_interval": "1s"
+      }
+    }
+  },
+  "size": 0
+}`,
+        queryLabel:'Monitor: Cluster performance',
+        expected:'Heap < 75%, CPU < 70%, disk available > 20%. Ingest rate consistent per second. Query latency < 500ms for dashboard queries.',
+        expectedType:'warn',
+        antipattern:'Đừng run performance test với production data hoặc trong giờ cao điểm. Dùng dedicated test environment với representative data volume. Và measure tail latency (P99) không chỉ average.',
+        checks:['Heap pressure trên tất cả nodes?','Ingest rate: events/second per node','Query latency tăng khi load tăng không?','Disk write throughput có bottleneck không?'],
+        exercises:['Thiết kế load test: ramp từ 1,000 lên 50,000 events/second trong 30 phút','Measure query latency degradation khi ingest load tăng'],
+        prompts:{
+          explain:`Tôi học ELK Performance Testing cho MES manufacturing workload.
+
+Giải thích:
+1. _cat/nodes API — các metrics cần theo dõi và ngưỡng cảnh báo?
+2. Heap pressure trong Elasticsearch — tại sao > 75% là nguy hiểm?
+3. Ingest pipeline bottleneck — queue depth, worker threads, batch size thế nào ảnh hưởng throughput?
+4. Query vs Ingest tradeoff — khi ingest load cao, query latency bị ảnh hưởng thế nào?
+5. Elasticsearch horizontal scaling — thêm node improve ingest hay query hay cả 2?`,
+          apply:`Tôi cần thiết kế ELK Performance Test plan cho MES go-live với 50K events/second peak.
+
+Test scenarios:
+- Baseline: 10K events/sec, 5 concurrent queries
+- Normal: 25K events/sec, 15 concurrent queries
+- Peak: 50K events/sec, 20 concurrent queries
+- Spike: 100K events/sec burst trong 30 giây
+
+Metrics cần capture:
+1. Ingest lag (time từ event tạo đến searchable trong ES)
+2. Query latency P50/P95/P99 dưới load
+3. Memory và CPU per node
+4. Data loss rate khi overwhelmed
+
+Làm thế nào design và execute test này?`,
+          drill:`Bài tập ELK Performance Testing cho MES.
+
+3 cấp độ:
+
+🟢 Cơ bản: Monitor cluster health trong 10 phút high load: plot heap%, cpu%, và ingest rate per second. Identify nếu có node nào outlier
+
+🟡 Trung cấp: "Query performance baseline" — run 10 standard MES queries đồng thời, measure latency. Tăng concurrent users từ 5 lên 50 theo bước 5. Tìm "knee point" khi latency start degrading exponentially
+
+🔴 Nâng cao: Full load test report — ingest throughput, query latency matrix (query_type × load_level), resource utilization trends, identify bottleneck (CPU/memory/disk/network), recommend hardware or config tuning để handle 2× current peak`
+        }
+      },
+      {
+        id:'m8', num:'24', cat:'mes', catLabel:'MES / OT',
+        title:'ELK Consultant Toolkit — Query Library',
+        sub:'Bộ query sẵn sàng dùng cho consulting engagement',
+        context:'Bạn là consultant onboard một factory mới dùng ELK. Client hỏi: "Hệ thống có ổn không?" — bạn cần run một bộ query trong 30 phút để có overview toàn diện. Đây là bộ query đó.',
+        whyMatters:'Consultant value = speed to insight. Bộ query chuẩn giúp bạn deliver preliminary assessment trong buổi đầu tiên thay vì mất 2 ngày explore.',
+        query:`# === CONSULTANT HEALTH CHECK QUERIES ===
+
+# 1. System Overview (chạy đầu tiên)
+GET _cluster/health?pretty
+
+# 2. Index inventory
+GET _cat/indices?v&s=docs.count:desc&h=index,docs.count,store.size,health
+
+# 3. Log volume trong 24h
+GET */_search
+{
+  "size": 0,
+  "query": { "range": { "@timestamp": { "gte": "now-24h" } } },
+  "aggs": {
+    "by_index": { "terms": { "field": "_index", "size": 20 } },
+    "by_hour": { "date_histogram": { "field": "@timestamp", "calendar_interval": "hour" } }
+  }
+}
+
+# 4. Parse failure check
+GET */_search
+{
+  "size": 5,
+  "query": {
+    "bool": {
+      "should": [
+        { "term": { "tags.keyword": "_grokparsefailure" } },
+        { "term": { "tags.keyword": "_jsonparsefailure" } }
+      ],
+      "minimum_should_match": 1,
+      "filter": [{ "range": { "@timestamp": { "gte": "now-1h" } } }]
+    }
+  }
+}
+
+# 5. Top error services
+GET */_search
+{
+  "size": 0,
+  "query": {
+    "bool": {
+      "filter": [
+        { "range": { "http.response.status_code": { "gte": 500 } } },
+        { "range": { "@timestamp": { "gte": "now-1h" } } }
+      ]
+    }
+  },
+  "aggs": {
+    "error_services": { "terms": { "field": "service.name.keyword", "size": 10 } }
+  }
+}`,
+        queryLabel:'Consultant Health Check — 5 queries, 30 phút',
+        expected:'Sau 5 queries: biết cluster healthy không, có log nào bị mất không, service nào đang có vấn đề. Đủ để đưa ra preliminary assessment.',
+        expectedType:'pass',
+        antipattern:'Đừng dive sâu vào một vấn đề cụ thể trước khi có overview. Thứ tự quan trọng: cluster health → data integrity → service health → specific investigation. Bottom-up approach waste thời gian.',
+        checks:['Cluster status: green/yellow/red?','Parse failure rate: có data loss không?','Top error services: ai đang bị ảnh hưởng?','Log volume: consistent hay có gap/spike?'],
+        exercises:['Mở rộng bộ query với K8s pod coverage check và ILM policy status','Tạo "Consultant Report Template" tự động generate từ 5 query results'],
+        prompts:{
+          explain:`Tôi muốn hiểu "Consultant Approach" khi assessment một ELK deployment mới cho manufacturing client.
+
+Giải thích:
+1. Thứ tự nào để assess ELK health hiệu quả nhất trong thời gian ngắn?
+2. _cat APIs vs search APIs — khi nào dùng cái nào trong assessment?
+3. "Red flags" trong ELK — những dấu hiệu nào phải investigate ngay?
+4. Làm thế nào estimate data quality nhanh (trong 30 phút) mà không query toàn bộ data?
+5. Consultant deliverable: preliminary assessment report nên có những gì?`,
+          apply:`Tôi đang chuẩn bị cho ELK consulting engagement tại một manufacturing factory.
+
+Client context:
+- 5 production lines, 200 machines
+- ELK running 6 tháng, chưa có maintenance
+- "Performance degradation" — họ không biết nguyên nhân
+
+30-minute assessment plan:
+1. Query sequence nào chạy trước?
+2. Metrics nào cần capture và document?
+3. Common issues sau 6 tháng ELK không maintain?
+4. Deliverable format: verbal debrief vs written report?
+5. Từ assessment, làm thế nào prioritize recommendations?`,
+          drill:`Bài tập ELK Consultant Assessment cho MES factory.
+
+3 cấp độ:
+
+🟢 Cơ bản: Run 5 health check queries, document kết quả. Identify top 3 issues cần address ngay
+
+🟡 Trung cấp: "30-minute assessment" simulation — given a "sick" ELK cluster description, design query sequence, interpret hypothetical results, và write 1-page preliminary assessment với recommendations
+
+🔴 Nâng cao: Design "ELK Health Score" — composite metric từ: cluster health (25%), parse success rate (25%), query latency (20%), log completeness (20%), storage efficiency (10%). Build automated health dashboard query set và scoring algorithm. Present as reusable consulting tool`
+        }
+      }
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════
+// BUILD UI
+// ═══════════════════════════════════════════════════
+
+function escHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function allLessons(){
+  return SECTIONS.flatMap(s=>s.lessons);
+}
+
+// Build sidebar
+function buildSidebar(){
+  const sbBody = document.getElementById('sb-body');
+  SECTIONS.forEach(sec=>{
+    const dotColor = `background:${sec.color}`;
+    sbBody.innerHTML += `
+      <div class="sb-section">
+        <div class="sb-section-hd">
+          <span class="sb-dot" style="${dotColor}"></span>${sec.label.replace(/[🧪📊🔐⚙️☸️🏭]/g,'').trim()}
+        </div>
+      </div>
+      <ul class="sb-nav" id="nav-${sec.key}"></ul>
+    `;
+  });
+
+  allLessons().forEach(l=>{
+    const isDone = localStorage.getItem('v5_done_'+l.id)==='1';
+    const navEl = document.getElementById('nav-'+l.cat);
+    if(!navEl) return;
+    const li = document.createElement('li');
+    li.innerHTML = `<a href="#${l.id}">
+      <span class="sb-chk ${isDone?'done':''}" data-nav="${l.id}">${isDone?'✓':''}</span>
+      <span>${l.num}. ${l.title.split('—')[0].trim()}</span>
+    </a>`;
+    navEl.appendChild(li);
+  });
+}
+
+// Build lesson card
+function buildCard(l, catColor, catBg, catBd, catLabel){
+  const isDone = localStorage.getItem('v5_done_'+l.id)==='1';
+  const expTypeClass = l.expectedType==='pass'?'exp-pass':l.expectedType==='fail'?'exp-fail':'exp-warn';
+  const expIcon = l.expectedType==='pass'?'✅':l.expectedType==='fail'?'❌':'⚠️';
+  const checks = l.checks.map(c=>`<div class="chk-item"><span class="chk-ic">◦</span>${c}</div>`).join('');
+  const exercises = l.exercises.map((e,i)=>`<li><span class="ex-num">${i+1}</span>${e}</li>`).join('');
+
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.id = l.id;
+  div.dataset.cat = l.cat;
+  div.innerHTML = `
+    <div class="card-hd" onclick="toggleCard('${l.id}',event)">
+      <div class="card-num">${l.num}</div>
+      <div class="card-meta">
+        <div class="card-badges">
+          <span class="badge b-${l.cat}">${catLabel}</span>
+        </div>
+        <div class="card-title">${l.title}</div>
+        <div class="card-sub">${l.sub}</div>
+      </div>
+      <div class="card-acts">
+        <button class="btn-ai" onclick="openModal('${l.id}',event)">✦ AI Prompts</button>
+        <button class="btn-done ${isDone?'done':''}" data-id="${l.id}" onclick="toggleDone('${l.id}',event)">✓</button>
+        <button class="btn-xp">
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 3.5l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="tc-block">
+        <div class="tc-col">
+          <div class="tc-lbl">🎯 Test Context</div>
+          <div class="tc-text">${l.context}</div>
+        </div>
+        <div class="tc-col" style="background:var(--surface)">
+          <div class="tc-lbl">💡 Tại Sao Quan Trọng</div>
+          <div class="tc-text">${l.whyMatters}</div>
+        </div>
+      </div>
+      <div class="chklist-block">
+        <div class="chklist-lbl">✔ Test Checklist</div>
+        <div class="chklist">${checks}</div>
+      </div>
+      <div class="q-block">
+        <div class="q-hd">
+          <div class="q-lbl"><span class="q-label-badge">DSL</span>${l.queryLabel}</div>
+          <button class="btn-copy" data-qid="${l.id}">Copy</button>
+        </div>
+        <pre><code class="language-json" id="code-${l.id}">${escHtml(l.query)}</code></pre>
+      </div>
+      <div class="exp-block ${expTypeClass}">
+        <span class="exp-icon">${expIcon}</span>
+        <div class="exp-text"><strong>Expected Result:</strong> ${l.expected}</div>
+      </div>
+      <div class="anti-block">
+        <span style="font-size:14px;flex-shrink:0;line-height:1.5">❌</span>
+        <div class="anti-text"><strong>Anti-pattern:</strong> ${l.antipattern}</div>
+      </div>
+      <div class="ex-block">
+        <div class="ex-lbl">🏋️ Bài Tập Thực Hành</div>
+        <ul class="ex-list">${exercises}</ul>
+      </div>
+    </div>
+  `;
+  return div;
+}
+
+// Build content
+function buildContent(){
+  const content = document.getElementById('content');
+  SECTIONS.forEach(sec=>{
+    const hd = document.createElement('div');
+    hd.className = 'sec-hd';
+    hd.innerHTML = `
+      <div class="sec-tag" style="background:${sec.bg};color:${sec.color};border:1px solid ${sec.bd}">${sec.label}</div>
+      <div class="sec-h">${sec.label.replace(/[🧪📊🔐⚙️☸️🏭]/g,'').trim()}</div>
+      <div class="sec-d">${sec.desc}</div>
+    `;
+    content.appendChild(hd);
+
+    const list = document.createElement('div');
+    list.className = 'llist';
+    sec.lessons.forEach(l=>{
+      list.appendChild(buildCard(l, sec.color, sec.bg, sec.bd, sec.label.split(' ').slice(1).join(' ')));
+    });
+    content.appendChild(list);
+  });
+}
+
+// Toggle card
+function toggleCard(id, e){
+  if(e.target.closest('.btn-ai')||e.target.closest('.btn-done')) return;
+  document.getElementById(id).classList.toggle('open');
+}
+
+// Toggle done
+function toggleDone(id, e){
+  e.stopPropagation();
+  const was = localStorage.getItem('v5_done_'+id)==='1';
+  was ? localStorage.removeItem('v5_done_'+id) : localStorage.setItem('v5_done_'+id,'1');
+  const btn = document.querySelector(`.btn-done[data-id="${id}"]`);
+  if(btn) btn.classList.toggle('done',!was);
+  const nav = document.querySelector(`.sb-chk[data-nav="${id}"]`);
+  if(nav){ nav.classList.toggle('done',!was); nav.textContent=!was?'✓':''; }
+  updateProgress();
+}
+
+function updateProgress(){
+  const done = allLessons().filter(l=>localStorage.getItem('v5_done_'+l.id)==='1').length;
+  const total = allLessons().length;
+  document.getElementById('prog-txt').textContent=`${done} / ${total}`;
+  document.getElementById('prog-fill').style.width=`${(done/total)*100}%`;
+}
+
+// ── AI Modal ──
+let currentLesson = null;
+
+function openModal(id, e){
+  e.stopPropagation();
+  currentLesson = allLessons().find(l=>l.id===id);
+  if(!currentLesson) return;
+  document.getElementById('mo-title').textContent = currentLesson.title;
+  document.getElementById('p-explain').textContent = currentLesson.prompts.explain;
+  document.getElementById('p-apply').textContent   = currentLesson.prompts.apply;
+  document.getElementById('p-drill').textContent   = currentLesson.prompts.drill;
+  switchTab('explain');
+  document.getElementById('mo-ov').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(){
+  document.getElementById('mo-ov').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.mo-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.mo-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelector(`.mo-tab[data-tab="${tab}"]`).classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.querySelectorAll('.btn-cp-prompt').forEach(b=>{b.classList.remove('ok');b.textContent='📋 Copy Prompt';});
+}
+
+document.getElementById('mo-close').addEventListener('click', closeModal);
+document.getElementById('mo-ov').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+document.querySelectorAll('.mo-tab').forEach(t=>{
+  t.addEventListener('click', ()=>switchTab(t.dataset.tab));
+});
+
+// Copy handlers
+document.addEventListener('click', e=>{
+  // Copy query
+  if(e.target.classList.contains('btn-copy') && e.target.dataset.qid){
+    const l = allLessons().find(x=>x.id===e.target.dataset.qid);
+    if(l){ navigator.clipboard.writeText(l.query).then(()=>{ e.target.textContent='Copied!'; e.target.classList.add('ok'); setTimeout(()=>{ e.target.textContent='Copy'; e.target.classList.remove('ok'); },2000); }); }
+  }
+  // Copy prompt
+  if(e.target.classList.contains('btn-cp-prompt') && currentLesson){
+    const tab = e.target.dataset.tab;
+    const text = currentLesson.prompts[tab];
+    if(text){ navigator.clipboard.writeText(text).then(()=>{ e.target.classList.add('ok'); e.target.textContent='✓ Đã copy!'; setTimeout(()=>{ e.target.classList.remove('ok'); e.target.textContent='📋 Copy Prompt'; },2000); }); }
+  }
+});
+
+// ── INIT ──
+buildSidebar();
+buildContent();
+document.querySelectorAll('pre code').forEach(el=>hljs.highlightElement(el));
+updateProgress();
+
+// Active nav scroll
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(en=>{
+    if(en.isIntersecting){
+      document.querySelectorAll('.sb-nav li a').forEach(a=>a.classList.remove('active'));
+      const lnk = document.querySelector(`.sb-nav li a[href="#${en.target.id}"]`);
+      if(lnk) lnk.classList.add('active');
+    }
+  });
+},{threshold:0.25});
+document.querySelectorAll('.card').forEach(c=>io.observe(c));
+</script>
+</body>
+</html>
