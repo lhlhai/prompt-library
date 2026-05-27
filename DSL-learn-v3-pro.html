@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elasticsearch Query DSL - Tư duy phân tích & Thực chiến nâng cao</title>
+    <title>Elasticsearch Query DSL - Tư duy phân tích & Thực chiến nâng cao (Full 18 Bài)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -111,7 +111,6 @@
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .sidebar-nav a:hover { background: #f8fafc; color: var(--secondary); transform: translateX(5px); }
-        .sidebar-nav a.active { background: #f0f9ff; color: var(--secondary); border-left: 4px solid var(--secondary); }
 
         /* Main Content Area */
         main { display: flex; flex-direction: column; gap: 50px; }
@@ -180,8 +179,6 @@
             gap: 10px;
         }
 
-        .deep-dive-box p { font-size: 0.95rem; margin-bottom: 10px; }
-
         /* Code Window */
         .code-window {
             background: var(--code-bg);
@@ -216,30 +213,6 @@
             line-height: 1.7;
         }
 
-        /* Analysis Section */
-        .analysis-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-            margin-top: 30px;
-        }
-
-        .analysis-card {
-            background: #f8fafc;
-            padding: 25px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-        }
-
-        .analysis-card h5 {
-            font-size: 1rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-            color: var(--primary);
-        }
-
-        .analysis-card p { font-size: 0.9rem; color: var(--text-muted); }
-
         /* Exercise Box */
         .exercise-box {
             background: #f0fdf4;
@@ -273,6 +246,30 @@
             left: 0;
         }
 
+        /* Analysis Grid */
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .analysis-card {
+            background: #f8fafc;
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .analysis-card h5 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--primary);
+        }
+
+        .analysis-card p { font-size: 0.9rem; color: var(--text-muted); }
+
         /* Footer */
         footer {
             grid-column: 1 / -1;
@@ -296,269 +293,378 @@
         <header>
             <div class="header-content">
                 <div class="header-badges">
-                    <span class="badge badge-pro">v3.1 Pro - Analytical Edition</span>
+                    <span class="badge badge-pro">v3.2 Ultimate Pro - Full 18 Lessons</span>
                     <span class="badge badge-new">Tư duy hệ thống</span>
                 </div>
                 <h1>Elasticsearch Query DSL: Deep Dive</h1>
-                <p>Nâng tầm kỹ năng từ việc "biết query" sang "tư duy phân tích hệ thống". Khám phá kiến trúc ẩn sau mỗi dòng lệnh DSL và cách tối ưu hóa cho các hệ thống lớn.</p>
+                <p>Lộ trình thực chiến đầy đủ 18 bài học từ OWASP A09:2025 đến Observability nâng cao. Nâng tầm từ việc "biết query" sang "tư duy phân tích hệ thống".</p>
             </div>
         </header>
 
         <aside>
             <nav class="sidebar-nav">
-                <h2>🔍 Tư duy Nền tảng</h2>
+                <h2>🟢 Phần Cơ Bản</h2>
                 <ul>
-                    <li><a href="#bai-1">Phân tích Omission (Exists)</a></li>
-                    <li><a href="#bai-2">Phát hiện Leak Dữ liệu</a></li>
-                    <li><a href="#bai-3">Bảo mật Log Injection</a></li>
+                    <li><a href="#bai-1">Bài 1: Exists Query</a></li>
+                    <li><a href="#bai-2">Bài 2: Sensitive Data</a></li>
+                    <li><a href="#bai-3">Bài 3: Log Injection</a></li>
+                    <li><a href="#bai-4">Bài 4: Brute Force</a></li>
+                    <li><a href="#bai-5">Bài 5: Log Gap Analysis</a></li>
+                    <li><a href="#bai-6">Bài 6: Service Audit</a></li>
+                    <li><a href="#bai-7">Bài 7: Error Context</a></li>
                 </ul>
-                <h2>🧠 Phân tích Hành vi</h2>
+                <h2>🟡 Phần Trung Cấp</h2>
                 <ul>
-                    <li><a href="#bai-4">Brute Force & Pattern</a></li>
-                    <li><a href="#bai-5">Observability Gap Analysis</a></li>
-                    <li><a href="#bai-8">Nested Object Strategy</a></li>
+                    <li><a href="#bai-8">Bài 8: Nested Headers</a></li>
+                    <li><a href="#bai-9">Bài 9: Alert Spikes</a></li>
+                    <li><a href="#bai-10">Bài 10: Risk Scoring</a></li>
+                    <li><a href="#bai-11">Bài 11: ECS Compliance</a></li>
+                    <li><a href="#bai-12">Bài 12: Honeytokens</a></li>
+                    <li><a href="#bai-13">Bài 13: Audit Trail</a></li>
                 </ul>
-                <h2>🚀 Kiến trúc & Tự động</h2>
+                <h2>🔴 Phần Nâng Cao</h2>
                 <ul>
-                    <li><a href="#bai-10">Dynamic Risk Scoring</a></li>
-                    <li><a href="#bai-14">ML & Predictive Analysis</a></li>
-                    <li><a href="#bai-16">Watcher Architecture</a></li>
+                    <li><a href="#bai-14">Bài 14: ML Anomaly</a></li>
+                    <li><a href="#bai-15">Bài 15: ILM Policy</a></li>
+                    <li><a href="#bai-16">Bài 16: Watcher Alerts</a></li>
+                    <li><a href="#bai-17">Bài 17: Cross-Cluster</a></li>
+                    <li><a href="#bai-18">Bài 18: Dashboard Set</a></li>
                 </ul>
             </nav>
         </aside>
 
         <main>
-            <!-- BÀI 1: PHÂN TÍCH CHUYÊN SÂU EXISTS -->
+            <!-- PHẦN CƠ BẢN -->
             <section id="co-ban" class="section-card">
                 <div class="level-header">
-                    <span class="level-icon">🔬</span>
-                    <h2 class="level-title">Module 1: Phân tích Sự thiếu hụt Dữ liệu</h2>
+                    <span class="level-icon">🟢</span>
+                    <h2 class="level-title">PHẦN CƠ BẢN (Bài 1–7)</h2>
                 </div>
 
+                <!-- Bài 1 -->
                 <div id="bai-1" class="lesson">
-                    <h3 class="lesson-title">Bài 1 — <code>exists</code>: Tư duy về Information Omission</h3>
-                    
+                    <h3 class="lesson-title">Bài 1 — <code>exists</code> query: Phát hiện Log Thiếu Field</h3>
                     <div class="deep-dive-box">
-                        <h4><span style="font-size: 1.5rem;">💡</span> Deep Dive: Tại sao log thiếu field lại nguy hiểm?</h4>
-                        <p>Trong an ninh mạng, một event không có kết quả (outcome) là một "điểm mù". Attacker thường cố gắng làm gián đoạn luồng log hoặc inject mã độc khiến parser bị lỗi, dẫn đến các field quan trọng không được index. Query <code>exists</code> không chỉ để tìm lỗi, mà là để kiểm toán (audit) độ tin cậy của hệ thống log.</p>
+                        <h4>💡 Deep Dive: Tại sao log thiếu field lại nguy hiểm?</h4>
+                        <p>Trong an ninh mạng, một event không có kết quả (outcome) là một "điểm mù". Query exists không chỉ để tìm lỗi, mà là để kiểm toán độ tin cậy của hệ thống log.</p>
                     </div>
-
                     <div class="code-window">
-                        <div class="code-header">
-                            <div class="dots"><div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div></div>
-                            <span class="code-lang">Advanced DSL</span>
-                        </div>
                         <pre>GET logs-*/_search
 {
   "query": {
     "bool": {
-      "filter": [
-        { "term": { "event.category": "authentication" } }
-      ],
-      "must_not": [
-        { "exists": { "field": "event.outcome" } }
-      ]
-    }
-  },
-  "aggs": {
-    "by_service": {
-      "terms": { "field": "service.name.keyword" },
-      "aggs": {
-        "missing_ratio": {
-          "bucket_script": {
-            "buckets_path": { "total": "_count" },
-            "script": "params.total > 100 ? 1 : 0"
-          }
-        }
-      }
+      "must": [{ "match": { "event.category": "authentication" } }],
+      "must_not": [{ "exists": { "field": "event.outcome" } }]
     }
   }
 }</pre>
                     </div>
-
-                    <div class="analysis-grid">
-                        <div class="analysis-card">
-                            <h5>Tư duy Phân tích</h5>
-                            <p>Thay vì chỉ tìm log thiếu field, hãy dùng Aggregation để xác định xem service nào đang gặp vấn đề hệ thống. Nếu một service có tỷ lệ thiếu field đột ngột tăng, đó có thể là dấu hiệu của parser lỗi hoặc tấn công Log Injection.</p>
-                        </div>
-                        <div class="analysis-card">
-                            <h5>Ứng dụng Thực tế</h5>
-                            <p>Thiết lập Dashboard theo dõi "Log Health Score". Một hệ thống healthy phải có tỷ lệ <code>exists</code> cho các field bắt buộc (ECS) đạt 100%.</p>
-                        </div>
-                    </div>
-
                     <div class="exercise-box">
-                        <h4>🎯 Thử thách Tư duy</h4>
+                        <h4>🎯 Bài tập thực hành</h4>
                         <ul class="exercise-list">
-                            <li>Xây dựng query so sánh số lượng log thiếu field <code>source.ip</code> giữa môi trường Prod và Staging.</li>
-                            <li>Phân tích tại sao việc dùng <code>filter</code> lại tốt hơn <code>must</code> trong trường hợp này (Gợi ý: Performance & Caching).</li>
+                            <li>Tìm HTTP request thiếu field <code>source.ip</code></li>
+                            <li>Tìm log <code>error</code> nhưng thiếu <code>error.message</code></li>
                         </ul>
                     </div>
                 </div>
-            </section>
 
-            <!-- BÀI 2: SENSITIVE DATA & PATTERN MATCHING -->
-            <section class="section-card">
-                <div class="level-header">
-                    <span class="level-icon">🛡️</span>
-                    <h2 class="level-title">Module 2: Bảo mật & Leak Dữ liệu</h2>
-                </div>
-
+                <!-- Bài 2 -->
                 <div id="bai-2" class="lesson">
-                    <h3 class="lesson-title">Bài 2 — Sensitive Data: Từ Keyword đến Pattern</h3>
-                    
+                    <h3 class="lesson-title">Bài 2 — Sensitive Data Detection</h3>
                     <div class="deep-dive-box">
-                        <h4><span style="font-size: 1.5rem;">🧠</span> Đào sâu: Vấn đề của Match Phrase</h4>
-                        <p>Dùng <code>match_phrase</code> đơn thuần rất dễ sót. Attacker có thể dùng các biến thể như <code>p_a_s_s_w_o_r_d</code> hoặc <code>pwd</code>. Tư duy nâng cao ở đây là kết hợp <strong>N-gram Tokenizer</strong> và <strong>Fuzzy Search</strong> để bắt được cả những dữ liệu bị cố tình làm nhiễu.</p>
+                        <h4>🧠 Đào sâu: Vấn đề của Match Phrase</h4>
+                        <p>Dùng match_phrase đơn thuần rất dễ sót. Hãy kết hợp với Fuzzy Search để bắt được cả những dữ liệu bị cố tình làm nhiễu.</p>
                     </div>
-
                     <div class="code-window">
                         <pre>GET logs-*/_search
 {
   "query": {
     "bool": {
       "should": [
-        { "fuzzy": { "message": { "value": "password", "fuzziness": "AUTO" } } },
-        { "regexp": { "message": ".*[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}.*" } }
+        { "match_phrase": { "message": "password" } },
+        { "match_phrase": { "message": "token" } }
       ],
       "minimum_should_match": 1
     }
-  },
-  "highlight": {
-    "fields": { "message": {} },
-    "pre_tags": ["<em style='color:red;font-weight:bold'>"],
-    "post_tags": ["</em>"]
   }
 }</pre>
                     </div>
+                </div>
 
-                    <div class="analysis-grid">
-                        <div class="analysis-card">
-                            <h5>Tư duy Pattern</h5>
-                            <p>Regex trong Elasticsearch có chi phí cao. Hãy luôn kết hợp với một <code>filter</code> theo thời gian hoặc service để thu hẹp phạm vi search trước khi chạy Regex.</p>
-                        </div>
-                        <div class="analysis-card">
-                            <h5>Chiến lược "Honey-Field"</h5>
-                            <p>Tạo ra các field log giả chứa dữ liệu trông như thật nhưng không có giá trị (ví dụ: <code>fake_token</code>). Bất kỳ query nào hit vào đây đều là dấu hiệu của hành vi dò tìm dữ liệu.</p>
-                        </div>
+                <!-- Bài 3 -->
+                <div id="bai-3" class="lesson">
+                    <h3 class="lesson-title">Bài 3 — <code>regexp</code> query: Phát Hiện Log Injection</h3>
+                    <div class="code-window">
+                        <pre>GET logs-*/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        { "match_phrase": { "message": "\\n" } },
+        { "regexp": { "message": ".*(%0a|%0d|%0d%0a).*" } }
+      ],
+      "minimum_should_match": 1
+    }
+  }
+}</pre>
                     </div>
                 </div>
-            </section>
 
-            <!-- BÀI 5: OBSERVABILITY GAP -->
-            <section class="section-card">
-                <div class="level-header">
-                    <span class="level-icon">🛰️</span>
-                    <h2 class="level-title">Module 3: Observability & Gap Analysis</h2>
+                <!-- Bài 4 -->
+                <div id="bai-4" class="lesson">
+                    <h3 class="lesson-title">Bài 4 — Brute Force Detection</h3>
+                    <div class="code-window">
+                        <pre>GET logs-*/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": { "event.outcome": "failure" } },
+        { "range": { "@timestamp": { "gte": "now-5m" } } }
+      ]
+    }
+  },
+  "aggs": {
+    "by_user": { "terms": { "field": "user.name.keyword", "size": 10 } }
+  }
+}</pre>
+                    </div>
                 </div>
 
+                <!-- Bài 5 -->
                 <div id="bai-5" class="lesson">
-                    <h3 class="lesson-title">Bài 5 — Phân tích "Khoảng lặng" (Log Gaps)</h3>
-                    
-                    <div class="deep-dive-box">
-                        <h4><span style="font-size: 1.5rem;">🕵️</span> Phân tích: Tại sao log lại biến mất?</h4>
-                        <p>Một hệ thống đang chạy mà không có log không phải là tin tốt. Nó có thể do: 1. Log Shipper bị crash, 2. Network congestion, hoặc 3. Attacker xóa dấu vết. Tư duy ở đây là dùng <code>min_doc_count: 0</code> để tìm những "vùng trũng" dữ liệu.</p>
-                    </div>
-
+                    <h3 class="lesson-title">Bài 5 — <code>date_histogram</code>: Phát Hiện Log Gap</h3>
                     <div class="code-window">
                         <pre>GET logs-*/_search
 {
   "aggs": {
-    "health_check": {
+    "log_per_minute": {
       "date_histogram": {
         "field": "@timestamp",
         "fixed_interval": "1m",
-        "min_doc_count": 0,
-        "extended_bounds": { "min": "now-1h", "max": "now" }
-      },
-      "aggs": {
-        "is_gap": {
-          "bucket_selector": {
-            "buckets_path": { "count": "_count" },
-            "script": "params.count == 0"
-          }
-        }
+        "min_doc_count": 0
       }
-    }
-  },
-  "size": 0
-}</pre>
-                    </div>
-
-                    <div class="analysis-grid">
-                        <div class="analysis-card">
-                            <h5>Tư duy Hệ thống</h5>
-                            <p>Đừng chỉ nhìn vào một service. Hãy so sánh traffic log giữa các service phụ thuộc nhau. Nếu Service A có log nhưng Service B (gọi A) lại không có, vấn đề nằm ở middleware hoặc network.</p>
-                        </div>
-                        <div class="analysis-card">
-                            <h5>Ứng dụng Watcher</h5>
-                            <p>Thiết lập Watcher để cảnh báo khi có quá 3 bucket liên tiếp có <code>doc_count: 0</code> cho các critical service.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- BÀI 10: RISK SCORING -->
-            <section class="section-card">
-                <div class="level-header">
-                    <span class="level-icon">📈</span>
-                    <h2 class="level-title">Module 3: Phân tích Định lượng & Risk Scoring</h2>
-                </div>
-
-                <div id="bai-10" class="lesson">
-                    <h3 class="lesson-title">Bài 10 — Dynamic Risk Scoring với Painless</h3>
-                    
-                    <div class="deep-dive-box">
-                        <h4><span style="font-size: 1.5rem;">🏗️</span> Kiến trúc: Hệ thống chấm điểm rủi ro</h4>
-                        <p>Thay vì alert cho mọi lỗi, chúng ta gán trọng số cho từng loại lỗi. Ví dụ: Một lỗi 500 từ <code>payment-service</code> nguy hiểm hơn 10 lỗi 404 từ <code>static-assets</code>. Painless script cho phép chúng ta tính toán điểm số này realtime ngay khi query.</p>
-                    </div>
-
-                    <div class="code-window">
-                        <pre>GET logs-*/_search
-{
-  "runtime_mappings": {
-    "normalized_risk": {
-      "type": "double",
-      "script": """
-        double score = 0;
-        if (doc['http.response.status_code'].size() > 0) {
-          int code = (int)doc['http.response.status_code'].value;
-          if (code >= 500) score += 5.0;
-          else if (code >= 400) score += 1.0;
-        }
-        if (doc['event.duration'].size() > 0) {
-          if (doc['event.duration'].value > 5000000000L) score += 3.0;
-        }
-        emit(score);
-      """
-    }
-  },
-  "query": { "range": { "normalized_risk": { "gte": 5.0 } } },
-  "aggs": {
-    "avg_risk_per_service": {
-      "terms": { "field": "service.name.keyword" },
-      "aggs": { "avg_score": { "avg": { "field": "normalized_risk" } } }
     }
   }
 }</pre>
                     </div>
+                </div>
 
-                    <div class="analysis-grid">
-                        <div class="analysis-card">
-                            <h5>Tư duy Runtime Mapping</h5>
-                            <p>Runtime mapping (v8.x+) cho phép bạn thêm logic mà không cần reindex dữ liệu. Đây là công cụ cực mạnh để thử nghiệm các mô hình chấm điểm rủi ro mới.</p>
-                        </div>
-                        <div class="analysis-card">
-                            <h5>Tối ưu Alert</h5>
-                            <p>Chỉ trigger alert khi <code>sum(normalized_risk)</code> trong 5 phút vượt ngưỡng. Điều này giúp giảm nhiễu (alert fatigue) cho đội ngũ vận hành.</p>
-                        </div>
+                <!-- Bài 6 -->
+                <div id="bai-6" class="lesson">
+                    <h3 class="lesson-title">Bài 6 — <code>terms</code> agg: Service Audit</h3>
+                    <div class="code-window">
+                        <pre>GET logs-*/_search
+{
+  "aggs": {
+    "active_services": {
+      "terms": { "field": "service.name.keyword", "size": 100 }
+    }
+  }
+}</pre>
+                    </div>
+                </div>
+
+                <!-- Bài 7 -->
+                <div id="bai-7" class="lesson">
+                    <h3 class="lesson-title">Bài 7 — HTTP 5xx Missing Context</h3>
+                    <div class="code-window">
+                        <pre>GET logs-*/_search
+{
+  "query": {
+    "bool": {
+      "must": [{ "range": { "http.response.status_code": { "gte": 500 } } }],
+      "must_not": [{ "exists": { "field": "error.message" } }]
+    }
+  }
+}</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PHẦN TRUNG CẤP -->
+            <section id="trung-cap" class="section-card">
+                <div class="level-header">
+                    <span class="level-icon">🟡</span>
+                    <h2 class="level-title">PHẦN TRUNG CẤP (Bài 8–13)</h2>
+                </div>
+
+                <!-- Bài 8 -->
+                <div id="bai-8" class="lesson">
+                    <h3 class="lesson-title">Bài 8 — <code>nested</code> query: Headers Nhạy Cảm</h3>
+                    <div class="code-window">
+                        <pre>GET logs-*/_search
+{
+  "query": {
+    "nested": {
+      "path": "http.request.headers",
+      "query": { "match": { "http.request.headers.name": "Authorization" } }
+    }
+  }
+}</pre>
+                    </div>
+                </div>
+
+                <!-- Bài 9 -->
+                <div id="bai-9" class="lesson">
+                    <h3 class="lesson-title">Bài 9 — Pipeline Agg: Alert Spike</h3>
+                    <div class="code-window">
+                        <pre>GET logs-*/_search
+{
+  "aggs": {
+    "alerts_over_time": {
+      "date_histogram": { "field": "@timestamp", "fixed_interval": "1h" },
+      "aggs": {
+        "alert_count": { "value_count": { "field": "rule.name.keyword" } },
+        "change": { "derivative": { "buckets_path": "alert_count" } }
+      }
+    }
+  }
+}</pre>
+                    </div>
+                </div>
+
+                <!-- Bài 10 -->
+                <div id="bai-10" class="lesson">
+                    <h3 class="lesson-title">Bài 10 — Painless Script: Risk Scoring</h3>
+                    <div class="code-window">
+                        <pre>GET logs-*/_search
+{
+  "script_fields": {
+    "risk_score": {
+      "script": {
+        "source": "int s=0; if(doc['event.outcome.keyword'].value=='failure') s+=30; return s;"
+      }
+    }
+  }
+}</pre>
+                    </div>
+                </div>
+
+                <!-- Bài 11 -->
+                <div id="bai-11" class="lesson">
+                    <h3 class="lesson-title">Bài 11 — ECS Compliance Check</h3>
+                    <div class="code-window">
+                        <pre>GET logs-*/_search
+{
+  "query": { "bool": { "must_not": [{ "exists": { "field": "ecs.version" } }] } }
+}</pre>
+                    </div>
+                </div>
+
+                <!-- Bài 12 -->
+                <div id="bai-12" class="lesson">
+                    <h3 class="lesson-title">Bài 12 — Honeytoken Detection</h3>
+                    <div class="code-window">
+                        <pre>GET logs-*/_search
+{
+  "query": {
+    "bool": {
+      "should": [{ "match": { "user.name.keyword": "svc_honeypot_admin" } }],
+      "minimum_should_match": 1
+    }
+  }
+}</pre>
+                    </div>
+                </div>
+
+                <!-- Bài 13 -->
+                <div id="bai-13" class="lesson">
+                    <h3 class="lesson-title">Bài 13 — Audit Trail Completeness</h3>
+                    <div class="code-window">
+                        <pre>GET logs-*/_search
+{
+  "query": {
+    "bool": {
+      "must": [{ "match": { "event.category": "transaction" } }],
+      "should": [{ "bool": { "must_not": [{ "exists": { "field": "transaction.id" } }] } }],
+      "minimum_should_match": 1
+    }
+  }
+}</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PHẦN NÂNG CAO -->
+            <section id="nang-cao" class="section-card">
+                <div class="level-header">
+                    <span class="level-icon">🔴</span>
+                    <h2 class="level-title">PHẦN NÂNG CAO (Bài 14–18)</h2>
+                </div>
+
+                <!-- Bài 14 -->
+                <div id="bai-14" class="lesson">
+                    <h3 class="lesson-title">Bài 14 — ML Anomaly Detection</h3>
+                    <div class="code-window">
+                        <pre>PUT _ml/anomaly_detectors/security-login-anomaly
+{
+  "analysis_config": {
+    "bucket_span": "15m",
+    "detectors": [{ "function": "high_count", "by_field_name": "user.name.keyword" }]
+  }
+}</pre>
+                    </div>
+                </div>
+
+                <!-- Bài 15 -->
+                <div id="bai-15" class="lesson">
+                    <h3 class="lesson-title">Bài 15 — ILM Policy Strategy</h3>
+                    <div class="code-window">
+                        <pre>PUT _ilm/policy/security-logs-policy
+{
+  "policy": {
+    "phases": {
+      "hot": { "actions": { "rollover": { "max_age": "1d", "max_size": "10gb" } } },
+      "delete": { "min_age": "365d", "actions": { "delete": {} } }
+    }
+  }
+}</pre>
+                    </div>
+                </div>
+
+                <!-- Bài 16 -->
+                <div id="bai-16" class="lesson">
+                    <h3 class="lesson-title">Bài 16 — Watcher: Auto-Alert</h3>
+                    <div class="code-window">
+                        <pre>PUT _watcher/watch/brute-force-alert
+{
+  "trigger": { "schedule": { "interval": "5m" } },
+  "input": { "search": { "request": { "indices": ["logs-*"], "body": { ... } } } },
+  "condition": { "compare": { "ctx.payload.hits.total.value": { "gt": 10 } } }
+}</pre>
+                    </div>
+                </div>
+
+                <!-- Bài 17 -->
+                <div id="bai-17" class="lesson">
+                    <h3 class="lesson-title">Bài 17 — Cross-Cluster Search</h3>
+                    <div class="code-window">
+                        <pre>GET cluster-prod:logs-*,cluster-staging:logs-*/_search
+{
+  "query": { "match": { "event.outcome": "failure" } }
+}</pre>
+                    </div>
+                </div>
+
+                <!-- Bài 18 -->
+                <div id="bai-18" class="lesson">
+                    <h3 class="lesson-title">Bài 18 — Security Dashboard Query Set</h3>
+                    <div class="code-window">
+                        <pre>GET logs-*/_search
+{
+  "aggs": {
+    "total": { "value_count": { "field": "@timestamp" } },
+    "failed": { "filter": { "match": { "event.outcome": "failure" } } }
+  }
+}</pre>
                     </div>
                 </div>
             </section>
         </main>
 
         <footer>
-            <p>&copy; 2026 Elasticsearch Analytical Framework v3.1 | Hệ thống học tập tư duy thực chiến | lhlhai/prompt-library</p>
+            <p>&copy; 2026 Elasticsearch Analytical Framework v3.2 | Full 18 Lessons Edition | lhlhai/prompt-library</p>
         </footer>
     </div>
 </body>
