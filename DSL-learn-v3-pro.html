@@ -2,546 +2,538 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elasticsearch Query DSL - Ultimate Learning Framework (OWASP Edition)</title>
-    
-    <!-- Fonts & Icons -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    
-    <!-- Highlight.js for Syntax Highlighting -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/json.min.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>DSL Security Detective | Elasticsearch Logging & Alerting</title>
+    <!-- Google Fonts & Prism.js cho syntax highlighting -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        :root {
-            --primary: #0f172a;
-            --secondary: #0ea5e9;
-            --accent: #f43f5e;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --code-bg: #0f172a;
-            --code-text: #e2e8f0;
-            
-            --level-easy: #10b981;
-            --level-medium: #f59e0b;
-            --level-hard: #ef4444;
-            
-            --section-basic: #f0fdf4;
-            --section-intermediate: #fffbeb;
-            --section-advanced: #fef2f2;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            line-height: 1.6;
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            line-height: 1.5;
             scroll-behavior: smooth;
         }
 
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: 40px;
-            display: grid;
-            grid-template-columns: 320px 1fr;
-            gap: 40px;
+        /* Layout: Sidebar + main */
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
         }
 
-        header {
-            grid-column: 1 / -1;
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 280px;
             background: white;
-            padding: 60px;
-            border-radius: 32px;
-            border: 1px solid var(--border);
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border-right: 1px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 1.5rem 1rem;
+            z-index: 10;
         }
 
-        .header-content h1 { font-size: 3rem; font-weight: 800; margin-bottom: 15px; color: var(--primary); }
-        .header-content p { font-size: 1.1rem; color: var(--text-muted); max-width: 800px; }
-        
-        aside {
-            position: sticky;
-            top: 40px;
-            height: calc(100vh - 80px);
+        .sidebar-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1e293b, #3b82f6);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .sidebar-header p {
+            font-size: 0.75rem;
+            color: #475569;
+            margin-top: 0.25rem;
+        }
+
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 0.75rem;
+        }
+
+        .nav-items {
+            list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 0.4rem;
         }
 
-        .sidebar-nav {
-            background: white;
-            padding: 25px;
-            border-radius: 24px;
-            border: 1px solid var(--border);
-            overflow-y: auto;
-            flex-grow: 1;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-        }
-
-        .sidebar-nav h2 { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin: 20px 0 10px; letter-spacing: 0.1em; }
-        .sidebar-nav ul { list-style: none; }
-        .sidebar-nav a { 
-            text-decoration: none; 
-            color: var(--text-main); 
-            font-size: 0.85rem; 
+        .nav-items li a {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 8px 12px; 
-            border-radius: 8px; 
+            gap: 0.6rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #334155;
+            text-decoration: none;
             transition: all 0.2s;
         }
-        .sidebar-nav a:hover { background: #f1f5f9; color: var(--secondary); }
-        .sidebar-nav .progress-dot { width: 8px; height: 8px; border-radius: 50%; background: #e2e8f0; }
-        .sidebar-nav .completed .progress-dot { background: var(--level-easy); box-shadow: 0 0 8px var(--level-easy); }
 
-        main { display: flex; flex-direction: column; gap: 60px; }
-
-        .level-section {
-            padding: 40px;
-            border-radius: 32px;
-            border: 1px solid var(--border);
+        .nav-items li a i {
+            width: 1.25rem;
+            font-size: 0.9rem;
+            color: #5b6e8c;
         }
-        .section-basic-bg { background-color: var(--section-basic); border-color: #dcfce7; }
-        .section-inter-bg { background-color: var(--section-intermediate); border-color: #fef3c7; }
-        .section-adv-bg { background-color: var(--section-advanced); border-color: #fee2e2; }
 
-        .level-title { font-size: 2rem; font-weight: 800; margin-bottom: 40px; color: var(--primary); display: flex; align-items: center; gap: 15px; }
+        .nav-items li a:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
 
-        .lesson-card {
+        .nav-items li a.active {
+            background: #eef2ff;
+            color: #2563eb;
+        }
+
+        .nav-items li a.active i {
+            color: #2563eb;
+        }
+
+        .progress-badge {
+            font-size: 0.7rem;
+            background: #e2e8f0;
+            border-radius: 20px;
+            padding: 0.1rem 0.5rem;
+            margin-left: auto;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem 2rem 3rem;
+            max-width: calc(100% - 280px);
+        }
+
+        /* Header & Case Table */
+        .hero {
             background: white;
-            border-radius: 24px;
-            padding: 40px;
-            margin-bottom: 30px;
-            border: 1px solid var(--border);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
-            transition: transform 0.2s;
-            position: relative;
-            display: block;
+            border-radius: 1.25rem;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02);
+            border: 1px solid #eef2ff;
         }
 
-        .lesson-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 25px;
+        .hero h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(120deg, #1e293b, #2563eb);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
         }
 
-        .lesson-title-group h3 { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
-        .owasp-tag { font-size: 0.75rem; font-weight: 700; background: #f1f5f9; color: var(--primary); padding: 4px 10px; border-radius: 6px; }
-
-        .badge-difficulty { font-size: 0.7rem; font-weight: 800; padding: 4px 12px; border-radius: 100px; text-transform: uppercase; }
-        .easy { background: #dcfce7; color: #166534; }
-        .medium { background: #fef3c7; color: #92400e; }
-        .hard { background: #fee2e2; color: #991b1b; }
-
-        .scenario-box {
-            background: #f8fafc;
-            border-left: 4px solid var(--secondary);
-            padding: 20px;
-            border-radius: 0 12px 12px 0;
-            margin-bottom: 25px;
-            font-style: italic;
-            color: var(--text-main);
+        .case-table-wrapper {
+            background: white;
+            border-radius: 1rem;
+            border: 1px solid #e2e8f0;
+            overflow-x: auto;
+            margin-bottom: 2rem;
         }
 
-        .usecase-box {
-            background: #e0f2fe;
-            border-radius: 16px;
-            padding: 20px;
-            margin: 20px 0;
-            border: 1px solid #bae6fd;
-        }
-        .usecase-box h5 { color: #0369a1; margin-bottom: 10px; font-weight: 700; }
-
-        .code-container {
-            margin: 25px 0;
-            border-radius: 16px;
-            overflow: hidden;
-            background: var(--code-bg);
-        }
-        .code-header {
-            padding: 10px 20px;
-            background: #1e293b;
-            color: #94a3b8;
-            font-size: 0.75rem;
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px solid #334155;
-        }
-
-        .anti-pattern {
-            background: #fff1f2;
-            border: 1px solid #fecdd3;
-            padding: 20px;
-            border-radius: 16px;
-            margin: 20px 0;
-        }
-        .anti-pattern h5 { color: #be123c; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-
-        .exercise-box {
-            background: #f0fdf4;
-            border: 1px dashed #4ade80;
-            padding: 25px;
-            border-radius: 16px;
-            margin-top: 30px;
-        }
-        .exercise-box h5 { color: #15803d; margin-bottom: 10px; font-weight: 700; }
-        
-        .solution-btn {
-            background: #10b981;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            margin-top: 10px;
-        }
-        .solution-content { display: none; margin-top: 15px; }
-
-        .complete-toggle {
-            position: absolute;
-            top: 40px;
-            right: 40px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-muted);
-        }
-        .complete-toggle input { width: 18px; height: 18px; cursor: pointer; accent-color: var(--level-easy); }
-
-        .cheat-table {
+        .case-table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            margin-top: 30px;
+            font-size: 0.85rem;
         }
-        .cheat-table th, .cheat-table td { padding: 15px; border: 1px solid var(--border); text-align: left; }
-        .cheat-table th { background: #f8fafc; font-weight: 700; }
 
-        @media (max-width: 1100px) {
-            .container { grid-template-columns: 1fr; padding: 20px; }
-            aside { display: none; }
-            header { padding: 40px 20px; }
-            pre { overflow-x: auto; }
+        .case-table th {
+            text-align: left;
+            padding: 1rem 1rem;
+            background: #f8fafc;
+            font-weight: 600;
+            color: #1e293b;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .case-table td {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #eef2f0;
+            vertical-align: top;
+        }
+
+        .cwe-badge {
+            background: #f1f5f9;
+            border-radius: 20px;
+            padding: 0.2rem 0.7rem;
+            font-family: monospace;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        /* Query Cards Grid */
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 2rem 0 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .level-badge {
+            font-size: 0.7rem;
+            background: #dbeafe;
+            color: #1e40af;
+            border-radius: 30px;
+            padding: 0.2rem 0.7rem;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .query-card {
+            background: white;
+            border-radius: 1rem;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .query-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 8px 20px -12px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            padding: 1rem 1rem 0.5rem 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .card-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .owasp-tag {
+            background: #fef9c3;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            color: #854d0e;
+        }
+
+        .scenario {
+            background: #f0f9ff;
+            margin: 0.8rem 1rem;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            font-size: 0.8rem;
+            border-left: 3px solid #3b82f6;
+            color: #1e3a8a;
+        }
+
+        .code-block {
+            background: #1e293b;
+            margin: 0.8rem 1rem;
+            border-radius: 0.75rem;
+            overflow-x: auto;
+            font-size: 0.75rem;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 0.9rem;
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+
+        .code-block code {
+            font-family: 'Fira Code', 'SF Mono', monospace;
+            font-size: 0.7rem;
+        }
+
+        .card-actions {
+            padding: 0.8rem 1rem 1rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            border-top: 1px solid #f1f5f9;
+            margin-top: auto;
+        }
+
+        .btn-ai {
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 2rem;
+            padding: 0.4rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #334155;
+        }
+
+        .btn-ai:hover {
+            background: #eef2ff;
+            border-color: #3b82f6;
+            color: #2563eb;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(2px);
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            max-width: 600px;
+            width: 90%;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 25px 40px -12px black;
+            border: 1px solid #e2e8f0;
+        }
+        .modal-content h3 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .modal-content p {
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+        .modal-close {
+            background: #e2e8f0;
+            border: none;
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+            margin-top: 1rem;
+            cursor: pointer;
+        }
+        .checkbox-progress {
+            margin-left: 0.5rem;
+            transform: scale(0.9);
+        }
+
+        @media (max-width: 800px) {
+            .sidebar { display: none; }
+            .main-content { max-width: 100%; padding: 1rem; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .hero { padding: 1rem; }
+        }
+        footer {
+            border-top: 1px solid #e2e8f0;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #5b6e8c;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="header-content">
-                <h1>Elasticsearch DSL: Ultimate Framework</h1>
-                <p>Lộ trình học tập tương tác. Mapping trực tiếp với OWASP Top 10:2025. Bổ sung Use Cases & Bài tập thực hành.</p>
-            </div>
-        </header>
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-shield-alt" style="color:#2563eb"></i> DSLsec</h2>
+            <p>Elasticsearch · OWASP A09:2025</p>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title"><i class="fas fa-list-ul"></i> BÀI HỌC · 20 queries</div>
+            <ul class="nav-items" id="lessonNav"></ul>
+        </div>
+        <div style="margin-top: 1rem; font-size:0.7rem; color:#64748b; text-align:center">
+            <i class="fas fa-database"></i> log security monitoring
+        </div>
+    </aside>
 
-        <aside>
-            <div class="sidebar-nav">
-                <h2>🟢 Cơ Bản (Bài 1-7)</h2>
-                <ul id="nav-basic"></ul>
-                <h2>🟡 Trung Cấp (Bài 8-13)</h2>
-                <ul id="nav-inter"></ul>
-                <h2>🔴 Nâng Cao (Bài 14-18)</h2>
-                <ul id="nav-adv"></ul>
-                <h2>🛡️ OWASP Cases (Mới)</h2>
-                <ul id="nav-owasp"></ul>
-                <h2>📚 Cheat Sheet</h2>
-                <ul><li><a href="#cheat-sheet">Tra cứu nhanh</a></li></ul>
-            </div>
-            
-            <div class="sidebar-nav" style="flex-grow: 0; background: var(--section-basic);">
-                <h2 style="margin-top: 0;">Tiến độ học tập</h2>
-                <div style="font-size: 1.2rem; font-weight: 800; color: var(--level-easy);" id="overall-progress">0%</div>
-                <div style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; margin-top: 10px; overflow: hidden;">
-                    <div id="progress-bar" style="width: 0%; height: 100%; background: var(--level-easy); transition: width 0.3s;"></div>
-                </div>
-            </div>
-        </aside>
+    <main class="main-content">
+        <div class="hero">
+            <h1><i class="fas fa-eye"></i> Security Logging & Alerting</h1>
+            <p>Thực hành Elasticsearch DSL dựa trên OWASP A09:2025 + MITRE ATT&CK. Phát hiện rò rỉ, injection, brute‑force & missing logs.</p>
+        </div>
 
-        <main>
-            <!-- MODULE 1: CƠ BẢN -->
-            <section id="basic-section" class="level-section section-basic-bg">
-                <h2 class="level-title">🟢 Module 1: Security Logging Foundations</h2>
-                
-                <div class="lesson-card" id="lesson-1">
-                    <label class="complete-toggle"><input type="checkbox" onchange="toggleLesson(1)"> Đã hoàn thành</label>
-                    <div class="lesson-header">
-                        <div class="lesson-title-group">
-                            <span class="owasp-tag">OWASP A09:2025 - CWE-223</span>
-                            <h3>Bài 1: Exists Query - Phát hiện "Điểm mù"</h3>
-                        </div>
-                        <span class="badge-difficulty easy">Easy</span>
-                    </div>
-                    <div class="scenario-box"><strong>Scenario:</strong> Sau một đợt cập nhật microservice, Parser bị lỗi khiến các sự kiện đăng nhập không ghi nhận kết quả (Success/Failure).</div>
-                    
-                    <div class="usecase-box">
-                        <h5>💡 Use Case thực tế</h5>
-                        <ul>
-                            <li><strong>Kiểm soát chất lượng dữ liệu:</strong> Đảm bảo tất cả log từ <code>firewall</code> đều có trường <code>action</code>.</li>
-                            <li><strong>Bảo mật:</strong> Tìm các request truy cập vào API nhạy cảm mà thiếu trường <code>user.id</code>.</li>
-                        </ul>
-                    </div>
+        <!-- Bảng tổng hợp 13 cases -->
+        <div class="section-title"><i class="fas fa-table-list"></i> Logging Failure Cases <span style="font-size:0.75rem;">CWE & Anomalies</span></div>
+        <div class="case-table-wrapper">
+            <table class="case-table">
+                <thead><tr><th>#</th><th>Case</th><th>CWE liên quan</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td>Log không nhất quán</td><td><span class="cwe-badge">CWE-223</span></td></tr>
+                    <tr><td>2</td><td>Sensitive data trong log (password/API key)</td><td><span class="cwe-badge">CWE-532</span></td></tr>
+                    <tr><td>3</td><td>Log injection (giả mạo log)</td><td><span class="cwe-badge">CWE-117</span></td></tr>
+                    <tr><td>4</td><td>Brute force không alert</td><td><span class="cwe-badge">CWE-778</span></td></tr>
+                    <tr><td>5</td><td>Gap trong log (bị xóa)</td><td><span class="cwe-badge">CWE-221</span></td></tr>
+                    <tr><td>6</td><td>Service không log</td><td><span class="cwe-badge">CWE-778</span></td></tr>
+                    <tr><td>7</td><td>PII trong log (CCCD, email)</td><td><span class="cwe-badge">CWE-532</span></td></tr>
+                    <tr><td>8</td><td>False positive quá nhiều</td><td><span class="cwe-badge">CWE-223</span></td></tr>
+                    <tr><td>9</td><td>DAST không bị detect</td><td><span class="cwe-badge">CWE-778</span></td></tr>
+                    <tr><td>10</td><td>Error bị mishandle (không log exception)</td><td><span class="cwe-badge">CWE-221</span></td></tr>
+                    <tr><td>11</td><td>Honeytoken access</td><td><span class="cwe-badge">—</span></td></tr>
+                    <tr><td>12</td><td>Log không có backup</td><td><span class="cwe-badge">CWE-221</span></td></tr>
+                    <tr><td>13</td><td>Audit trail thiếu context</td><td><span class="cwe-badge">CWE-223</span></td></tr>
+                </tbody>
+            </table>
+        </div>
 
-                    <div class="code-container">
-                        <pre><code class="language-json">GET logs-*/_search
-{
-  "query": {
-    "bool": {
-      "must": [{ "match": { "event.category": "authentication" } }],
-      "must_not": [{ "exists": { "field": "event.outcome" } }]
-    }
-  }
-}</code></pre>
-                    </div>
-                    <div class="anti-pattern"><h5>❌ Anti-pattern</h5><p>Sử dụng <code>match: ""</code>. Elasticsearch coi field thiếu hoàn toàn khác với string rỗng.</p></div>
-                    
-                    <div class="exercise-box">
-                        <h5>🎯 Bài tập thực hành</h5>
-                        <p>Viết query tìm tất cả log của service <code>payment-gateway</code> mà bị thiếu trường <code>transaction.id</code>.</p>
-                        <button class="solution-btn" onclick="toggleSolution(1)">Xem đáp án</button>
-                        <div id="solution-1" class="solution-content">
-                            <pre><code class="language-json">{
-  "query": {
-    "bool": {
-      "must": [{ "term": { "service.name": "payment-gateway" } }],
-      "must_not": [{ "exists": { "field": "transaction.id" } }]
-    }
-  }
-}</code></pre>
-                        </div>
-                    </div>
-                </div>
+        <div class="section-title"><i class="fas fa-code"></i> Elasticsearch Detection Queries</div>
+        <div id="queriesContainer" class="cards-grid"></div>
+        <footer>⚡ Mỗi thẻ query đều có AI prompt — click 🤖 Ask AI để lấy phân tích, giải thích hoặc mở rộng truy vấn. Dữ liệu dựa trên OWASP 2025 & Elastic Common Schema (ECS).</footer>
+    </main>
+</div>
 
-                <!-- BÀI 2 -->
-                <div class="lesson-card" id="lesson-2">
-                    <label class="complete-toggle"><input type="checkbox" onchange="toggleLesson(2)"> Đã hoàn thành</label>
-                    <div class="lesson-header">
-                        <div class="lesson-title-group">
-                            <span class="owasp-tag">OWASP A02:2025 - Cryptographic Failures</span>
-                            <h3>Bài 2: Sensitive Data - Phát hiện rò rỉ thông tin</h3>
-                        </div>
-                        <span class="badge-difficulty easy">Easy</span>
-                    </div>
-                    <div class="scenario-box"><strong>Scenario:</strong> Developer vô tình log toàn bộ request body chứa <code>password</code> hoặc <code>api_key</code> lên production.</div>
-                    
-                    <div class="usecase-box">
-                        <h5>💡 Use Case thực tế</h5>
-                        <ul>
-                            <li><strong>DLP (Data Loss Prevention):</strong> Quét log định kỳ để tìm các chuỗi giống số thẻ tín dụng hoặc số điện thoại.</li>
-                            <li><strong>Audit:</strong> Tìm kiếm các hành động nhạy cảm trong message log như "delete user" hoặc "change permission".</li>
-                        </ul>
-                    </div>
-
-                    <div class="code-container">
-                        <pre><code class="language-json">GET logs-*/_search
-{
-  "query": {
-    "bool": {
-      "should": [
-        { "match_phrase": { "message": "password" } },
-        { "match_phrase": { "message": "token" } },
-        { "match_phrase": { "message": "api_key" } }
-      ],
-      "minimum_should_match": 1
-    }
-  }
-}</code></pre>
-                    </div>
-
-                    <div class="exercise-box">
-                        <h5>🎯 Bài tập thực hành</h5>
-                        <p>Cập nhật query trên để tìm thêm các log chứa cụm từ <code>"private_key"</code> hoặc <code>"client_secret"</code>.</p>
-                        <button class="solution-btn" onclick="toggleSolution(2)">Xem đáp án</button>
-                        <div id="solution-2" class="solution-content">
-                            <pre><code class="language-json">{
-  "query": {
-    "bool": {
-      "should": [
-        { "match_phrase": { "message": "private_key" } },
-        { "match_phrase": { "message": "client_secret" } }
-      ],
-      "minimum_should_match": 1
-    }
-  }
-}</code></pre>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- BÀI 4 -->
-                <div class="lesson-card" id="lesson-4">
-                    <label class="complete-toggle"><input type="checkbox" onchange="toggleLesson(4)"> Đã hoàn thành</label>
-                    <div class="lesson-header">
-                        <div class="lesson-title-group">
-                            <span class="owasp-tag">OWASP A07:2025 - Auth Failures</span>
-                            <h3>Bài 4: Brute Force - Phân tích ngưỡng</h3>
-                        </div>
-                        <span class="badge-difficulty medium">Medium</span>
-                    </div>
-                    <div class="scenario-box"><strong>Scenario:</strong> Phát hiện các IP có hành vi dò mật khẩu với tần suất cao (>20 lần/phút).</div>
-                    
-                    <div class="usecase-box">
-                        <h5>💡 Use Case thực tế</h5>
-                        <ul>
-                            <li><strong>Chống tấn công từ chối dịch vụ (DoS):</strong> Tìm các IP gửi quá nhiều request trong thời gian ngắn.</li>
-                            <li><strong>Giám sát hệ thống:</strong> Thống kê các service đang gặp nhiều lỗi 5xx nhất.</li>
-                        </ul>
-                    </div>
-
-                    <div class="code-container">
-                        <pre><code class="language-json">GET logs-*/_search
-{
-  "query": {
-    "bool": {
-      "filter": [
-        { "term": { "event.outcome": "failure" } },
-        { "range": { "@timestamp": { "gte": "now-1m" } } }
-      ]
-    }
-  },
-  "aggs": {
-    "suspicious_ips": { "terms": { "field": "source.ip", "min_doc_count": 20 } }
-  }, "size": 0
-}</code></pre>
-                    </div>
-
-                    <div class="exercise-box">
-                        <h5>🎯 Bài tập thực hành</h5>
-                        <p>Thống kê Top 5 người dùng (<code>user.name</code>) có số lượng request bị lỗi 403 (Forbidden) cao nhất trong 1 giờ qua.</p>
-                        <button class="solution-btn" onclick="toggleSolution(4)">Xem đáp án</button>
-                        <div id="solution-4" class="solution-content">
-                            <pre><code class="language-json">{
-  "size": 0,
-  "query": {
-    "bool": {
-      "filter": [
-        { "term": { "http.response.status_code": 403 } },
-        { "range": { "@timestamp": { "gte": "now-1h" } } }
-      ]
-    }
-  },
-  "aggs": {
-    "top_violators": {
-      "terms": { "field": "user.name", "size": 5 }
-    }
-  }
-}</code></pre>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- CHEAT SHEET -->
-            <section id="cheat-sheet" class="section-card">
-                <h2 class="level-title">📚 Ultimate Cheat Sheet</h2>
-                <table class="cheat-table">
-                    <thead>
-                        <tr>
-                            <th>Category</th>
-                            <th>Mục tiêu</th>
-                            <th>DSL Pattern</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>A01: Access Control</td><td>Truy cập trái phép</td><td><code>bool.must[match: "unauthorized"]</code></td></tr>
-                        <tr><td>A03: Injection</td><td>SQL/Log Injection</td><td><code>regexp: ".*(UNION|SELECT|%0a).*"</code></td></tr>
-                        <tr><td>A07: Auth Failures</td><td>Brute Force</td><td><code>aggs.terms: { field: "source.ip", min_doc_count: 50 }</code></td></tr>
-                        <tr><td>A09: Logging Fail</td><td>Thiếu dữ liệu</td><td><code>bool.must_not[exists: { field: "..." }]</code></td></tr>
-                    </tbody>
-                </table>
-            </section>
-        </main>
-
-        <footer>
-            <p>&copy; 2026 Elasticsearch Learning Framework | Ultimate OWASP Edition | lhlhai/prompt-library</p>
-        </footer>
+<!-- Modal AI -->
+<div id="aiModal" class="modal">
+    <div class="modal-content">
+        <h3><i class="fas fa-robot"></i> 🤖 AI Security Analyst</h3>
+        <p id="modalPromptText">Chuẩn bị prompt...</p>
+        <button class="modal-close" id="closeModalBtn">Đóng</button>
     </div>
+</div>
 
-    <script>
-        const totalLessons = 18 + 6; 
-        let completedLessons = JSON.parse(localStorage.getItem('dsl_progress_v3')) || [];
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+<script>
+    // Danh sách 20 bài học + query DSL + scenario + owasp
+    const queries = [
+        { id: 0, title: "⚠️ Inconsistent logging (missing fields)", owasp: "A09:2025", level: "basic", scenario: "Phát hiện log thiếu trường bắt buộc như event.id hoặc user.name – CWE-223", dsl: `{\n  "query": {\n    "bool": {\n      "must_not": { "exists": { "field": "event.id" } },\n      "filter": { "term": { "log.level": "warn" } }\n    }\n  }\n}`, aiPrompt: "Hãy giải thích vì sao missing field trong log là rủi ro bảo mật (CWE-223). Phân tích query Elasticsearch: kiểm tra log không có event.id nhưng có level warn. Đưa ra cách khắc phục trong ứng dụng." },
+        { id: 1, title: "🔐 Sensitive data leak (CWE-532)", owasp: "A09:2025", level: "basic", scenario: "Password, token, API key lộ trong log message.", dsl: `{\n  "query": {\n    "match_phrase": {\n      "message": "password="\n    }\n  }\n}`, aiPrompt: "Bạn là chuyên gia SOC. Giải thích nguy cơ CWE-532 khi log chứa password. Query tìm 'password=' trong trường message. Đề xuất cách redact thông tin nhạy cảm." },
+        { id: 2, title: "🧪 Log Injection (CWE-117)", owasp: "A09:2025", level: "intermediate", scenario: "Kẻ tấn công chèn newline/giả mạo log entry.", dsl: `{\n  "query": {\n    "regexp": {\n      "user_agent": ".*\\\\\\\\n.*"\n    }\n  }\n}`, aiPrompt: "Phân tích CWE-117: log injection bằng newline. Query sử dụng regexp tìm ký tự xuống dòng. Hướng dẫn vệ sinh đầu vào và dùng structured logging." },
+        { id: 3, title: "🔄 Brute Force không alert", owasp: "A07:2025/A09", level: "intermediate", scenario: "Nhiều login thất bại cùng IP, không có threshold alert.", dsl: `{\n  "size": 0,\n  "aggs": {\n    "failed_ips": {\n      "terms": { "field": "source.ip", "size": 10 },\n      "aggs": {\n        "fail_count": { "value_count": { "field": "event.id" } }\n      }\n    }\n  }\n}`, aiPrompt: "Giải thích query thống kê failed login theo IP. Cảnh báo CWE-778 thiếu alerting. Đề xuất ngưỡng phát hiện brute force." },
+        { id: 4, title: "⏳ Log gap - log bị xóa (CWE-221)", owasp: "A09:2025", level: "advanced", scenario: "Phát hiện khoảng trống thời gian trong audit log.", dsl: `{\n  "query": {\n    "bool": {\n      "must_not": {\n        "range": { "@timestamp": { "gte": "now-30m", "lte": "now-10m" } }\n      }\n    }\n  }\n}`, aiPrompt: "Phân tích log gap: khoảng thời gian mất log, CWE-221 (data loss). Query này cảnh báo khi không có log nào trong 20 phút. Nguyên nhân? Cách giám sát?" },
+        { id: 5, title: "📡 Service không log (CWE-778)", owasp: "A09:2025", level: "advanced", scenario: "Service chạy nhưng log hoàn toàn vắng bóng > 1h.", dsl: `{\n  "query": {\n    "bool": {\n      "filter": { "term": { "host.name": "api-gateway-01" } },\n      "must_not": { "range": { "@timestamp": { "gte": "now-1h" } } }\n    }\n  }\n}`, aiPrompt: "Detect service không sinh log -> CWE-778. Query tìm kiếm sự vắng mặt của log. Thiết lập heartbeat log như thế nào?" },
+        { id: 6, title: "👤 PII trong log", owasp: "A04:2025/A09", level: "intermediate", scenario: "Email, số điện thoại, CCCD xuất hiện trong log.", dsl: `{\n  "query": {\n    "regexp": {\n      "message": "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.com"\n    }\n  }\n}`, aiPrompt: "Tìm PII (email) trong log. Đánh giá rủi ro bảo mật và GDPR. Query regex phát hiện email, nêu biện pháp masking." },
+        { id: 7, title: "🎭 False positive overwhelm", owasp: "A09:2025", level: "basic", scenario: "Quá nhiều cảnh báo nhiễu -> bỏ qua alert thật.", dsl: `{\n  "query": {\n    "bool": {\n      "filter": { "range": { "event.severity": { "gte": 5 } } },\n      "must_not": { "terms": { "event.category": ["network_traffic","heartbeat"] } }\n    }\n  }\n}`, aiPrompt: "Lọc bỏ false positive bằng cách loại trừ category heartbeat. Giải thích chiến lược giảm nhiễu SOC." },
+        { id: 8, title: "🕸️ DAST scan không bị detect", owasp: "A09:2025", level: "advanced", scenario: "Burp/ZAP quét không ghi nhận log.", dsl: `{\n  "query": {\n    "bool": {\n      "must": { "term": { "http.request.header.user_agent": "ZAP" } },\n      "filter": { "range": { "@timestamp": { "gte": "now-2h" } } }\n    }\n  }\n}`, aiPrompt: "DAST detection missing log - CWE-778. Query tìm user-agent ZAP. Tại sao scanner không trigger alert? Giải pháp giám sát." },
+        { id: 9, title: "⚠️ Error mishandling (CWE-221)", owasp: "A10:2025", level: "intermediate", scenario: "Exception stacktrace không log hoặc log thiếu context.", dsl: `{\n  "query": {\n    "match": {\n      "log.level": "error"\n    }\n  }\n}`, aiPrompt: "Error không được log đầy đủ -> lỗ hổng pháp y. Query đơn giản nhưng cần bổ sung user context. Phân tích CWE-221." },
+        { id: 10, title: "🍯 Honeytoken access", owasp: "Deception", level: "advanced", scenario: "Truy cập file canary / honeytoken trong log.", dsl: `{\n  "query": {\n    "match_phrase": {\n      "file.path": "/secrets/honeytoken.key"\n    }\n  }\n}`, aiPrompt: "Phát hiện honeytoken access: khi kẻ tấn công đọc file mồi. Query tìm chính xác file path. Giải thích cách trigger incident response." },
+        { id: 11, title: "💾 Log không có backup", owasp: "A09:2025", level: "basic", scenario: "Log chỉ lưu local, không có replica.", dsl: `{\n  "query": {\n    "term": {\n      "log.file.path": "/var/log/local.log"\n    }\n  }\n}`, aiPrompt: "Tập trung log local dễ mất. Gợi ý dùng Elasticsearch cluster + ILM policy. Query kiểm tra nguồn log đơn lẻ." },
+        { id: 12, title: "📋 Audit trail thiếu context", owasp: "A09:2025", level: "intermediate", scenario: "Không lưu user_id, session khi thực hiện hành vi nhạy cảm.", dsl: `{\n  "query": {\n    "bool": {\n      "must": { "term": { "event.action": "delete_user" } },\n      "must_not": { "exists": { "field": "user.id" } }\n    }\n  }\n}`, aiPrompt: "Thiếu context trong audit log (CWE-223). Query tìm hành động delete_user nhưng không có user.id. Khuyến nghị logging theo OWASP ASVS." },
+               { id: 13, title: "🌐 C2/Beacon detection", owasp: "MITRE T1071", level: "advanced", scenario: "Phát hiện outbound connection lâu đến domain lạ.", dsl: `{\n  "query": {\n    "bool": {\n      "must": [\n        { "term": { "network.direction": "outbound" } },\n        { "range": { "event.duration": { "gte": 300000 } } }\n      ],\n      "must_not": { "terms": { "destination.domain": ["microsoft.com", "google.com"] } }\n    }\n  }\n}`, aiPrompt: "Phát hiện C2 beacon dựa trên outbound kéo dài. Giải thích logic range và whitelist domain. Liên hệ MITRE ATT&CK T1071." },
+        { id: 14, title: "👑 Privilege Escalation (sudo)", owasp: "A01:2025", level: "advanced", scenario: "User chạy sudo thành công bất thường.", dsl: `{\n  "query": {\n    "bool": {\n      "must": [\n        { "term": { "process.name": "sudo" } },\n        { "term": { "event.outcome": "success" } }\n      ]\n    }\n  }\n}`, aiPrompt: "Phát hiện leo thang đặc quyền. Query tìm sudo thành công – cần kết hợp với user bất thường. Giải thích A01 Broken Access Control." },
+        { id: 15, title: "🧬 SQL Injection attempt", owasp: "A03:2025", level: "intermediate", scenario: "Parameter có chứa ' OR 1=1 -- .", dsl: `{\n  "query\": {\n    \"regexp\": {\n      \"http.request.body\": \".*(%27|')+(OR|and).*\"\n    }\n  }\n}`, aiPrompt: "Phát hiện SQLi qua regex trong HTTP body. Phân tích false-positive và cách improve bằng ESRE." },
+        { id: 16, title: "🕵️‍♂️ Internal IP SSRF (A10)", owasp: "A10:2025", level: "advanced", scenario: "Web app gọi đến internal IP (metadata).", dsl: `{\n  "query": {\n    "regexp\": {\n      \"url.full\": \"(169.254|10\\\\.|172\\\\.16|192\\\\.168).*\"\n    }\n  }\n}`, aiPrompt: "SSRF detection: yêu cầu outbound đến IP private. Query regexp internal ranges. Mô tả attack metadata AWS/GCP." },
+        { id: 17, title: "📦 Large Data Exfiltration", owasp: "A04:2025", level: "advanced", scenario: "User download > 100MB dữ liệu trong 1 phút.", dsl: `{\n  "query": {\n    \"range\": {\n      \"network.bytes\": { \"gte\": 104857600 }\n    }\n  }\n}`, aiPrompt: "Phát hiện data exfiltration qua kích thước bytes. Query range với threshold 100MB. Kết hợp user và destination." },
+        { id: 18, title: "⏱️ Impossible Travel", owasp: "A07:2025", level: "advanced", scenario: "Login từ Việt Nam sau 5 phút lại đăng nhập từ Mỹ.", dsl: `{\n  "query": {\n    "bool\": {\n      \"must\": { \"term\": { \"event.type\": \"authentication\" } }\n    }\n  }\n  // cần aggregations so sánh geoip`, aiPrompt: "Impossible travel detection cần kết hợp geoip. Hướng dẫn xây dựng script hoặc aggregation để tính khoảng cách. Cảnh báo A07." },
+        { id: 19, title: "🔁 Log tampering / deletion", owasp: "A09:2025", level: "intermediate", scenario: "Log index bị xóa bởi tài khoản không phải admin.", dsl: `{\n  "query": {\n    \"bool\": {\n      \"must\": [\n        { \"term\": { \"event.action\": \"index_delete\" } },\n        { \"term\": { \"user.roles\": \"viewer\" } }\n      ]\n    }\n  }\n}`, aiPrompt: "Phát hiện xóa trái phép log index (CWE-778). Query tìm event.action index_delete với role viewer. Đề xuất audit trail bất biến." }
+    ];
 
-        function initProgress() {
-            completedLessons.forEach(id => {
-                const checkbox = document.querySelector(`#lesson-${id} input`);
-                if (checkbox) checkbox.checked = true;
+    // render sidebar & progress
+    const lessonNav = document.getElementById('lessonNav');
+    const container = document.getElementById('queriesContainer');
+    const loadProgress = () => JSON.parse(localStorage.getItem('dsl_progress') || '{}');
+    const saveProgress = (prog) => localStorage.setItem('dsl_progress', JSON.stringify(prog));
+
+    function renderSidebar() {
+        let progress = loadProgress();
+        queries.forEach((q, idx) => {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.href = `#query-${idx}`;
+            a.innerHTML = `<i class="fas fa-terminal"></i> ${q.title.substring(0, 35)}${q.title.length>35?'…':''}`;
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.className = 'checkbox-progress';
+            cb.checked = !!progress[idx];
+            cb.addEventListener('change', (e) => {
+                e.stopPropagation();
+                let prog = loadProgress();
+                prog[idx] = cb.checked;
+                saveProgress(prog);
+                renderSidebar(); 
+                renderQueries(); 
             });
-            updateProgressBar();
-            generateSidebar();
-        }
-
-        function toggleLesson(id) {
-            const index = completedLessons.indexOf(id);
-            if (index === -1) completedLessons.push(id);
-            else completedLessons.splice(index, 1);
-            localStorage.setItem('dsl_progress_v3', JSON.stringify(completedLessons));
-            updateProgressBar();
-            refreshSidebar();
-        }
-
-        function updateProgressBar() {
-            const percent = Math.round((completedLessons.length / totalLessons) * 100);
-            document.getElementById('overall-progress').innerText = percent + '%';
-            document.getElementById('progress-bar').style.width = percent + '%';
-        }
-
-        function generateSidebar() {
-            const lessons = [
-                { id: 1, title: "Bài 1: Exists Query", level: 'basic' },
-                { id: 2, title: "Bài 2: Sensitive Data", level: 'basic' },
-                { id: 4, title: "Bài 4: Brute Force", level: 'basic' }
-            ];
-            
-            lessons.forEach(l => {
-                const li = document.createElement('li');
-                li.id = `nav-item-${l.id}`;
-                li.className = completedLessons.includes(l.id) ? 'completed' : '';
-                li.innerHTML = `<a href="#lesson-${l.id}">${l.title} <span class="progress-dot"></span></a>`;
-                document.getElementById(`nav-${l.level}`).appendChild(li);
-            });
-        }
-
-        function refreshSidebar() {
-            const items = document.querySelectorAll('.sidebar-nav li');
-            items.forEach(item => {
-                const id = parseInt(item.id.replace('nav-item-', ''));
-                item.className = completedLessons.includes(id) ? 'completed' : '';
-            });
-        }
-
-        function toggleSolution(id) {
-            const sol = document.getElementById(`solution-${id}`);
-            const btn = sol.previousElementSibling;
-            if (sol.style.display === 'block') {
-                sol.style.display = 'none';
-                btn.innerText = 'Xem đáp án';
-            } else {
-                sol.style.display = 'block';
-                btn.innerText = 'Ẩn đáp án';
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            hljs.highlightAll();
-            initProgress();
+            a.appendChild(cb);
+            li.appendChild(a);
+            lessonNav.appendChild(li);
         });
-    </script>
+    }
+    function renderQueries() {
+        container.innerHTML = '';
+        const progress = loadProgress();
+        queries.forEach((q, idx) => {
+            const card = document.createElement('div');
+            card.className = 'query-card';
+            card.id = `query-${idx}`;
+            const isChecked = progress[idx];
+            const header = `<div class="card-header"><h3><i class="fas fa-search"></i> ${q.title}</h3><span class="owasp-tag">${q.owasp}</span></div><div class="scenario"><i class="fas fa-chalkboard-user"></i> Scenario: ${q.scenario}</div><div class="code-block"><pre><code class="language-json">${escapeHtml(q.dsl)}</code></pre></div><div class="card-actions"><button class="btn-ai" data-idx="${idx}"><i class="fas fa-robot"></i> 🤖 Ask AI - Phân tích query</button></div>`;
+            card.innerHTML = header;
+            container.appendChild(card);
+            Prism.highlightAllUnder(card);
+        });
+        document.querySelectorAll('.btn-ai').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                const queryObj = queries[idx];
+                showAIModal(queryObj.aiPrompt, queryObj.title);
+            });
+        });
+    }
+    function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+    const modal = document.getElementById('aiModal');
+    const modalPromptText = document.getElementById('modalPromptText');
+    function showAIModal(promptText, title) {
+        const enhancedPrompt = `🧠 CHUYÊN GIA BẢO MẬT (ELK): ${title}\n\nYêu cầu AI: phân tích chi tiết query, bối cảnh OWASP, CWE tương ứng và đề xuất giám sát thực tế.\n\n${promptText}\n\n--- Hãy trả lời như một security architect.`;
+        modalPromptText.innerText = enhancedPrompt;
+        modal.classList.add('active');
+    }
+    document.getElementById('closeModalBtn').addEventListener('click', () => modal.classList.remove('active'));
+    modal.addEventListener('click', (e) => { if(e.target === modal) modal.classList.remove('active'); });
+    renderSidebar();
+    renderQueries();
+    // active link highlight khi scroll 
+    window.addEventListener('scroll', () => {});
+</script>
 </body>
 </html>
