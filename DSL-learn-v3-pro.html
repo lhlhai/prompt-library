@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elasticsearch Query DSL - Tư duy phân tích & Thực chiến nâng cao</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f172a;
+            --secondary: #0ea5e9;
+            --accent: #f43f5e;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --code-bg: #1e293b;
+            --code-text: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #0ea5e9;
+            --deep-dive: #f0f9ff;
+            --deep-dive-border: #bae6fd;
+            --deep-dive-text: #0369a1;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.7;
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 40px;
+        }
+
+        /* Header */
+        header {
+            grid-column: 1 / -1;
+            background: white;
+            padding: 80px 60px;
+            border-radius: 40px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        header::after {
+            content: "";
+            position: absolute;
+            top: -20%;
+            right: -5%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.08) 0%, transparent 70%);
+            z-index: 0;
+        }
+
+        .header-content { position: relative; z-index: 1; }
+        .header-content h1 { font-size: 3.5rem; font-weight: 800; margin-bottom: 20px; color: var(--primary); letter-spacing: -0.02em; }
+        .header-content p { font-size: 1.25rem; color: var(--text-muted); max-width: 900px; }
+        .header-badges { display: flex; gap: 15px; margin-top: 30px; }
+        .badge { padding: 8px 20px; border-radius: 100px; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .badge-pro { background: #f0f9ff; color: var(--secondary); border: 1px solid #bae6fd; }
+        .badge-new { background: #ecfdf5; color: var(--success); border: 1px solid #d1fae5; }
+
+        /* Sidebar Navigation */
+        aside {
+            position: sticky;
+            top: 40px;
+            height: fit-content;
+        }
+
+        .sidebar-nav {
+            background: white;
+            padding: 35px;
+            border-radius: 32px;
+            border: 1px solid var(--border);
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar-nav h2 { font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin: 30px 0 15px; letter-spacing: 0.15em; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        .sidebar-nav h2:first-child { margin-top: 0; }
+        .sidebar-nav ul { list-style: none; }
+        .sidebar-nav li { margin-bottom: 6px; }
+        .sidebar-nav a { 
+            text-decoration: none; 
+            color: var(--text-main); 
+            font-size: 0.95rem; 
+            font-weight: 500;
+            display: block; 
+            padding: 10px 15px; 
+            border-radius: 12px; 
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar-nav a:hover { background: #f8fafc; color: var(--secondary); transform: translateX(5px); }
+        .sidebar-nav a.active { background: #f0f9ff; color: var(--secondary); border-left: 4px solid var(--secondary); }
+
+        /* Main Content Area */
+        main { display: flex; flex-direction: column; gap: 50px; }
+
+        .section-card {
+            background: white;
+            border-radius: 40px;
+            padding: 60px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.03);
+        }
+
+        .level-header {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 50px;
+            padding-bottom: 25px;
+            border-bottom: 3px solid #f1f5f9;
+        }
+
+        .level-icon { font-size: 3rem; }
+        .level-title { font-size: 2.25rem; font-weight: 800; color: var(--primary); }
+
+        .lesson {
+            margin-bottom: 80px;
+            position: relative;
+        }
+
+        .lesson:last-child { margin-bottom: 0; }
+
+        .lesson-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 25px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .lesson-title::before {
+            content: "";
+            width: 8px;
+            height: 32px;
+            background: var(--secondary);
+            border-radius: 4px;
+        }
+
+        /* Deep Dive Box */
+        .deep-dive-box {
+            background: var(--deep-dive);
+            border: 1px solid var(--deep-dive-border);
+            border-radius: 24px;
+            padding: 30px;
+            margin: 30px 0;
+            color: var(--deep-dive-text);
+        }
+
+        .deep-dive-box h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .deep-dive-box p { font-size: 0.95rem; margin-bottom: 10px; }
+
+        /* Code Window */
+        .code-window {
+            background: var(--code-bg);
+            border-radius: 20px;
+            margin: 30px 0;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .code-header {
+            background: #0f172a;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+        }
+
+        .dots { display: flex; gap: 8px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot-red { background: #ff5f56; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #27c93f; }
+        .code-lang { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #94a3b8; font-weight: 500; }
+
+        pre {
+            padding: 30px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            color: var(--code-text);
+            line-height: 1.7;
+        }
+
+        /* Analysis Section */
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .analysis-card {
+            background: #f8fafc;
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .analysis-card h5 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--primary);
+        }
+
+        .analysis-card p { font-size: 0.9rem; color: var(--text-muted); }
+
+        /* Exercise Box */
+        .exercise-box {
+            background: #f0fdf4;
+            border: 2px dashed #86efac;
+            padding: 35px;
+            border-radius: 24px;
+            margin-top: 40px;
+        }
+
+        .exercise-box h4 {
+            color: #166534;
+            font-size: 1.25rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .exercise-list { list-style: none; }
+        .exercise-list li {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 15px;
+            color: #1e293b;
+            font-weight: 500;
+        }
+
+        .exercise-list li::before {
+            content: "🚀";
+            position: absolute;
+            left: 0;
+        }
+
+        /* Footer */
+        footer {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 100px 0;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+        }
+
+        @media (max-width: 1200px) {
+            .container { grid-template-columns: 1fr; }
+            aside { display: none; }
+            header { padding: 50px 30px; }
+            header h1 { font-size: 2.5rem; }
+            .analysis-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="header-badges">
+                    <span class="badge badge-pro">v3.1 Pro - Analytical Edition</span>
+                    <span class="badge badge-new">Tư duy hệ thống</span>
+                </div>
+                <h1>Elasticsearch Query DSL: Deep Dive</h1>
+                <p>Nâng tầm kỹ năng từ việc "biết query" sang "tư duy phân tích hệ thống". Khám phá kiến trúc ẩn sau mỗi dòng lệnh DSL và cách tối ưu hóa cho các hệ thống lớn.</p>
+            </div>
+        </header>
+
+        <aside>
+            <nav class="sidebar-nav">
+                <h2>🔍 Tư duy Nền tảng</h2>
+                <ul>
+                    <li><a href="#bai-1">Phân tích Omission (Exists)</a></li>
+                    <li><a href="#bai-2">Phát hiện Leak Dữ liệu</a></li>
+                    <li><a href="#bai-3">Bảo mật Log Injection</a></li>
+                </ul>
+                <h2>🧠 Phân tích Hành vi</h2>
+                <ul>
+                    <li><a href="#bai-4">Brute Force & Pattern</a></li>
+                    <li><a href="#bai-5">Observability Gap Analysis</a></li>
+                    <li><a href="#bai-8">Nested Object Strategy</a></li>
+                </ul>
+                <h2>🚀 Kiến trúc & Tự động</h2>
+                <ul>
+                    <li><a href="#bai-10">Dynamic Risk Scoring</a></li>
+                    <li><a href="#bai-14">ML & Predictive Analysis</a></li>
+                    <li><a href="#bai-16">Watcher Architecture</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main>
+            <!-- BÀI 1: PHÂN TÍCH CHUYÊN SÂU EXISTS -->
+            <section id="co-ban" class="section-card">
+                <div class="level-header">
+                    <span class="level-icon">🔬</span>
+                    <h2 class="level-title">Module 1: Phân tích Sự thiếu hụt Dữ liệu</h2>
+                </div>
+
+                <div id="bai-1" class="lesson">
+                    <h3 class="lesson-title">Bài 1 — <code>exists</code>: Tư duy về Information Omission</h3>
+                    
+                    <div class="deep-dive-box">
+                        <h4><span style="font-size: 1.5rem;">💡</span> Deep Dive: Tại sao log thiếu field lại nguy hiểm?</h4>
+                        <p>Trong an ninh mạng, một event không có kết quả (outcome) là một "điểm mù". Attacker thường cố gắng làm gián đoạn luồng log hoặc inject mã độc khiến parser bị lỗi, dẫn đến các field quan trọng không được index. Query <code>exists</code> không chỉ để tìm lỗi, mà là để kiểm toán (audit) độ tin cậy của hệ thống log.</p>
+                    </div>
+
+                    <div class="code-window">
+                        <div class="code-header">
+                            <div class="dots"><div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div></div>
+                            <span class="code-lang">Advanced DSL</span>
+                        </div>
+                        <pre>GET logs-*/_search
+{
+  "query": {
+    "bool": {
+      "filter": [
+        { "term": { "event.category": "authentication" } }
+      ],
+      "must_not": [
+        { "exists": { "field": "event.outcome" } }
+      ]
+    }
+  },
+  "aggs": {
+    "by_service": {
+      "terms": { "field": "service.name.keyword" },
+      "aggs": {
+        "missing_ratio": {
+          "bucket_script": {
+            "buckets_path": { "total": "_count" },
+            "script": "params.total > 100 ? 1 : 0"
+          }
+        }
+      }
+    }
+  }
+}</pre>
+                    </div>
+
+                    <div class="analysis-grid">
+                        <div class="analysis-card">
+                            <h5>Tư duy Phân tích</h5>
+                            <p>Thay vì chỉ tìm log thiếu field, hãy dùng Aggregation để xác định xem service nào đang gặp vấn đề hệ thống. Nếu một service có tỷ lệ thiếu field đột ngột tăng, đó có thể là dấu hiệu của parser lỗi hoặc tấn công Log Injection.</p>
+                        </div>
+                        <div class="analysis-card">
+                            <h5>Ứng dụng Thực tế</h5>
+                            <p>Thiết lập Dashboard theo dõi "Log Health Score". Một hệ thống healthy phải có tỷ lệ <code>exists</code> cho các field bắt buộc (ECS) đạt 100%.</p>
+                        </div>
+                    </div>
+
+                    <div class="exercise-box">
+                        <h4>🎯 Thử thách Tư duy</h4>
+                        <ul class="exercise-list">
+                            <li>Xây dựng query so sánh số lượng log thiếu field <code>source.ip</code> giữa môi trường Prod và Staging.</li>
+                            <li>Phân tích tại sao việc dùng <code>filter</code> lại tốt hơn <code>must</code> trong trường hợp này (Gợi ý: Performance & Caching).</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- BÀI 2: SENSITIVE DATA & PATTERN MATCHING -->
+            <section class="section-card">
+                <div class="level-header">
+                    <span class="level-icon">🛡️</span>
+                    <h2 class="level-title">Module 2: Bảo mật & Leak Dữ liệu</h2>
+                </div>
+
+                <div id="bai-2" class="lesson">
+                    <h3 class="lesson-title">Bài 2 — Sensitive Data: Từ Keyword đến Pattern</h3>
+                    
+                    <div class="deep-dive-box">
+                        <h4><span style="font-size: 1.5rem;">🧠</span> Đào sâu: Vấn đề của Match Phrase</h4>
+                        <p>Dùng <code>match_phrase</code> đơn thuần rất dễ sót. Attacker có thể dùng các biến thể như <code>p_a_s_s_w_o_r_d</code> hoặc <code>pwd</code>. Tư duy nâng cao ở đây là kết hợp <strong>N-gram Tokenizer</strong> và <strong>Fuzzy Search</strong> để bắt được cả những dữ liệu bị cố tình làm nhiễu.</p>
+                    </div>
+
+                    <div class="code-window">
+                        <pre>GET logs-*/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        { "fuzzy": { "message": { "value": "password", "fuzziness": "AUTO" } } },
+        { "regexp": { "message": ".*[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}.*" } }
+      ],
+      "minimum_should_match": 1
+    }
+  },
+  "highlight": {
+    "fields": { "message": {} },
+    "pre_tags": ["<em style='color:red;font-weight:bold'>"],
+    "post_tags": ["</em>"]
+  }
+}</pre>
+                    </div>
+
+                    <div class="analysis-grid">
+                        <div class="analysis-card">
+                            <h5>Tư duy Pattern</h5>
+                            <p>Regex trong Elasticsearch có chi phí cao. Hãy luôn kết hợp với một <code>filter</code> theo thời gian hoặc service để thu hẹp phạm vi search trước khi chạy Regex.</p>
+                        </div>
+                        <div class="analysis-card">
+                            <h5>Chiến lược "Honey-Field"</h5>
+                            <p>Tạo ra các field log giả chứa dữ liệu trông như thật nhưng không có giá trị (ví dụ: <code>fake_token</code>). Bất kỳ query nào hit vào đây đều là dấu hiệu của hành vi dò tìm dữ liệu.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- BÀI 5: OBSERVABILITY GAP -->
+            <section class="section-card">
+                <div class="level-header">
+                    <span class="level-icon">🛰️</span>
+                    <h2 class="level-title">Module 3: Observability & Gap Analysis</h2>
+                </div>
+
+                <div id="bai-5" class="lesson">
+                    <h3 class="lesson-title">Bài 5 — Phân tích "Khoảng lặng" (Log Gaps)</h3>
+                    
+                    <div class="deep-dive-box">
+                        <h4><span style="font-size: 1.5rem;">🕵️</span> Phân tích: Tại sao log lại biến mất?</h4>
+                        <p>Một hệ thống đang chạy mà không có log không phải là tin tốt. Nó có thể do: 1. Log Shipper bị crash, 2. Network congestion, hoặc 3. Attacker xóa dấu vết. Tư duy ở đây là dùng <code>min_doc_count: 0</code> để tìm những "vùng trũng" dữ liệu.</p>
+                    </div>
+
+                    <div class="code-window">
+                        <pre>GET logs-*/_search
+{
+  "aggs": {
+    "health_check": {
+      "date_histogram": {
+        "field": "@timestamp",
+        "fixed_interval": "1m",
+        "min_doc_count": 0,
+        "extended_bounds": { "min": "now-1h", "max": "now" }
+      },
+      "aggs": {
+        "is_gap": {
+          "bucket_selector": {
+            "buckets_path": { "count": "_count" },
+            "script": "params.count == 0"
+          }
+        }
+      }
+    }
+  },
+  "size": 0
+}</pre>
+                    </div>
+
+                    <div class="analysis-grid">
+                        <div class="analysis-card">
+                            <h5>Tư duy Hệ thống</h5>
+                            <p>Đừng chỉ nhìn vào một service. Hãy so sánh traffic log giữa các service phụ thuộc nhau. Nếu Service A có log nhưng Service B (gọi A) lại không có, vấn đề nằm ở middleware hoặc network.</p>
+                        </div>
+                        <div class="analysis-card">
+                            <h5>Ứng dụng Watcher</h5>
+                            <p>Thiết lập Watcher để cảnh báo khi có quá 3 bucket liên tiếp có <code>doc_count: 0</code> cho các critical service.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- BÀI 10: RISK SCORING -->
+            <section class="section-card">
+                <div class="level-header">
+                    <span class="level-icon">📈</span>
+                    <h2 class="level-title">Module 3: Phân tích Định lượng & Risk Scoring</h2>
+                </div>
+
+                <div id="bai-10" class="lesson">
+                    <h3 class="lesson-title">Bài 10 — Dynamic Risk Scoring với Painless</h3>
+                    
+                    <div class="deep-dive-box">
+                        <h4><span style="font-size: 1.5rem;">🏗️</span> Kiến trúc: Hệ thống chấm điểm rủi ro</h4>
+                        <p>Thay vì alert cho mọi lỗi, chúng ta gán trọng số cho từng loại lỗi. Ví dụ: Một lỗi 500 từ <code>payment-service</code> nguy hiểm hơn 10 lỗi 404 từ <code>static-assets</code>. Painless script cho phép chúng ta tính toán điểm số này realtime ngay khi query.</p>
+                    </div>
+
+                    <div class="code-window">
+                        <pre>GET logs-*/_search
+{
+  "runtime_mappings": {
+    "normalized_risk": {
+      "type": "double",
+      "script": """
+        double score = 0;
+        if (doc['http.response.status_code'].size() > 0) {
+          int code = (int)doc['http.response.status_code'].value;
+          if (code >= 500) score += 5.0;
+          else if (code >= 400) score += 1.0;
+        }
+        if (doc['event.duration'].size() > 0) {
+          if (doc['event.duration'].value > 5000000000L) score += 3.0;
+        }
+        emit(score);
+      """
+    }
+  },
+  "query": { "range": { "normalized_risk": { "gte": 5.0 } } },
+  "aggs": {
+    "avg_risk_per_service": {
+      "terms": { "field": "service.name.keyword" },
+      "aggs": { "avg_score": { "avg": { "field": "normalized_risk" } } }
+    }
+  }
+}</pre>
+                    </div>
+
+                    <div class="analysis-grid">
+                        <div class="analysis-card">
+                            <h5>Tư duy Runtime Mapping</h5>
+                            <p>Runtime mapping (v8.x+) cho phép bạn thêm logic mà không cần reindex dữ liệu. Đây là công cụ cực mạnh để thử nghiệm các mô hình chấm điểm rủi ro mới.</p>
+                        </div>
+                        <div class="analysis-card">
+                            <h5>Tối ưu Alert</h5>
+                            <p>Chỉ trigger alert khi <code>sum(normalized_risk)</code> trong 5 phút vượt ngưỡng. Điều này giúp giảm nhiễu (alert fatigue) cho đội ngũ vận hành.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 Elasticsearch Analytical Framework v3.1 | Hệ thống học tập tư duy thực chiến | lhlhai/prompt-library</p>
+        </footer>
+    </div>
+</body>
+</html>
