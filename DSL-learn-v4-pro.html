@@ -1,0 +1,2520 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elasticsearch Query DSL — Deep Dive v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+<style>
+  :root {
+    --bg: #F7F5F0;
+    --surface: #FFFFFF;
+    --surface-2: #F0EDE6;
+    --border: #E2DDD4;
+    --text-primary: #1A1714;
+    --text-secondary: #6B6560;
+    --text-muted: #9E9890;
+
+    --green-bg: #F0F7F2;
+    --green-border: #B8DEC4;
+    --green-accent: #2D7A4F;
+    --green-badge: #E3F4EA;
+
+    --yellow-bg: #FDF8EE;
+    --yellow-border: #E8D5A0;
+    --yellow-accent: #9A6F00;
+    --yellow-badge: #FEF3CC;
+
+    --red-bg: #FDF2F2;
+    --red-border: #EDBBBB;
+    --red-accent: #B83232;
+    --red-badge: #FDEAEA;
+
+    --owasp-bg: #EEF2FF;
+    --owasp-border: #C7D2FE;
+    --owasp-text: #3730A3;
+
+    --ai-color: #6B4FBB;
+    --ai-bg: #F3EEFF;
+    --ai-border: #D4C4F5;
+
+    --code-bg: #F8F6F1;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+    --shadow-lg: 0 16px 48px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .sidebar-header {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-logo {
+    font-family: 'Instrument Serif', serif;
+    font-size: 18px;
+    color: var(--text-primary);
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+
+  .sidebar-version {
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  .sidebar-progress-wrap {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .progress-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .progress-bar-wrap {
+    background: var(--surface-2);
+    border-radius: 100px;
+    height: 6px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green-accent), #52B788);
+    border-radius: 100px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .sidebar-section {
+    padding: 12px 24px 4px;
+  }
+
+  .sidebar-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+
+  .sidebar-section-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-green { background: var(--green-accent); }
+  .dot-yellow { background: var(--yellow-accent); }
+  .dot-red { background: var(--red-accent); }
+
+  .sidebar-nav {
+    list-style: none;
+    padding: 0 12px 8px;
+  }
+
+  .sidebar-nav li a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 13px;
+    transition: all 0.15s;
+  }
+
+  .sidebar-nav li a:hover {
+    background: var(--surface-2);
+    color: var(--text-primary);
+  }
+
+  .sidebar-nav li a.active {
+    background: var(--owasp-bg);
+    color: var(--owasp-text);
+    font-weight: 500;
+  }
+
+  .nav-check {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-size: 9px;
+    cursor: pointer;
+  }
+
+  .nav-check.done {
+    background: var(--green-accent);
+    border-color: var(--green-accent);
+    color: white;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    padding: 0;
+    max-width: 860px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 60px 56px 48px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -40px;
+    width: 320px; height: 320px;
+    background: radial-gradient(ellipse, rgba(45,122,79,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--owasp-bg);
+    border: 1px solid var(--owasp-border);
+    color: var(--owasp-text);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 42px;
+    line-height: 1.2;
+    color: var(--text-primary);
+    margin-bottom: 14px;
+    max-width: 600px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--green-accent);
+  }
+
+  .hero-desc {
+    color: var(--text-secondary);
+    font-size: 15px;
+    max-width: 520px;
+    line-height: 1.7;
+    margin-bottom: 28px;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 32px;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stat-num {
+    font-family: 'Instrument Serif', serif;
+    font-size: 28px;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    padding: 40px 56px 0;
+    margin-bottom: 4px;
+  }
+
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 100px;
+    margin-bottom: 6px;
+  }
+
+  .tag-green { background: var(--green-badge); color: var(--green-accent); border: 1px solid var(--green-border); }
+  .tag-yellow { background: var(--yellow-badge); color: var(--yellow-accent); border: 1px solid var(--yellow-border); }
+  .tag-red { background: var(--red-badge); color: var(--red-accent); border: 1px solid var(--red-border); }
+
+  .section-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 26px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .section-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  /* ── LESSONS GRID ── */
+  .lessons-list {
+    padding: 24px 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ── LESSON CARD ── */
+  .lesson-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+
+  .lesson-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+
+  .lesson-card.level-basic { border-top: 3px solid var(--green-accent); }
+  .lesson-card.level-mid   { border-top: 3px solid var(--yellow-accent); }
+  .lesson-card.level-adv   { border-top: 3px solid var(--red-accent); }
+
+  .lesson-header {
+    padding: 20px 24px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .lesson-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+    padding-top: 3px;
+  }
+
+  .lesson-meta {
+    flex: 1;
+  }
+
+  .lesson-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 100px;
+    letter-spacing: 0.04em;
+  }
+
+  .badge-owasp {
+    background: var(--owasp-bg);
+    color: var(--owasp-text);
+    border: 1px solid var(--owasp-border);
+  }
+
+  .badge-level-basic { background: var(--green-badge); color: var(--green-accent); }
+  .badge-level-mid   { background: var(--yellow-badge); color: var(--yellow-accent); }
+  .badge-level-adv   { background: var(--red-badge); color: var(--red-accent); }
+
+  .lesson-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+
+  .lesson-subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .lesson-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .btn-ai {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--ai-bg);
+    border: 1px solid var(--ai-border);
+    color: var(--ai-color);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    padding: 6px 12px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn-ai:hover {
+    background: #EAE0FF;
+    border-color: #B89FF0;
+    transform: scale(1.03);
+  }
+
+  .btn-ai svg { width: 13px; height: 13px; }
+
+  .btn-done {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    color: transparent;
+    font-size: 13px;
+  }
+
+  .btn-done:hover { border-color: var(--green-accent); }
+  .btn-done.done {
+    background: var(--green-accent);
+    border-color: var(--green-accent);
+    color: white;
+  }
+
+  .btn-expand {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    color: var(--text-secondary);
+  }
+
+  .btn-expand:hover { background: var(--border); }
+  .btn-expand svg { transition: transform 0.2s; }
+  .lesson-card.open .btn-expand svg { transform: rotate(180deg); }
+
+  /* ── LESSON BODY ── */
+  .lesson-body {
+    display: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .lesson-card.open .lesson-body { display: block; }
+
+  /* Scenario */
+  .scenario-block {
+    padding: 16px 24px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 12px;
+  }
+
+  .scenario-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    line-height: 1.4;
+  }
+
+  .scenario-content {}
+
+  .scenario-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  .scenario-text {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+
+  /* Deep Dive */
+  .deepdive-block {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .deepdive-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .deepdive-text {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  /* Code Block */
+  .code-wrap {
+    padding: 0 24px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0 6px;
+  }
+
+  .code-lang {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .btn-copy {
+    font-size: 11px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-secondary);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 3px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-copy:hover { background: var(--border); }
+  .btn-copy.copied { color: var(--green-accent); border-color: var(--green-border); }
+
+  .code-wrap pre {
+    margin: 0;
+    border-radius: var(--radius-sm);
+    overflow-x: auto;
+    font-size: 12.5px;
+    line-height: 1.7;
+    border: 1px solid var(--border);
+  }
+
+  .code-wrap pre code {
+    font-family: 'JetBrains Mono', monospace !important;
+  }
+
+  /* Anti-pattern */
+  .antipattern-block {
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--border);
+    background: #FFF8F8;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .antipattern-icon { font-size: 14px; flex-shrink: 0; padding-top: 1px; }
+
+  .antipattern-text {
+    font-size: 13px;
+    color: #882222;
+    line-height: 1.6;
+  }
+
+  .antipattern-text strong { font-weight: 600; }
+
+  /* Exercises */
+  .exercises-block {
+    padding: 14px 24px;
+  }
+
+  .exercises-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .exercises-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .exercises-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .ex-bullet {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: var(--text-muted);
+    font-weight: 700;
+    margin-top: 1px;
+  }
+
+  /* ── AI MODAL ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(26,23,20,0.45);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .modal {
+    background: var(--surface);
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: translateY(12px) scale(0.98);
+    transition: transform 0.25s ease;
+  }
+
+  .modal-overlay.open .modal {
+    transform: translateY(0) scale(1);
+  }
+
+  .modal-header {
+    padding: 24px 28px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    z-index: 1;
+  }
+
+  .modal-title-wrap {}
+
+  .modal-eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ai-color);
+    margin-bottom: 4px;
+  }
+
+  .modal-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 20px;
+    color: var(--text-primary);
+    line-height: 1.3;
+  }
+
+  .modal-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+    transition: all 0.15s;
+    line-height: 1;
+  }
+
+  .modal-close:hover { background: var(--border); color: var(--text-primary); }
+
+  .modal-tabs {
+    display: flex;
+    gap: 0;
+    padding: 0 28px;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+
+  .modal-tab {
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 12px 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    margin-bottom: -1px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .modal-tab:hover { color: var(--text-primary); }
+
+  .modal-tab.active {
+    color: var(--ai-color);
+    border-bottom-color: var(--ai-color);
+  }
+
+  .modal-body {
+    padding: 20px 28px;
+  }
+
+  .prompt-panel { display: none; }
+  .prompt-panel.active { display: block; }
+
+  .prompt-intro {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+    line-height: 1.6;
+    padding: 10px 14px;
+    background: var(--ai-bg);
+    border: 1px solid var(--ai-border);
+    border-radius: var(--radius-sm);
+  }
+
+  .prompt-box {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+    margin-bottom: 12px;
+    position: relative;
+  }
+
+  .prompt-box mark {
+    background: #FFF3C7;
+    color: #7A5500;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-copy-prompt {
+    flex: 1;
+    background: var(--ai-color);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .btn-copy-prompt:hover { background: #5A3FAA; }
+  .btn-copy-prompt.copied { background: var(--green-accent); }
+
+  .btn-open-claude {
+    background: var(--surface-2);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    text-decoration: none;
+  }
+
+  .btn-open-claude:hover { background: var(--border); color: var(--text-primary); }
+
+  /* ── CHEAT SHEET ── */
+  .cheat-section {
+    padding: 40px 56px;
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+  }
+
+  .cheat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .cheat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .cheat-card h4 {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .cheat-items { display: flex; flex-direction: column; gap: 4px; }
+
+  .cheat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+  }
+
+  .cheat-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--text-primary);
+    flex-shrink: 0;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    padding: 24px 56px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-text {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .hero { padding: 32px 24px 28px; }
+    .hero h1 { font-size: 28px; }
+    .section-header { padding: 28px 24px 0; }
+    .lessons-list { padding: 16px 24px; }
+    .lesson-header { padding: 16px; }
+    .code-wrap { padding: 0 16px 16px; }
+    .scenario-block, .deepdive-block, .antipattern-block, .exercises-block { padding: 12px 16px; }
+    .cheat-section { padding: 28px 24px; }
+    .cheat-grid { grid-template-columns: 1fr; }
+    .footer { padding: 16px 24px; flex-direction: column; gap: 6px; text-align: center; }
+    .modal-header { padding: 16px 20px 12px; }
+    .modal-tabs { padding: 0 20px; }
+    .modal-body { padding: 16px 20px; }
+    .hero-stats { gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">Elasticsearch<br>Query DSL</div>
+      <div class="sidebar-version">v4.0 · OWASP Edition</div>
+    </div>
+
+    <div class="sidebar-progress-wrap">
+      <div class="progress-label">
+        <span>Tiến độ</span>
+        <span id="progress-text">0 / 18</span>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progress-fill"></div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label"><span class="sidebar-section-dot dot-green"></span> Cơ bản</div>
+    </div>
+    <ul class="sidebar-nav" id="nav-basic"></ul>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label"><span class="sidebar-section-dot dot-yellow"></span> Trung cấp</div>
+    </div>
+    <ul class="sidebar-nav" id="nav-mid"></ul>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label"><span class="sidebar-section-dot dot-red"></span> Nâng cao</div>
+    </div>
+    <ul class="sidebar-nav" id="nav-adv"></ul>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-eyebrow">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" fill="currentColor" opacity="0.3"/><circle cx="5" cy="5" r="2" fill="currentColor"/></svg>
+        OWASP Top 10 · 2025 Edition
+      </div>
+      <h1>Elasticsearch DSL<br><em>Deep Dive</em></h1>
+      <p class="hero-desc">
+        Lộ trình thực chiến từ "biết query" đến "tư duy phân tích hệ thống". 18 bài học mapping trực tiếp với OWASP Top 10 — từ Exists Query đến Cross-Cluster Search.
+      </p>
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-num">18</span><span class="stat-label">Bài học</span></div>
+        <div class="stat"><span class="stat-num">3</span><span class="stat-label">Cấp độ</span></div>
+        <div class="stat"><span class="stat-num">54</span><span class="stat-label">AI Prompts</span></div>
+        <div class="stat"><span class="stat-num">10</span><span class="stat-label">OWASP IDs</span></div>
+      </div>
+    </section>
+
+    <!-- SECTION: CƠ BẢN -->
+    <div class="section-header">
+      <div class="section-tag tag-green">🟢 Phần Cơ Bản · Bài 1–7</div>
+      <div class="section-title">Nền tảng Query & Phát hiện bất thường</div>
+      <div class="section-desc">Làm chắc tư duy về exists, match, bool, aggs trước khi leo lên trung cấp.</div>
+    </div>
+
+    <div class="lessons-list" id="lessons-basic"></div>
+
+    <!-- SECTION: TRUNG CẤP -->
+    <div class="section-header">
+      <div class="section-tag tag-yellow">🟡 Phần Trung Cấp · Bài 8–13</div>
+      <div class="section-title">Nested, Pipeline Agg & Scripting</div>
+      <div class="section-desc">Kết hợp nhiều kỹ thuật để phát hiện mối đe dọa phức tạp hơn.</div>
+    </div>
+
+    <div class="lessons-list" id="lessons-mid"></div>
+
+    <!-- SECTION: NÂNG CAO -->
+    <div class="section-header">
+      <div class="section-tag tag-red">🔴 Phần Nâng Cao · Bài 14–18</div>
+      <div class="section-title">ML, ILM, Watcher & Cross-Cluster</div>
+      <div class="section-desc">Xây dựng hệ thống observability và tự động hóa alert theo chuẩn enterprise.</div>
+    </div>
+
+    <div class="lessons-list" id="lessons-adv"></div>
+
+    <!-- CHEAT SHEET -->
+    <div class="cheat-section">
+      <div class="section-tag tag-green" style="margin-bottom:8px;">📋 Cheat Sheet</div>
+      <div class="section-title">Quick Reference — OWASP × DSL</div>
+      <div class="cheat-grid">
+        <div class="cheat-card">
+          <h4>🔐 Access Control (A01)</h4>
+          <div class="cheat-items">
+            <div class="cheat-item"><span class="cheat-code">terms</span> Filter theo role / resource</div>
+            <div class="cheat-item"><span class="cheat-code">bool.must_not</span> Loại trừ quyền hợp lệ</div>
+            <div class="cheat-item"><span class="cheat-code">range</span> Detect time-of-day anomaly</div>
+          </div>
+        </div>
+        <div class="cheat-card">
+          <h4>🔑 Auth Failures (A07)</h4>
+          <div class="cheat-items">
+            <div class="cheat-item"><span class="cheat-code">date_histogram</span> Brute force window</div>
+            <div class="cheat-item"><span class="cheat-code">cardinality</span> Unique IP per user</div>
+            <div class="cheat-item"><span class="cheat-code">top_hits</span> Lấy session gần nhất</div>
+          </div>
+        </div>
+        <div class="cheat-card">
+          <h4>💉 Injection (A03)</h4>
+          <div class="cheat-items">
+            <div class="cheat-item"><span class="cheat-code">regexp</span> Pattern newline / CRLF</div>
+            <div class="cheat-item"><span class="cheat-code">match_phrase</span> SQL keyword detect</div>
+            <div class="cheat-item"><span class="cheat-code">wildcard</span> Fuzzy pattern match</div>
+          </div>
+        </div>
+        <div class="cheat-card">
+          <h4>📊 Observability</h4>
+          <div class="cheat-items">
+            <div class="cheat-item"><span class="cheat-code">derivative</span> Spike detection</div>
+            <div class="cheat-item"><span class="cheat-code">min_doc_count:0</span> Log gap visibility</div>
+            <div class="cheat-item"><span class="cheat-code">script_fields</span> Risk score compute</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <span class="footer-text">© 2026 · lhlhai/prompt-library</span>
+      <span class="footer-text">Elasticsearch DSL v4.0 · OWASP 2025</span>
+    </footer>
+
+  </main>
+</div>
+
+<!-- AI MODAL -->
+<div class="modal-overlay" id="ai-modal">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <div class="modal-title-wrap">
+        <div class="modal-eyebrow">✦ AI Prompt Assistant</div>
+        <div class="modal-title" id="modal-lesson-title">Bài 1 — Exists Query</div>
+      </div>
+      <button class="modal-close" id="modal-close-btn">✕</button>
+    </div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" data-tab="explain">🧠 Giải thích</button>
+      <button class="modal-tab" data-tab="analyze">🔍 Phân tích</button>
+      <button class="modal-tab" data-tab="challenge">🏋️ Challenge</button>
+    </div>
+    <div class="modal-body">
+      <div class="prompt-panel active" id="tab-explain">
+        <div class="prompt-intro">Dùng prompt này để AI <strong>giải thích concept</strong> từ đầu — phù hợp khi bạn gặp term mới hoặc chưa chắc về cách hoạt động.</div>
+        <div class="prompt-box" id="prompt-explain"></div>
+        <div class="modal-actions">
+          <button class="btn-copy-prompt" data-target="explain">📋 Copy Prompt</button>
+          <a class="btn-open-claude" href="https://claude.ai" target="_blank">Mở Claude.ai ↗</a>
+        </div>
+      </div>
+      <div class="prompt-panel" id="tab-analyze">
+        <div class="prompt-intro">Dùng prompt này để AI <strong>phân tích sâu usecase thực tế</strong> — phù hợp khi bạn muốn hiểu hơn về bối cảnh security và các edge case.</div>
+        <div class="prompt-box" id="prompt-analyze"></div>
+        <div class="modal-actions">
+          <button class="btn-copy-prompt" data-target="analyze">📋 Copy Prompt</button>
+          <a class="btn-open-claude" href="https://claude.ai" target="_blank">Mở Claude.ai ↗</a>
+        </div>
+      </div>
+      <div class="prompt-panel" id="tab-challenge">
+        <div class="prompt-intro">Dùng prompt này để AI <strong>tạo bài tập thực hành</strong> theo cấp độ — phù hợp khi bạn muốn kiểm tra hiểu biết hoặc luyện viết query mới.</div>
+        <div class="prompt-box" id="prompt-challenge"></div>
+        <div class="modal-actions">
+          <button class="btn-copy-prompt" data-target="challenge">📋 Copy Prompt</button>
+          <a class="btn-open-claude" href="https://claude.ai" target="_blank">Mở Claude.ai ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──
+const lessons = [
+  {
+    id: 'bai-1', num: '01', level: 'basic',
+    owasp: 'A09:2025', owaspLabel: 'Security Logging',
+    title: 'Exists Query — Phát hiện Log Thiếu Field',
+    subtitle: 'Kiểm toán độ tin cậy của hệ thống log',
+    scenario: 'Hệ thống ghi nhận authentication event nhưng một số log không có field `event.outcome`. Đây là "điểm mù" — attacker có thể exploit giai đoạn này để không bị ghi lại kết quả đăng nhập.',
+    deepdive: 'Query `exists` không chỉ để tìm lỗi kỹ thuật, mà là công cụ kiểm toán. Log thiếu field outcome đồng nghĩa không thể phân biệt success/failure — mọi alert downstream dựa vào outcome sẽ bị miss. Đây là risk OWASP A09 điển hình.',
+    code: `GET logs-*/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": { "event.category": "authentication" } }
+      ],
+      "must_not": [
+        { "exists": { "field": "event.outcome" } }
+      ]
+    }
+  }
+}`,
+    antipattern: 'Đừng dùng `match: { "event.outcome": null }` — Elasticsearch không index null values, query này sẽ không trả kết quả. Phải dùng `must_not: exists`.',
+    exercises: ['Tìm HTTP request thiếu field `source.ip`', 'Tìm log `error` nhưng thiếu `error.message`'],
+    prompts: {
+      explain: `Tôi đang học Elasticsearch Query DSL, cụ thể về bài "Exists Query" (OWASP A09 - Security Logging).
+
+Hãy giải thích cho tôi:
+1. Tại sao Elasticsearch lại index "sự vắng mặt" của field khác với index null?
+2. Cơ chế hoạt động nội bộ của exists query trong Lucene?
+3. Sự khác biệt giữa field không tồn tại vs field có giá trị null vs field rỗng ""?
+4. Khi nào nên dùng exists vs match vs term?
+
+Giải thích như cho một backend developer có kinh nghiệm nhưng mới học Elasticsearch. Cho ví dụ cụ thể với data mẫu.`,
+      analyze: `Tôi đang phân tích security gap liên quan đến OWASP A09:2025 (Security Logging Failures).
+
+Scenario: Hệ thống authentication log thiếu field "event.outcome" trên một số record.
+
+Hãy phân tích:
+1. Các attack vector nào có thể exploit "logging blind spot" này?
+2. Làm thế nào attacker biết được hệ thống đang log thiếu?
+3. Ngoài exists query, còn cách nào khác để detect log integrity issues?
+4. Giả sử tôi phát hiện 15% authentication log thiếu outcome — đây là mức nào cần urgent fix?
+5. Cách thiết kế alerting để tự động phát hiện log gap trong tương lai?
+
+Cho ví dụ real-world từ các security incident đã xảy ra.`,
+      challenge: `Tôi đã học xong bài "Exists Query" trong Elasticsearch DSL, mapping với OWASP A09.
+
+Hãy tạo cho tôi 3 bài tập theo cấp độ:
+
+🟢 Cơ bản: Viết query tìm log có field "user.name" nhưng thiếu "user.id"
+🟡 Trung cấp: Kết hợp exists với time range — tìm auth log trong 24h qua thiếu outcome
+🔴 Nâng cao: Tính tỉ lệ % log thiếu field so với tổng log trong cùng khoảng thời gian
+
+Với mỗi bài:
+- Cho tôi query đúng
+- Giải thích logic từng clause
+- Nêu 1 pitfall phổ biến khi làm bài này`
+    }
+  },
+  {
+    id: 'bai-2', num: '02', level: 'basic',
+    owasp: 'A02:2025', owaspLabel: 'Cryptographic Failures',
+    title: 'Sensitive Data Detection',
+    subtitle: 'Phát hiện thông tin nhạy cảm lộ trong log',
+    scenario: 'Developer vô tình log raw request body, bao gồm cả password, token, credit card. Hệ thống chạy bình thường nhưng sensitive data đang được lưu trữ và có thể bị expose qua Kibana access.',
+    deepdive: '`match_phrase` đơn thuần dễ miss các biến thể như "pwd", "passwd", "pass". Kết hợp nhiều term với `should` tăng recall nhưng tăng false positive. Cân bằng bằng cách thêm `filter` loại trừ log từ các service đã được approve.',
+    code: `GET logs-*/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        { "match_phrase": { "message": "password" } },
+        { "match_phrase": { "message": "passwd" } },
+        { "match_phrase": { "message": "token" } },
+        { "match_phrase": { "message": "secret" } },
+        { "match_phrase": { "message": "api_key" } },
+        { "match_phrase": { "match_phrase": { "message": "bearer" } } }
+      ],
+      "minimum_should_match": 1,
+      "filter": [
+        { "range": { "@timestamp": { "gte": "now-7d" } } }
+      ]
+    }
+  },
+  "highlight": {
+    "fields": { "message": {} }
+  }
+}`,
+    antipattern: 'Đừng dùng wildcard `*password*` trên field không có keyword mapping — sẽ bị scan toàn bộ inverted index, rất chậm và có thể OOM. Luôn dùng `match_phrase` cho full-text search.',
+    exercises: ['Thêm detection cho "credit_card", "ssn", "cvv" vào query', 'Tạo agg đếm sensitive hit theo từng service trong 30 ngày qua'],
+    prompts: {
+      explain: `Tôi đang học Elasticsearch DSL, bài "Sensitive Data Detection" (OWASP A02 - Cryptographic Failures).
+
+Hãy giải thích:
+1. Sự khác biệt giữa match, match_phrase và term — khi nào dùng cái nào?
+2. Tại sao cần "minimum_should_match" và nó hoạt động thế nào?
+3. "highlight" trong Elasticsearch dùng để làm gì và cơ chế nào?
+4. Tokenization ảnh hưởng thế nào đến việc detect sensitive data?
+
+Ví dụ với data: message = "User login with password=abc123 from IP 1.2.3.4"`,
+      analyze: `Phân tích security scenario: Team phát hiện password đang được log trong production Elasticsearch cluster (OWASP A02).
+
+Yêu cầu phân tích:
+1. Ngoài match_phrase, kỹ thuật nào hiệu quả hơn để detect obfuscated sensitive data (base64, hex encoding)?
+2. Làm sao phân biệt false positive (log hợp lệ mention "token") với true positive?
+3. Sau khi phát hiện, quy trình incident response cần làm gì với Elasticsearch data?
+4. Thiết kế data masking pipeline để ngăn sensitive data vào log từ đầu?
+5. Compliance requirements (GDPR, PCI-DSS) yêu cầu gì khi phát hiện leakage này?`,
+      challenge: `Test kiến thức bài Sensitive Data Detection (Elasticsearch DSL, OWASP A02).
+
+Tạo 3 bài tập:
+
+🟢 Cơ bản: Viết query tìm log có chứa email address pattern trong field "message"
+🟡 Trung cấp: Tạo query kết hợp detect nhiều sensitive term + exclude các service đã whitelist (payment-service, auth-service)
+🔴 Nâng cao: Thiết kế aggregation báo cáo: top 10 service có sensitive data leak nhiều nhất trong 30 ngày, breakdown theo loại data (password, token, key)
+
+Cho solution đầy đủ, giải thích, và common mistakes.`
+    }
+  },
+  {
+    id: 'bai-3', num: '03', level: 'basic',
+    owasp: 'A03:2025', owaspLabel: 'Injection',
+    title: 'Regexp Query — Phát Hiện Log Injection',
+    subtitle: 'Detect CRLF, newline injection và SQL/NoSQL patterns',
+    scenario: 'Attacker inject ký tự newline (`\\n`) vào input field để tạo fake log entries, che giấu hành động thực sự. Hệ thống log ghi nhận đúng nhưng SIEM analyst bị đánh lừa bởi log giả.',
+    deepdive: 'Log injection (OWASP A03) thường bị bỏ qua vì log vẫn "trông bình thường". Regexp query mạnh nhưng expensive — chỉ dùng khi cần, và kết hợp với `filter` để reduce scan scope trước. URL-encoded variants (%0a, %0d) thường gặp trong HTTP request log.',
+    code: `GET logs-*/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        { "match_phrase": { "message": "\\n" } },
+        { "match_phrase": { "message": "\\r\\n" } },
+        { "regexp": { "message.keyword": ".*(%0a|%0d|%0d%0a).*" } },
+        { "regexp": { "url.original.keyword": ".*(union|select|drop|insert).*" } }
+      ],
+      "minimum_should_match": 1,
+      "filter": [
+        { "range": { "@timestamp": { "gte": "now-1d" } } }
+      ]
+    }
+  }
+}`,
+    antipattern: 'Regexp trên analyzed text field (không có `.keyword`) sẽ match từng token riêng, không phải toàn bộ string. Luôn dùng `.keyword` mapping cho regexp. Và đừng viết regex quá phức tạp — `.*` ở đầu và cuối rất tốn CPU.',
+    exercises: ['Mở rộng detect NoSQL injection: `$where`, `$gt`, `$ne`', 'Thêm XSS pattern: `<script>`, `javascript:`, `onerror=`'],
+    prompts: {
+      explain: `Tôi học bài "Regexp Query" trong Elasticsearch DSL, liên quan đến OWASP A03 (Injection).
+
+Giải thích:
+1. Sự khác biệt giữa Elasticsearch regexp và regex thông thường (PCRE)?
+2. Tại sao regexp phải dùng trên .keyword field thay vì analyzed field?
+3. Performance impact của regexp query — khi nào nên và không nên dùng?
+4. Cách Elasticsearch analyze URL-encoded characters trong log?
+
+Kèm ví dụ cụ thể về log injection attack flow.`,
+      analyze: `Phân tích OWASP A03 (Injection) qua góc nhìn Elasticsearch log analysis.
+
+1. Các loại injection attack nào để lại dấu vết khác nhau trong log? (SQLi, NoSQLi, LDAPi, Log injection)
+2. Tại sao Log Injection đặc biệt nguy hiểm so với các injection khác?
+3. Thiết kế detection rule set đầy đủ cho cả 4 loại injection trên?
+4. Attacker có thể bypass regexp-based detection bằng cách nào?
+5. Correlation: Làm thế nào kết hợp injection detection với downstream behavior (data exfil, privilege escalation)?`,
+      challenge: `Challenge bài Regexp Query / Log Injection Detection (OWASP A03).
+
+3 cấp độ:
+
+🟢 Cơ bản: Viết regexp detect path traversal: "../", "..%2F", "..%5C" trong url.path field
+🟡 Trung cấp: Combine regex detection với aggregation — đếm unique attacker IP và target endpoints trong 6h qua
+🔴 Nâng cao: Phân biệt automated scanner (nhiều pattern, ít IP) vs manual attacker (ít pattern, nhiều endpoints) bằng Elasticsearch query và aggregation`
+    }
+  },
+  {
+    id: 'bai-4', num: '04', level: 'basic',
+    owasp: 'A07:2025', owaspLabel: 'Auth Failures',
+    title: 'Brute Force Detection',
+    subtitle: 'Aggregate failed auth attempts theo user và IP',
+    scenario: '5 giờ sáng, hệ thống nhận 400 login failure trong 3 phút từ nhiều IP khác nhau nhắm vào cùng 1 username. Đây là credential stuffing attack — không một security tool nào alert vì threshold per-IP không bị vượt.',
+    deepdive: 'Brute force detection cần suy nghĩ về "window" và "grouping". Group by user.name bắt vertical attacks (nhiều IP → 1 user). Group by source.ip bắt horizontal attacks (1 IP → nhiều user). Cần cả hai. `cardinality` sub-agg giúp detect khi unique IP count bất thường.',
+    code: `GET logs-*/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": { "event.outcome": "failure" } },
+        { "match": { "event.category": "authentication" } },
+        { "range": { "@timestamp": { "gte": "now-5m" } } }
+      ]
+    }
+  },
+  "aggs": {
+    "by_user": {
+      "terms": { "field": "user.name.keyword", "size": 20 },
+      "aggs": {
+        "unique_ips": { "cardinality": { "field": "source.ip" } },
+        "failure_count": { "value_count": { "field": "@timestamp" } }
+      }
+    },
+    "by_ip": {
+      "terms": { "field": "source.ip", "size": 20 },
+      "aggs": {
+        "unique_users": { "cardinality": { "field": "user.name.keyword" } }
+      }
+    }
+  }
+}`,
+    antipattern: 'Đừng set window quá rộng (now-1h) cho brute force — attacker thường slow down attack để bypass time-window detection. Với credential stuffing, window 5-15 phút + cardinality check hiệu quả hơn.',
+    exercises: ['Thêm bucket_selector để chỉ return user có >10 failures', 'Phát hiện "slow brute force": >5 failures trong 1 giờ từ cùng 1 IP'],
+    prompts: {
+      explain: `Tôi học bài "Brute Force Detection" bằng Elasticsearch, OWASP A07 (Authentication Failures).
+
+Giải thích:
+1. Terms aggregation hoạt động thế nào — tại sao cần .keyword suffix?
+2. Cardinality aggregation dùng HyperLogLog — accuracy và tradeoff là gì?
+3. Sự khác biệt giữa "bucket aggregation" và "metric aggregation"?
+4. Tại sao detection cần cả "by_user" và "by_ip" grouping?
+
+Ví dụ cụ thể với data mẫu 100 login failures.`,
+      analyze: `Phân tích kỹ thuật detect các loại brute force attack khác nhau (OWASP A07).
+
+1. Phân biệt: Traditional brute force vs Credential stuffing vs Password spraying — dấu hiệu trong Elasticsearch log khác nhau thế nào?
+2. Distributed attack (nhiều IP từ botnet) bypass per-IP threshold — query nào detect được?
+3. Ngưỡng alert tối ưu (failure count, time window) — tính toán thế nào dựa trên baseline?
+4. Làm thế nào tích hợp geo-IP enrichment để detect login từ impossible location?
+5. False positive từ legitimate high-volume auth (CI/CD pipelines, service accounts) — filter thế nào?`,
+      challenge: `Challenge bài Brute Force Detection (Elasticsearch, OWASP A07).
+
+3 cấp độ:
+
+🟢 Cơ bản: Query tìm IP nào có >20 failure trong 10 phút, show top 5 IP
+🟡 Trung cấp: Phân biệt brute force vs password spraying bằng ratio unique_users / failure_count
+🔴 Nâng cao: Thiết kế "tiered alert" — severity low/medium/high dựa trên combination của: failure rate, unique IP count, target account sensitivity (admin vs regular user)`
+    }
+  },
+  {
+    id: 'bai-5', num: '05', level: 'basic',
+    owasp: 'A09:2025', owaspLabel: 'Security Logging',
+    title: 'Date Histogram — Phát Hiện Log Gap',
+    subtitle: 'Tìm khoảng thời gian không có log — dấu hiệu tampering',
+    scenario: 'Security audit phát hiện 20 phút không có log nào từ authentication service lúc 2:00-2:20 sáng. Đây có thể là attacker disable logging, service crash, hoặc network partition. Cần detect ngay khi xảy ra.',
+    deepdive: '`min_doc_count: 0` là key — nếu không có nó, Elasticsearch sẽ bỏ qua bucket trống, và bạn sẽ không thấy gap. Date histogram với `extended_bounds` đảm bảo toàn bộ time range được cover, kể cả khi không có data.',
+    code: `GET logs-*/_search
+{
+  "query": {
+    "bool": {
+      "filter": [
+        { "match": { "event.category": "authentication" } },
+        { "range": { "@timestamp": { "gte": "now-24h", "lte": "now" } } }
+      ]
+    }
+  },
+  "aggs": {
+    "log_per_minute": {
+      "date_histogram": {
+        "field": "@timestamp",
+        "fixed_interval": "1m",
+        "min_doc_count": 0,
+        "extended_bounds": {
+          "min": "now-24h",
+          "max": "now"
+        }
+      },
+      "aggs": {
+        "is_gap": {
+          "bucket_selector": {
+            "buckets_path": { "count": "_count" },
+            "script": "params.count == 0"
+          }
+        }
+      }
+    }
+  },
+  "size": 0
+}`,
+    antipattern: 'Thiếu `min_doc_count: 0` và `extended_bounds` — histogram sẽ skip bucket trống, bạn sẽ thấy timeline liên tục nhưng thực ra đang missing data. Đây là false negative nguy hiểm nhất.',
+    exercises: ['Set ngưỡng alert khi gap > 5 phút liên tiếp', 'Compare log volume hôm nay vs cùng giờ hôm qua bằng date math'],
+    prompts: {
+      explain: `Tôi học bài "Date Histogram / Log Gap Detection" trong Elasticsearch DSL (OWASP A09).
+
+Giải thích:
+1. Date histogram khác gì terms aggregation về cách group data?
+2. fixed_interval vs calendar_interval — khi nào dùng cái nào?
+3. min_doc_count: 0 và extended_bounds hoạt động thế nào? Thiếu chúng thì sao?
+4. bucket_selector là gì và tại sao phải dùng trong pipeline agg?
+
+Tôi muốn hiểu cả cơ chế lẫn cách áp dụng vào gap detection.`,
+      analyze: `Phân tích Log Gap Detection trong context OWASP A09 và Incident Response.
+
+1. Tại sao log gap có thể là dấu hiệu attack chứ không chỉ là infrastructure issue?
+2. Phân biệt intentional tampering vs accidental gap — có thể detect bằng Elasticsearch không?
+3. Khi phát hiện gap, quy trình điều tra forensic tiếp theo là gì?
+4. Thiết kế "canary event" — synthetic log được inject định kỳ để verify logging pipeline hoạt động?
+5. Với distributed system, log gap ở một node không phải gap toàn hệ thống — query xử lý thế nào?`,
+      challenge: `Challenge bài Log Gap Detection (Elasticsearch, OWASP A09).
+
+3 cấp độ:
+
+🟢 Cơ bản: Tìm tất cả 5-minute window không có HTTP access log trong 12h qua
+🟡 Trung cấp: So sánh log volume theo giờ trong tuần này vs tuần trước — tìm anomaly giảm >50%
+🔴 Nâng cao: Thiết kế multi-service gap detection — alert khi ≥2 services cùng có gap trong cùng time window (correlated failure vs isolated issue)`
+    }
+  },
+  {
+    id: 'bai-6', num: '06', level: 'basic',
+    owasp: 'A05:2025', owaspLabel: 'Security Misconfiguration',
+    title: 'Terms Agg — Service Audit',
+    subtitle: 'Kiểm toán danh sách service đang hoạt động',
+    scenario: 'Sau deployment mới, một shadow service cũ bị bỏ quên vẫn đang chạy và gửi log. Service này không trong inventory, không được patch, và đang sử dụng default credential — điển hình A05 misconfiguration.',
+    deepdive: 'Service audit bằng terms agg cho ra snapshot nhanh tất cả service đang active. Kết hợp với `cardinality` và `top_hits` để biết mỗi service log nhiều nhất loại event gì, giúp phát hiện anomaly behavior từng service.',
+    code: `GET logs-*/_search
+{
+  "aggs": {
+    "active_services": {
+      "terms": {
+        "field": "service.name.keyword",
+        "size": 100,
+        "order": { "_count": "desc" }
+      },
+      "aggs": {
+        "unique_hosts": { "cardinality": { "field": "host.name.keyword" } },
+        "event_types": { "terms": { "field": "event.category.keyword", "size": 5 } },
+        "last_seen": { "max": { "field": "@timestamp" } },
+        "first_seen": { "min": { "field": "@timestamp" } }
+      }
+    }
+  },
+  "size": 0
+}`,
+    antipattern: 'Terms agg mặc định chỉ trả 10 kết quả — nếu bạn có 50 service mà không set `size: 100`, sẽ miss service ít log nhất. Paradox: service ít log nhất thường là shadow service cần phát hiện nhất.',
+    exercises: ['Lọc service chưa có log trong 7 ngày qua (potentially dead but running)', 'Tìm service đột ngột tăng log volume >300% so với baseline'],
+    prompts: {
+      explain: `Tôi học bài "Terms Aggregation / Service Audit" trong Elasticsearch (OWASP A05 - Security Misconfiguration).
+
+Giải thích:
+1. Terms agg hoạt động thế nào với high-cardinality fields?
+2. Tại sao size parameter ảnh hưởng accuracy của kết quả? (doc_count_error_upper_bound là gì?)
+3. Sub-aggregation (nested agg) — cách Elasticsearch xử lý?
+4. max/min metric agg cho @timestamp dùng để làm gì?
+
+Kèm ví dụ output JSON và cách đọc kết quả.`,
+      analyze: `Phân tích Service Audit trong context OWASP A05 (Security Misconfiguration).
+
+1. "Shadow IT" và "zombie services" — tại sao phổ biến trong môi trường enterprise?
+2. Ngoài service name, còn những attribute nào quan trọng khi audit (version, port, credential age)?
+3. Làm thế nào detect service đang dùng default credential qua Elasticsearch log?
+4. Kết nối Service Audit với CMDB (Configuration Management Database) — automation workflow thế nào?
+5. Thiết kế scheduled audit job bằng Elasticsearch Watcher cho service inventory?`,
+      challenge: `Challenge bài Service Audit (Elasticsearch, OWASP A05).
+
+3 cấp độ:
+
+🟢 Cơ bản: List tất cả service unique, sort theo total log count, show first_seen và last_seen
+🟡 Trung cấp: Tìm service xuất hiện lần đầu trong 7 ngày qua (potentially new/unauthorized deployment)
+🔴 Nâng cao: Phát hiện service có behavior change — so sánh event.category distribution tuần này vs tuần trước, flag service có >20% shift`
+    }
+  },
+  {
+    id: 'bai-7', num: '07', level: 'basic',
+    owasp: 'A09:2025', owaspLabel: 'Security Logging',
+    title: 'HTTP 5xx — Error Context Analysis',
+    subtitle: 'Phát hiện server error thiếu error message',
+    scenario: 'Production system trả HTTP 500 nhưng error.message trống — developer không thể debug, security team không thể phân biệt application crash thường với error do exploitation attempt.',
+    deepdive: 'HTTP 5xx thiếu context là OWASP A09 violation kép: không đủ log để detect attack, và không đủ info để recover nhanh. Kết hợp `range` cho status code với `must_not exists` cho error field để tìm "silent failures".',
+    code: `GET logs-*/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "range": { "http.response.status_code": { "gte": 500, "lte": 599 } } },
+        { "range": { "@timestamp": { "gte": "now-1h" } } }
+      ],
+      "must_not": [
+        { "exists": { "field": "error.message" } },
+        { "exists": { "field": "error.stack_trace" } }
+      ]
+    }
+  },
+  "aggs": {
+    "by_endpoint": {
+      "terms": { "field": "url.path.keyword", "size": 20 }
+    },
+    "by_service": {
+      "terms": { "field": "service.name.keyword", "size": 10 }
+    }
+  }
+}`,
+    antipattern: 'Đừng chỉ query HTTP 500 — phải include cả 502, 503, 504. Range `gte:500 lte:599` bắt tất cả 5xx. Và đừng bỏ qua 499 (client closed connection) — thường là sign của timeout do server quá tải.',
+    exercises: ['Thêm alert khi 5xx rate vượt 5% tổng request trong 10 phút', 'Correlate 5xx errors với deployment events trong cùng time window'],
+    prompts: {
+      explain: `Tôi học bài "HTTP 5xx Error Context" trong Elasticsearch DSL (OWASP A09).
+
+Giải thích:
+1. Range query cho numeric fields vs range query cho dates — cú pháp khác nhau thế nào?
+2. Multiple must_not clauses — AND hay OR logic?
+3. Tại sao check cả error.message lẫn error.stack_trace?
+4. Aggregation chạy sau filter hay trên toàn bộ index?
+
+Kèm data mẫu và expected output.`,
+      analyze: `Phân tích HTTP 5xx silent failure trong context security và SRE.
+
+1. Từ góc nhìn security: loại attack nào thường tạo ra silent 5xx (không có error message)?
+2. Phân biệt application bug vs infrastructure issue vs exploitation attempt từ pattern 5xx?
+3. Với microservices, 500 từ API gateway khác gì 500 từ backend service — cách trace?
+4. Thiết kế "error budget" alerting với Elasticsearch — alert khi burn rate vượt ngưỡng SLO?
+5. Legal/compliance: tại sao thiếu error context trong log có thể gây vấn đề audit?`,
+      challenge: `Challenge bài HTTP 5xx Error Analysis (Elasticsearch, OWASP A09).
+
+3 cấp độ:
+
+🟢 Cơ bản: Tỉ lệ 5xx / total request theo từng endpoint trong 1 giờ qua
+🟡 Trung cấp: Detect "error spike" — endpoint nào có 5xx tăng đột biến >200% so với 1h trước?
+🔴 Nâng cao: Correlation analysis — 5xx errors có spike cùng lúc với authentication failures không? Query để test hypothesis này`
+    }
+  },
+  {
+    id: 'bai-8', num: '08', level: 'mid',
+    owasp: 'A01:2025', owaspLabel: 'Broken Access Control',
+    title: 'Nested Query — HTTP Headers Nhạy Cảm',
+    subtitle: 'Detect Authorization header exposure và privilege misuse',
+    scenario: 'Internal audit phát hiện một số request ghi lại toàn bộ Authorization header bao gồm Bearer token vào log. Token này có thể được dùng để impersonate user nếu log bị access bởi người không có quyền.',
+    deepdive: 'Nested query cần thiết khi field là nested object type — thông thường query sẽ không "enter" vào nested document. Nếu mapping không phải nested type, dùng `object` và query trực tiếp bằng dot notation.',
+    code: `GET logs-*/_search
+{
+  "query": {
+    "nested": {
+      "path": "http.request.headers",
+      "query": {
+        "bool": {
+          "should": [
+            { "match": { "http.request.headers.name": "Authorization" } },
+            { "match": { "http.request.headers.name": "X-API-Key" } },
+            { "match": { "http.request.headers.name": "Cookie" } }
+          ],
+          "minimum_should_match": 1
+        }
+      },
+      "inner_hits": {
+        "size": 3,
+        "highlight": {
+          "fields": { "http.request.headers.value": {} }
+        }
+      }
+    }
+  }
+}`,
+    antipattern: 'Dùng nested query trên field không có nested mapping sẽ throw error. Kiểm tra mapping trước: `GET logs-*/_mapping`. Nếu field là object (không phải nested), query bằng `http.request.headers.name` trực tiếp.',
+    exercises: ['Detect response headers leak (X-Powered-By, Server version)', 'Tìm request có Authorization header nhưng response là 401/403 (token mismatch)'],
+    prompts: {
+      explain: `Tôi học bài "Nested Query" trong Elasticsearch (OWASP A01 - Broken Access Control).
+
+Giải thích:
+1. Nested type vs Object type trong Elasticsearch mapping — khác nhau cơ bản thế nào?
+2. Tại sao "flat" object không preserve array relationships và cần nested?
+3. inner_hits trong nested query trả về gì?
+4. Performance cost của nested query — khi nào là quá đắt?
+
+Cho ví dụ mapping, data, và expected query result.`,
+      analyze: `Phân tích HTTP Header Security trong context OWASP A01 (Broken Access Control).
+
+1. Ngoài Authorization, headers nào khác cần monitor và tại sao?
+2. Bearer token trong log — MTTR (mean time to revoke) thực tế là bao lâu? Rủi ro thực sự?
+3. Thiết kế log sanitization pipeline — mask sensitive header values trước khi vào Elasticsearch?
+4. Phân biệt legitimate security header audit vs unauthorized access to log data (meta-security)?
+5. Compliance: GDPR yêu cầu gì với việc lưu Authorization headers trong log?`,
+      challenge: `Challenge bài Nested Query / Header Detection (Elasticsearch, OWASP A01).
+
+3 cấp độ:
+
+🟢 Cơ bản: Tìm tất cả request có header "X-Admin-Override" hoặc "X-Forwarded-For" (thường bị abuse)
+🟡 Trung cấp: Detect header injection — request có header name chứa ký tự đặc biệt (%0d, %0a, \\n)
+🔴 Nâng cao: Correlate Authorization header từ request với event.outcome — tìm token nào vừa dùng thành công (200) vừa bị reject (401) trong 10 phút — dấu hiệu stolen token đang được test`
+    }
+  },
+  {
+    id: 'bai-9', num: '09', level: 'mid',
+    owasp: 'A09:2025', owaspLabel: 'Security Logging',
+    title: 'Pipeline Agg — Alert Spike Detection',
+    subtitle: 'Phát hiện đột biến alert bằng derivative aggregation',
+    scenario: 'SIEM tạo ra hàng nghìn alert mỗi ngày đến mức SOC analyst bị "alert fatigue". Cần phân biệt spike bất thường (real incident) với noise baseline bình thường.',
+    deepdive: '`derivative` là pipeline aggregation — nó tính rate of change giữa các bucket liền kề. Positive spike = tăng đột biến. Negative = giảm đột ngột (cũng đáng lo — có thể là evasion). Kết hợp `moving_avg` để smooth baseline trước khi apply derivative.',
+    code: `GET logs-*/_search
+{
+  "aggs": {
+    "alerts_over_time": {
+      "date_histogram": {
+        "field": "@timestamp",
+        "fixed_interval": "1h",
+        "min_doc_count": 0
+      },
+      "aggs": {
+        "alert_count": {
+          "value_count": { "field": "rule.name.keyword" }
+        },
+        "change_rate": {
+          "derivative": { "buckets_path": "alert_count" }
+        },
+        "moving_baseline": {
+          "moving_avg": {
+            "buckets_path": "alert_count",
+            "window": 24,
+            "model": "simple"
+          }
+        }
+      }
+    }
+  },
+  "size": 0
+}`,
+    antipattern: 'Pipeline agg yêu cầu parent bucket agg phải có đủ data — `moving_avg` với window 24 cần ít nhất 24 bucket trước đó. Nếu data range ngắn hơn window, kết quả sẽ null. Luôn extend time range đủ rộng.',
+    exercises: ['Detect spike > 2 standard deviations từ moving baseline', 'Alert khi alert count giảm >80% (có thể là detection evasion hoặc logging failure)'],
+    prompts: {
+      explain: `Tôi học bài "Pipeline Aggregation / Alert Spike Detection" trong Elasticsearch (OWASP A09).
+
+Giải thích:
+1. Pipeline aggregation khác bucket/metric agg thế nào về cơ chế?
+2. derivative tính toán gì chính xác — formula là gì?
+3. moving_avg models (simple, ewma, holt, holt_winters) — khác nhau thế nào?
+4. Tại sao cần phải smooth data trước khi apply derivative?
+
+Cho ví dụ với số liệu cụ thể để tôi thấy rõ calculation.`,
+      analyze: `Phân tích Alert Fatigue và Spike Detection trong SOC context (OWASP A09).
+
+1. "Alert fatigue" ảnh hưởng thế nào đến security posture thực tế? (data và case studies)
+2. Phân biệt meaningful spike vs noisy spike — ngưỡng statistical significance thế nào?
+3. Seasonal patterns (Monday morning spike, end-of-month) — cách normalize trước khi apply derivative?
+4. Khi spike xảy ra, automated triage quy trình nào giảm MTTR?
+5. Thiết kế "alert quality score" — metric đánh giá effectiveness của detection rules?`,
+      challenge: `Challenge bài Pipeline Agg / Spike Detection (Elasticsearch, OWASP A09).
+
+3 cấp độ:
+
+🟢 Cơ bản: Tính rate of change theo giờ cho failed login events trong 7 ngày
+🟡 Trung cấp: Detect hour với alert_count > 2x moving_average (rolling 7-day baseline) bằng bucket_selector
+🔴 Nâng cao: Multi-signal spike — alert khi cùng lúc: authentication failures tăng >150% VÀ network errors tăng >100% VÀ process creation events tăng >200% (lateral movement indicator)`
+    }
+  },
+  {
+    id: 'bai-10', num: '10', level: 'mid',
+    owasp: 'A07:2025', owaspLabel: 'Auth Failures',
+    title: 'Painless Script — Risk Scoring',
+    subtitle: 'Tính dynamic risk score ngay trong query',
+    scenario: 'Thay vì chỉ alert binary (có/không), SOC muốn prioritize event theo risk score tổng hợp — kết hợp nhiều signal: failure count, thời gian bất thường, địa lý, loại account.',
+    deepdive: 'Painless script chạy trong Elasticsearch JVM, rất nhanh nhưng cần careful với null checking. `doc["field"].value` throw exception nếu field không tồn tại — luôn check `doc["field"].size() > 0` trước. Script fields không được cache — dùng runtime fields nếu cần reuse.',
+    code: `GET logs-*/_search
+{
+  "query": {
+    "bool": {
+      "filter": [
+        { "match": { "event.category": "authentication" } },
+        { "range": { "@timestamp": { "gte": "now-1h" } } }
+      ]
+    }
+  },
+  "script_fields": {
+    "risk_score": {
+      "script": {
+        "lang": "painless",
+        "source": """
+          int score = 0;
+          
+          // Auth failure
+          if (doc['event.outcome.keyword'].size() > 0 && 
+              doc['event.outcome.keyword'].value == 'failure') { score += 30; }
+          
+          // After-hours login (22:00 - 06:00)
+          ZonedDateTime ts = doc['@timestamp'].value;
+          int hour = ts.getHour();
+          if (hour >= 22 || hour < 6) { score += 20; }
+          
+          // Privileged account
+          if (doc['user.name.keyword'].size() > 0 && 
+              doc['user.name.keyword'].value.contains('admin')) { score += 25; }
+          
+          return score;
+        """
+      }
+    }
+  }
+}`,
+    antipattern: 'Đừng dùng Painless script trong hot query path mà không test performance. Script không được cache per-document — mỗi hit chạy lại một lần. Với index lớn, cân nhắc pre-compute risk score tại ingest time bằng Ingest Pipeline.',
+    exercises: ['Thêm signal: +15 nếu source.ip trong list IP nguy hiểm (terms query kết hợp)', 'Convert script_fields sang runtime_fields để reuse trong agg'],
+    prompts: {
+      explain: `Tôi học bài "Painless Script / Risk Scoring" trong Elasticsearch (OWASP A07).
+
+Giải thích:
+1. Painless script là gì — tại sao Elastic tạo ngôn ngữ riêng thay vì dùng Groovy/Java?
+2. script_fields vs runtime_fields vs ingest pipeline scripts — khi nào dùng cái nào?
+3. Tại sao phải check doc["field"].size() > 0 trước khi access value?
+4. ZonedDateTime trong Painless hoạt động thế nào với @timestamp?
+
+Cho full example với data mẫu và explain output.`,
+      analyze: `Phân tích Risk-Based Security Alerting với dynamic scoring.
+
+1. Thiết kế risk scoring framework: signal nào nên weight cao, thấp, và tại sao?
+2. Làm thế nào calibrate score để minimize false positive mà không miss true positive?
+3. Risk score drift — score threshold cần adjust thế nào khi behavior của hệ thống thay đổi?
+4. Kết hợp Elasticsearch risk score với external threat intelligence feeds?
+5. Giải thích cho non-technical stakeholder tại sao cần risk-based approach thay vì binary alert?`,
+      challenge: `Challenge bài Painless Script / Risk Scoring (Elasticsearch, OWASP A07).
+
+3 cấp độ:
+
+🟢 Cơ bản: Viết script tính score: +10 failure, +5 weekend login, +15 first-time user
+🟡 Trung cấp: Script tổng hợp risk từ 5 signal, group by user và tính average risk score, sort descending
+🔴 Nâng cao: "Anomaly score" — so sánh behavior hiện tại với baseline 30 ngày: nếu failure rate hiện tại > 3x average baseline → score 80+; implement bằng Painless với params injection`
+    }
+  },
+  {
+    id: 'bai-11', num: '11', level: 'mid',
+    owasp: 'A05:2025', owaspLabel: 'Security Misconfiguration',
+    title: 'ECS Compliance Check',
+    subtitle: 'Kiểm tra log tuân thủ Elastic Common Schema',
+    scenario: 'Team mới join onboard một log source từ legacy system — format không chuẩn ECS. Detection rules viết theo ECS sẽ miss toàn bộ event từ source này, tạo ra blind spot nghiêm trọng.',
+    deepdive: 'ECS (Elastic Common Schema) là standard field naming cho Elasticsearch. Log không có `ecs.version` hoặc dùng field name sai (ví dụ: `src_ip` thay vì `source.ip`) sẽ break tất cả query-based detection. Audit ECS compliance nên chạy mỗi khi thêm log source mới.',
+    code: `GET logs-*/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        { "bool": { "must_not": [{ "exists": { "field": "ecs.version" } }] } },
+        { "bool": { "must_not": [{ "exists": { "field": "event.category" } }] } },
+        { "bool": { "must_not": [{ "exists": { "field": "event.type" } }] } },
+        { "bool": { "must_not": [{ "exists": { "field": "@timestamp" } }] } }
+      ],
+      "minimum_should_match": 1
+    }
+  },
+  "aggs": {
+    "by_source": {
+      "terms": { "field": "log.logger.keyword", "size": 20 },
+      "aggs": {
+        "missing_fields": { "value_count": { "field": "@timestamp" } }
+      }
+    }
+  }
+}`,
+    antipattern: 'Đừng assume tất cả log đều ECS-compliant chỉ vì chúng vào được Elasticsearch. Beats và Logstash có ECS mode nhưng cần enable explicitly. Luôn verify bằng query trước khi build detection rule.',
+    exercises: ['Map top 10 non-ECS field names sang ECS equivalent', 'Tạo ingest pipeline transform `src_ip` → `source.ip` tự động'],
+    prompts: {
+      explain: `Tôi học bài "ECS Compliance Check" trong Elasticsearch (OWASP A05).
+
+Giải thích:
+1. ECS (Elastic Common Schema) là gì và tại sao quan trọng?
+2. Sự khác biệt giữa ECS field và custom field?
+3. Tại sao log không có ecs.version field lại gây vấn đề cho detection?
+4. Cách check mapping của một index để xem field nào tồn tại?
+
+Cho ví dụ so sánh non-ECS log với ECS-compliant log.`,
+      analyze: `Phân tích ECS Compliance trong Enterprise Logging Architecture.
+
+1. Tại sao standardization quan trọng hơn flexibility trong security context?
+2. Cost of non-compliance: một detection rule miss bao nhiêu event nếu 20% log không chuẩn ECS?
+3. Migration strategy: làm thế nào migrate 100TB log legacy sang ECS mà không downtime?
+4. Khi có conflict (legacy system không thể change field names) — workaround nào tốt nhất?
+5. ECS vs OpenTelemetry semantic conventions — trend nào đang thắng và ảnh hưởng thế nào?`,
+      challenge: `Challenge bài ECS Compliance (Elasticsearch, OWASP A05).
+
+3 cấp độ:
+
+🟢 Cơ bản: List tất cả unique log.logger values với % records missing event.category
+🟡 Trung cấp: Tạo "compliance score" per log source: tính % field coverage cho 10 ECS required fields
+🔴 Nâng cao: Ingest pipeline config — transform 5 common non-ECS patterns thành ECS format, test với sample documents`
+    }
+  },
+  {
+    id: 'bai-12', num: '12', level: 'mid',
+    owasp: 'A01:2025', owaspLabel: 'Broken Access Control',
+    title: 'Honeytoken Detection',
+    subtitle: 'Phát hiện access vào tài khoản bẫy',
+    scenario: 'Security team tạo account `svc_honeypot_admin` và nhúng credential vào nhiều nơi nhạy cảm. Bất kỳ login nào vào account này là dấu hiệu chắc chắn của breach — không false positive, không cần threshold.',
+    deepdive: 'Honeytoken là kỹ thuật deception-based detection — zero false positive vì không có legitimate use case. Khi alert fire, không cần verify thêm — đây là confirmed compromise. Response phải là automatic và immediate: block IP, revoke session, notify on-call.',
+    code: `GET logs-*/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        { "term": { "user.name.keyword": "svc_honeypot_admin" } },
+        { "term": { "user.name.keyword": "backup_readonly_2019" } },
+        { "term": { "user.name.keyword": "test_sa_delete_me" } },
+        { "match_phrase": { "url.path": "/api/v1/honeypot/" } },
+        { "term": { "file.path.keyword": "/data/sensitive/decoy_customers.csv" } }
+      ],
+      "minimum_should_match": 1
+    }
+  },
+  "sort": [{ "@timestamp": "desc" }]
+}`,
+    antipattern: 'Đừng để honeytoken credential list trong source code, config file, hoặc Elasticsearch query visible cho nhiều người. List này phải được encrypt và chỉ security team biết. Nếu attacker biết honeytokens, họ sẽ avoid — mất đi giá trị detection.',
+    exercises: ['Tạo alert Watcher tự động khi honeytoken bị access', 'Thiết kế honeytoken strategy cho S3 buckets, database tables, API endpoints'],
+    prompts: {
+      explain: `Tôi học bài "Honeytoken Detection" trong Elasticsearch (OWASP A01).
+
+Giải thích:
+1. Honeytoken khác honeypot thế nào?
+2. Tại sao honeytoken có zero false positive rate?
+3. term query vs match query — tại sao dùng term cho honeytoken detection?
+4. Các loại honeytoken phổ biến trong enterprise environment?
+
+Cho ví dụ về honeytoken strategy toàn diện cho một web application.`,
+      analyze: `Phân tích Deception-Based Security với Honeytokens (OWASP A01).
+
+1. Threat actors nào thường trigger honeytoken và tại sao (insiders vs external attackers)?
+2. Làm thế nào deploy honeytokens mà không ảnh hưởng legitimate users?
+3. "Canary token" services (canarytokens.org) — so sánh với self-hosted approach?
+4. Khi honeytoken bị trigger, timeline investigation nên như thế nào? Automated response gì?
+5. Legal consideration: sử dụng honeytoken có thể gây vấn đề pháp lý không? (entrapment)?`,
+      challenge: `Challenge bài Honeytoken Detection (Elasticsearch, OWASP A01).
+
+3 cấp độ:
+
+🟢 Cơ bản: Query detect access vào bất kỳ URL chứa "/internal/", "/admin/backup/", hoặc "/legacy/" từ external IP
+🟡 Trung cấp: Honeytoken + geolocation — alert khi honeytoken access đến từ country khác với normal user base
+🔴 Nâng cao: "Lateral movement honeytoken" — detect khi service account được tạo mới trong 30 ngày qua đột nhiên access resource không trong baseline của account type đó`
+    }
+  },
+  {
+    id: 'bai-13', num: '13', level: 'mid',
+    owasp: 'A09:2025', owaspLabel: 'Security Logging',
+    title: 'Audit Trail Completeness',
+    subtitle: 'Kiểm tra tính toàn vẹn của audit log',
+    scenario: 'Compliance audit yêu cầu mọi transaction phải có đủ audit trail: start, process, complete/fail. Nếu thiếu bất kỳ bước nào, không thể reconstruct timeline cho forensic investigation.',
+    deepdive: 'Audit trail integrity là nền tảng của non-repudiation. Query detect transaction thiếu ID (`transaction.id`) hoặc thiếu outcome. Với long-running transaction, cần correlate nhiều event theo ID — group by transaction.id rồi check count.',
+    code: `GET logs-*/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": { "event.category": "transaction" } },
+        { "range": { "@timestamp": { "gte": "now-24h" } } }
+      ],
+      "should": [
+        { "bool": { "must_not": [{ "exists": { "field": "transaction.id" } }] } },
+        { "bool": { "must_not": [{ "exists": { "field": "event.outcome" } }] } },
+        { "bool": { "must_not": [{ "exists": { "field": "user.id" } }] } }
+      ],
+      "minimum_should_match": 1
+    }
+  },
+  "aggs": {
+    "incomplete_by_service": {
+      "terms": { "field": "service.name.keyword", "size": 20 }
+    }
+  }
+}`,
+    antipattern: 'Sai lầm phổ biến: chỉ check completeness của event hiện tại mà không check toàn bộ flow. Ví dụ: event "transaction.start" có ID nhưng "transaction.complete" lại không có cùng ID — query cần correlate cả 2.',
+    exercises: ['Tìm transaction start không có corresponding complete trong 30 phút (orphaned transaction)', 'Audit: mỗi transaction có đủ 3 event types (start, process, end) không?'],
+    prompts: {
+      explain: `Tôi học bài "Audit Trail Completeness" trong Elasticsearch (OWASP A09).
+
+Giải thích:
+1. "Audit trail" là gì và yêu cầu từ các standard (ISO 27001, SOC 2, PCI-DSS)?
+2. "Non-repudiation" nghĩa là gì trong context security?
+3. Cách Elasticsearch xử lý correlation query (join giữa nhiều documents)?
+4. Tại sao transaction.id quan trọng hơn timestamp để trace flow?`,
+      analyze: `Phân tích Audit Trail trong Compliance và Forensic Investigation.
+
+1. Regulatory requirements khác nhau gì (GDPR vs PCI-DSS vs HIPAA) về audit log?
+2. "Immutable audit log" — làm thế nào đảm bảo log không bị tamper sau khi write?
+3. Retention policy: bao lâu phải giữ audit log và ở tier nào (hot/warm/cold)?
+4. Forensic readiness: chuẩn bị gì trong Elasticsearch để investigation diễn ra nhanh nhất?
+5. Khi audit trail incomplete, cách reconstruct partial timeline từ data còn lại?`,
+      challenge: `Challenge bài Audit Trail Completeness (Elasticsearch, OWASP A09).
+
+3 cấp độ:
+
+🟢 Cơ bản: Count transaction records thiếu ít nhất 1 trong 3 fields: transaction.id, event.outcome, user.id
+🟡 Trung cấp: Tìm "orphaned" transaction — có start event nhưng sau 30 phút không có end event với cùng transaction.id
+🔴 Nâng cao: Completeness score per service: % transaction có đủ full lifecycle (start → process → complete/fail), sort ascending để prioritize fix`
+    }
+  },
+  {
+    id: 'bai-14', num: '14', level: 'adv',
+    owasp: 'A07:2025', owaspLabel: 'Auth Failures',
+    title: 'ML Anomaly Detection',
+    subtitle: 'Tự động học baseline và phát hiện behavioral anomaly',
+    scenario: 'User bình thường login 8-10 lần/ngày. Một ngày, account đó login 847 lần từ 23 địa điểm khác nhau. Rule-based detection miss vì không có hardcoded threshold nào bắt pattern này — cần ML.',
+    deepdive: 'ML Job trong Elasticsearch X-Pack học baseline tự động trong bucket_span. `high_count` detector flag bucket có count bất thường cao so với historical pattern. ML anomaly score từ 0-100, trên 75 là significant anomaly.',
+    code: `PUT _ml/anomaly_detectors/security-auth-anomaly
+{
+  "description": "Detect unusual authentication patterns per user",
+  "analysis_config": {
+    "bucket_span": "15m",
+    "detectors": [
+      {
+        "function": "high_count",
+        "by_field_name": "user.name.keyword",
+        "detector_description": "Unusual auth frequency per user"
+      },
+      {
+        "function": "rare",
+        "by_field_name": "user.name.keyword",
+        "over_field_name": "source.ip",
+        "detector_description": "Rare source IP per user"
+      }
+    ],
+    "influencers": ["user.name.keyword", "source.ip"]
+  },
+  "data_description": {
+    "time_field": "@timestamp"
+  },
+  "model_plot_config": { "enabled": true }
+}`,
+    antipattern: 'ML Job cần ít nhất 2-4 weeks training data để có baseline tốt. Chạy ngay trên data mới sẽ cho nhiều false positive. Dùng `datafeed` với `start` từ ít nhất 4 tuần trước. Và đừng enable quá nhiều ML jobs — mỗi job tốn RAM.',
+    exercises: ['Thêm detector "high_distinct_count" cho unique destination ports per source.ip', 'Configure alert rule từ ML score > 75 tự động create Jira ticket'],
+    prompts: {
+      explain: `Tôi học bài "ML Anomaly Detection" trong Elasticsearch X-Pack (OWASP A07).
+
+Giải thích:
+1. Elasticsearch ML dùng thuật toán nào? (supervised vs unsupervised?)
+2. bucket_span ảnh hưởng thế nào đến detection sensitivity và latency?
+3. "high_count" vs "rare" vs "freq_rare" detectors — khác nhau thế nào?
+4. Anomaly score 0-100 được tính thế nào? Ngưỡng nào nên alert?
+5. influencers trong ML job là gì?`,
+      analyze: `Phân tích ML-based vs Rule-based Security Detection.
+
+1. ML anomaly detection giỏi hơn rule-based ở điểm nào và ngược lại?
+2. "Concept drift" trong ML security model — model cần retrain khi nào?
+3. Làm thế nào explain ML anomaly cho non-technical stakeholder ("tại sao cái này là anomaly")?
+4. False negative của ML — attacker có thể "train" model để normalize malicious behavior không?
+5. Cost-benefit: Elasticsearch ML license cost vs security value — framework đánh giá?`,
+      challenge: `Challenge bài ML Anomaly Detection (Elasticsearch X-Pack, OWASP A07).
+
+3 cấp độ:
+
+🟢 Cơ bản: Cấu hình ML job detect unusual count của failed logins per IP, bucket_span 5 phút
+🟡 Trung cấp: Multi-detector job: high_count auth events + rare user-agent per user + geographic anomaly
+🔴 Nâng cao: Thiết kế ML job kết hợp supervised + unsupervised: dùng known bad IPs làm label để calibrate anomaly thresholds cho unknown threats`
+    }
+  },
+  {
+    id: 'bai-15', num: '15', level: 'adv',
+    owasp: 'A05:2025', owaspLabel: 'Security Misconfiguration',
+    title: 'ILM Policy — Index Lifecycle Management',
+    subtitle: 'Quản lý vòng đời log để đảm bảo retention và performance',
+    scenario: 'Cluster đang chạy hot với 2TB security log. Storage cost tăng exponential nhưng không ai cần query log cũ hơn 90 ngày realtime. Cần policy tự động tier log xuống cold storage và delete sau 1 năm.',
+    deepdive: 'ILM chia lifecycle thành phases: hot (active write), warm (read-only, compression), cold (frozen, slow query), delete. Security log thường: hot 3-7 ngày, warm 30-90 ngày, cold đến 1 năm, delete sau compliance period. Tune rollover condition để shard size không vượt 50GB.',
+    code: `PUT _ilm/policy/security-logs-policy
+{
+  "policy": {
+    "phases": {
+      "hot": {
+        "min_age": "0ms",
+        "actions": {
+          "rollover": {
+            "max_age": "1d",
+            "max_primary_shard_size": "50gb"
+          },
+          "set_priority": { "priority": 100 }
+        }
+      },
+      "warm": {
+        "min_age": "7d",
+        "actions": {
+          "shrink": { "number_of_shards": 1 },
+          "forcemerge": { "max_num_segments": 1 },
+          "set_priority": { "priority": 50 }
+        }
+      },
+      "cold": {
+        "min_age": "90d",
+        "actions": {
+          "freeze": {},
+          "set_priority": { "priority": 0 }
+        }
+      },
+      "delete": {
+        "min_age": "365d",
+        "actions": { "delete": {} }
+      }
+    }
+  }
+}`,
+    antipattern: 'Đừng set delete phase quá ngắn trước khi verify compliance requirement. GDPR, PCI-DSS, HIPAA có retention minimums khác nhau. Delete vội security log có thể violate regulation và block forensic investigation.',
+    exercises: ['Tính cost saving khi move 80% log từ hot SSD sang cold HDD', 'Thiết kế ILM cho multi-tenant: tenant A giữ 2 năm, tenant B giữ 6 tháng'],
+    prompts: {
+      explain: `Tôi học bài "ILM Policy" trong Elasticsearch (OWASP A05).
+
+Giải thích:
+1. Shard là gì và tại sao size quan trọng cho performance?
+2. Các phase hot/warm/cold/frozen/delete — cụ thể Elasticsearch làm gì ở mỗi phase?
+3. forcemerge với max_num_segments: 1 có tác dụng gì?
+4. "freeze" index trong Elasticsearch nghĩa là gì? Query vẫn được không?
+5. rollover condition: max_age vs max_primary_shard_size — khi nào dùng cái nào?`,
+      analyze: `Phân tích Log Retention Strategy cho Security và Compliance.
+
+1. Các regulatory requirements về log retention: GDPR, PCI-DSS, SOX, HIPAA — khác nhau thế nào?
+2. Cost model: Tính tổng cost of ownership cho 1TB/day ingest với 1-year retention (SSD vs HDD vs S3)?
+3. "Searchable snapshots" trong Elasticsearch — giải pháp cho cold storage mà vẫn queryable?
+4. Khi cần investigate incident từ 11 tháng trước, data trong cold/frozen tier — performance thực tế?
+5. Disaster recovery: ILM policy có cần backup riêng không? Strategy thế nào?`,
+      challenge: `Challenge bài ILM Policy (Elasticsearch, OWASP A05).
+
+3 cấp độ:
+
+🟢 Cơ bản: Thiết kế ILM cho development environment: rollover 100mb, delete sau 7 ngày
+🟡 Trung cấp: Multi-tier ILM với searchable snapshots — hot 3d, warm 30d, cold snapshot đến 1 năm, delete sau đó
+🔴 Nâng cao: Cost-optimized ILM cho 500GB/day ingest, compliance 2 năm, budget $X/month — thiết kế tier allocation, shard strategy, và snapshot schedule`
+    }
+  },
+  {
+    id: 'bai-16', num: '16', level: 'adv',
+    owasp: 'A09:2025', owaspLabel: 'Security Logging',
+    title: 'Elasticsearch Watcher — Auto-Alert',
+    subtitle: 'Tự động hóa detection và response với Watcher',
+    scenario: 'SOC cần alert realtime khi phát hiện brute force, không cần analyst ngồi nhìn màn hình. Watcher chạy scheduled search mỗi 5 phút, evaluate condition, và tự động gửi Slack/PagerDuty/Email.',
+    deepdive: 'Watcher có 4 thành phần: trigger (schedule), input (search), condition (evaluate), action (respond). Chain actions: first notify Slack, nếu không acknowledge sau 15 phút thì escalate PagerDuty. Context data từ payload có thể inject vào message template.',
+    code: `PUT _watcher/watch/brute-force-realtime-alert
+{
+  "trigger": {
+    "schedule": { "interval": "5m" }
+  },
+  "input": {
+    "search": {
+      "request": {
+        "indices": ["logs-*"],
+        "body": {
+          "query": {
+            "bool": {
+              "must": [
+                { "match": { "event.outcome": "failure" } },
+                { "range": { "@timestamp": { "gte": "now-5m" } } }
+              ]
+            }
+          },
+          "aggs": {
+            "by_user": {
+              "terms": { "field": "user.name.keyword", "size": 5 },
+              "aggs": { "count": { "value_count": { "field": "@timestamp" } } }
+            }
+          }
+        }
+      }
+    }
+  },
+  "condition": {
+    "compare": {
+      "ctx.payload.hits.total.value": { "gt": 10 }
+    }
+  },
+  "actions": {
+    "notify_slack": {
+      "slack": {
+        "message": {
+          "to": ["#security-alerts"],
+          "text": "🚨 Brute force detected: {{ctx.payload.hits.total.value}} failures in 5m"
+        }
+      }
+    },
+    "log_incident": {
+      "index": {
+        "index": "security-incidents"
+      }
+    }
+  }
+}`,
+    antipattern: 'Watcher interval quá ngắn (1 giây) với heavy search query sẽ throttle cluster. Test load impact trước khi deploy. Và condition `compare` với hardcoded number 10 sẽ không adapt theo traffic — xem xét dùng ML anomaly score thay vì fixed threshold.',
+    exercises: ['Thêm action gửi email cho security team với list top 3 offending IPs', 'Thiết kế "acknowledge" mechanism để tránh alert storm'],
+    prompts: {
+      explain: `Tôi học bài "Elasticsearch Watcher" (OWASP A09).
+
+Giải thích:
+1. Watcher lifecycle: trigger → input → condition → action — flow chi tiết?
+2. ctx.payload là gì và cách access data từ search result?
+3. Throttle period trong Watcher — ngăn alert storm thế nào?
+4. So sánh Watcher vs Kibana Alerting — khi nào dùng cái nào?
+5. Watcher ảnh hưởng cluster performance thế nào?`,
+      analyze: `Phân tích Security Automation với Elasticsearch Watcher.
+
+1. "Alert as Code" — lợi ích của define Watcher bằng API thay vì Kibana UI?
+2. Thiết kế "alert chain": từ detection → triage → escalation → resolution bằng Watcher actions?
+3. Integration với SOAR (Security Orchestration, Automation, Response) platforms?
+4. Watcher để detect, nhưng automated response (block IP, revoke token) — an toàn hay rủi ro?
+5. Audit Watcher executions — làm thế nào track history và debug failed watches?`,
+      challenge: `Challenge bài Elasticsearch Watcher (OWASP A09).
+
+3 cấp độ:
+
+🟢 Cơ bản: Watcher alert khi HTTP 5xx rate > 10% trong 5 phút, notify Slack với endpoint bị ảnh hưởng
+🟡 Trung cấp: Watcher với chained condition — alert khi: failed logins > 20 AND source IP không trong whitelist AND giờ là ngoài business hours
+🔴 Nâng cao: Adaptive threshold Watcher — compare current 5-minute count với moving average 24h, alert khi deviation > 3 standard deviations; implement bằng scripted condition`
+    }
+  },
+  {
+    id: 'bai-17', num: '17', level: 'adv',
+    owasp: 'A05:2025', owaspLabel: 'Security Misconfiguration',
+    title: 'Cross-Cluster Search',
+    subtitle: 'Query đồng thời nhiều Elasticsearch cluster',
+    scenario: 'Organization có cluster riêng cho prod, staging, EU-region và US-region. Security investigation cần query toàn bộ để tìm IOC (Indicator of Compromise) — không thể manually query từng cluster.',
+    deepdive: 'Cross-cluster search (CCS) dùng remote cluster configuration để federate query. Syntax `cluster-alias:index-pattern`. Network latency giữa clusters ảnh hưởng response time. API key permission phải được setup riêng cho từng remote cluster.',
+    code: `# Cấu hình remote clusters trước
+PUT _cluster/settings
+{
+  "persistent": {
+    "cluster": {
+      "remote": {
+        "cluster-prod": {
+          "seeds": ["prod-es-node:9300"]
+        },
+        "cluster-staging": {
+          "seeds": ["staging-es-node:9300"]
+        },
+        "cluster-eu": {
+          "seeds": ["eu-es-node:9300"]
+        }
+      }
+    }
+  }
+}
+
+# Cross-cluster search — IOC hunt
+GET cluster-prod:logs-*,cluster-staging:logs-*,cluster-eu:logs-*/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        { "terms": { "source.ip": ["1.2.3.4", "5.6.7.8", "9.10.11.12"] } },
+        { "terms": { "user.name.keyword": ["compromised_user_a", "compromised_user_b"] } },
+        { "match": { "file.hash.md5": "d41d8cd98f00b204e9800998ecf8427e" } }
+      ],
+      "minimum_should_match": 1
+    }
+  },
+  "aggs": {
+    "by_cluster": {
+      "terms": { "field": "_index", "size": 20 }
+    }
+  }
+}`,
+    antipattern: 'Cross-cluster search không support distributed aggregations đầy đủ (terms agg có thể inaccurate vì deduplication không work cross-cluster). Verify bằng `_shards` response. Và network partition giữa clusters sẽ trả partial result — check `_shards.failed` count.',
+    exercises: ['Query cross-cluster để tìm IOC từ threat intel feed', 'Setup API key với minimal permission để CCS không expose sensitive data cross-cluster'],
+    prompts: {
+      explain: `Tôi học bài "Cross-Cluster Search" trong Elasticsearch (OWASP A05).
+
+Giải thích:
+1. Cross-cluster search architecture — data có được copy sang local cluster không?
+2. "Remote cluster" configuration: transport vs HTTP proxy mode?
+3. Tại sao terms aggregation cross-cluster có thể inaccurate?
+4. Permission model: cần configure gì ở cả local lẫn remote cluster?
+5. Latency impact của CCS — benchmark thế nào?`,
+      analyze: `Phân tích Multi-Cluster Security Architecture.
+
+1. Tại sao enterprise lại có nhiều Elasticsearch cluster thay vì một cluster lớn?
+2. Data sovereignty (GDPR): query cross-cluster có vi phạm data residency requirement không?
+3. "Threat hunting at scale" — workflow khi hunt IOC across 10+ clusters?
+4. Alternative approaches: Elasticsearch federation vs data lake (Snowflake/BigQuery) cho long-term cross-cluster analytics?
+5. Cluster isolation: khi nào nên KHÔNG cho cross-cluster search để reduce attack surface?`,
+      challenge: `Challenge bài Cross-Cluster Search (Elasticsearch, OWASP A05).
+
+3 cấp độ:
+
+🟢 Cơ bản: Query 2 clusters, tìm user có failed login trong cả hai (possible credential spray)
+🟡 Trung cấp: IOC hunt — given list 50 malicious IPs, query 3 clusters, aggregate hit count per IP per cluster
+🔴 Nâng cao: Thiết kế "federated detection" — Watcher ở cluster-central query cross-cluster mỗi 15 phút, detect pattern chỉ visible khi nhìn toàn bộ infrastructure (e.g., authentication từ cluster-prod → resource access ở cluster-eu)`
+    }
+  },
+  {
+    id: 'bai-18', num: '18', level: 'adv',
+    owasp: 'A09:2025', owaspLabel: 'Security Logging',
+    title: 'Security Dashboard Query Set',
+    subtitle: 'Bộ query hoàn chỉnh cho Security Operations Dashboard',
+    scenario: 'CISO yêu cầu dashboard realtime cho toàn bộ security posture: total events, failure rate, top threats, coverage gaps. Cần một bộ query chuẩn để feed vào Kibana Lens hoặc Grafana.',
+    deepdive: 'Dashboard query cần optimize cho low latency: dùng `filter` context thay vì `query` để cache, `size: 0` khi chỉ cần agg, và hạn chế số lượng concurrent query. Thiết kế theo 4 quadrant: volume metrics, failure analysis, threat detection, compliance status.',
+    code: `# Query 1: Summary Metrics
+GET logs-*/_search
+{
+  "size": 0,
+  "query": { "range": { "@timestamp": { "gte": "now-24h" } } },
+  "aggs": {
+    "total_events": { "value_count": { "field": "@timestamp" } },
+    "failed_auth": {
+      "filter": { "bool": { "must": [
+        { "match": { "event.category": "authentication" } },
+        { "match": { "event.outcome": "failure" } }
+      ]}},
+      "aggs": { "count": { "value_count": { "field": "@timestamp" } } }
+    },
+    "critical_alerts": {
+      "filter": { "term": { "event.severity": "critical" } }
+    },
+    "unique_users": { "cardinality": { "field": "user.name.keyword" } },
+    "unique_ips": { "cardinality": { "field": "source.ip" } }
+  }
+}
+
+# Query 2: Hourly Trend (feed vào line chart)
+GET logs-*/_search
+{
+  "size": 0,
+  "aggs": {
+    "events_by_hour": {
+      "date_histogram": {
+        "field": "@timestamp",
+        "calendar_interval": "hour",
+        "min_doc_count": 0
+      },
+      "aggs": {
+        "success": { "filter": { "match": { "event.outcome": "success" } } },
+        "failure": { "filter": { "match": { "event.outcome": "failure" } } }
+      }
+    }
+  }
+}`,
+    antipattern: 'Dashboard với 20+ panels mỗi panel 1 query sẽ kill cluster khi nhiều user refresh cùng lúc. Dùng 1 query aggregate nhiều metric, cache bằng Kibana drilldown, và set refresh interval tối thiểu 30 giây.',
+    exercises: ['Build "MTTD heatmap" — phân phối thời gian phát hiện threat theo giờ trong tuần', 'Thiết kế executive summary report auto-generate mỗi Monday 8am'],
+    prompts: {
+      explain: `Tôi học bài "Security Dashboard Query Set" (OWASP A09).
+
+Giải thích:
+1. Tại sao dùng "filter" context tốt hơn "query" context cho dashboard performance?
+2. cardinality aggregation — HyperLogLog accuracy tradeoff thế nào?
+3. calendar_interval vs fixed_interval — khi nào dùng cái nào cho time series chart?
+4. Cách tối ưu nhiều agg trong một query thay vì nhiều query riêng?
+5. Kibana Lens vs custom dashboard — pros/cons?`,
+      analyze: `Phân tích Security Operations Dashboard Design.
+
+1. "4 golden signals" của SRE (latency, traffic, errors, saturation) — map sang security metrics thế nào?
+2. CISO dashboard vs SOC analyst dashboard — cần thông tin khác nhau như thế nào?
+3. Real-time vs near-real-time: khi nào latency 30 giây là chấp nhận được cho security?
+4. "Vanity metrics" vs "actionable metrics" trong security dashboard — phân biệt thế nào?
+5. Dashboard as code — manage Kibana dashboards trong git, CI/CD deploy?`,
+      challenge: `Challenge bài Security Dashboard (Elasticsearch, OWASP A09) — Bài tổng hợp.
+
+3 cấp độ:
+
+🟢 Cơ bản: 5 KPI queries: total events, auth failure rate, unique attackers, top targeted services, ECS compliance %
+🟡 Trung cấp: "MTTD widget" — tính Mean Time to Detect bằng cách correlate timestamp của first malicious event với timestamp của first alert triggered
+🔴 Nâng cao: End-to-end dashboard — 8 panels covering: executive summary, threat timeline, OWASP coverage heatmap, top risks by service, geo attack map data, compliance score, ML anomaly feed, và ILM storage health`
+    }
+  }
+];
+
+// ── BUILD UI ──
+function buildSidebar() {
+  const navBasic = document.getElementById('nav-basic');
+  const navMid   = document.getElementById('nav-mid');
+  const navAdv   = document.getElementById('nav-adv');
+
+  lessons.forEach(l => {
+    const li = document.createElement('li');
+    const isDone = localStorage.getItem('done_' + l.id) === '1';
+    li.innerHTML = `<a href="#${l.id}">
+      <span class="nav-check ${isDone ? 'done' : ''}" data-nav-id="${l.id}">${isDone ? '✓' : ''}</span>
+      <span>${l.num}. ${l.title.split('—')[0].trim()}</span>
+    </a>`;
+    if (l.level === 'basic') navBasic.appendChild(li);
+    else if (l.level === 'mid') navMid.appendChild(li);
+    else navAdv.appendChild(li);
+  });
+}
+
+function buildCard(l) {
+  const isDone = localStorage.getItem('done_' + l.id) === '1';
+  const levelClass = l.level === 'basic' ? 'level-basic' : l.level === 'mid' ? 'level-mid' : 'level-adv';
+  const levelLabel = l.level === 'basic' ? 'Cơ bản' : l.level === 'mid' ? 'Trung cấp' : 'Nâng cao';
+  const badgeLevel = l.level === 'basic' ? 'badge-level-basic' : l.level === 'mid' ? 'badge-level-mid' : 'badge-level-adv';
+
+  const exercises = l.exercises.map(e => `<li><span class="ex-bullet">→</span>${e}</li>`).join('');
+
+  const div = document.createElement('div');
+  div.className = `lesson-card ${levelClass} ${isDone ? 'done-card' : ''}`;
+  div.id = l.id;
+  div.innerHTML = `
+    <div class="lesson-header" onclick="toggleCard('${l.id}', event)">
+      <div class="lesson-num">${l.num}</div>
+      <div class="lesson-meta">
+        <div class="lesson-badges">
+          <span class="badge badge-owasp">${l.owasp} · ${l.owaspLabel}</span>
+          <span class="badge ${badgeLevel}">${levelLabel}</span>
+        </div>
+        <div class="lesson-title">${l.title}</div>
+        <div class="lesson-subtitle">${l.subtitle}</div>
+      </div>
+      <div class="lesson-actions">
+        <button class="btn-ai" onclick="openAI('${l.id}', event)" title="AI Prompt Assistant">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1C4.13 1 1 4.13 1 8s3.13 7 7 7 7-3.13 7-7-3.13-7-7-7zm0 2.5c.97 0 1.75.78 1.75 1.75S8.97 7 8 7s-1.75-.78-1.75-1.75S7.03 3.5 8 3.5zm0 9c-1.46 0-2.75-.75-3.5-1.88.02-.78.35-1.5 1.5-2.12.5-.28 1.3-.5 2-.5s1.5.22 2 .5c1.15.62 1.48 1.34 1.5 2.12C10.75 11.75 9.46 12.5 8 12.5z" fill="currentColor"/></svg>
+          ✦ AI Prompts
+        </button>
+        <button class="btn-done ${isDone ? 'done' : ''}" data-id="${l.id}" onclick="toggleDone('${l.id}', event)" title="Đánh dấu hoàn thành">✓</button>
+        <button class="btn-expand">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="lesson-body">
+      <div class="scenario-block">
+        <div class="scenario-icon">🎯</div>
+        <div class="scenario-content">
+          <div class="scenario-label">Scenario thực tế</div>
+          <div class="scenario-text">${l.scenario}</div>
+        </div>
+      </div>
+      <div class="deepdive-block">
+        <div class="deepdive-label">🧠 Deep Dive</div>
+        <div class="deepdive-text">${l.deepdive}</div>
+      </div>
+      <div class="code-wrap">
+        <div class="code-header">
+          <span class="code-lang">Elasticsearch DSL · JSON</span>
+          <button class="btn-copy" data-id="${l.id}">Copy</button>
+        </div>
+        <pre><code class="language-json" id="code-${l.id}">${escapeHtml(l.code)}</code></pre>
+      </div>
+      <div class="antipattern-block">
+        <span class="antipattern-icon">❌</span>
+        <div class="antipattern-text"><strong>Anti-pattern:</strong> ${l.antipattern}</div>
+      </div>
+      <div class="exercises-block">
+        <div class="exercises-label">🏋️ Bài tập thực hành</div>
+        <ul class="exercises-list">${exercises}</ul>
+      </div>
+    </div>
+  `;
+  return div;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function toggleCard(id, e) {
+  if (e.target.closest('.btn-ai') || e.target.closest('.btn-done')) return;
+  const card = document.getElementById(id);
+  card.classList.toggle('open');
+}
+
+function toggleDone(id, e) {
+  e.stopPropagation();
+  const isDone = localStorage.getItem('done_' + id) === '1';
+  if (isDone) {
+    localStorage.removeItem('done_' + id);
+  } else {
+    localStorage.setItem('done_' + id, '1');
+  }
+  // Update btn
+  const btn = document.querySelector(`.btn-done[data-id="${id}"]`);
+  if (btn) btn.classList.toggle('done', !isDone);
+  // Update nav check
+  const navCheck = document.querySelector(`.nav-check[data-nav-id="${id}"]`);
+  if (navCheck) {
+    navCheck.classList.toggle('done', !isDone);
+    navCheck.textContent = !isDone ? '✓' : '';
+  }
+  updateProgress();
+}
+
+function updateProgress() {
+  const done = lessons.filter(l => localStorage.getItem('done_' + l.id) === '1').length;
+  const total = lessons.length;
+  const pct = (done / total) * 100;
+  document.getElementById('progress-text').textContent = `${done} / ${total}`;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+// ── AI MODAL ──
+let currentLesson = null;
+let currentTab = 'explain';
+
+function openAI(id, e) {
+  e.stopPropagation();
+  currentLesson = lessons.find(l => l.id === id);
+  if (!currentLesson) return;
+
+  document.getElementById('modal-lesson-title').textContent = currentLesson.title;
+  document.getElementById('prompt-explain').textContent = currentLesson.prompts.explain;
+  document.getElementById('prompt-analyze').textContent = currentLesson.prompts.analyze;
+  document.getElementById('prompt-challenge').textContent = currentLesson.prompts.challenge;
+
+  switchTab('explain');
+  document.getElementById('ai-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('ai-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.prompt-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.modal-tab[data-tab="${tab}"]`).classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+
+  // Reset copy buttons
+  document.querySelectorAll('.btn-copy-prompt').forEach(b => {
+    b.classList.remove('copied');
+    b.textContent = '📋 Copy Prompt';
+  });
+}
+
+// Copy code buttons
+document.addEventListener('click', function(e) {
+  // Copy code
+  if (e.target.classList.contains('btn-copy') && e.target.dataset.id) {
+    const id = e.target.dataset.id;
+    const lesson = lessons.find(l => l.id === id);
+    if (lesson) {
+      navigator.clipboard.writeText(lesson.code).then(() => {
+        e.target.textContent = 'Copied!';
+        e.target.classList.add('copied');
+        setTimeout(() => { e.target.textContent = 'Copy'; e.target.classList.remove('copied'); }, 2000);
+      });
+    }
+  }
+
+  // Copy prompt
+  if (e.target.classList.contains('btn-copy-prompt')) {
+    const target = e.target.dataset.target;
+    if (currentLesson && target) {
+      const text = currentLesson.prompts[target];
+      navigator.clipboard.writeText(text).then(() => {
+        e.target.classList.add('copied');
+        e.target.textContent = '✓ Đã copy!';
+        setTimeout(() => {
+          e.target.classList.remove('copied');
+          e.target.textContent = '📋 Copy Prompt';
+        }, 2000);
+      });
+    }
+  }
+
+  // Modal tabs
+  if (e.target.classList.contains('modal-tab')) {
+    switchTab(e.target.dataset.tab);
+  }
+});
+
+document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+document.getElementById('ai-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
+
+// ── INIT ──
+buildSidebar();
+
+const listBasic = document.getElementById('lessons-basic');
+const listMid   = document.getElementById('lessons-mid');
+const listAdv   = document.getElementById('lessons-adv');
+
+lessons.forEach(l => {
+  const card = buildCard(l);
+  if (l.level === 'basic') listBasic.appendChild(card);
+  else if (l.level === 'mid') listMid.appendChild(card);
+  else listAdv.appendChild(card);
+});
+
+// Syntax highlight
+document.querySelectorAll('pre code').forEach(el => { hljs.highlightElement(el); });
+
+updateProgress();
+
+// Active nav on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      document.querySelectorAll('.sidebar-nav li a').forEach(a => a.classList.remove('active'));
+      const link = document.querySelector(`.sidebar-nav li a[href="#${entry.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { threshold: 0.3 });
+
+document.querySelectorAll('.lesson-card').forEach(card => observer.observe(card));
+</script>
+</body>
+</html>
