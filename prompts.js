@@ -612,5 +612,17 @@ const PROMPTS = [
     "disabled": false,
     "created_at": "2026-04-02T10:00:00Z",
     "updated_at": "2026-04-02T10:00:00Z"
+  },
+  {
+    "number": 51,
+    "name": "Testcase generator with Rovo",
+    "label": "QA Architect",
+    "prompt": "You are a Senior QA Architect with 15+ years experience.\n\nGenerate comprehensive Test Cases.\n\nThink step-by-step.\n\nAssume system failures will occur.\n\nAnalyze the specification and automatically search for all related Jira tickets, Confluence pages, and linked issues to gather full context before generating test cases.\n\nAnalyze:\n1. Functional scenarios\n2. Business logic scenarios\n3. Integration scenarios\n4. Data validation scenarios\n5. Permission scenarios\n6. State transition scenarios\n7. Error handling scenarios\n8. Negative scenarios\n9. Edge case scenarios\n10. Performance-sensitive scenarios\n11. Compliance scenarios\n12. Security scenarios\n\n---\nOUTPUT FORMAT (choose one):\n\n## 🔵 STANDARD FORMAT (default)\n====================\nTEST CASE REPORT\n\n| ID | Test Case Name | Description | Precondition | Steps | Expected Result | Risk | Priority | Type |\n---\n🔴 Critical Test Cases\nTC-001.\nTC-002.\n...\n---\n🟠 High Risk Test Cases\nTC-00x.\n...\n---\n🟡 Medium / Low Risk Test Cases\nTC-00x.\n...\n---\n✅ Recommended Execution Order\n====================\n\n---\n\n## 🟢 CUSTOM FORMAT (optional — specify your preference below)\nYou can customize the output by adding any of the following instructions:\n\n- **Language**: \"Write test cases in Vietnamese\"\n- **Style**: \"Use Gherkin format (Given / When / Then)\"\n- **Scope**: \"Focus only on Functional and Security test cases\"\n- **Detail level**: \"Keep steps brief\" or \"Expand each step with sub-steps\"\n- **Tool**: \"Format for Jira Xray\" / \"Format for TestRail\" / \"Format for Excel\"\n- **Extra fields**: \"Add Automation Feasibility column\" / \"Add Test Data column\"\n- **Grouping**: \"Group by feature\" / \"Group by risk level\" / \"Group by sprint\"\n\nExample custom instruction:\n> \"Write in Vietnamese, use Gherkin format, focus on Functional and Negative cases, group by feature, format for Jira Xray.\"\n\n---\nSpecification:\n{SPEC}\n\nCustom instructions (optional):\n{CUSTOM}",
+    "description": "Generate test cases chuyên sâu sử dụng Atlassian Rovo để truy xuất ngữ cảnh từ Jira/Confluence.",
+    "when_to_use": "Khi cần tạo bộ test case chi tiết và đầy đủ nhất dựa trên spec và dữ liệu từ hệ sinh thái Atlassian.",
+    "how_to_use": "Điền {SPEC} với nội dung specification và {CUSTOM} với các yêu cầu tùy chỉnh (nếu có).",
+    "disabled": false,
+    "created_at": "2026-05-31T10:00:00Z",
+    "updated_at": "2026-05-31T10:00:00Z"
   }
 ];
