@@ -1,332 +1,190 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prompt Library - Premium QA Workflow</title>
-    <link rel="stylesheet" href="style_2.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>Premium Prompt Library - QA/QC</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Marked.js for Markdown Preview -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="style_2.css">
 </head>
-<body>
-    <!-- Navbar Premium -->
-    <nav class="navbar-premium">
-        <div class="navbar-container">
-            <div class="navbar-brand">
-                <div class="brand-logo">
-                    <i class="fas fa-layer-group"></i>
-                </div>
-                <div class="brand-text">
-                    <h1>Prompt Library</h1>
-                    <span class="brand-tag">PRO</span>
-                </div>
-            </div>
-            <div class="navbar-actions">
-                <button class="nav-btn" id="themeToggle" title="Toggle Theme">
-                    <i class="fas fa-moon"></i>
-                </button>
-                <button class="nav-btn" id="viewToggle" title="Change View">
-                    <i class="fas fa-th-large"></i>
-                </button>
-                <button class="nav-btn-primary" id="addPromptBtn">
-                    <i class="fas fa-plus"></i>
-                    <span>New Prompt</span>
-                </button>
-            </div>
-        </div>
-    </nav>
+<body class="dark-mode"> <!-- Default dark mode -->
 
-    <!-- Hero Section -->
-    <div class="hero-section">
-        <div class="hero-content">
-            <h2 class="hero-title">Tìm kiếm & copy prompts cho QA Workflow</h2>
-            <p class="hero-subtitle">Thư viện prompt chuyên nghiệp cho đội ngũ QA/QC</p>
-        </div>
-        
-        <!-- Advanced Search -->
-        <div class="search-container-premium">
-            <div class="search-box-wrapper">
-                <i class="fas fa-search search-icon"></i>
-                <input 
-                    type="text" 
-                    id="searchInput" 
-                    class="search-input-premium" 
-                    placeholder="Search by name, label, description, or prompt content..."
-                    autocomplete="off"
-                >
-                <div class="search-shortcut">
-                    <kbd>Ctrl</kbd> + <kbd>K</kbd>
-                </div>
-            </div>
-            <div class="search-filters">
-                <button class="filter-chip active" data-filter="all">
-                    <i class="fas fa-th"></i>
-                    <span>All</span>
-                </button>
-                <button class="filter-chip" data-filter="favorites">
-                    <i class="fas fa-star"></i>
-                    <span>Favorites</span>
-                </button>
-                <button class="filter-chip" data-filter="recent">
-                    <i class="fas fa-clock"></i>
-                    <span>Recent</span>
-                </button>
-            </div>
+    <!-- Sidebar -->
+    <aside class="sidebar-premium">
+        <div class="logo-area">
+            <i class="fas fa-robot"></i>
+            <h1>PromptLib<span>Pro</span></h1>
         </div>
 
-        <!-- Stats Bar -->
-        <div class="stats-bar">
-            <div class="stat-item">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                    <i class="fas fa-cube"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-value" id="totalCount">52</span>
-                    <span class="stat-label">Total Prompts</span>
-                </div>
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search prompts... (Ctrl+K)">
+        </div>
+
+        <nav class="nav-menu">
+            <!-- Hidden New Prompt & Quick Access as requested -->
+            <!-- <div class="nav-item active"><i class="fas fa-plus-circle"></i> New Prompt</div> -->
+            <!-- <div class="nav-item"><i class="fas fa-bolt"></i> Quick Access</div> -->
+            
+            <div class="nav-section-title">Filters</div>
+            <div class="filter-chips">
+                <button class="filter-chip active" data-filter="all"><i class="fas fa-th-large"></i> All</button>
+                <button class="filter-chip" data-filter="favorites"><i class="fas fa-star"></i> Favorites</button>
+                <button class="filter-chip" data-filter="recent"><i class="fas fa-history"></i> Recent</button>
             </div>
-            <div class="stat-item">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                    <i class="fas fa-star"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-value" id="favoritesCount">0</span>
-                    <span class="stat-label">Favorites</span>
-                </div>
+
+            <div class="nav-section-title">Categories</div>
+            <div id="categoryList" class="category-list">
+                <!-- Rendered by JS -->
             </div>
-            <div class="stat-item">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-value" id="activeCount">52</span>
-                    <span class="stat-label">Active</span>
-                </div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                    <i class="fas fa-search"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-value" id="resultsCount">52</span>
-                    <span class="stat-label">Results</span>
-                </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button id="themeToggle" class="theme-btn"><i class="fas fa-moon"></i> Toggle Theme</button>
+            <div class="stats-mini">
+                <span id="totalCount">0</span> Total
             </div>
         </div>
-    </div>
+    </aside>
 
-    <!-- Main Layout -->
-    <div class="main-layout">
-        <!-- Sidebar Premium -->
-        <aside class="sidebar-premium">
-            <div class="sidebar-section">
-                <div class="sidebar-header">
-                    <h3><i class="fas fa-folder-open"></i> Categories</h3>
-                    <span class="sidebar-badge" id="categoryCount">7</span>
-                </div>
-                <div class="category-list" id="categoryList">
-                    <!-- Categories will be rendered here -->
-                </div>
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="breadcrumb">
+                <h2>Library</h2>
+                <span class="separator">/</span>
+                <span id="activeCategoryName">All Prompts</span>
             </div>
-
-            <div class="sidebar-section">
-                <div class="sidebar-header">
-                    <h3><i class="fas fa-bolt"></i> Quick Access</h3>
-                </div>
-                <div class="quick-access-list">
-                    <button class="quick-access-item">
-                        <i class="fas fa-fire" style="color: #f59e0b;"></i>
-                        <span>Trending</span>
-                    </button>
-                    <button class="quick-access-item">
-                        <i class="fas fa-clock" style="color: #3b82f6;"></i>
-                        <span>Recently Used</span>
-                    </button>
-                    <button class="quick-access-item">
-                        <i class="fas fa-download" style="color: #10b981;"></i>
-                        <span>Export All</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="sidebar-section">
-                <div class="sidebar-header">
-                    <h3><i class="fas fa-tags"></i> Tags</h3>
-                </div>
-                <div class="tags-cloud">
-                    <span class="tag">#automation</span>
-                    <span class="tag">#testing</span>
-                    <span class="tag">#qa</span>
-                    <span class="tag">#api</span>
-                    <span class="tag">#performance</span>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Content Area -->
-        <main class="content-area">
-            <!-- Active Filters -->
-            <div class="active-filters-bar" id="activeFilters">
-                <span class="filters-label">
-                    <i class="fas fa-filter"></i>
-                    Active Filters:
-                </span>
-                <div class="active-filters-list" id="activeFiltersList">
-                    <!-- Active filters will be rendered here -->
-                </div>
-                <button class="clear-all-btn" id="clearAllFilters">
-                    <i class="fas fa-times"></i>
-                    Clear All
-                </button>
-            </div>
-
-            <!-- Prompts Grid -->
-            <div class="prompts-container">
-                <div class="prompts-grid" id="promptsGrid">
-                    <!-- Prompts will be rendered here -->
+            
+            <div class="view-controls">
+                <div class="active-filters" id="activeFiltersList">
+                    <span style="color: var(--text-muted); font-size: 0.875rem;">No active filters</span>
                 </div>
                 
-                <!-- Empty State -->
-                <div class="empty-state" id="emptyState" style="display: none;">
-                    <div class="empty-icon">
-                        <i class="fas fa-search"></i>
-                    </div>
-                    <h3>No prompts found</h3>
-                    <p>Try adjusting your search or filters</p>
-                    <button class="btn-reset-search" id="resetSearch">
-                        <i class="fas fa-undo"></i>
-                        Reset Search
-                    </button>
+                <button id="clearAllFilters" class="btn-icon" title="Clear Filters"><i class="fas fa-times-circle"></i></button>
+                
+                <div class="view-toggle">
+                    <button id="viewGrid" class="view-btn active" title="Grid View"><i class="fas fa-th-large"></i></button>
+                    <button id="viewList" class="view-btn" title="List View"><i class="fas fa-list"></i></button>
                 </div>
             </div>
-        </main>
+        </header>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-value" id="resultsCount">0</span>
+                <span class="stat-label">Results</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="activeCount">0</span>
+                <span class="stat-label">Active</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="favoritesCount">0</span>
+                <span class="stat-label">Favorites</span>
+            </div>
+        </div>
+
+        <div id="promptsGrid" class="prompts-grid">
+            <!-- Cards rendered by JS -->
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <i class="fas fa-search-minus"></i>
+            <h3>No prompts found</h3>
+            <p>Try adjusting your search or filters.</p>
+            <button onclick="app.clearAllFilters()" class="btn-primary-premium">Clear All Filters</button>
+        </div>
+    </main>
+
+    <!-- Comparison Bar (Fixed Bottom) -->
+    <div id="comparisonBar" class="comparison-bar">
+        <div class="compare-info">
+            <span><i class="fas fa-columns"></i> <span id="compareCount">0</span>/3 Selected</span>
+        </div>
+        <div class="compare-actions">
+            <button onclick="app.clearComparison()" class="btn-text">Clear</button>
+            <button onclick="app.openComparisonModal()" class="btn-primary-premium btn-sm">Compare Now</button>
+        </div>
     </div>
 
-    <!-- Comparison Bar (Hidden by default) -->
-    <div class="comparison-bar" id="comparisonBar" style="display: none;">
-        <div class="comparison-info">
-            <span id="compareCount">0</span> prompts selected
-        </div>
-        <div class="comparison-actions">
-            <button class="btn-compare" id="compareBtn">
-                <i class="fas fa-columns"></i>
-                Compare Now
-            </button>
-            <button class="btn-clear-compare" id="clearCompare">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    </div>
-
-    <!-- Filter Modal for Mobile -->
-    <div class="modal filter-modal" id="filterModal">
-        <div class="modal-content">
-            <button class="modal-close" id="filterModalClose">&times;</button>
-            <h2 style="margin-bottom: 20px;"><i class="fas fa-filter"></i> Filter Prompts</h2>
+    <!-- Prompt Detail Modal -->
+    <div id="promptModal" class="modal-premium">
+        <div class="modal-content-premium">
+            <div class="modal-header">
+                <div>
+                    <h2 id="modalTitle">Prompt Title</h2>
+                    <div id="modalMeta" class="modal-meta"></div>
+                </div>
+                <button id="modalClose" class="btn-close"><i class="fas fa-times"></i></button>
+            </div>
             
-            <div class="filter-section">
-                <div class="filter-section-title"><i class="fas fa-folder-open"></i> Categories</div>
-                <div class="mobile-category-list" id="mobileCategoryList">
-                    <!-- Categories will be injected here -->
+            <div class="modal-body">
+                <!-- Variable Inputs injected here -->
+                
+                <div class="tabs-premium">
+                    <button class="tab-btn active" data-tab="preview">Preview</button>
+                    <button class="tab-btn" data-tab="raw">Raw</button>
+                </div>
+
+                <div class="tab-content active" id="tab-preview">
+                    <div id="markdownPreview" class="markdown-body"></div>
+                </div>
+                <div class="tab-content" id="tab-raw">
+                    <pre id="modalPromptContent" class="raw-content"></pre>
+                </div>
+
+                <!-- Edit Mode Section -->
+                <div id="editSection" style="display:none; margin-top: 20px;">
+                    <textarea id="editTextarea" class="edit-textarea"></textarea>
+                    <div class="edit-actions">
+                        <button onclick="app.saveEdit()" class="btn-primary-premium">Save Changes</button>
+                        <button onclick="app.cancelEdit()" class="btn-secondary-premium">Cancel</button>
+                        <button onclick="app.resetEdit()" class="btn-danger-premium">Reset to Original</button>
+                    </div>
                 </div>
             </div>
 
-            <div class="filter-section" style="margin-top: 24px;">
-                <div class="filter-section-title"><i class="fas fa-bolt"></i> Quick Access</div>
-                <div class="mobile-quick-access">
-                    <div class="sidebar-item" id="mobileSidebarFavorites">
-                        <span class="sidebar-icon"><i class="fas fa-star"></i></span> Favorites
-                    </div>
-                    <div class="sidebar-item" id="mobileSidebarRecent">
-                        <span class="sidebar-icon"><i class="fas fa-clock"></i></span> Recently Used
-                    </div>
+            <div class="modal-footer">
+                <div class="footer-left">
+                    <select id="formatSelect" class="format-select">
+                        <option value="plain">Plain Text</option>
+                        <option value="markdown">Markdown Block</option>
+                    </select>
                 </div>
-            </div>
-
-            <div class="modal-footer" style="margin-top: 30px;">
-                <button class="btn-premium btn-primary-premium" id="applyFiltersBtn" style="width: 100%;">Apply Filters</button>
+                <div class="footer-right">
+                    <button id="btnEditToggle" onclick="app.toggleEditMode()" class="btn-secondary-premium"><i class="fas fa-edit"></i> Edit</button>
+                    <button id="copyFullPrompt" class="btn-primary-premium"><i class="fas fa-copy"></i> Copy</button>
+                    <button onclick="app.exportTxt()" class="btn-icon-only" title="Download .txt"><i class="fas fa-file-download"></i></button>
+                    <button onclick="app.exportCsv()" class="btn-icon-only" title="Export CSV"><i class="fas fa-file-csv"></i></button>
+                    <button onclick="app.shareLink()" class="btn-icon-only" title="Share Link"><i class="fas fa-share-alt"></i></button>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Comparison Modal -->
-    <div class="modal comparison-modal" id="comparisonModal">
-        <div class="modal-content modal-xlarge">
-            <button class="modal-close" id="comparisonModalClose">&times;</button>
-            <h2 style="margin-bottom: 24px;"><i class="fas fa-columns"></i> Prompt Comparison</h2>
-            <div class="comparison-grid" id="comparisonGrid">
-                <!-- Comparison columns will be injected here -->
+    <div id="comparisonModal" class="modal-premium">
+        <div class="modal-content-premium modal-large">
+            <div class="modal-header">
+                <h2>Compare Prompts</h2>
+                <button onclick="app.closeComparisonModal()" class="btn-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="comparisonContent" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <!-- Comparison items injected here -->
             </div>
         </div>
     </div>
 
     <!-- Toast Notification -->
-    <div class="toast" id="toast"></div>
+    <div id="toast" class="toast">Action Successful</div>
 
-    <!-- Back to Top Button -->
-    <button class="back-to-top" id="backToTop" title="Back to Top">
-        <i class="fas fa-arrow-up"></i>
-    </button>
-
-    <!-- Modal for Viewing Full Prompt -->
-    <div class="modal" id="promptModal">
-        <div class="modal-content modal-large">
-            <button class="modal-close" id="modalClose">
-                <i class="fas fa-times"></i>
-            </button>
-            <div class="modal-header">
-                <h2 id="modalTitle">Prompt Title</h2>
-                <div class="modal-meta" id="modalMeta"></div>
-            </div>
-            <div class="modal-body">
-                <!-- Variable Inputs Section (dynamically injected) -->
-                <div class="variables-section-premium" id="variablesSection" style="display: none;"></div>
-                
-                <!-- Tabs for Raw/Preview -->
-                <div class="modal-tabs" id="modalTabs">
-                    <button class="modal-tab active" data-tab="raw"><i class="fas fa-file-code"></i> Raw</button>
-                    <button class="modal-tab" data-tab="preview"><i class="fas fa-eye"></i> Preview</button>
-                </div>
-                
-                <div class="prompt-full-content" id="modalPromptContent"></div>
-                <div class="prompt-preview-content" id="modalPromptPreview" style="display: none;"></div>
-                
-                <!-- Edit Mode -->
-                <textarea class="modal-prompt-edit" id="modalPromptEdit" style="display: none;"></textarea>
-            </div>
-            <div class="modal-footer-actions">
-                <div class="edit-buttons" id="editButtons">
-                    <button class="btn-premium btn-secondary-premium" id="modalEditBtn">
-                        <i class="fas fa-edit"></i> Edit
-                    </button>
-                    <button class="btn-premium btn-success-premium" id="modalEditSaveBtn" style="display: none;">
-                        <i class="fas fa-save"></i> Save Changes
-                    </button>
-                    <button class="btn-premium btn-danger-premium" id="modalEditCancelBtn" style="display: none;">
-                        <i class="fas fa-times"></i> Cancel
-                    </button>
-                    <button class="btn-premium btn-warning-premium" id="modalResetBtn" style="display: none;">
-                        <i class="fas fa-undo"></i> Reset to Original
-                    </button>
-                </div>
-                <div class="action-buttons">
-                    <button class="btn-premium btn-primary-premium" id="copyFullPrompt">
-                        <i class="fas fa-copy"></i> Copy to Clipboard
-                    </button>
-                    <button class="btn-premium btn-secondary-premium" id="modalDownload">
-                        <i class="fas fa-download"></i> Download .txt
-                    </button>
-                    <button class="btn-premium btn-secondary-premium" id="modalExportCSV" title="Export as CSV for Jira/TestRail">
-                        <i class="fas fa-file-csv"></i> Export CSV
-                    </button>
-                    <button class="btn-premium btn-secondary-premium" id="modalShare" title="Copy shareable link">
-                        <i class="fas fa-share-alt"></i> Share
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Back to Top -->
+    <button id="backToTop" class="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})"><i class="fas fa-arrow-up"></i></button>
 
     <script src="prompts.js"></script>
     <script src="app.js"></script>
