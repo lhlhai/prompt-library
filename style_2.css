@@ -1197,3 +1197,387 @@ body {
 .loading {
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+/* ==================== NEW STYLES FOR MISSING FEATURES ==================== */
+
+/* Modal Tabs */
+.modal-tabs {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+    border-bottom: 2px solid var(--border-light);
+    padding-bottom: var(--spacing-sm);
+}
+
+.modal-tab {
+    background: transparent;
+    border: none;
+    padding: 8px 16px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.modal-tab:hover {
+    background: var(--bg);
+    color: var(--text);
+}
+
+.modal-tab.active {
+    background: var(--primary-light);
+    color: var(--primary);
+    border-bottom: 2px solid var(--primary);
+}
+
+/* Modal Footer Actions */
+.modal-footer-actions {
+    padding: var(--spacing-lg) var(--spacing-2xl);
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.edit-buttons, .action-buttons {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.btn-success-premium {
+    background: var(--success);
+    color: white;
+}
+
+.btn-success-premium:hover {
+    background: #059669;
+}
+
+.btn-danger-premium {
+    background: var(--danger);
+    color: white;
+}
+
+.btn-danger-premium:hover {
+    background: #dc2626;
+}
+
+.btn-warning-premium {
+    background: var(--warning);
+    color: white;
+}
+
+.btn-warning-premium:hover {
+    background: #d97706;
+}
+
+/* Variable Inputs */
+.variables-section-premium {
+    background: var(--primary-light);
+    border: 1px solid var(--primary);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.variable-input-premium {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    outline: none;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875rem;
+    transition: all var(--transition-fast);
+}
+
+.variable-input-premium:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+/* Prompt Preview Content (Markdown) */
+.prompt-preview-content {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xl);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.prompt-preview-content h1, .prompt-preview-content h2, .prompt-preview-content h3 {
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.prompt-preview-content p {
+    margin-bottom: 1em;
+}
+
+.prompt-preview-content code {
+    background: var(--bg-dark);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+}
+
+.prompt-preview-content pre {
+    background: var(--bg-dark);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+.prompt-preview-content pre code {
+    background: transparent;
+    padding: 0;
+}
+
+.prompt-preview-content ul, .prompt-preview-content ol {
+    margin-left: 1.5em;
+    margin-bottom: 1em;
+}
+
+.prompt-preview-content blockquote {
+    border-left: 4px solid var(--primary);
+    padding-left: var(--spacing-md);
+    color: var(--text-muted);
+    margin: 1em 0;
+}
+
+/* Modal Edit Textarea */
+.modal-prompt-edit {
+    width: 100%;
+    min-height: 300px;
+    padding: var(--spacing-lg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    resize: vertical;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    transition: all var(--transition-fast);
+}
+
+.modal-prompt-edit:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+/* Back to Top Button */
+.back-to-top {
+    position: fixed;
+    bottom: var(--spacing-xl);
+    right: var(--spacing-xl);
+    width: 48px;
+    height: 48px;
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: all var(--transition-base);
+    z-index: 900;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.back-to-top:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+}
+
+/* Filter Modal */
+.filter-modal .modal-content {
+    max-width: 500px;
+}
+
+.filter-section {
+    margin-bottom: var(--spacing-lg);
+}
+
+.filter-section-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.mobile-category-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.mobile-quick-access {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: 12px 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--text);
+}
+
+.sidebar-item:hover {
+    background: var(--primary-light);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.sidebar-icon {
+    font-size: 1.125rem;
+    width: 20px;
+    text-align: center;
+}
+
+/* Comparison Modal */
+.comparison-modal .modal-content {
+    max-width: 1200px;
+}
+
+.comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-xl);
+    margin-top: var(--spacing-lg);
+}
+
+.comparison-column {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.comparison-column-header {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 2px solid var(--border);
+}
+
+.comparison-column-content {
+    flex: 1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Extra Large Modal */
+.modal-xlarge {
+    max-width: 1200px;
+}
+
+/* Mobile Filter Button */
+.mobile-filter-btn {
+    display: none;
+}
+
+@media (max-width: 1024px) {
+    .mobile-filter-btn {
+        display: inline-flex;
+    }
+    
+    .sidebar-premium {
+        display: none !important;
+    }
+}
+
+/* Category Chips Scrollable */
+.category-chips-container {
+    display: flex;
+    gap: var(--spacing-sm);
+    overflow-x: auto;
+    padding: var(--spacing-sm) 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+.category-chips-container::-webkit-scrollbar {
+    height: 4px;
+}
+
+/* Search Highlight */
+.search-highlight {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: var(--text);
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-weight: 600;
+}
+
+.dark-mode .search-highlight {
+    background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+}
+
+/* View Mode Toggle Styles */
+.prompts-grid.list-view {
+    grid-template-columns: 1fr;
+}
+
+.prompts-grid.list-view .prompt-card-premium {
+    flex-direction: row;
+    align-items: center;
+}
+
+.prompts-grid.list-view .card-body-premium {
+    display: none;
+}
+
+/* Disabled Card */
+.prompt-card-premium.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
