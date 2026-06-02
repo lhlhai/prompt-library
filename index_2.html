@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="style_2.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
     <!-- Navbar Premium -->
@@ -218,8 +219,55 @@
         </div>
     </div>
 
+    <!-- Filter Modal for Mobile -->
+    <div class="modal filter-modal" id="filterModal">
+        <div class="modal-content">
+            <button class="modal-close" id="filterModalClose">&times;</button>
+            <h2 style="margin-bottom: 20px;"><i class="fas fa-filter"></i> Filter Prompts</h2>
+            
+            <div class="filter-section">
+                <div class="filter-section-title"><i class="fas fa-folder-open"></i> Categories</div>
+                <div class="mobile-category-list" id="mobileCategoryList">
+                    <!-- Categories will be injected here -->
+                </div>
+            </div>
+
+            <div class="filter-section" style="margin-top: 24px;">
+                <div class="filter-section-title"><i class="fas fa-bolt"></i> Quick Access</div>
+                <div class="mobile-quick-access">
+                    <div class="sidebar-item" id="mobileSidebarFavorites">
+                        <span class="sidebar-icon"><i class="fas fa-star"></i></span> Favorites
+                    </div>
+                    <div class="sidebar-item" id="mobileSidebarRecent">
+                        <span class="sidebar-icon"><i class="fas fa-clock"></i></span> Recently Used
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer" style="margin-top: 30px;">
+                <button class="btn-premium btn-primary-premium" id="applyFiltersBtn" style="width: 100%;">Apply Filters</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparison Modal -->
+    <div class="modal comparison-modal" id="comparisonModal">
+        <div class="modal-content modal-xlarge">
+            <button class="modal-close" id="comparisonModalClose">&times;</button>
+            <h2 style="margin-bottom: 24px;"><i class="fas fa-columns"></i> Prompt Comparison</h2>
+            <div class="comparison-grid" id="comparisonGrid">
+                <!-- Comparison columns will be injected here -->
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div class="toast" id="toast"></div>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" title="Back to Top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 
     <!-- Modal for Viewing Full Prompt -->
     <div class="modal" id="promptModal">
@@ -232,17 +280,55 @@
                 <div class="modal-meta" id="modalMeta"></div>
             </div>
             <div class="modal-body">
+                <!-- Variable Inputs Section (dynamically injected) -->
+                <div class="variables-section-premium" id="variablesSection" style="display: none;"></div>
+                
+                <!-- Tabs for Raw/Preview -->
+                <div class="modal-tabs" id="modalTabs">
+                    <button class="modal-tab active" data-tab="raw"><i class="fas fa-file-code"></i> Raw</button>
+                    <button class="modal-tab" data-tab="preview"><i class="fas fa-eye"></i> Preview</button>
+                </div>
+                
                 <div class="prompt-full-content" id="modalPromptContent"></div>
+                <div class="prompt-preview-content" id="modalPromptPreview" style="display: none;"></div>
+                
+                <!-- Edit Mode -->
+                <textarea class="modal-prompt-edit" id="modalPromptEdit" style="display: none;"></textarea>
             </div>
-            <div class="modal-footer">
-                <button class="btn-copy-full" id="copyFullPrompt">
-                    <i class="fas fa-copy"></i>
-                    Copy to Clipboard
-                </button>
+            <div class="modal-footer-actions">
+                <div class="edit-buttons" id="editButtons">
+                    <button class="btn-premium btn-secondary-premium" id="modalEditBtn">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn-premium btn-success-premium" id="modalEditSaveBtn" style="display: none;">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <button class="btn-premium btn-danger-premium" id="modalEditCancelBtn" style="display: none;">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button class="btn-premium btn-warning-premium" id="modalResetBtn" style="display: none;">
+                        <i class="fas fa-undo"></i> Reset to Original
+                    </button>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn-premium btn-primary-premium" id="copyFullPrompt">
+                        <i class="fas fa-copy"></i> Copy to Clipboard
+                    </button>
+                    <button class="btn-premium btn-secondary-premium" id="modalDownload">
+                        <i class="fas fa-download"></i> Download .txt
+                    </button>
+                    <button class="btn-premium btn-secondary-premium" id="modalExportCSV" title="Export as CSV for Jira/TestRail">
+                        <i class="fas fa-file-csv"></i> Export CSV
+                    </button>
+                    <button class="btn-premium btn-secondary-premium" id="modalShare" title="Copy shareable link">
+                        <i class="fas fa-share-alt"></i> Share
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
+    <script src="prompts.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
