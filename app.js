@@ -1,31 +1,44 @@
 // app.js - Premium Prompt Library Logic
-// Đồng bộ với index_2.html và style_2.css
+// Tương thích hoàn toàn với cấu trúc HTML/CSS Premium đã cung cấp
 
-// ==================== 1. CONFIG & FALLBACKS ====================
+// ==================== 1. CONFIG & SAFE FALLBACKS ====================
 const CONFIG = {
+  ENABLE_MARKDOWN_PREVIEW: true,
+  ENABLE_QUICK_COPY_TOOLBAR: true,
   ENABLE_COMPARISON_MODE: true,
+  ENABLE_COLLECTIONS: true,
+  ENABLE_TAGGING: true,
 };
 
-// Fallback nếu searchEngine chưa có (từ file cũ)
+// Fallback an toàn nếu searchEngine chưa được định nghĩa
 const searchEngine = window.searchEngine || {
   search: (query, list) => {
     const q = query.toLowerCase();
-    return list.filter(p =>
+    return list.filter(p => 
       (p.name && p.name.toLowerCase().includes(q)) ||
       (p.description && p.description.toLowerCase().includes(q)) ||
       (p.prompt && p.prompt.toLowerCase().includes(q)) ||
       (p.label && p.label.toLowerCase().includes(q))
-    ).map(p => ({ ...p, searchScore: 100 }));
-  }
+    ).map(p => ({ ...p, searchScore: 100 })); // Mock score
+  },
+  fuzzyMatch: (query, text) => text.includes(query)
 };
 
-// Fallback PROMPTS
+// Kiểm tra sự tồn tại của PROMPTS
 if (typeof PROMPTS === 'undefined') {
-  console.warn('PROMPTS not found. Init empty.');
+  console.warn('PROMPTS is not defined. Initializing empty array.');
   window.PROMPTS = [];
 }
 
 // ==================== 2. STATE MANAGEMENT ====================
+const QUICK_SNIPPETS = [
+  { label: "Critical Flow", content: "Identify critical path and potential failure points." },
+  { label: "Negative Test", content: "Analyze negative test scenarios and edge cases." },
+  { label: "Security Review", content: "Evaluate security risks and permission vulnerabilities." },
+  { label: "API Specs", content: "Review API request/response and error handling." },
+  { label: "UI Checklist", content: "Check UI consistency, accessibility, and responsiveness." }
+];
+
 let filteredPrompts = [...PROMPTS];
 let selectedCategories = [];
 let currentModalPrompt = null;
@@ -33,14 +46,15 @@ let searchTimeout;
 let variableValues = {};
 let showFavoritesOnly = false;
 let comparisonList = [];
-let viewMode = localStorage.getItem('prompt-library-view-mode') || 'grid'; // 'grid' or 'list'
+let currentCollectionId = 'all';
+let viewMode = localStorage.getItem('prompt-library-view-mode') || 'grid';
 let recentPrompts = JSON.parse(localStorage.getItem('prompt-library-recent')) || [];
 let favorites = JSON.parse(localStorage.getItem('prompt-library-favorites')) || [];
 let editedPrompts = JSON.parse(localStorage.getItem('prompt-library-edited')) || {};
 let isEditMode = false;
 let selectedFormat = 'plain';
 
-// ==================== 3. DOM ELEMENTS ====================
+// ==================== 3. DOM ELEMENTS (Mapped to Premium HTML) ====================
 const dom = {
   grid: document.getElementById('promptsGrid'),
   emptyState: document.getElementById('emptyState'),
@@ -58,15 +72,16 @@ const dom = {
   comparisonBar: document.getElementById('comparisonBar'),
   compareCount: document.getElementById('compareCount'),
   activeFiltersList: document.getElementById('activeFiltersList'),
-  viewGridBtn: document.getElementById('viewGrid'),
-  viewListBtn: document.getElementById('viewList'),
-  backToTop: document.getElementById('backToTop'),
 };
 
 // ==================== 4. HELPER FUNCTIONS ====================
 const formatDate = (iso) => {
   if (!iso) return 'N/A';
-  try { return new Date(iso).toLocaleDateString('vi-VN'); } catch (e) { return iso; }
+  try {
+    return new Date(iso).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  } catch (e) {
+    return iso;
+  }
 };
 
 const escapeHtml = (str) => {
@@ -107,20 +122,25 @@ const copyToClipboard = async (text, btn, promptNumber) => {
     }
   } catch (err) {
     showToast('✗ Copy failed', 'error');
+    console.error(err);
   }
 };
 
-const addToRecent = (num) => {
-  recentPrompts = [num, ...recentPrompts.filter(n => n !== num)].slice(0, 10);
+const addToRecent = (promptNumber) => {
+  recentPrompts = [promptNumber, ...recentPrompts.filter(n => n !== promptNumber)].slice(0, 10);
   localStorage.setItem('prompt-library-recent', JSON.stringify(recentPrompts));
+  renderSidebar();
 };
 
 // ==================== 5. FAVORITES & EDITING ====================
 const isFavorite = (num) => favorites.includes(num);
 
 const toggleFavorite = (num) => {
-  if (isFavorite(num)) favorites = favorites.filter(n => n !== num);
-  else favorites.push(num);
+  if (isFavorite(num)) {
+    favorites = favorites.filter(n => n !== num);
+  } else {
+    favorites.push(num);
+  }
   localStorage.setItem('prompt-library-favorites', JSON.stringify(favorites));
   updateStats();
   renderGrid(dom.searchInput?.value || '');
@@ -132,29 +152,16 @@ const hasEditedPrompt = (num) => num in editedPrompts;
 const saveEditedPrompt = (num, newContent) => {
   editedPrompts[num] = newContent;
   localStorage.setItem('prompt-library-edited', JSON.stringify(editedPrompts));
-  showToast('Changes saved locally');
-  if (currentModalPrompt) {
-    const contentEl = document.getElementById('modalPromptContent');
-    if (contentEl) contentEl.textContent = newContent;
-    updateModalPromptPreview();
-  }
 };
 
-const resetEdit = () => {
-  if (!currentModalPrompt) return;
-  delete editedPrompts[currentModalPrompt.number];
+const deleteEditedPrompt = (num) => {
+  delete editedPrompts[num];
   localStorage.setItem('prompt-library-edited', JSON.stringify(editedPrompts));
-  showToast('Reset to original');
-  if (currentModalPrompt) {
-    const contentEl = document.getElementById('modalPromptContent');
-    if (contentEl) contentEl.textContent = currentModalPrompt.prompt;
-    updateModalPromptPreview();
-  }
 };
 
-// ==================== 6. VARIABLE HANDLING ====================
+// ==================== 6. VARIABLE & FORMAT HANDLING ====================
 const extractVariables = (text) => {
-  const regex = /\{\{([A-Z_]+)\}\}/g;
+  const regex = /\{\{([A-Z_]+)\}\}/g; // Hỗ trợ cả {{VAR}} và {VAR}
   const altRegex = /\{([A-Z_]+)\}/g;
   const variables = new Set();
   let match;
@@ -174,18 +181,24 @@ const replaceVariables = (text, values) => {
   return result;
 };
 
-// ==================== 7. FILTER LOGIC ====================
-const getCategories = () => [...new Set(PROMPTS.map(p => p.label).filter(Boolean))].sort();
-const countByCategory = (cat) => PROMPTS.filter(p => !p.disabled && p.label === cat).length;
+const convertToMarkdown = (text) => text ? `\`\`\`\n${text}\n\`\`\`` : text;
+const getFormattedPrompt = (text, format) => format === 'markdown' ? convertToMarkdown(text) : text;
+
+// ==================== 7. DATA LOGIC & FILTERING ====================
+const getCategories = () => {
+  const cats = [...new Set(PROMPTS.map(p => p.label).filter(Boolean))];
+  return cats.sort();
+};
+
+const countByCategory = (category) => PROMPTS.filter(p => !p.disabled && p.label === category).length;
 
 const filterPrompts = (query) => {
   const q = (query || '').toLowerCase().trim();
-  
+
   let candidates = PROMPTS.filter(p => {
     if (p.disabled) return false;
     if (showFavoritesOnly && !isFavorite(p.number)) return false;
-    if (selectedCategories.length > 0 && !selectedCategories.includes(p.label)) return false;
-    return true;
+    return selectedCategories.length === 0 || selectedCategories.includes(p.label);
   });
 
   if (q) {
@@ -210,7 +223,7 @@ const updateStats = () => {
 const renderSidebar = () => {
   if (!dom.categoryList) return;
   const categories = getCategories();
-
+  
   dom.categoryList.innerHTML = `
     <div class="category-item ${selectedCategories.length === 0 ? 'active' : ''}" data-category="all">
       <span><i class="fas fa-th-large"></i> All Categories</span>
@@ -226,10 +239,14 @@ const renderSidebar = () => {
   dom.categoryList.querySelectorAll('.category-item').forEach(item => {
     item.addEventListener('click', () => {
       const cat = item.dataset.category;
-      if (cat === 'all') selectedCategories = [];
-      else {
-        if (selectedCategories.includes(cat)) selectedCategories = selectedCategories.filter(c => c !== cat);
-        else selectedCategories.push(cat);
+      if (cat === 'all') {
+        selectedCategories = [];
+      } else {
+        if (selectedCategories.includes(cat)) {
+          selectedCategories = selectedCategories.filter(c => c !== cat);
+        } else {
+          selectedCategories.push(cat);
+        }
       }
       renderSidebar();
       filterPrompts(dom.searchInput?.value || '');
@@ -242,7 +259,7 @@ const renderActiveFilters = () => {
   const filters = [];
   if (showFavoritesOnly) filters.push({ type: 'favorite', label: 'Favorites' });
   selectedCategories.forEach(cat => filters.push({ type: 'category', label: cat }));
-
+  
   if (filters.length === 0) {
     dom.activeFiltersList.innerHTML = '<span style="color: var(--text-muted); font-size: 0.875rem;">None</span>';
     return;
@@ -250,7 +267,8 @@ const renderActiveFilters = () => {
 
   dom.activeFiltersList.innerHTML = filters.map(f => `
     <span class="filter-tag">
-      <i class="fas fa-${f.type === 'favorite' ? 'star' : 'folder'}"></i> ${f.label}
+      <i class="fas fa-${f.type === 'favorite' ? 'star' : 'folder'}"></i>
+      ${f.label}
       <button onclick="app.removeFilter('${f.type}', '${f.label}')"><i class="fas fa-times"></i></button>
     </span>
   `).join('');
@@ -272,17 +290,30 @@ const renderCard = (p, query = '') => {
           </div>
         </div>
         <div class="card-actions">
-          <button class="card-action-btn favorite ${isFavorite(p.number) ? 'active' : ''}" onclick="app.toggleFavorite(${p.number})" title="Favorite"><i class="fas fa-star"></i></button>
-          ${CONFIG.ENABLE_COMPARISON_MODE ? `<button class="card-action-btn compare ${isCompared ? 'active' : ''}" onclick="app.toggleComparison(${p.number})" title="Compare"><i class="fas fa-columns"></i></button>` : ''}
+          <button class="card-action-btn favorite ${isFavorite(p.number) ? 'active' : ''}" 
+                  onclick="app.toggleFavorite(${p.number})" title="Favorite">
+            <i class="fas fa-star"></i>
+          </button>
+          ${CONFIG.ENABLE_COMPARISON_MODE ? `
+          <button class="card-action-btn compare ${isCompared ? 'active' : ''}" 
+                  onclick="app.toggleComparison(${p.number})" title="Compare">
+            <i class="fas fa-columns"></i>
+          </button>` : ''}
         </div>
       </div>
+      
       <div class="card-body-premium">
         <p class="card-description">${highlightText(p.description, query)}</p>
         <div class="card-preview">${highlightText(previewText, query)}</div>
       </div>
+      
       <div class="card-footer-premium">
-        <button class="btn-premium btn-primary-premium" onclick="app.copyPrompt(${p.number}, this)"><i class="fas fa-copy"></i> Copy</button>
-        <button class="btn-premium btn-secondary-premium" onclick="app.openModal(${p.number})"><i class="fas fa-eye"></i> View</button>
+        <button class="btn-premium btn-primary-premium" onclick="app.copyPrompt(${p.number}, this)">
+          <i class="fas fa-copy"></i> Copy
+        </button>
+        <button class="btn-premium btn-secondary-premium" onclick="app.openModal(${p.number})">
+          <i class="fas fa-eye"></i> View Full
+        </button>
       </div>
     </article>
   `;
@@ -290,55 +321,50 @@ const renderCard = (p, query = '') => {
 
 const renderGrid = (query = '') => {
   if (!dom.grid) return;
-
-  // Apply View Mode Class
-  if (viewMode === 'list') {
-    dom.grid.classList.add('list-view');
-  } else {
-    dom.grid.classList.remove('list-view');
-  }
-
+  
   if (filteredPrompts.length === 0) {
     dom.grid.style.display = 'none';
     if (dom.emptyState) dom.emptyState.style.display = 'block';
     return;
   }
-
+  
   dom.grid.style.display = 'grid';
   if (dom.emptyState) dom.emptyState.style.display = 'none';
 
-  dom.grid.innerHTML = filteredPrompts.map((p, i) => 
-    renderCard(p, query).replace('<article', `<article style="animation-delay: ${i * 0.05}s"`)
+  dom.grid.innerHTML = filteredPrompts.map((p, index) => 
+    renderCard(p, query).replace('<article class="prompt-card-premium">', `<article class="prompt-card-premium" style="animation-delay: ${index * 0.05}s">`)
   ).join('');
 };
 
 // ==================== 9. MODAL LOGIC ====================
 const renderVariableInputs = (variables) => {
+  // Dynamically inject variable inputs into modal if they exist
   const modalBody = dom.modal?.querySelector('.modal-body');
   if (!modalBody) return;
 
   let varSection = modalBody.querySelector('.variables-section-premium');
-  
   if (variables.length > 0) {
     if (!varSection) {
       varSection = document.createElement('div');
       varSection.className = 'variables-section-premium';
+      varSection.style.marginBottom = '20px';
       modalBody.insertBefore(varSection, modalBody.firstChild);
     }
-    
     varSection.innerHTML = `
-      <h4 style="font-size: 0.875rem; font-weight: 700; margin-bottom: 12px; color: var(--primary);"><i class="fas fa-sliders-h"></i> Variables</h4>
+      <h4 style="font-size: 0.875rem; font-weight: 700; margin-bottom: 12px; color: var(--primary);">
+        <i class="fas fa-sliders-h"></i> Variables to Fill
+      </h4>
       <div style="display: flex; flex-direction: column; gap: 12px;">
         ${variables.map(v => `
-          <div>
-            <label style="font-family: 'JetBrains Mono'; font-size: 0.85rem; font-weight: 600; color: var(--primary);">{${v}}</label>
-            <input type="text" class="variable-input-premium" data-var="${v}" placeholder="Enter value for ${v}..." value="${variableValues[v] || ''}">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <label style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 600; color: var(--primary); min-width: 100px;">{${v}}</label>
+            <input type="text" class="variable-input-premium" data-var="${v}" placeholder="Enter value..." 
+                   style="flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; outline: none; background: var(--bg); color: var(--text);">
           </div>
         `).join('')}
       </div>
     `;
-
-    // Re-attach events for new inputs
+    
     varSection.querySelectorAll('.variable-input-premium').forEach(input => {
       input.addEventListener('input', (e) => {
         variableValues[e.target.dataset.var] = e.target.value;
@@ -354,16 +380,9 @@ const updateModalPromptPreview = () => {
   if (!currentModalPrompt) return;
   const baseText = hasEditedPrompt(currentModalPrompt.number) ? getEditedPrompt(currentModalPrompt.number) : currentModalPrompt.prompt;
   const replacedText = replaceVariables(baseText, variableValues);
-
-  const rawEl = document.getElementById('modalPromptContent');
-  if (rawEl) rawEl.textContent = replacedText;
-
-  const previewEl = document.getElementById('markdownPreview');
-  if (previewEl && window.marked) {
-    previewEl.innerHTML = marked.parse(replacedText);
-  } else if (previewEl) {
-    previewEl.textContent = replacedText;
-  }
+  
+  const contentEl = document.getElementById('modalPromptContent');
+  if (contentEl) contentEl.textContent = replacedText;
 };
 
 const openModal = (num) => {
@@ -373,8 +392,6 @@ const openModal = (num) => {
   currentModalPrompt = p;
   variableValues = {};
   isEditMode = false;
-  document.getElementById('editSection').style.display = 'none';
-  document.getElementById('btnEditToggle').innerHTML = '<i class="fas fa-edit"></i> Edit';
 
   document.getElementById('modalTitle').textContent = p.name;
   document.getElementById('modalMeta').innerHTML = `
@@ -384,36 +401,18 @@ const openModal = (num) => {
   `;
 
   const displayPrompt = hasEditedPrompt(p.number) ? getEditedPrompt(p.number) : p.prompt;
-  
-  // Setup Tabs
-  const tabBtns = document.querySelectorAll('.tab-btn');
-  const tabContents = document.querySelectorAll('.tab-content');
-  
-  const switchTab = (tabName) => {
-    tabBtns.forEach(b => b.classList.toggle('active', b.dataset.tab === tabName));
-    tabContents.forEach(c => c.classList.toggle('active', c.id === `tab-${tabName}`));
-    if (tabName === 'preview') updateModalPromptPreview();
-  };
+  const contentEl = document.getElementById('modalPromptContent');
+  if (contentEl) contentEl.textContent = displayPrompt;
 
-  tabBtns.forEach(btn => {
-    btn.onclick = () => switchTab(btn.dataset.tab);
-  });
-
-  // Initial Render
-  const rawEl = document.getElementById('modalPromptContent');
-  if (rawEl) rawEl.textContent = displayPrompt;
-  
   renderVariableInputs(extractVariables(displayPrompt));
-  updateModalPromptPreview(); // Init preview
-
-  // Copy Button
+  
+  // Setup copy button in modal
   const copyBtn = document.getElementById('copyFullPrompt');
   if (copyBtn) {
     copyBtn.onclick = () => {
       const baseText = hasEditedPrompt(p.number) ? getEditedPrompt(p.number) : p.prompt;
-      const finalText = replaceVariables(baseText, variableValues);
-      const formatted = selectedFormat === 'markdown' ? `\`\`\`\n${finalText}\n\`\`\`` : finalText;
-      copyToClipboard(formatted, copyBtn, num);
+      const finalPrompt = getFormattedPrompt(replaceVariables(baseText, variableValues), selectedFormat);
+      copyToClipboard(finalPrompt, copyBtn);
     };
   }
 
@@ -426,6 +425,7 @@ const closeModal = () => {
   dom.modal.classList.remove('active');
   document.body.style.overflow = '';
   currentModalPrompt = null;
+  variableValues = {};
 };
 
 // ==================== 10. COMPARISON LOGIC ====================
@@ -434,7 +434,7 @@ const toggleComparison = (num) => {
     comparisonList = comparisonList.filter(n => n !== num);
   } else {
     if (comparisonList.length >= 3) {
-      showToast('⚠️ Max 3 prompts', 'error');
+      showToast('⚠️ Max 3 prompts for comparison', 'error');
       return;
     }
     comparisonList.push(num);
@@ -455,109 +455,7 @@ const updateComparisonBar = () => {
   }
 };
 
-const openComparisonModal = () => {
-  const modal = document.getElementById('comparisonModal');
-  const content = document.getElementById('comparisonContent');
-  if (!modal || !content) return;
-
-  const items = comparisonList.map(num => {
-    const p = PROMPTS.find(x => x.number === num);
-    if (!p) return '';
-    const text = hasEditedPrompt(num) ? getEditedPrompt(num) : p.prompt;
-    return `
-      <div style="background: var(--bg); padding: 16px; border-radius: 8px; border: 1px solid var(--border);">
-        <h4 style="color: var(--primary); margin-bottom: 8px;">${escapeHtml(p.name)}</h4>
-        <pre style="white-space: pre-wrap; font-size: 0.85rem; color: var(--text);">${escapeHtml(text)}</pre>
-      </div>
-    `;
-  }).join('');
-
-  content.innerHTML = items;
-  modal.classList.add('active');
-};
-
-const closeComparisonModal = () => {
-  document.getElementById('comparisonModal').classList.remove('active');
-};
-
-const clearComparison = () => {
-  comparisonList = [];
-  updateComparisonBar();
-  renderGrid();
-};
-
-// ==================== 11. EXPORT & SHARE ====================
-const exportTxt = () => {
-  if (!currentModalPrompt) return;
-  const text = replaceVariables(hasEditedPrompt(currentModalPrompt.number) ? getEditedPrompt(currentModalPrompt.number) : currentModalPrompt.prompt, variableValues);
-  const blob = new Blob([text], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `prompt-${currentModalPrompt.number}.txt`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('Downloaded .txt');
-};
-
-const exportCsv = () => {
-  if (!currentModalPrompt) return;
-  const p = currentModalPrompt;
-  const text = replaceVariables(hasEditedPrompt(p.number) ? getEditedPrompt(p.number) : p.prompt, variableValues);
-  const csvContent = `ID,Name,Label,Prompt\n"${p.number}","${p.name.replace(/"/g, '""')}","${p.label}","${text.replace(/"/g, '""')}"`;
-  const blob = new Blob([csvContent], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `prompt-${p.number}.csv`;
-  a.click();
-  showToast('Exported CSV');
-};
-
-const shareLink = () => {
-  if (!currentModalPrompt) return;
-  const url = `${window.location.origin}${window.location.pathname}?id=${currentModalPrompt.number}`;
-  navigator.clipboard.writeText(url);
-  showToast('Link copied to clipboard!');
-};
-
-// ==================== 12. EDIT MODE ====================
-const toggleEditMode = () => {
-  if (!currentModalPrompt) return;
-  isEditMode = !isEditMode;
-  const section = document.getElementById('editSection');
-  const btn = document.getElementById('btnEditToggle');
-  
-  if (isEditMode) {
-    section.style.display = 'block';
-    btn.innerHTML = '<i class="fas fa-times"></i> Cancel';
-    const textarea = document.getElementById('editTextarea');
-    const baseText = hasEditedPrompt(currentModalPrompt.number) ? getEditedPrompt(currentModalPrompt.number) : currentModalPrompt.prompt;
-    textarea.value = baseText;
-  } else {
-    section.style.display = 'none';
-    btn.innerHTML = '<i class="fas fa-edit"></i> Edit';
-  }
-};
-
-const saveEdit = () => {
-  if (!currentModalPrompt) return;
-  const val = document.getElementById('editTextarea').value;
-  saveEditedPrompt(currentModalPrompt.number, val);
-  toggleEditMode();
-};
-
-const cancelEdit = () => {
-  toggleEditMode();
-};
-
-const resetEdit = () => {
-  if(confirm('Reset to original version?')) {
-    resetEdit(); // Call helper
-  }
-};
-
-// ==================== 13. MAIN APP OBJECT ====================
+// ==================== 11. EVENT BINDINGS & INIT ====================
 const app = {
   toggleFavorite,
   toggleComparison,
@@ -571,8 +469,8 @@ const app = {
   copyPrompt: (num, btn) => {
     const p = PROMPTS.find(x => x.number === num);
     if (p) {
-      const text = hasEditedPrompt(num) ? getEditedPrompt(num) : p.prompt;
-      copyToClipboard(text, btn, num);
+      const baseText = hasEditedPrompt(num) ? getEditedPrompt(num) : p.prompt;
+      copyToClipboard(baseText, btn, num);
     }
   },
   clearAllFilters: () => {
@@ -580,7 +478,7 @@ const app = {
     showFavoritesOnly = false;
     if (dom.searchInput) dom.searchInput.value = '';
     filterPrompts('');
-    showToast('Filters cleared');
+    showToast('All filters cleared');
   },
   toggleTheme: () => {
     document.body.classList.toggle('dark-mode');
@@ -588,24 +486,14 @@ const app = {
     localStorage.setItem('darkMode', isDark);
     const icon = dom.themeToggle?.querySelector('i');
     if (icon) icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-  },
-  clearComparison,
-  openComparisonModal,
-  closeComparisonModal,
-  exportTxt,
-  exportCsv,
-  shareLink,
-  toggleEditMode,
-  saveEdit,
-  cancelEdit,
-  resetEdit
+  }
 };
 
+// Expose app to window for inline onclick handlers
 window.app = app;
 
-// ==================== 14. INITIALIZATION ====================
 document.addEventListener('DOMContentLoaded', () => {
-  // Search
+  // Search with debounce
   if (dom.searchInput) {
     dom.searchInput.addEventListener('input', (e) => {
       clearTimeout(searchTimeout);
@@ -613,7 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Filter Chips
+  // Filter chips
   document.querySelectorAll('.filter-chip').forEach(chip => {
     chip.addEventListener('click', (e) => {
       document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
@@ -628,53 +516,43 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedCategories = [];
         filteredPrompts = PROMPTS.filter(p => recentPrompts.includes(p.number))
           .sort((a, b) => recentPrompts.indexOf(a.number) - recentPrompts.indexOf(b.number));
-        updateStats();
         renderGrid();
+        updateStats();
         return;
       } else {
         showFavoritesOnly = false;
         selectedCategories = [];
       }
-      filterPrompts('');
+      filterPrompts(dom.searchInput?.value || '');
     });
   });
 
-  // View Toggle
-  if (dom.viewGridBtn && dom.viewListBtn) {
-    const setView = (mode) => {
-      viewMode = mode;
-      localStorage.setItem('prompt-library-view-mode', mode);
-      dom.viewGridBtn.classList.toggle('active', mode === 'grid');
-      dom.viewListBtn.classList.toggle('active', mode === 'list');
-      renderGrid(dom.searchInput?.value || '');
-    };
-    dom.viewGridBtn.addEventListener('click', () => setView('grid'));
-    dom.viewListBtn.addEventListener('click', () => setView('list'));
-    // Init
-    setView(viewMode);
+  // Clear all
+  if (dom.clearAllFilters) dom.clearAllFilters.addEventListener('click', app.clearAllFilters);
+  
+  // Theme toggle
+  if (dom.themeToggle) dom.themeToggle.addEventListener('click', app.toggleTheme);
+
+  // Modal close events
+  if (dom.modalClose) dom.modalClose.addEventListener('click', closeModal);
+  if (dom.modal) {
+    dom.modal.addEventListener('click', (e) => {
+      if (e.target === dom.modal) closeModal();
+    });
   }
 
-  // Events
-  if (dom.clearAllFilters) dom.clearAllFilters.addEventListener('click', app.clearAllFilters);
-  if (dom.themeToggle) dom.themeToggle.addEventListener('click', app.toggleTheme);
-  if (dom.modalClose) dom.modalClose.addEventListener('click', closeModal);
-  if (dom.modal) dom.modal.addEventListener('click', (e) => { if (e.target === dom.modal) closeModal(); });
-
-  // Keyboard
+  // Keyboard shortcuts
   document.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); dom.searchInput?.focus(); }
-    if (e.key === 'Escape') { closeModal(); closeComparisonModal(); }
-  });
-
-  // Scroll Back to Top
-  window.addEventListener('scroll', () => {
-    if (dom.backToTop) {
-      if (window.scrollY > 300) dom.backToTop.classList.add('visible');
-      else dom.backToTop.classList.remove('visible');
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      dom.searchInput?.focus();
+    }
+    if (e.key === 'Escape') {
+      closeModal();
     }
   });
 
-  // Theme Init
+  // Check system theme
   const savedTheme = localStorage.getItem('darkMode');
   if (savedTheme === 'true' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
     document.body.classList.add('dark-mode');
@@ -682,17 +560,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (icon) icon.className = 'fas fa-sun';
   }
 
-  // URL Param Check (Share Link)
-  const params = new URLSearchParams(window.location.search);
-  const idParam = params.get('id');
-  if (idParam) {
-    const num = parseInt(idParam);
-    if (PROMPTS.find(p => p.number === num)) {
-      setTimeout(() => app.openModal(num), 500);
-    }
-  }
-
-  // Initial Render
+  // Initial render
   renderSidebar();
   updateStats();
   filterPrompts('');
