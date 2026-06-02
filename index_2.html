@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Library - Premium QA Workflow</title>
+    <link rel="stylesheet" href="style_2.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navbar Premium -->
+    <nav class="navbar-premium">
+        <div class="navbar-container">
+            <div class="navbar-brand">
+                <div class="brand-logo">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>Prompt Library</h1>
+                    <span class="brand-tag">PRO</span>
+                </div>
+            </div>
+            <div class="navbar-actions">
+                <button class="nav-btn" id="themeToggle" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="nav-btn" id="viewToggle" title="Change View">
+                    <i class="fas fa-th-large"></i>
+                </button>
+                <button class="nav-btn-primary" id="addPromptBtn">
+                    <i class="fas fa-plus"></i>
+                    <span>New Prompt</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <h2 class="hero-title">Tìm kiếm & copy prompts cho QA Workflow</h2>
+            <p class="hero-subtitle">Thư viện prompt chuyên nghiệp cho đội ngũ QA/QC</p>
+        </div>
+        
+        <!-- Advanced Search -->
+        <div class="search-container-premium">
+            <div class="search-box-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="search-input-premium" 
+                    placeholder="Search by name, label, description, or prompt content..."
+                    autocomplete="off"
+                >
+                <div class="search-shortcut">
+                    <kbd>Ctrl</kbd> + <kbd>K</kbd>
+                </div>
+            </div>
+            <div class="search-filters">
+                <button class="filter-chip active" data-filter="all">
+                    <i class="fas fa-th"></i>
+                    <span>All</span>
+                </button>
+                <button class="filter-chip" data-filter="favorites">
+                    <i class="fas fa-star"></i>
+                    <span>Favorites</span>
+                </button>
+                <button class="filter-chip" data-filter="recent">
+                    <i class="fas fa-clock"></i>
+                    <span>Recent</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-cube"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value" id="totalCount">52</span>
+                    <span class="stat-label">Total Prompts</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value" id="favoritesCount">0</span>
+                    <span class="stat-label">Favorites</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value" id="activeCount">52</span>
+                    <span class="stat-label">Active</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value" id="resultsCount">52</span>
+                    <span class="stat-label">Results</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Sidebar Premium -->
+        <aside class="sidebar-premium">
+            <div class="sidebar-section">
+                <div class="sidebar-header">
+                    <h3><i class="fas fa-folder-open"></i> Categories</h3>
+                    <span class="sidebar-badge" id="categoryCount">7</span>
+                </div>
+                <div class="category-list" id="categoryList">
+                    <!-- Categories will be rendered here -->
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-header">
+                    <h3><i class="fas fa-bolt"></i> Quick Access</h3>
+                </div>
+                <div class="quick-access-list">
+                    <button class="quick-access-item">
+                        <i class="fas fa-fire" style="color: #f59e0b;"></i>
+                        <span>Trending</span>
+                    </button>
+                    <button class="quick-access-item">
+                        <i class="fas fa-clock" style="color: #3b82f6;"></i>
+                        <span>Recently Used</span>
+                    </button>
+                    <button class="quick-access-item">
+                        <i class="fas fa-download" style="color: #10b981;"></i>
+                        <span>Export All</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-header">
+                    <h3><i class="fas fa-tags"></i> Tags</h3>
+                </div>
+                <div class="tags-cloud">
+                    <span class="tag">#automation</span>
+                    <span class="tag">#testing</span>
+                    <span class="tag">#qa</span>
+                    <span class="tag">#api</span>
+                    <span class="tag">#performance</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <main class="content-area">
+            <!-- Active Filters -->
+            <div class="active-filters-bar" id="activeFilters">
+                <span class="filters-label">
+                    <i class="fas fa-filter"></i>
+                    Active Filters:
+                </span>
+                <div class="active-filters-list" id="activeFiltersList">
+                    <!-- Active filters will be rendered here -->
+                </div>
+                <button class="clear-all-btn" id="clearAllFilters">
+                    <i class="fas fa-times"></i>
+                    Clear All
+                </button>
+            </div>
+
+            <!-- Prompts Grid -->
+            <div class="prompts-container">
+                <div class="prompts-grid" id="promptsGrid">
+                    <!-- Prompts will be rendered here -->
+                </div>
+                
+                <!-- Empty State -->
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <div class="empty-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>No prompts found</h3>
+                    <p>Try adjusting your search or filters</p>
+                    <button class="btn-reset-search" id="resetSearch">
+                        <i class="fas fa-undo"></i>
+                        Reset Search
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Comparison Bar (Hidden by default) -->
+    <div class="comparison-bar" id="comparisonBar" style="display: none;">
+        <div class="comparison-info">
+            <span id="compareCount">0</span> prompts selected
+        </div>
+        <div class="comparison-actions">
+            <button class="btn-compare" id="compareBtn">
+                <i class="fas fa-columns"></i>
+                Compare Now
+            </button>
+            <button class="btn-clear-compare" id="clearCompare">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Modal for Viewing Full Prompt -->
+    <div class="modal" id="promptModal">
+        <div class="modal-content modal-large">
+            <button class="modal-close" id="modalClose">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-header">
+                <h2 id="modalTitle">Prompt Title</h2>
+                <div class="modal-meta" id="modalMeta"></div>
+            </div>
+            <div class="modal-body">
+                <div class="prompt-full-content" id="modalPromptContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-copy-full" id="copyFullPrompt">
+                    <i class="fas fa-copy"></i>
+                    Copy to Clipboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
