@@ -378,17 +378,11 @@ const renderGrid = (query = '') => {
 // ==================== 9. MODAL LOGIC ====================
 const renderVariableInputs = (variables) => {
   // Dynamically inject variable inputs into modal if they exist
-  const modalBody = dom.modal?.querySelector('.modal-body');
-  if (!modalBody) return;
+  const varSection = document.getElementById('variablesSection');
+  if (!varSection) return;
 
-  let varSection = modalBody.querySelector('.variables-section-premium');
   if (variables.length > 0) {
-    if (!varSection) {
-      varSection = document.createElement('div');
-      varSection.className = 'variables-section-premium';
-      varSection.style.marginBottom = '20px';
-      modalBody.insertBefore(varSection, modalBody.firstChild);
-    }
+    varSection.style.display = 'block';
     varSection.innerHTML = `
       <h4 style="font-size: 0.875rem; font-weight: 700; margin-bottom: 12px; color: var(--primary);">
         <i class="fas fa-sliders-h"></i> Variables to Fill
@@ -397,7 +391,7 @@ const renderVariableInputs = (variables) => {
         ${variables.map(v => `
           <div style="display: flex; align-items: center; gap: 12px;">
             <label style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 600; color: var(--primary); min-width: 100px;">{${v}}</label>
-            <input type="text" class="variable-input-premium" data-var="${v}" placeholder="Enter value..." 
+            <input type="text" class="variable-input-premium" data-var="${v}" placeholder="Enter value for ${v}..." 
                    style="flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; outline: none; background: var(--bg); color: var(--text);">
           </div>
         `).join('')}
@@ -410,8 +404,8 @@ const renderVariableInputs = (variables) => {
         updateModalPromptPreview();
       });
     });
-  } else if (varSection) {
-    varSection.remove();
+  } else {
+    varSection.style.display = 'none';
   }
 };
 
@@ -419,9 +413,15 @@ const updateModalPromptPreview = () => {
   if (!currentModalPrompt) return;
   const baseText = hasEditedPrompt(currentModalPrompt.number) ? getEditedPrompt(currentModalPrompt.number) : currentModalPrompt.prompt;
   const replacedText = replaceVariables(baseText, variableValues);
-  
+
   const contentEl = document.getElementById('modalPromptContent');
   if (contentEl) contentEl.textContent = replacedText;
+
+  // Update preview content as well
+  const previewEl = document.getElementById('modalPromptPreview');
+  if (previewEl && typeof marked !== 'undefined') {
+    previewEl.innerHTML = marked.parse(replacedText);
+  }
 };
 
 const openModal = (num) => {
@@ -441,18 +441,192 @@ const openModal = (num) => {
 
   const displayPrompt = hasEditedPrompt(p.number) ? getEditedPrompt(p.number) : p.prompt;
   const contentEl = document.getElementById('modalPromptContent');
+  const previewEl = document.getElementById('modalPromptPreview');
+  const editEl = document.getElementById('modalPromptEdit');
+  
   if (contentEl) contentEl.textContent = displayPrompt;
+  if (editEl) editEl.value = displayPrompt;
+  
+  // Setup Markdown Preview
+  if (CONFIG.ENABLE_MARKDOWN_PREVIEW && typeof marked !== 'undefined') {
+    const tabsEl = document.getElementById('modalTabs');
+    if (tabsEl) {
+      tabsEl.style.display = 'flex';
+      tabsEl.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+      tabsEl.querySelector('[data-tab="raw"]').classList.add('active');
+      contentEl.style.display = 'block';
+      previewEl.style.display = 'none';
+      previewEl.innerHTML = marked.parse(displayPrompt);
+    }
+  } else {
+    const tabsEl = document.getElementById('modalTabs');
+    if (tabsEl) tabsEl.style.display = 'none';
+    if (contentEl) contentEl.style.display = 'block';
+    if (previewEl) previewEl.style.display = 'none';
+  }
 
   renderVariableInputs(extractVariables(displayPrompt));
+  
+  // Setup edit mode buttons
+  const editBtn = document.getElementById('modalEditBtn');
+  const saveBtn = document.getElementById('modalEditSaveBtn');
+  const cancelBtn = document.getElementById('modalEditCancelBtn');
+  const resetBtn = document.getElementById('modalResetBtn');
+  
+  if (editBtn) {
+    editBtn.style.display = 'inline-flex';
+    editBtn.onclick = () => {
+      isEditMode = true;
+      contentEl.style.display = 'none';
+      previewEl.style.display = 'none';
+      editEl.style.display = 'block';
+      editBtn.style.display = 'none';
+      saveBtn.style.display = 'inline-flex';
+      cancelBtn.style.display = 'inline-flex';
+      if (hasEditedPrompt(p.number) && resetBtn) resetBtn.style.display = 'inline-flex';
+    };
+  }
+  
+  if (saveBtn) {
+    saveBtn.style.display = 'none';
+    saveBtn.onclick = () => {
+      saveEditedPrompt(p.number, editEl.value);
+      isEditMode = false;
+      contentEl.textContent = editEl.value;
+      previewEl.innerHTML = marked.parse(editEl.value);
+      contentEl.style.display = 'block';
+      editEl.style.display = 'none';
+      editBtn.style.display = 'inline-flex';
+      saveBtn.style.display = 'none';
+      cancelBtn.style.display = 'none';
+      if (resetBtn) resetBtn.style.display = 'none';
+      showToast('✓ Changes saved!');
+    };
+  }
+  
+  if (cancelBtn) {
+    cancelBtn.style.display = 'none';
+    cancelBtn.onclick = () => {
+      isEditMode = false;
+      const originalPrompt = hasEditedPrompt(p.number) ? getEditedPrompt(p.number) : p.prompt;
+      contentEl.textContent = originalPrompt;
+      previewEl.innerHTML = marked.parse(originalPrompt);
+      editEl.value = originalPrompt;
+      contentEl.style.display = 'block';
+      editEl.style.display = 'none';
+      editBtn.style.display = 'inline-flex';
+      saveBtn.style.display = 'none';
+      cancelBtn.style.display = 'none';
+      if (resetBtn) resetBtn.style.display = 'none';
+    };
+  }
+  
+  if (resetBtn) {
+    resetBtn.style.display = 'none';
+    resetBtn.onclick = () => {
+      deleteEditedPrompt(p.number);
+      contentEl.textContent = p.prompt;
+      previewEl.innerHTML = marked.parse(p.prompt);
+      editEl.value = p.prompt;
+      if (isEditMode) {
+        contentEl.style.display = 'block';
+        editEl.style.display = 'none';
+        editBtn.style.display = 'inline-flex';
+        saveBtn.style.display = 'none';
+        cancelBtn.style.display = 'none';
+        resetBtn.style.display = 'none';
+        isEditMode = false;
+      }
+      showToast('✓ Reset to original!');
+    };
+  }
   
   // Setup copy button in modal
   const copyBtn = document.getElementById('copyFullPrompt');
   if (copyBtn) {
     copyBtn.onclick = () => {
       const baseText = hasEditedPrompt(p.number) ? getEditedPrompt(p.number) : p.prompt;
-      const finalPrompt = getFormattedPrompt(replaceVariables(baseText, variableValues), selectedFormat);
-      copyToClipboard(finalPrompt, copyBtn);
+      const finalPrompt = replaceVariables(baseText, variableValues);
+      copyToClipboard(finalPrompt, copyBtn, p.number);
     };
+  }
+  
+  // Setup download button
+  const downloadBtn = document.getElementById('modalDownload');
+  if (downloadBtn) {
+    downloadBtn.onclick = () => {
+      const baseText = hasEditedPrompt(p.number) ? getEditedPrompt(p.number) : p.prompt;
+      const finalPrompt = replaceVariables(baseText, variableValues);
+      const blob = new Blob([finalPrompt], { type: 'text/plain;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `prompt_${p.number}_${p.name.replace(/[^a-z0-9]/gi, '_')}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('✓ Downloaded!');
+    };
+  }
+  
+  // Setup export CSV button
+  const exportBtn = document.getElementById('modalExportCSV');
+  if (exportBtn) {
+    exportBtn.onclick = () => {
+      const baseText = hasEditedPrompt(p.number) ? getEditedPrompt(p.number) : p.prompt;
+      const finalPrompt = replaceVariables(baseText, variableValues);
+      const headers = ["Summary", "Description", "Label", "Priority"];
+      const row = [
+        `Prompt: ${p.name}`,
+        finalPrompt.replace(/"/g, '""'),
+        p.label || 'General',
+        "Medium"
+      ];
+      const csvContent = [headers.join(","), row.map(cell => `"${cell}"`).join(",")].join("\n");
+      const blob = new Blob(["\ufeff" + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `prompt_${p.number}_export.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('✓ Exported to CSV!');
+    };
+  }
+  
+  // Setup share button
+  const shareBtn = document.getElementById('modalShare');
+  if (shareBtn) {
+    shareBtn.onclick = async () => {
+      const shareUrl = `${window.location.origin}${window.location.pathname}?prompt=${p.number}`;
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        showToast('✓ Link copied to clipboard!');
+      } catch (err) {
+        showToast('✗ Share failed');
+      }
+    };
+  }
+  
+  // Setup tabs for Raw/Preview
+  const tabsEl = document.getElementById('modalTabs');
+  if (tabsEl) {
+    tabsEl.querySelectorAll('.modal-tab').forEach(tab => {
+      tab.onclick = () => {
+        const target = tab.dataset.tab;
+        tabsEl.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        if (target === 'preview') {
+          contentEl.style.display = 'none';
+          previewEl.style.display = 'block';
+        } else {
+          contentEl.style.display = 'block';
+          previewEl.style.display = 'none';
+        }
+      };
+    });
   }
 
   dom.modal.classList.add('active');
