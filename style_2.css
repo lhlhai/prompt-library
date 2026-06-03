@@ -1498,21 +1498,56 @@ body {
     gap: var(--spacing-md);
 }
 
-.comparison-column-header {
+.comparison-header {
     font-size: 1.125rem;
     font-weight: 700;
     color: var(--text);
     padding-bottom: var(--spacing-md);
     border-bottom: 2px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.comparison-column-content {
-    flex: 1;
+.comparison-badge {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.comparison-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.comparison-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.comparison-section strong {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.comparison-section p,
+.comparison-section pre {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.85rem;
     line-height: 1.6;
     white-space: pre-wrap;
     word-break: break-word;
+    background: var(--card-bg);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
 }
 
 /* Extra Large Modal */
