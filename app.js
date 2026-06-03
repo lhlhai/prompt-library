@@ -69,9 +69,16 @@ const dom = {
   categoryList: document.getElementById('categoryList'),
   clearAllFilters: document.getElementById('clearAllFilters'),
   themeToggle: document.getElementById('themeToggle'),
+  viewToggle: document.getElementById('viewToggle'),
   comparisonBar: document.getElementById('comparisonBar'),
   compareCount: document.getElementById('compareCount'),
+  compareBtn: document.getElementById('compareBtn'),
+  clearCompare: document.getElementById('clearCompare'),
+  comparisonModal: document.getElementById('comparisonModal'),
+  comparisonModalClose: document.getElementById('comparisonModalClose'),
+  comparisonGrid: document.getElementById('comparisonGrid'),
   activeFiltersList: document.getElementById('activeFiltersList'),
+  tagsCloud: document.getElementById('tagsCloud'),
 };
 
 // ==================== 4. HELPER FUNCTIONS ====================
@@ -188,6 +195,38 @@ const getFormattedPrompt = (text, format) => format === 'markdown' ? convertToMa
 const getCategories = () => {
   const cats = [...new Set(PROMPTS.map(p => p.label).filter(Boolean))];
   return cats.sort();
+};
+
+const getAllTags = () => {
+  const tags = new Set();
+  PROMPTS.forEach(p => {
+    if (p.tags && Array.isArray(p.tags)) {
+      p.tags.forEach(tag => tags.add(tag));
+    }
+    // Also extract from description and name for keywords
+    if (p.description) {
+      const words = p.description.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+      words.forEach(w => tags.add(w));
+    }
+  });
+  return Array.from(tags).sort();
+};
+
+const renderTagsCloud = () => {
+  if (!dom.tagsCloud) return;
+  const tags = getAllTags();
+  dom.tagsCloud.innerHTML = tags.slice(0, 20).map(tag => `
+    <span class="tag" data-tag="${escapeHtml(tag)}">#${escapeHtml(tag)}</span>
+  `).join('');
+  
+  dom.tagsCloud.querySelectorAll('.tag').forEach(tagEl => {
+    tagEl.addEventListener('click', () => {
+      const tagName = tagEl.dataset.tag;
+      dom.searchInput.value = tagName;
+      filterPrompts(tagName);
+      showToast(`Filtering by: ${tagName}`);
+    });
+  });
 };
 
 const countByCategory = (category) => PROMPTS.filter(p => !p.disabled && p.label === category).length;
@@ -455,12 +494,63 @@ const updateComparisonBar = () => {
   }
 };
 
+const openComparisonModal = () => {
+  if (!dom.comparisonModal || !dom.comparisonGrid) return;
+  
+  const promptsToCompare = PROMPTS.filter(p => comparisonList.includes(p.number));
+  
+  if (promptsToCompare.length === 0) {
+    closeModal();
+    return;
+  }
+  
+  dom.comparisonGrid.innerHTML = promptsToCompare.map(p => `
+    <div class="comparison-column">
+      <div class="comparison-header">
+        <h4>${escapeHtml(p.name)}</h4>
+        <span class="comparison-badge">${escapeHtml(p.label || 'General')}</span>
+      </div>
+      <div class="comparison-content">
+        <div class="comparison-section">
+          <strong>Description:</strong>
+          <p>${escapeHtml(p.description)}</p>
+        </div>
+        <div class="comparison-section">
+          <strong>Prompt:</strong>
+          <pre>${escapeHtml(p.prompt)}</pre>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  
+  dom.comparisonModal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+};
+
+const closeComparisonModal = () => {
+  if (!dom.comparisonModal) return;
+  dom.comparisonModal.classList.remove('active');
+  document.body.style.overflow = '';
+  comparisonList = [];
+  updateComparisonBar();
+  renderGrid(dom.searchInput?.value || '');
+};
+
+const clearComparison = () => {
+  comparisonList = [];
+  updateComparisonBar();
+  renderGrid(dom.searchInput?.value || '');
+};
+
 // ==================== 11. EVENT BINDINGS & INIT ====================
 const app = {
   toggleFavorite,
   toggleComparison,
   openModal,
   closeModal,
+  openComparisonModal,
+  closeComparisonModal,
+  clearComparison,
   removeFilter: (type, label) => {
     if (type === 'favorite') showFavoritesOnly = false;
     if (type === 'category') selectedCategories = selectedCategories.filter(c => c !== label);
@@ -486,6 +576,18 @@ const app = {
     localStorage.setItem('darkMode', isDark);
     const icon = dom.themeToggle?.querySelector('i');
     if (icon) icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+  },
+  toggleViewMode: () => {
+    viewMode = viewMode === 'grid' ? 'list' : 'grid';
+    localStorage.setItem('prompt-library-view-mode', viewMode);
+    const icon = dom.viewToggle?.querySelector('i');
+    if (icon) {
+      icon.className = viewMode === 'grid' ? 'fas fa-th-large' : 'fas fa-list';
+    }
+    if (dom.grid) {
+      dom.grid.className = viewMode === 'grid' ? 'prompts-grid' : 'prompts-list';
+    }
+    showToast(`Switched to ${viewMode} view`);
   }
 };
 
@@ -532,6 +634,21 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Theme toggle
   if (dom.themeToggle) dom.themeToggle.addEventListener('click', app.toggleTheme);
+  
+  // View toggle
+  if (dom.viewToggle) dom.viewToggle.addEventListener('click', app.toggleViewMode);
+  
+  // Comparison bar buttons
+  if (dom.compareBtn) dom.compareBtn.addEventListener('click', app.openComparisonModal);
+  if (dom.clearCompare) dom.clearCompare.addEventListener('click', app.clearComparison);
+  
+  // Comparison modal close
+  if (dom.comparisonModalClose) dom.comparisonModalClose.addEventListener('click', closeComparisonModal);
+  if (dom.comparisonModal) {
+    dom.comparisonModal.addEventListener('click', (e) => {
+      if (e.target === dom.comparisonModal) closeComparisonModal();
+    });
+  }
 
   // Modal close events
   if (dom.modalClose) dom.modalClose.addEventListener('click', closeModal);
@@ -549,6 +666,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (e.key === 'Escape') {
       closeModal();
+      closeComparisonModal();
     }
   });
 
@@ -562,6 +680,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initial render
   renderSidebar();
+  renderTagsCloud();
   updateStats();
   filterPrompts('');
 });
