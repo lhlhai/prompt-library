@@ -1,104 +1,74 @@
-# Examples
-
-## Example 1:
-**Input:**
-```
-### Added files:
-[src/main.py, README.md, config.json]
-
-### Deleted files:
-[old/unused.py]
-
-### Modified files:
-[utils.py]
-
-### Current .gitignore Content
-(empty)
-```
-
-**Output:**
-
-
-## Example 2:
-**Input:**
-```
-### Added files:
-[__pycache__/main.cpython-310.pyc, dist/app.js, .env.local, .vscode/settings.json]
-
-### Deleted files:
-[]
-
-### Modified files:
-[]
-
-### Current .gitignore Content
-*.log
-```
-
-**Output:**
-```
 # Compiled and build artifacts
 *.pyc
 __pycache__/
-dist/
-build/
 *.o
 *.obj
-
-# Dependencies
-.venv/
-venv/
-node_modules/
-
-# Logs and temp files
-*.log
-*.tmp
-*.swp
-
-# Environment
-.env
-.env.local
-.env.*
-
-# Editors
-.vscode/
-.idea/
-```
-
-## Example 3:
-**Input:**
-```
-### Added files:
-[target/debug/myapp, target/release/myapp, Cargo.lock]
-
-### Deleted files:
-[]
-
-### Modified files:
-[src/main.rs]
-
-### Current .gitignore Content
-/target/
-```
-
-**Output:**
-```
-# Compiled and build artifacts
-target/
+*.class
 *.exe
 *.dll
 *.so
 *.a
 *.out
+dist/
+build/
+target/
 
 # Dependencies
-Cargo.lock
+node_modules/
+venv/
+.venv/
+.env
+.env.local
+.env.*
 
 # Logs and temp files
 *.log
 *.tmp
 *.swp
+*.swo
 
-# Original rules preserved
-/target/
-```
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# Python specific
+.mypy_cache/
+.pytest_cache/
+
+# Java/Gradle
+.gradle/
+
+# Compressed files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst

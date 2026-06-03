@@ -585,7 +585,12 @@ const app = {
       icon.className = viewMode === 'grid' ? 'fas fa-th-large' : 'fas fa-list';
     }
     if (dom.grid) {
-      dom.grid.className = viewMode === 'grid' ? 'prompts-grid' : 'prompts-list';
+      // Use list-view class instead of changing to prompts-list
+      if (viewMode === 'list') {
+        dom.grid.classList.add('list-view');
+      } else {
+        dom.grid.classList.remove('list-view');
+      }
     }
     showToast(`Switched to ${viewMode} view`);
   }
