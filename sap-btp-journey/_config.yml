@@ -1,0 +1,41 @@
+title: "Hành Trình SAP BTP - Từ 0 Đến Field Service to Cash"
+description: "Ghi lại lộ trình học SAP BTP và xây dựng giải pháp Field Service to Cash từ con số 0"
+baseurl: "" # Điền tên repository của bạn ở đây, ví dụ: "/sap-btp-journey"
+url: "" # Điền URL GitHub Pages của bạn, ví dụ: "https://yourusername.github.io"
+theme: minima
+
+# Cấu hình menu điều hướng
+nav:
+  - name: "Trang Chủ"
+    link: "/"
+  - name: "Roadmap"
+    link: "/roadmap.html"
+  - name: "Tài Nguyên"
+    link: "/resources.html"
+  - name: "Dự án FSC"
+    link: "/project.html"
+  - name: "Ghi Chú"
+    link: "/notes/"
+
+# Tác giả
+author:
+  name: "Your Name"
+  email: "your.email@example.com"
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+permalink: pretty
+
+# Collections
+collections:
+  notes:
+    output: true
+    permalink: /notes/:name/
+
+defaults:
+  - scope:
+      path: ""
+      type: "notes"
+    values:
+      layout: "post"
