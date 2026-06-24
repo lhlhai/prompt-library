@@ -46,10 +46,10 @@ Yêu cầu dịch vụ → Lập lịch kỹ thuật viên → Thực hiện d�
 
 ## 📋 Cấu Trúc Trang Web
 
-- **[Roadmap](/roadmap.html)**: Lộ trình học chi tiết 12-16 tuần
-- **[Tài Nguyên](/resources.html)**: Các nguồn học tập miễn phí
-- **[Dự án FSC](/project.html)**: Chi tiết kiến trúc và triển khai
-- **[Ghi Chú](/notes/)**: Blog kỹ thuật về các vấn đề gặp phải
+- **[Roadmap](roadmap.html)**: Lộ trình học chi tiết 12-16 tuần
+- **[Tài Nguyên](resources.html)**: Các nguồn học tập miễn phí
+- **[Dự án FSC](project.html)**: Chi tiết kiến trúc và triển khai
+- **[Ghi Chú](notes/)**: Blog kỹ thuật về các vấn đề gặp phải
 
 ## 📝 Cam Kết
 
@@ -59,4 +59,4 @@ Hãy cùng bắt đầu hành trình này!
 
 ---
 
-*Bạn có thể theo dõi tiến độ của tôi qua các cập nhật hàng tuần trong phần [Ghi Chú](/notes/).*
+*Bạn có thể theo dõi tiến độ của tôi qua các cập nhật hàng tuần trong phần [Ghi Chú](notes/).*

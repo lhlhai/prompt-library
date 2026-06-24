@@ -1,19 +1,19 @@
 title: "Hành Trình SAP BTP - Từ 0 Đến Field Service to Cash"
 description: "Ghi lại lộ trình học SAP BTP và xây dựng giải pháp Field Service to Cash từ con số 0"
-baseurl: ""
+baseurl: "/sap-btp-journey"
 url: ""
 
 nav:
   - name: "Trang Chủ"
-    link: "/"
+    link: "index.html"
   - name: "Roadmap"
-    link: "/roadmap.html"
+    link: "roadmap.html"
   - name: "Tài Nguyên"
-    link: "/resources.html"
+    link: "resources.html"
   - name: "Dự án FSC"
-    link: "/project.html"
+    link: "project.html"
   - name: "Ghi Chú"
-    link: "/notes/"
+    link: "notes/"
 
 author:
   name: "Your Name"

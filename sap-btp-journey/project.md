@@ -509,4 +509,4 @@ Scheduled Receiver (S/4HANA) → Filter → Transform
 
 ---
 
-*Dự án này sẽ được cập nhật thường xuyên trong quá trình triển khai thực tế. Theo dõi phần [Ghi Chú](/notes/) để xem các bài học và vấn đề gặp phải.*
+*Dự án này sẽ được cập nhật thường xuyên trong quá trình triển khai thực tế. Theo dõi phần [Ghi Chú](notes/) để xem các bài học và vấn đề gặp phải.*
