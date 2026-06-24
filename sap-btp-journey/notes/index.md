@@ -11,10 +11,10 @@ title: "Ghi Chú Kỹ Thuật"
 
 ## Các Bài Viết Gần Đây
 
-{% assign notes = site.notes | sort: 'date' | reverse %}
-
-{% if notes.size > 0 %}
-{% for note in notes limit: 10 %}
+{% if site.posts.size > 0 %}
+  {% assign notes = site.posts | sort: 'date' | reverse %}
+  
+  {% for note in notes limit: 10 %}
 ### [{{ note.title }}]({{ note.url }})
 **Ngày:** {{ note.date | date: "%Y-%m-%d" }}  
 **Tags:** {% for tag in note.tags %}{{ tag }}{% if forloop.last == false %}, {% endif %}{% endfor %}
@@ -25,7 +25,7 @@ title: "Ghi Chú Kỹ Thuật"
 
 ---
 
-{% endfor %}
+  {% endfor %}
 {% else %}
 
 ### Chưa có bài viết nào

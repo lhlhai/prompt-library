@@ -100,19 +100,20 @@ author:
 sap-btp-journey/
 ├── _config.yml              # File cấu hình Jekyll
 ├── _layouts/
-│   └── default.html         # Layout chính cho tất cả pages
+│   ├── default.html         # Layout chính cho tất cả pages
+│   └── post.html            # Layout cho blog posts
 ├── _includes/               # (Optional) Các partial templates
-├── notes/                   # Thư mục chứa blog posts
-│   ├── index.md             # Trang danh sách bài viết
-│   └── _posts/
-│       └── 2024-01-15-tuan-1-bat-dau-voi-sap-btp.md
+├── _posts/                  # Thư mục chứa blog posts
+│   └── 2024-01-15-tuan-1-bat-dau-voi-sap-btp.md
 ├── assets/
 │   └── css/                 # (Optional) Custom CSS
+├── notes/
+│   └── index.md             # Trang danh sách bài viết
 ├── index.md                 # Trang chủ
 ├── roadmap.md               # Trang lộ trình học
 ├── resources.md             # Trang tài nguyên
 ├── project.md               # Trang dự án FSC
-└── README.md                # Hướng dẫn setup
+└── SETUP_GUIDE.md           # Hướng dẫn setup
 ```
 
 ---
@@ -162,9 +163,10 @@ baseurl: ""
 **Triệu chứng:** Trang /notes/ báo không có bài viết
 
 **Kiểm tra:**
-1. File post phải trong thư mục `notes/_posts/`
+1. File post phải trong thư mục `_posts/` (root level)
 2. Filename phải đúng format: `YYYY-MM-DD-slug.md`
-3. Front matter phải có `layout: default` hoặc `layout: post`
+3. Front matter phải có `layout: post`
+4. `_config.yml` phải có defaults cho `_posts`
 
 ---
 
@@ -220,13 +222,13 @@ Thêm vào `_layouts/default.html` trước thẻ `</head>`:
 
 ## 📝 Cách Viết Blog Post Mới
 
-1. Tạo file mới trong `notes/_posts/`
+1. Tạo file mới trong `_posts/` (ở root directory)
 2. Đặt tên theo format: `YYYY-MM-DD-ten-bai-viet.md`
 3. Nội dung mẫu:
 
 ```markdown
 ---
-layout: default
+layout: post
 title: "Tên Bài Viết"
 date: 2024-01-22
 tags: [sap-btp, tutorial]
@@ -256,7 +258,7 @@ console.log("Hello SAP BTP!");
 
 4. Commit và push lên GitHub
 5. Chờ GitHub build (1-2 phút)
-6. Bài viết sẽ tự động xuất hiện trên trang Notes
+6. Bài viết sẽ tự động xuất hiện trên trang Notes (/notes/)
 
 ---
 

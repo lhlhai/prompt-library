@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title: "Tuần 1: Bắt Đầu Với SAP BTP"
 date: 2024-01-15
 tags: [beginner, sap-btp, setup]
