@@ -1,13 +1,14 @@
 ```
 # Dependencies
 node_modules/
-vendor/
 
 # Build artifacts
 _dist/
 _site/
-.jekyll-cache/
-.sass-cache/
+
+# Logs and temp files
+*.log
+*.tmp
 
 # Environment
 .env
@@ -17,36 +18,15 @@ _site/
 # Editors
 .vscode/
 .idea/
-*.swp
-*.swo
 
-# OS
+# OS generated files
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
-
-# Coverage
-coverage/
-htmlcov/
-.coverage
-
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-*.so
-*.egg-info/
-.eggs/
-
-# Ruby
-.bundle/
-Gemfile.lock
-
-# Jekyll
+# Jekyll specific
 _site/
-.jekyll-metadata
+.jekyll-cache
+.sass-cache
+*.gem
+.bundle/
 ```
