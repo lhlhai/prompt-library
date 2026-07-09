@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harness Chatbot - Server & Agent Flow Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .step-node {
+            transition: all 0.3s ease;
+        }
+        .step-active {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+            transform: scale(1.02);
+        }
+        .step-completed {
+            border-color: #10b981;
+            background-color: #f0fdf4;
+        }
+        .terminal-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+        .terminal-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .terminal-scroll::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 10px;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .cursor-blink {
+            animation: blink 1s infinite;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-slate-800">Harness Chatbot Flow Simulation</h1>
+            <p class="text-slate-500 mt-2">Mô phỏng luồng xử lý Server & Agent đa vai trò (QA/Dev Tool)</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left: Controls & Input -->
+            <div class="lg:col-span-1 space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-semibold mb-4 text-slate-700 flex items-center">
+                        <span class="w-2 h-6 bg-blue-500 rounded mr-2"></span>
+                        Cấu hình Session
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">Vai trò (Role)</label>
+                            <select id="roleSelect" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
+                                <option value="tester">Tester (QA Tool)</option>
+                                <option value="developer">Developer (Dev Tool)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">Tin nhắn mô phỏng</label>
+                            <textarea id="userInput" rows="3" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="Nhập yêu cầu của bạn..."></textarea>
+                            <div class="mt-2 flex flex-wrap gap-2">
+                                <button onclick="setPreset('tester')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded">Mẫu Tester</button>
+                                <button onclick="setPreset('developer')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded">Mẫu Developer</button>
+                            </div>
+                        </div>
+                        <button id="startBtn" onclick="startSimulation()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md shadow-blue-200 flex items-center justify-center">
+                            <span>Bắt đầu xử lý</span>
+                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-semibold mb-4 text-slate-700 flex items-center">
+                        <span class="w-2 h-6 bg-emerald-500 rounded mr-2"></span>
+                        Trạng thái Server (Redis)
+                    </h2>
+                    <div id="sessionState" class="text-sm space-y-2">
+                        <div class="flex justify-between border-b border-slate-100 pb-1">
+                            <span class="text-slate-500">Session ID:</span>
+                            <span class="font-mono text-slate-700">sess_8492...</span>
+                        </div>
+                        <div class="flex justify-between border-b border-slate-100 pb-1">
+                            <span class="text-slate-500">Current Step:</span>
+                            <span id="stateStep" class="font-medium text-blue-600">idle</span>
+                        </div>
+                        <div class="flex justify-between border-b border-slate-100 pb-1">
+                            <span class="text-slate-500">Pending Data:</span>
+                            <span id="stateData" class="text-slate-700 italic">none</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle: Visual Flow -->
+            <div class="lg:col-span-1 space-y-4">
+                <h2 class="text-lg font-semibold text-slate-700 px-2">Agent Loop Phases</h2>
+                <div class="space-y-3" id="flowContainer">
+                    <!-- Phase 1 -->
+                    <div id="phase1" class="step-node bg-white p-4 rounded-lg border-2 border-slate-100 flex items-start">
+                        <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold mr-3 shrink-0">1</div>
+                        <div>
+                            <h3 class="font-semibold text-slate-800">Phase 1: Planning</h3>
+                            <p class="text-xs text-slate-500">Lập kế hoạch thực thi (JSON steps)</p>
+                            <div id="planDetails" class="hidden mt-2 text-xs bg-slate-50 p-2 rounded border border-slate-100"></div>
+                        </div>
+                    </div>
+                    <!-- Phase 2 -->
+                    <div id="phase2" class="step-node bg-white p-4 rounded-lg border-2 border-slate-100 flex items-start">
+                        <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold mr-3 shrink-0">2</div>
+                        <div>
+                            <h3 class="font-semibold text-slate-800">Phase 2: Retrieval</h3>
+                            <p class="text-xs text-slate-500">Truy xuất dữ liệu (RAG / Vector DB)</p>
+                            <div id="retrievalDetails" class="hidden mt-2 text-xs text-blue-600 italic"></div>
+                        </div>
+                    </div>
+                    <!-- Phase 3 -->
+                    <div id="phase3" class="step-node bg-white p-4 rounded-lg border-2 border-slate-100 flex items-start">
+                        <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold mr-3 shrink-0">3</div>
+                        <div>
+                            <h3 class="font-semibold text-slate-800">Phase 3: Tool Calling</h3>
+                            <p class="text-xs text-slate-500">Thực thi công cụ (Function Calling)</p>
+                            <div id="toolDetails" class="hidden mt-2 text-xs bg-slate-800 text-green-400 p-2 rounded font-mono"></div>
+                        </div>
+                    </div>
+                    <!-- Phase 4 -->
+                    <div id="phase4" class="step-node bg-white p-4 rounded-lg border-2 border-slate-100 flex items-start">
+                        <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold mr-3 shrink-0">4</div>
+                        <div>
+                            <h3 class="font-semibold text-slate-800">Phase 4: Thinking</h3>
+                            <p class="text-xs text-slate-500">Suy luận & Streaming Output</p>
+                        </div>
+                    </div>
+                    <!-- Phase 5 -->
+                    <div id="phase5" class="step-node bg-white p-4 rounded-lg border-2 border-slate-100 flex items-start">
+                        <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold mr-3 shrink-0">5</div>
+                        <div>
+                            <h3 class="font-semibold text-slate-800">Phase 5: Finalize</h3>
+                            <p class="text-xs text-slate-500">Validate & Trả kết quả cuối</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Real-time Output (Streaming UI) -->
+            <div class="lg:col-span-1">
+                <div class="bg-slate-900 rounded-xl shadow-2xl overflow-hidden flex flex-col h-[600px] border border-slate-700">
+                    <div class="bg-slate-800 px-4 py-2 flex items-center justify-between border-b border-slate-700">
+                        <div class="flex space-x-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        </div>
+                        <span class="text-xs text-slate-400 font-mono">SSE Stream Monitor</span>
+                    </div>
+                    <div id="terminal" class="flex-1 p-4 font-mono text-sm overflow-y-auto terminal-scroll text-slate-300">
+                        <div class="text-slate-500 mb-2">// Chờ tín hiệu từ server...</div>
+                    </div>
+                    <div class="p-4 bg-slate-800 border-t border-slate-700">
+                        <div class="text-[10px] text-slate-500 uppercase tracking-widest mb-2">Final Output Preview</div>
+                        <div id="finalOutput" class="bg-slate-900 border border-slate-700 rounded p-3 text-xs text-slate-400 min-h-[100px] whitespace-pre-wrap"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <footer class="mt-12 pt-6 border-t border-slate-200 text-center text-slate-400 text-sm">
+            <p>&copy; 2026 Harness AI. Kiến trúc Server Flow mô phỏng 2 chiều (SSE/WebSocket).</p>
+        </footer>
+    </div>
+
+    <script>
+        const terminal = document.getElementById('terminal');
+        const finalOutput = document.getElementById('finalOutput');
+        const stateStep = document.getElementById('stateStep');
+        const stateData = document.getElementById('stateData');
+        const startBtn = document.getElementById('startBtn');
+
+        const presets = {
+            tester: "Tạo testcase cho chức năng đăng nhập: Username, Password. Mong đợi login thành công.",
+            developer: "Viết hàm Python để kiểm tra số nguyên tố và tối ưu hóa hiệu suất."
+        };
+
+        function setPreset(role) {
+            document.getElementById('roleSelect').value = role;
+            document.getElementById('userInput').value = presets[role];
+        }
+
+        function log(type, message) {
+            const div = document.createElement('div');
+            div.className = 'mb-1';
+            let color = 'text-slate-400';
+            let icon = '→';
+
+            switch(type) {
+                case 'plan': color = 'text-blue-400'; icon = '📋'; break;
+                case 'progress': color = 'text-cyan-400'; icon = '🔍'; break;
+                case 'tool': color = 'text-green-400'; icon = '⚙️'; break;
+                case 'thinking': color = 'text-white'; icon = '🧠'; break;
+                case 'done': color = 'text-emerald-400'; icon = '✅'; break;
+                case 'error': color = 'text-red-400'; icon = '❌'; break;
+            }
+
+            div.innerHTML = `<span class="${color}">${icon} [${type.toUpperCase()}]</span> ${message}`;
+            terminal.appendChild(div);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function resetPhases() {
+            document.querySelectorAll('.step-node').forEach(el => {
+                el.classList.remove('step-active', 'step-completed');
+                el.classList.add('border-slate-100');
+            });
+            document.getElementById('planDetails').classList.add('hidden');
+            document.getElementById('retrievalDetails').classList.add('hidden');
+            document.getElementById('toolDetails').classList.add('hidden');
+            terminal.innerHTML = '<div class="text-slate-500 mb-2">// Khởi tạo stream mới...</div>';
+            finalOutput.innerText = '';
+        }
+
+        function updatePhase(id, status) {
+            const el = document.getElementById(`phase${id}`);
+            if (status === 'active') {
+                el.classList.add('step-active');
+                el.classList.remove('border-slate-100');
+            } else if (status === 'done') {
+                el.classList.remove('step-active');
+                el.classList.add('step-completed');
+            }
+        }
+
+        async function simulateStreaming(text, callback) {
+            const tokens = text.split(' ');
+            let current = '';
+            for (let token of tokens) {
+                current += token + ' ';
+                callback(current);
+                await new Promise(r => r(50 + Math.random() * 100));
+            }
+        }
+
+        async function startSimulation() {
+            const role = document.getElementById('roleSelect').value;
+            const input = document.getElementById('userInput').value;
+
+            if (!input.trim()) {
+                alert("Vui lòng nhập nội dung!");
+                return;
+            }
+
+            startBtn.disabled = true;
+            startBtn.classList.add('opacity-50');
+            resetPhases();
+
+            // Step 1: Request & Session
+            stateStep.innerText = 'analyzing_intent';
+            log('info', `Nhận request từ client (Role: ${role})`);
+            await new Promise(r => setTimeout(r, 800));
+            stateData.innerText = role === 'tester' ? 'auth_fields' : 'python_math';
+            
+            // Phase 1: Planning
+            updatePhase(1, 'active');
+            stateStep.innerText = 'agent_planning';
+            const plans = role === 'tester' 
+                ? ["1. Phân tích yêu cầu login", "2. Truy xuất mẫu testcase cũ", "3. Gọi tool get_db_schema", "4. Sinh testcase"]
+                : ["1. Phân tích logic số nguyên tố", "2. Kiểm tra các thuật toán tối ưu", "3. Viết code & Unit test"];
+            
+            log('plan', "Đang lập kế hoạch...");
+            const planDiv = document.getElementById('planDetails');
+            planDiv.classList.remove('hidden');
+            planDiv.innerHTML = plans.map(p => `<div>${p}</div>`).join('');
+            await new Promise(r => setTimeout(r, 1500));
+            updatePhase(1, 'done');
+
+            // Phase 2: Retrieval
+            updatePhase(2, 'active');
+            stateStep.innerText = 'retrieving_data';
+            log('progress', "Đang tìm kiếm tài liệu liên quan trong Vector DB...");
+            const retDiv = document.getElementById('retrievalDetails');
+            retDiv.classList.remove('hidden');
+            retDiv.innerText = "🔍 Tìm thấy 3 tài liệu nghiệp vụ liên quan.";
+            await new Promise(r => setTimeout(r, 1200));
+            updatePhase(2, 'done');
+
+            // Phase 3: Tool Calling
+            updatePhase(3, 'active');
+            stateStep.innerText = 'executing_tools';
+            const toolName = role === 'tester' ? 'get_db_schema("users")' : 'run_linter("prime_check.py")';
+            log('tool', `Đang gọi: ${toolName}`);
+            const toolDiv = document.getElementById('toolDetails');
+            toolDiv.classList.remove('hidden');
+            toolDiv.innerText = `> Running ${toolName}...\n> Status: Success\n> Result: Data context updated.`;
+            await new Promise(r => setTimeout(r, 1500));
+            updatePhase(3, 'done');
+
+            // Phase 4: Thinking
+            updatePhase(4, 'active');
+            stateStep.innerText = 'reasoning';
+            log('thinking', "Đang tổng hợp dữ liệu và sinh câu trả lời...");
+            
+            const resultText = role === 'tester' 
+                ? "Dưới đây là danh sách testcase cho chức năng đăng nhập:\n1. TC01: Đăng nhập thành công với Username/Password đúng.\n2. TC02: Đăng nhập thất bại khi để trống trường.\n3. TC03: Kiểm tra SQL Injection trên trường Username."
+                : "Hàm Python kiểm tra số nguyên tố tối ưu:\n\ndef is_prime(n):\n    if n < 2: return False\n    for i in range(2, int(n**0.5) + 1):\n        if n % i == 0: return False\n    return True\n\nThuật toán sử dụng căn bậc hai để giảm số vòng lặp.";
+
+            await simulateStreaming(resultText, (current) => {
+                finalOutput.innerText = current + '█';
+            });
+            finalOutput.innerText = resultText;
+            updatePhase(4, 'done');
+
+            // Phase 5: Finalize
+            updatePhase(5, 'active');
+            stateStep.innerText = 'completed';
+            log('done', "Xử lý hoàn tất. Dữ liệu đã được validate.");
+            await new Promise(r => setTimeout(r, 500));
+            updatePhase(5, 'done');
+
+            startBtn.disabled = false;
+            startBtn.classList.remove('opacity-50');
+        }
+
+        // Initialize with default preset
+        setPreset('tester');
+    </script>
+</body>
+</html>
