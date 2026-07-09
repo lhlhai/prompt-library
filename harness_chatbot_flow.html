@@ -42,6 +42,40 @@
         .cursor-blink {
             animation: blink 1s infinite;
         }
+        .interrupt-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        .clarification-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid #f59e0b;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 8px 0;
+        }
+        .question-btn {
+            background: #f59e0b;
+            hover:bg-amber-600;
+            text-white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 6px;
+            margin-top: 6px;
+            transition: all 0.2s;
+        }
+        .question-btn:hover {
+            background: #d97706;
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -49,7 +83,7 @@
         <!-- Header -->
         <header class="mb-8 text-center">
             <h1 class="text-3xl font-bold text-slate-800">Harness Chatbot Flow Simulation</h1>
-            <p class="text-slate-500 mt-2">Mô phỏng luồng xử lý Server & Agent đa vai trò (QA/Dev Tool)</p>
+            <p class="text-slate-500 mt-2">Mô phỏng luồng xử lý Server & Agent đa vai trò (QA/Dev Tool) + Clarification/Interrupt</p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -76,6 +110,15 @@
                                 <button onclick="setPreset('developer')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded">Mẫu Developer</button>
                             </div>
                         </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">Kịch bản mô phỏng</label>
+                            <select id="scenarioSelect" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
+                                <option value="normal">Normal Flow (Thành công)</option>
+                                <option value="clarify">Clarification (Hỏi lại)</option>
+                                <option value="interrupt">Interrupt (Gián đoạn)</option>
+                                <option value="retry">Retry (Thử lại)</option>
+                            </select>
+                        </div>
                         <button id="startBtn" onclick="startSimulation()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md shadow-blue-200 flex items-center justify-center">
                             <span>Bắt đầu xử lý</span>
                             <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
@@ -101,6 +144,21 @@
                             <span class="text-slate-500">Pending Data:</span>
                             <span id="stateData" class="text-slate-700 italic">none</span>
                         </div>
+                        <div class="flex justify-between border-b border-slate-100 pb-1">
+                            <span class="text-slate-500">Awaiting Input:</span>
+                            <span id="stateAwaiting" class="text-slate-700 italic">false</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clarification Questions Panel -->
+                <div id="clarificationPanel" class="hidden bg-white p-6 rounded-xl shadow-sm border border-amber-200">
+                    <h2 class="text-lg font-semibold mb-4 text-slate-700 flex items-center">
+                        <span class="interrupt-badge">CLARIFY</span>
+                        <span>Câu hỏi từ Bot</span>
+                    </h2>
+                    <div id="clarificationContent" class="space-y-3">
+                        <!-- Questions will be inserted here -->
                     </div>
                 </div>
             </div>
@@ -179,7 +237,7 @@
 
         <!-- Legend -->
         <footer class="mt-12 pt-6 border-t border-slate-200 text-center text-slate-400 text-sm">
-            <p>&copy; 2026 Harness AI. Kiến trúc Server Flow mô phỏng 2 chiều (SSE/WebSocket).</p>
+            <p>&copy; 2026 Harness AI. Kiến trúc Server Flow mô phỏng 2 chiều (SSE/WebSocket) + Clarification/Interrupt Handling.</p>
         </footer>
     </div>
 
@@ -188,11 +246,14 @@
         const finalOutput = document.getElementById('finalOutput');
         const stateStep = document.getElementById('stateStep');
         const stateData = document.getElementById('stateData');
+        const stateAwaiting = document.getElementById('stateAwaiting');
         const startBtn = document.getElementById('startBtn');
+        const clarificationPanel = document.getElementById('clarificationPanel');
+        const clarificationContent = document.getElementById('clarificationContent');
 
         const presets = {
-            tester: "Tạo testcase cho chức năng đăng nhập: Username, Password. Mong đợi login thành công.",
-            developer: "Viết hàm Python để kiểm tra số nguyên tố và tối ưu hóa hiệu suất."
+            tester: "Tạo testcase cho chức năng đăng nhập",
+            developer: "Viết hàm Python để kiểm tra số nguyên tố"
         };
 
         function setPreset(role) {
@@ -213,6 +274,8 @@
                 case 'thinking': color = 'text-white'; icon = '🧠'; break;
                 case 'done': color = 'text-emerald-400'; icon = '✅'; break;
                 case 'error': color = 'text-red-400'; icon = '❌'; break;
+                case 'question': color = 'text-amber-400'; icon = '❓'; break;
+                case 'interrupt': color = 'text-orange-400'; icon = '⚠️'; break;
             }
 
             div.innerHTML = `<span class="${color}">${icon} [${type.toUpperCase()}]</span> ${message}`;
@@ -228,6 +291,7 @@
             document.getElementById('planDetails').classList.add('hidden');
             document.getElementById('retrievalDetails').classList.add('hidden');
             document.getElementById('toolDetails').classList.add('hidden');
+            clarificationPanel.classList.add('hidden');
             terminal.innerHTML = '<div class="text-slate-500 mb-2">// Khởi tạo stream mới...</div>';
             finalOutput.innerText = '';
         }
@@ -249,13 +313,43 @@
             for (let token of tokens) {
                 current += token + ' ';
                 callback(current);
-                await new Promise(r => r(50 + Math.random() * 100));
+                await new Promise(r => setTimeout(r, 50 + Math.random() * 100));
             }
+        }
+
+        function showClarificationQuestions(questions) {
+            clarificationPanel.classList.remove('hidden');
+            clarificationContent.innerHTML = '';
+            
+            questions.forEach((q, idx) => {
+                const div = document.createElement('div');
+                div.className = 'clarification-box';
+                div.innerHTML = `
+                    <div class="font-semibold text-slate-800 mb-2">❓ ${q.question}</div>
+                    <div class="flex flex-wrap">
+                        ${q.options.map((opt, i) => `
+                            <button class="question-btn" onclick="answerClarification('${opt}', ${idx})">
+                                ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+                clarificationContent.appendChild(div);
+            });
+        }
+
+        function answerClarification(answer, idx) {
+            log('info', `✓ Bạn trả lời: "${answer}"`);
+            stateAwaiting.innerText = 'false';
+            clarificationPanel.classList.add('hidden');
+            // Simulate resuming the flow
+            log('progress', 'Tiếp tục xử lý với thông tin bổ sung...');
         }
 
         async function startSimulation() {
             const role = document.getElementById('roleSelect').value;
             const input = document.getElementById('userInput').value;
+            const scenario = document.getElementById('scenarioSelect').value;
 
             if (!input.trim()) {
                 alert("Vui lòng nhập nội dung!");
@@ -268,7 +362,7 @@
 
             // Step 1: Request & Session
             stateStep.innerText = 'analyzing_intent';
-            log('info', `Nhận request từ client (Role: ${role})`);
+            log('info', `Nhận request từ client (Role: ${role}, Scenario: ${scenario})`);
             await new Promise(r => setTimeout(r, 800));
             stateData.innerText = role === 'tester' ? 'auth_fields' : 'python_math';
             
@@ -286,6 +380,43 @@
             await new Promise(r => setTimeout(r, 1500));
             updatePhase(1, 'done');
 
+            // SCENARIO: Clarification
+            if (scenario === 'clarify') {
+                log('question', "⚠️ Thiếu thông tin! Agent cần hỏi lại...");
+                stateStep.innerText = 'awaiting_clarification';
+                stateAwaiting.innerText = 'true';
+                
+                const clarifyQuestions = role === 'tester' 
+                    ? [
+                        {
+                            question: "Bạn muốn kiểm tra những trường nào?",
+                            options: ["Username + Password", "Email + Password", "Tất cả"]
+                        },
+                        {
+                            question: "Có cần kiểm tra Security (SQL Injection)?",
+                            options: ["Có", "Không"]
+                        }
+                    ]
+                    : [
+                        {
+                            question: "Hàm cần xử lý số âm không?",
+                            options: ["Có", "Không"]
+                        },
+                        {
+                            question: "Độ phức tạp tối đa là bao nhiêu?",
+                            options: ["O(n)", "O(sqrt(n))", "O(log n)"]
+                        }
+                    ];
+                
+                showClarificationQuestions(clarifyQuestions);
+                log('question', "Đã gửi câu hỏi làm rõ. Chờ phản hồi từ user...");
+                await new Promise(r => setTimeout(r, 3000));
+                stateAwaiting.innerText = 'false';
+                clarificationPanel.classList.add('hidden');
+                log('info', "✓ Nhận được phản hồi. Tiếp tục xử lý...");
+                await new Promise(r => setTimeout(r, 1000));
+            }
+
             // Phase 2: Retrieval
             updatePhase(2, 'active');
             stateStep.innerText = 'retrieving_data';
@@ -295,6 +426,15 @@
             retDiv.innerText = "🔍 Tìm thấy 3 tài liệu nghiệp vụ liên quan.";
             await new Promise(r => setTimeout(r, 1200));
             updatePhase(2, 'done');
+
+            // SCENARIO: Interrupt (Tool Error)
+            if (scenario === 'interrupt') {
+                log('interrupt', "⚠️ Tool Calling gặp lỗi! Thử lại...");
+                stateStep.innerText = 'tool_error_retry';
+                await new Promise(r => setTimeout(r, 1500));
+                log('progress', "Retry lần 1/3...");
+                await new Promise(r => setTimeout(r, 1000));
+            }
 
             // Phase 3: Tool Calling
             updatePhase(3, 'active');
@@ -306,6 +446,19 @@
             toolDiv.innerText = `> Running ${toolName}...\n> Status: Success\n> Result: Data context updated.`;
             await new Promise(r => setTimeout(r, 1500));
             updatePhase(3, 'done');
+
+            // SCENARIO: Retry (Validation Failed)
+            if (scenario === 'retry') {
+                log('error', "❌ Validation thất bại! Quay lại Phase 3...");
+                stateStep.innerText = 'validation_failed';
+                await new Promise(r => setTimeout(r, 1500));
+                log('progress', "Thực thi lại Tool Calling với context mới...");
+                updatePhase(3, 'active');
+                await new Promise(r => setTimeout(r, 1200));
+                updatePhase(3, 'done');
+                log('done', "✅ Tool Calling thành công lần 2");
+                await new Promise(r => setTimeout(r, 800));
+            }
 
             // Phase 4: Thinking
             updatePhase(4, 'active');
