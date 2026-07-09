@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Harness Chatbot - Server & Agent Flow Simulation</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -61,7 +62,6 @@
         }
         .question-btn {
             background: #f59e0b;
-            hover:bg-amber-600;
             text-white;
             padding: 6px 12px;
             border-radius: 4px;
@@ -76,180 +76,244 @@
             background: #d97706;
             transform: translateY(-1px);
         }
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 6px 0;
+        }
+        .reasoning-box {
+            background: #f3f4f6;
+            border-left: 3px solid #8b5cf6;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 6px 0;
+            font-size: 12px;
+            font-style: italic;
+            color: #4b5563;
+        }
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+        }
+        .token-bar {
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+            height: 6px;
+            border-radius: 3px;
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body class="p-4 md:p-8">
-    <div class="max-w-6xl mx-auto">
+    <div class="max-w-7xl mx-auto">
         <!-- Header -->
         <header class="mb-8 text-center">
             <h1 class="text-3xl font-bold text-slate-800">Harness Chatbot Flow Simulation</h1>
-            <p class="text-slate-500 mt-2">Mô phỏng luồng xử lý Server & Agent đa vai trò (QA/Dev Tool) + Clarification/Interrupt</p>
+            <p class="text-slate-500 mt-2">Mô phỏng luồng xử lý Server & Agent + Clarification/Interrupt + Cost Tracking + Reasoning</p>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <!-- Left: Controls & Input -->
-            <div class="lg:col-span-1 space-y-6">
+            <div class="lg:col-span-1 space-y-4">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                     <h2 class="text-lg font-semibold mb-4 text-slate-700 flex items-center">
                         <span class="w-2 h-6 bg-blue-500 rounded mr-2"></span>
-                        Cấu hình Session
+                        Cấu hình
                     </h2>
-                    <div class="space-y-4">
+                    <div class="space-y-3">
                         <div>
-                            <label class="block text-sm font-medium text-slate-600 mb-1">Vai trò (Role)</label>
-                            <select id="roleSelect" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
-                                <option value="tester">Tester (QA Tool)</option>
-                                <option value="developer">Developer (Dev Tool)</option>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">Vai trò</label>
+                            <select id="roleSelect" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                                <option value="tester">Tester (QA)</option>
+                                <option value="developer">Developer</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-slate-600 mb-1">Tin nhắn mô phỏng</label>
-                            <textarea id="userInput" rows="3" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="Nhập yêu cầu của bạn..."></textarea>
-                            <div class="mt-2 flex flex-wrap gap-2">
-                                <button onclick="setPreset('tester')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded">Mẫu Tester</button>
-                                <button onclick="setPreset('developer')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded">Mẫu Developer</button>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-600 mb-1">Kịch bản mô phỏng</label>
-                            <select id="scenarioSelect" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
-                                <option value="normal">Normal Flow (Thành công)</option>
-                                <option value="clarify">Clarification (Hỏi lại)</option>
-                                <option value="interrupt">Interrupt (Gián đoạn)</option>
-                                <option value="retry">Retry (Thử lại)</option>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">Kịch bản</label>
+                            <select id="scenarioSelect" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                                <option value="normal">Normal Flow</option>
+                                <option value="clarify">Clarification</option>
+                                <option value="interrupt">Interrupt</option>
+                                <option value="retry">Retry</option>
                             </select>
                         </div>
-                        <button id="startBtn" onclick="startSimulation()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md shadow-blue-200 flex items-center justify-center">
-                            <span>Bắt đầu xử lý</span>
-                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        <textarea id="userInput" rows="2" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none text-xs" placeholder="Nhập yêu cầu..."></textarea>
+                        <button id="startBtn" onclick="startSimulation()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors text-sm">
+                            ▶ Bắt đầu
                         </button>
                     </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <h2 class="text-lg font-semibold mb-4 text-slate-700 flex items-center">
-                        <span class="w-2 h-6 bg-emerald-500 rounded mr-2"></span>
-                        Trạng thái Server (Redis)
-                    </h2>
-                    <div id="sessionState" class="text-sm space-y-2">
-                        <div class="flex justify-between border-b border-slate-100 pb-1">
-                            <span class="text-slate-500">Session ID:</span>
-                            <span class="font-mono text-slate-700">sess_8492...</span>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-sm font-semibold mb-3 text-slate-700">📊 Cost & Token</h2>
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-600">Input Tokens:</span>
+                            <span id="inputTokens" class="font-mono font-bold text-blue-600">0</span>
                         </div>
-                        <div class="flex justify-between border-b border-slate-100 pb-1">
-                            <span class="text-slate-500">Current Step:</span>
+                        <div class="token-bar" id="inputBar" style="width: 0%"></div>
+                        <div class="flex justify-between text-xs mt-3">
+                            <span class="text-slate-600">Output Tokens:</span>
+                            <span id="outputTokens" class="font-mono font-bold text-purple-600">0</span>
+                        </div>
+                        <div class="token-bar" id="outputBar" style="width: 0%"></div>
+                        <div class="flex justify-between text-xs mt-3 pt-2 border-t border-slate-200">
+                            <span class="text-slate-600">Estimated Cost:</span>
+                            <span id="estimatedCost" class="font-mono font-bold text-green-600">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-sm font-semibold mb-3 text-slate-700">⚙️ Server State</h2>
+                    <div class="text-xs space-y-1">
+                        <div class="flex justify-between">
+                            <span class="text-slate-600">Current Step:</span>
                             <span id="stateStep" class="font-medium text-blue-600">idle</span>
                         </div>
-                        <div class="flex justify-between border-b border-slate-100 pb-1">
-                            <span class="text-slate-500">Pending Data:</span>
-                            <span id="stateData" class="text-slate-700 italic">none</span>
-                        </div>
-                        <div class="flex justify-between border-b border-slate-100 pb-1">
-                            <span class="text-slate-500">Awaiting Input:</span>
-                            <span id="stateAwaiting" class="text-slate-700 italic">false</span>
+                        <div class="flex justify-between">
+                            <span class="text-slate-600">Awaiting:</span>
+                            <span id="stateAwaiting" class="text-slate-700">false</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Clarification Questions Panel -->
-                <div id="clarificationPanel" class="hidden bg-white p-6 rounded-xl shadow-sm border border-amber-200">
-                    <h2 class="text-lg font-semibold mb-4 text-slate-700 flex items-center">
+                <!-- Clarification Panel -->
+                <div id="clarificationPanel" class="hidden bg-white p-4 rounded-xl shadow-sm border border-amber-200">
+                    <h2 class="text-sm font-semibold mb-2 text-slate-700 flex items-center">
                         <span class="interrupt-badge">CLARIFY</span>
-                        <span>Câu hỏi từ Bot</span>
                     </h2>
-                    <div id="clarificationContent" class="space-y-3">
-                        <!-- Questions will be inserted here -->
+                    <div id="clarificationContent" class="space-y-2"></div>
+                </div>
+            </div>
+
+            <!-- Middle: Flow & Reasoning -->
+            <div class="lg:col-span-2 space-y-4">
+                <!-- Agent Loop Phases -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-sm font-semibold text-slate-700 mb-3">📋 Agent Loop Phases</h2>
+                    <div class="space-y-2" id="flowContainer">
+                        <div id="phase1" class="step-node bg-slate-50 p-3 rounded border-2 border-slate-100 flex items-start">
+                            <div class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold mr-2 shrink-0 text-xs">1</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-slate-800 text-sm">Planning</h3>
+                                <p class="text-xs text-slate-500">Lập kế hoạch thực thi</p>
+                            </div>
+                        </div>
+                        <div id="phase2" class="step-node bg-slate-50 p-3 rounded border-2 border-slate-100 flex items-start">
+                            <div class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold mr-2 shrink-0 text-xs">2</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-slate-800 text-sm">Retrieval</h3>
+                                <p class="text-xs text-slate-500">Truy xuất dữ liệu (RAG)</p>
+                            </div>
+                        </div>
+                        <div id="phase3" class="step-node bg-slate-50 p-3 rounded border-2 border-slate-100 flex items-start">
+                            <div class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold mr-2 shrink-0 text-xs">3</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-slate-800 text-sm">Tool Calling</h3>
+                                <p class="text-xs text-slate-500">Thực thi công cụ</p>
+                            </div>
+                        </div>
+                        <div id="phase4" class="step-node bg-slate-50 p-3 rounded border-2 border-slate-100 flex items-start">
+                            <div class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold mr-2 shrink-0 text-xs">4</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-slate-800 text-sm">Thinking</h3>
+                                <p class="text-xs text-slate-500">Suy luận & Streaming</p>
+                            </div>
+                        </div>
+                        <div id="phase5" class="step-node bg-slate-50 p-3 rounded border-2 border-slate-100 flex items-start">
+                            <div class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold mr-2 shrink-0 text-xs">5</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-slate-800 text-sm">Finalize</h3>
+                                <p class="text-xs text-slate-500">Validate & Kết thúc</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reasoning Log -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-sm font-semibold text-slate-700 mb-3">🧠 Agent Reasoning Log</h2>
+                    <div id="reasoningLog" class="space-y-2 max-h-[300px] overflow-y-auto terminal-scroll">
+                        <div class="text-xs text-slate-500 italic">// Chờ Agent bắt đầu suy luận...</div>
+                    </div>
+                </div>
+
+                <!-- Dependency Graph -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-sm font-semibold text-slate-700 mb-3">🔗 Data Flow & Dependencies</h2>
+                    <div id="graphContainer" class="mermaid">
+                        graph LR
+                            A["📥 User Input"] --> B["🧠 Agent"]
+                            B --> C["📋 Planning"]
+                            C --> D["🔍 Retrieval"]
+                            D --> E["⚙️ Tool Call"]
+                            E --> F["💭 Reasoning"]
+                            F --> G["✅ Output"]
                     </div>
                 </div>
             </div>
 
-            <!-- Middle: Visual Flow -->
-            <div class="lg:col-span-1 space-y-4">
-                <h2 class="text-lg font-semibold text-slate-700 px-2">Agent Loop Phases</h2>
-                <div class="space-y-3" id="flowContainer">
-                    <!-- Phase 1 -->
-                    <div id="phase1" class="step-node bg-white p-4 rounded-lg border-2 border-slate-100 flex items-start">
-                        <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold mr-3 shrink-0">1</div>
-                        <div>
-                            <h3 class="font-semibold text-slate-800">Phase 1: Planning</h3>
-                            <p class="text-xs text-slate-500">Lập kế hoạch thực thi (JSON steps)</p>
-                            <div id="planDetails" class="hidden mt-2 text-xs bg-slate-50 p-2 rounded border border-slate-100"></div>
-                        </div>
-                    </div>
-                    <!-- Phase 2 -->
-                    <div id="phase2" class="step-node bg-white p-4 rounded-lg border-2 border-slate-100 flex items-start">
-                        <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold mr-3 shrink-0">2</div>
-                        <div>
-                            <h3 class="font-semibold text-slate-800">Phase 2: Retrieval</h3>
-                            <p class="text-xs text-slate-500">Truy xuất dữ liệu (RAG / Vector DB)</p>
-                            <div id="retrievalDetails" class="hidden mt-2 text-xs text-blue-600 italic"></div>
-                        </div>
-                    </div>
-                    <!-- Phase 3 -->
-                    <div id="phase3" class="step-node bg-white p-4 rounded-lg border-2 border-slate-100 flex items-start">
-                        <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold mr-3 shrink-0">3</div>
-                        <div>
-                            <h3 class="font-semibold text-slate-800">Phase 3: Tool Calling</h3>
-                            <p class="text-xs text-slate-500">Thực thi công cụ (Function Calling)</p>
-                            <div id="toolDetails" class="hidden mt-2 text-xs bg-slate-800 text-green-400 p-2 rounded font-mono"></div>
-                        </div>
-                    </div>
-                    <!-- Phase 4 -->
-                    <div id="phase4" class="step-node bg-white p-4 rounded-lg border-2 border-slate-100 flex items-start">
-                        <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold mr-3 shrink-0">4</div>
-                        <div>
-                            <h3 class="font-semibold text-slate-800">Phase 4: Thinking</h3>
-                            <p class="text-xs text-slate-500">Suy luận & Streaming Output</p>
-                        </div>
-                    </div>
-                    <!-- Phase 5 -->
-                    <div id="phase5" class="step-node bg-white p-4 rounded-lg border-2 border-slate-100 flex items-start">
-                        <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold mr-3 shrink-0">5</div>
-                        <div>
-                            <h3 class="font-semibold text-slate-800">Phase 5: Finalize</h3>
-                            <p class="text-xs text-slate-500">Validate & Trả kết quả cuối</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right: Real-time Output (Streaming UI) -->
+            <!-- Right: Real-time Output -->
             <div class="lg:col-span-1">
-                <div class="bg-slate-900 rounded-xl shadow-2xl overflow-hidden flex flex-col h-[600px] border border-slate-700">
+                <div class="bg-slate-900 rounded-xl shadow-2xl overflow-hidden flex flex-col h-[700px] border border-slate-700">
                     <div class="bg-slate-800 px-4 py-2 flex items-center justify-between border-b border-slate-700">
                         <div class="flex space-x-2">
                             <div class="w-3 h-3 rounded-full bg-red-500"></div>
                             <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
                             <div class="w-3 h-3 rounded-full bg-green-500"></div>
                         </div>
-                        <span class="text-xs text-slate-400 font-mono">SSE Stream Monitor</span>
+                        <span class="text-xs text-slate-400 font-mono">SSE Stream</span>
                     </div>
-                    <div id="terminal" class="flex-1 p-4 font-mono text-sm overflow-y-auto terminal-scroll text-slate-300">
-                        <div class="text-slate-500 mb-2">// Chờ tín hiệu từ server...</div>
+                    <div id="terminal" class="flex-1 p-3 font-mono text-xs overflow-y-auto terminal-scroll text-slate-300">
+                        <div class="text-slate-500 mb-2">// Chờ tín hiệu...</div>
                     </div>
-                    <div class="p-4 bg-slate-800 border-t border-slate-700">
-                        <div class="text-[10px] text-slate-500 uppercase tracking-widest mb-2">Final Output Preview</div>
-                        <div id="finalOutput" class="bg-slate-900 border border-slate-700 rounded p-3 text-xs text-slate-400 min-h-[100px] whitespace-pre-wrap"></div>
+                    <div class="p-3 bg-slate-800 border-t border-slate-700">
+                        <div class="text-[10px] text-slate-500 uppercase tracking-widest mb-2">Output</div>
+                        <div id="finalOutput" class="bg-slate-900 border border-slate-700 rounded p-2 text-xs text-slate-400 min-h-[120px] whitespace-pre-wrap max-h-[150px] overflow-y-auto terminal-scroll"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Legend -->
-        <footer class="mt-12 pt-6 border-t border-slate-200 text-center text-slate-400 text-sm">
-            <p>&copy; 2026 Harness AI. Kiến trúc Server Flow mô phỏng 2 chiều (SSE/WebSocket) + Clarification/Interrupt Handling.</p>
+        <!-- Footer -->
+        <footer class="mt-8 pt-6 border-t border-slate-200 text-center text-slate-400 text-xs">
+            <p>&copy; 2026 Harness AI. Advanced Agent Flow Simulation with Cost Tracking, Reasoning Log & Dependency Graph.</p>
         </footer>
     </div>
 
     <script>
+        // ===== Configuration =====
+        const CONFIG = {
+            ENABLE_TOKEN_TRACKING: true,
+            ENABLE_REASONING_LOG: true,
+            ENABLE_DEPENDENCY_GRAPH: true,
+            PRICING: {
+                INPUT_COST_PER_1K: 0.0015,
+                OUTPUT_COST_PER_1K: 0.006
+            }
+        };
+
+        // ===== State Management =====
+        let simulationState = {
+            inputTokens: 0,
+            outputTokens: 0,
+            totalCost: 0,
+            reasoningSteps: []
+        };
+
         const terminal = document.getElementById('terminal');
         const finalOutput = document.getElementById('finalOutput');
         const stateStep = document.getElementById('stateStep');
-        const stateData = document.getElementById('stateData');
         const stateAwaiting = document.getElementById('stateAwaiting');
         const startBtn = document.getElementById('startBtn');
         const clarificationPanel = document.getElementById('clarificationPanel');
         const clarificationContent = document.getElementById('clarificationContent');
+        const reasoningLog = document.getElementById('reasoningLog');
 
         const presets = {
             tester: "Tạo testcase cho chức năng đăng nhập",
@@ -259,6 +323,35 @@
         function setPreset(role) {
             document.getElementById('roleSelect').value = role;
             document.getElementById('userInput').value = presets[role];
+        }
+
+        function updateTokens(inputDelta, outputDelta) {
+            if (!CONFIG.ENABLE_TOKEN_TRACKING) return;
+            
+            simulationState.inputTokens += inputDelta;
+            simulationState.outputTokens += outputDelta;
+            
+            const inputCost = (simulationState.inputTokens / 1000) * CONFIG.PRICING.INPUT_COST_PER_1K;
+            const outputCost = (simulationState.outputTokens / 1000) * CONFIG.PRICING.OUTPUT_COST_PER_1K;
+            simulationState.totalCost = inputCost + outputCost;
+            
+            document.getElementById('inputTokens').innerText = simulationState.inputTokens;
+            document.getElementById('outputTokens').innerText = simulationState.outputTokens;
+            document.getElementById('estimatedCost').innerText = `$${simulationState.totalCost.toFixed(4)}`;
+            
+            const maxTokens = 2000;
+            document.getElementById('inputBar').style.width = Math.min(100, (simulationState.inputTokens / maxTokens) * 100) + '%';
+            document.getElementById('outputBar').style.width = Math.min(100, (simulationState.outputTokens / maxTokens) * 100) + '%';
+        }
+
+        function addReasoning(step, thought) {
+            if (!CONFIG.ENABLE_REASONING_LOG) return;
+            
+            const div = document.createElement('div');
+            div.className = 'reasoning-box';
+            div.innerHTML = `<strong>${step}:</strong> ${thought}`;
+            reasoningLog.appendChild(div);
+            reasoningLog.scrollTop = reasoningLog.scrollHeight;
         }
 
         function log(type, message) {
@@ -288,12 +381,12 @@
                 el.classList.remove('step-active', 'step-completed');
                 el.classList.add('border-slate-100');
             });
-            document.getElementById('planDetails').classList.add('hidden');
-            document.getElementById('retrievalDetails').classList.add('hidden');
-            document.getElementById('toolDetails').classList.add('hidden');
             clarificationPanel.classList.add('hidden');
             terminal.innerHTML = '<div class="text-slate-500 mb-2">// Khởi tạo stream mới...</div>';
             finalOutput.innerText = '';
+            reasoningLog.innerHTML = '<div class="text-xs text-slate-500 italic">// Agent bắt đầu suy luận...</div>';
+            simulationState = { inputTokens: 0, outputTokens: 0, totalCost: 0, reasoningSteps: [] };
+            updateTokens(0, 0);
         }
 
         function updatePhase(id, status) {
@@ -313,6 +406,7 @@
             for (let token of tokens) {
                 current += token + ' ';
                 callback(current);
+                updateTokens(0, 1);
                 await new Promise(r => setTimeout(r, 50 + Math.random() * 100));
             }
         }
@@ -325,10 +419,10 @@
                 const div = document.createElement('div');
                 div.className = 'clarification-box';
                 div.innerHTML = `
-                    <div class="font-semibold text-slate-800 mb-2">❓ ${q.question}</div>
+                    <div class="font-semibold text-slate-800 mb-2 text-xs">❓ ${q.question}</div>
                     <div class="flex flex-wrap">
                         ${q.options.map((opt, i) => `
-                            <button class="question-btn" onclick="answerClarification('${opt}', ${idx})">
+                            <button class="question-btn text-xs" onclick="answerClarification('${opt}', ${idx})">
                                 ${opt}
                             </button>
                         `).join('')}
@@ -342,8 +436,7 @@
             log('info', `✓ Bạn trả lời: "${answer}"`);
             stateAwaiting.innerText = 'false';
             clarificationPanel.classList.add('hidden');
-            // Simulate resuming the flow
-            log('progress', 'Tiếp tục xử lý với thông tin bổ sung...');
+            addReasoning('Clarification Response', `User cung cấp: "${answer}"`);
         }
 
         async function startSimulation() {
@@ -360,77 +453,63 @@
             startBtn.classList.add('opacity-50');
             resetPhases();
 
-            // Step 1: Request & Session
+            // Initial token count
+            updateTokens(Math.floor(input.length / 4), 0);
+
             stateStep.innerText = 'analyzing_intent';
-            log('info', `Nhận request từ client (Role: ${role}, Scenario: ${scenario})`);
+            log('info', `Nhận request (Role: ${role}, Scenario: ${scenario})`);
+            addReasoning('Intent Analysis', `Phân tích yêu cầu từ người dùng: "${input}"`);
             await new Promise(r => setTimeout(r, 800));
-            stateData.innerText = role === 'tester' ? 'auth_fields' : 'python_math';
-            
+
             // Phase 1: Planning
             updatePhase(1, 'active');
             stateStep.innerText = 'agent_planning';
-            const plans = role === 'tester' 
-                ? ["1. Phân tích yêu cầu login", "2. Truy xuất mẫu testcase cũ", "3. Gọi tool get_db_schema", "4. Sinh testcase"]
-                : ["1. Phân tích logic số nguyên tố", "2. Kiểm tra các thuật toán tối ưu", "3. Viết code & Unit test"];
-            
+            addReasoning('Planning Phase', 'Agent đang lập kế hoạch các bước thực thi...');
             log('plan', "Đang lập kế hoạch...");
-            const planDiv = document.getElementById('planDetails');
-            planDiv.classList.remove('hidden');
-            planDiv.innerHTML = plans.map(p => `<div>${p}</div>`).join('');
+            updateTokens(150, 200);
             await new Promise(r => setTimeout(r, 1500));
             updatePhase(1, 'done');
 
-            // SCENARIO: Clarification
+            // Clarification Scenario
             if (scenario === 'clarify') {
                 log('question', "⚠️ Thiếu thông tin! Agent cần hỏi lại...");
                 stateStep.innerText = 'awaiting_clarification';
                 stateAwaiting.innerText = 'true';
+                addReasoning('Clarification Needed', 'Agent phát hiện thông tin không đủ để tiếp tục');
                 
                 const clarifyQuestions = role === 'tester' 
                     ? [
-                        {
-                            question: "Bạn muốn kiểm tra những trường nào?",
-                            options: ["Username + Password", "Email + Password", "Tất cả"]
-                        },
-                        {
-                            question: "Có cần kiểm tra Security (SQL Injection)?",
-                            options: ["Có", "Không"]
-                        }
+                        { question: "Bạn muốn kiểm tra những trường nào?", options: ["Username + Password", "Email + Password", "Tất cả"] },
+                        { question: "Có cần kiểm tra Security?", options: ["Có", "Không"] }
                     ]
                     : [
-                        {
-                            question: "Hàm cần xử lý số âm không?",
-                            options: ["Có", "Không"]
-                        },
-                        {
-                            question: "Độ phức tạp tối đa là bao nhiêu?",
-                            options: ["O(n)", "O(sqrt(n))", "O(log n)"]
-                        }
+                        { question: "Hàm cần xử lý số âm không?", options: ["Có", "Không"] },
+                        { question: "Độ phức tạp tối đa?", options: ["O(n)", "O(sqrt(n))", "O(log n)"] }
                     ];
                 
                 showClarificationQuestions(clarifyQuestions);
-                log('question', "Đã gửi câu hỏi làm rõ. Chờ phản hồi từ user...");
+                log('question', "Đã gửi câu hỏi làm rõ...");
                 await new Promise(r => setTimeout(r, 3000));
                 stateAwaiting.innerText = 'false';
                 clarificationPanel.classList.add('hidden');
-                log('info', "✓ Nhận được phản hồi. Tiếp tục xử lý...");
+                log('info', "✓ Nhận được phản hồi. Tiếp tục...");
                 await new Promise(r => setTimeout(r, 1000));
             }
 
             // Phase 2: Retrieval
             updatePhase(2, 'active');
             stateStep.innerText = 'retrieving_data';
-            log('progress', "Đang tìm kiếm tài liệu liên quan trong Vector DB...");
-            const retDiv = document.getElementById('retrievalDetails');
-            retDiv.classList.remove('hidden');
-            retDiv.innerText = "🔍 Tìm thấy 3 tài liệu nghiệp vụ liên quan.";
+            addReasoning('Retrieval Phase', 'Tìm kiếm tài liệu liên quan từ Vector DB...');
+            log('progress', "🔍 Tìm kiếm tài liệu...");
+            updateTokens(100, 0);
             await new Promise(r => setTimeout(r, 1200));
             updatePhase(2, 'done');
 
-            // SCENARIO: Interrupt (Tool Error)
+            // Interrupt Scenario
             if (scenario === 'interrupt') {
                 log('interrupt', "⚠️ Tool Calling gặp lỗi! Thử lại...");
                 stateStep.innerText = 'tool_error_retry';
+                addReasoning('Error Handling', 'Tool trả về lỗi. Agent quyết định thử lại.');
                 await new Promise(r => setTimeout(r, 1500));
                 log('progress', "Retry lần 1/3...");
                 await new Promise(r => setTimeout(r, 1000));
@@ -440,20 +519,21 @@
             updatePhase(3, 'active');
             stateStep.innerText = 'executing_tools';
             const toolName = role === 'tester' ? 'get_db_schema("users")' : 'run_linter("prime_check.py")';
+            addReasoning('Tool Execution', `Gọi tool: ${toolName}`);
             log('tool', `Đang gọi: ${toolName}`);
-            const toolDiv = document.getElementById('toolDetails');
-            toolDiv.classList.remove('hidden');
-            toolDiv.innerText = `> Running ${toolName}...\n> Status: Success\n> Result: Data context updated.`;
+            updateTokens(200, 150);
             await new Promise(r => setTimeout(r, 1500));
             updatePhase(3, 'done');
 
-            // SCENARIO: Retry (Validation Failed)
+            // Retry Scenario
             if (scenario === 'retry') {
                 log('error', "❌ Validation thất bại! Quay lại Phase 3...");
                 stateStep.innerText = 'validation_failed';
+                addReasoning('Validation Error', 'Output không đạt tiêu chí. Agent tự sửa lỗi.');
                 await new Promise(r => setTimeout(r, 1500));
-                log('progress', "Thực thi lại Tool Calling với context mới...");
+                log('progress', "Thực thi lại Tool Calling...");
                 updatePhase(3, 'active');
+                updateTokens(200, 150);
                 await new Promise(r => setTimeout(r, 1200));
                 updatePhase(3, 'done');
                 log('done', "✅ Tool Calling thành công lần 2");
@@ -463,11 +543,12 @@
             // Phase 4: Thinking
             updatePhase(4, 'active');
             stateStep.innerText = 'reasoning';
-            log('thinking', "Đang tổng hợp dữ liệu và sinh câu trả lời...");
+            addReasoning('Reasoning Phase', 'Tổng hợp context và sinh câu trả lời cuối cùng...');
+            log('thinking', "🧠 Đang suy luận...");
             
             const resultText = role === 'tester' 
-                ? "Dưới đây là danh sách testcase cho chức năng đăng nhập:\n1. TC01: Đăng nhập thành công với Username/Password đúng.\n2. TC02: Đăng nhập thất bại khi để trống trường.\n3. TC03: Kiểm tra SQL Injection trên trường Username."
-                : "Hàm Python kiểm tra số nguyên tố tối ưu:\n\ndef is_prime(n):\n    if n < 2: return False\n    for i in range(2, int(n**0.5) + 1):\n        if n % i == 0: return False\n    return True\n\nThuật toán sử dụng căn bậc hai để giảm số vòng lặp.";
+                ? "Testcase cho chức năng đăng nhập:\n1. TC01: Login thành công\n2. TC02: Để trống trường\n3. TC03: SQL Injection"
+                : "def is_prime(n):\n    if n < 2: return False\n    for i in range(2, int(n**0.5)+1):\n        if n % i == 0: return False\n    return True";
 
             await simulateStreaming(resultText, (current) => {
                 finalOutput.innerText = current + '█';
@@ -478,7 +559,8 @@
             // Phase 5: Finalize
             updatePhase(5, 'active');
             stateStep.innerText = 'completed';
-            log('done', "Xử lý hoàn tất. Dữ liệu đã được validate.");
+            addReasoning('Finalize Phase', 'Validate output và đóng luồng xử lý.');
+            log('done', "✅ Xử lý hoàn tất!");
             await new Promise(r => setTimeout(r, 500));
             updatePhase(5, 'done');
 
@@ -486,8 +568,11 @@
             startBtn.classList.remove('opacity-50');
         }
 
-        // Initialize with default preset
+        // Initialize
         setPreset('tester');
+        if (CONFIG.ENABLE_DEPENDENCY_GRAPH) {
+            mermaid.contentLoaded();
+        }
     </script>
 </body>
 </html>
