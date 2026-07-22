@@ -40,11 +40,60 @@
         </div>
     </header>
 
-    <main id="app" class="flex-grow p-6 space-y-6">
-        <!-- Main content will be added in subsequent phases -->
-        <div class="text-center py-20 text-gray-400">
-            <p>Initializing main converter area...</p>
+    <main id="app" class="flex-grow p-6 space-y-8">
+        <!-- Feature 2: Main Conversion Area -->
+        <div class="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-4 items-center">
+            <!-- Left Column: URL -->
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">Kibana URL</label>
+                    <span class="text-xs text-gray-400">Contains #/discover?...</span>
+                </div>
+                <textarea id="kibanaUrl" rows="12" 
+                    class="w-full p-4 font-mono text-sm border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none bg-white"
+                    placeholder="Dán URL Kibana vào đây..."></textarea>
+                <div class="flex items-center justify-between">
+                    <button id="btnParseToDsl" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold shadow transition-all flex items-center space-x-2">
+                        <span>→ Parse sang DSL</span>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="chkAutoDecode" checked class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+                        <label for="chkAutoDecode" class="text-sm text-gray-600 cursor-pointer">Auto-decode</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle: Exchange Button -->
+            <div class="flex flex-col items-center justify-center p-4">
+                <button id="btnExchange" class="p-4 bg-white border-2 border-blue-100 hover:border-blue-500 hover:text-blue-600 text-gray-400 rounded-full shadow-lg transition-all transform hover:scale-110 active:scale-95 group">
+                    <i class="fas fa-exchange-alt text-2xl group-hover:rotate-180 transition-transform duration-500"></i>
+                </button>
+            </div>
+
+            <!-- Right Column: DSL -->
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">DSL JSON</label>
+                    <div class="flex space-x-2">
+                        <button id="btnFormatJson" class="text-xs text-blue-600 hover:underline font-medium">Format</button>
+                        <button id="btnMinifyJson" class="text-xs text-gray-500 hover:underline font-medium">Minify</button>
+                    </div>
+                </div>
+                <textarea id="dslJson" rows="12" 
+                    class="w-full p-4 font-mono text-sm border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none bg-white"
+                    placeholder='{ "query": { ... } }'></textarea>
+                <div class="flex items-center">
+                    <button id="btnGenerateUrl" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-semibold shadow transition-all">
+                        ← Tạo URL
+                    </button>
+                </div>
+            </div>
         </div>
+
+        <div id="summaryContainer"></div>
+        <div id="guiBuilderContainer"></div>
+        <div id="historyContainer"></div>
+        <div id="bookmarkletContainer"></div>
     </main>
 
     <script src="dsl.js"></script>
