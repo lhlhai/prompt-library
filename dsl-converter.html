@@ -19,8 +19,9 @@
         code {
             word-break: break-all;
         }
+        /* CSS mạnh hơn để ẩn mặc định */
         .diff-hidden {
-            display: none;
+            display: none !important;
         }
         .diff-added {
             background-color: #dcfce7;
@@ -132,7 +133,7 @@
                 </div>
             </div>
 
-            <!-- Pair 2 (Hidden by default) -->
+            <!-- Pair 2 (Mặc định có class diff-hidden) -->
             <div id="pair2" class="contents diff-hidden">
                 <div class="lg:col-span-3 border-t border-dashed border-gray-300 my-6"></div>
                 
