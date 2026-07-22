@@ -168,171 +168,472 @@ function parseKibanaState(url) {
 }
 
 // ============================================================
-// Convert Kibana RISON states to Elasticsearch DSL query
+// Internal Query Model - Single Source of Truth
 // ============================================================
-function convertToDsl(appStateRison, globalStateRison) {
-    const dsl = {
-        query: { bool: {} },
-        size: 500,
-        sort: [],
-        _source: []
-    };
+/**
+ * Internal Model Structure:
+ * {
+ *   "time": { "from": "now-7d", "to": "now" },
+ *   "query": { "language": "kuery", "text": "" },
+ *   "filters": [ { "type": "term", "field": "Carrier.keyword", "value": "JetBeats" } ],
+ *   "sort": [ { "field": "@timestamp", "order": "desc" } ],
+ *   "columns": ["_source"],
+ *   "size": 500,
+ *   "dataView": "d3d7af60-4c81-11e8-b3d7-01146121b73d"
+ * }
+ */
 
-    const boolQuery = { must: [], filter: [], should: [], must_not: [] };
+// ============================================================
+// Step 1: Parse Kibana URL to Internal Model
+// ============================================================
+function parseKibanaUrlToModel(appStateRison, globalStateRison) {
+    const model = {
+        time: { from: 'now-15m', to: 'now' },
+        query: { language: 'kuery', text: '' },
+        filters: [],
+        sort: [],
+        columns: ['_source'],
+        size: 500,
+        dataView: null
+    };
 
     try {
         const appState = appStateRison ? rison.decode(appStateRison) : {};
         const globalState = globalStateRison ? rison.decode(globalStateRison) : {};
 
+        // Parse global state (_g) - time range
         if (globalState && globalState.time) {
-            const timeRange = {};
-            if (globalState.time.from) timeRange.gte = globalState.time.from;
-            if (globalState.time.to) timeRange.lte = globalState.time.to;
-            if (Object.keys(timeRange).length > 0) {
-                boolQuery.filter.push({ range: { '@timestamp': timeRange } });
-            }
+            if (globalState.time.from) model.time.from = globalState.time.from;
+            if (globalState.time.to) model.time.to = globalState.time.to;
         }
 
+        // Parse app state (_a)
         if (appState) {
-            if (appState.query && appState.query.query) {
-                boolQuery.must.push({ query_string: { query: appState.query.query } });
+            // Query (KQL/Lucene)
+            if (appState.query) {
+                model.query.language = appState.query.language || 'kuery';
+                model.query.text = appState.query.query || '';
             }
 
+            // Filters
             if (appState.filters && Array.isArray(appState.filters)) {
                 appState.filters.forEach(filter => {
-                    if (filter.meta && filter.meta.disabled) return; 
+                    if (filter.meta && filter.meta.disabled) return;
 
-                    let dslFilter = {};
-                    if (filter.query) {
-                        if (filter.query.query_string) {
-                            dslFilter = { query_string: filter.query.query_string };
-                        } else if (filter.query.match) {
-                            const field = Object.keys(filter.query.match)[0];
-                            const matchVal = filter.query.match[field];
-                            const value = (typeof matchVal === 'object' && matchVal !== null) ? (matchVal.query || matchVal) : matchVal;
-                            dslFilter = { match: { [field]: value } };
-                        }
-                    } else if (filter.range) {
+                    let internalFilter = null;
+
+                    // Match phrase filter
+                    if (filter.query && filter.query.match) {
+                        const field = Object.keys(filter.query.match)[0];
+                        const matchVal = filter.query.match[field];
+                        const value = (typeof matchVal === 'object' && matchVal !== null) 
+                            ? (matchVal.query || matchVal) 
+                            : matchVal;
+                        internalFilter = {
+                            type: 'match_phrase',
+                            field: field,
+                            value: value
+                        };
+                    }
+                    // Term filter
+                    else if (filter.query && filter.query.term) {
+                        const field = Object.keys(filter.query.term)[0];
+                        internalFilter = {
+                            type: 'term',
+                            field: field,
+                            value: filter.query.term[field]
+                        };
+                    }
+                    // Range filter
+                    else if (filter.range) {
                         const field = Object.keys(filter.range)[0];
-                        dslFilter = { range: { [field]: filter.range[field] } };
-                    } else if (filter.exists) {
-                        dslFilter = { exists: { field: filter.exists.field } };
+                        const rangeObj = filter.range[field];
+                        internalFilter = {
+                            type: 'range',
+                            field: field,
+                            gte: rangeObj.gte || null,
+                            lte: rangeObj.lte || null,
+                            gt: rangeObj.gt || null,
+                            lt: rangeObj.lt || null
+                        };
+                    }
+                    // Exists filter
+                    else if (filter.exists) {
+                        internalFilter = {
+                            type: 'exists',
+                            field: filter.exists.field
+                        };
+                    }
+                    // Query string filter
+                    else if (filter.query && filter.query.query_string) {
+                        internalFilter = {
+                            type: 'query_string',
+                            query: filter.query.query_string.query || '',
+                            default_field: filter.query.query_string.default_field || '_all'
+                        };
                     }
 
-                    if (Object.keys(dslFilter).length > 0) {
+                    if (internalFilter) {
                         if (filter.meta && filter.meta.negate) {
-                            boolQuery.must_not.push(dslFilter);
-                        } else {
-                            boolQuery.filter.push(dslFilter);
+                            internalFilter.negate = true;
                         }
+                        model.filters.push(internalFilter);
                     }
                 });
             }
 
+            // Columns
             if (appState.columns && Array.isArray(appState.columns)) {
-                dsl._source = appState.columns;
+                model.columns = appState.columns;
             }
 
+            // Sort
             if (appState.sort && Array.isArray(appState.sort) && appState.sort.length > 0) {
                 const sortField = appState.sort[0];
                 const sortOrder = appState.sort[1] || 'asc';
-                dsl.sort.push({ [sortField]: sortOrder });
+                model.sort = [{ field: sortField, order: sortOrder }];
+            }
+
+            // Data View
+            if (appState.dataViewId) {
+                model.dataView = appState.dataViewId;
+            }
+
+            // Size (from interval or default)
+            if (appState.interval) {
+                model.size = 500; // Default size for Discover
             }
         }
+    } catch (e) {
+        console.error('Error parsing Kibana URL to model:', e);
+    }
 
+    return model;
+}
+
+// ============================================================
+// Step 2: Convert Internal Model to Elasticsearch DSL
+// ============================================================
+function modelToDsl(model) {
+    const dsl = {
+        size: model.size || 500,
+        sort: [],
+        _source: model.columns || []
+    };
+
+    const boolQuery = { must: [], filter: [], should: [], must_not: [] };
+
+    // Time range -> range query on @timestamp
+    if (model.time) {
+        const timeRange = {};
+        if (model.time.from) timeRange.gte = model.time.from;
+        if (model.time.to) timeRange.lte = model.time.to;
+        if (Object.keys(timeRange).length > 0) {
+            boolQuery.filter.push({ range: { '@timestamp': timeRange } });
+        }
+    }
+
+    // KQL/Lucene query text
+    if (model.query && model.query.text) {
+        if (model.query.language === 'lucene') {
+            boolQuery.must.push({ query_string: { query: model.query.text } });
+        } else {
+            // KUERY - simplified handling
+            boolQuery.must.push({ query_string: { query: model.query.text } });
+        }
+    }
+
+    // Filters
+    if (model.filters && Array.isArray(model.filters)) {
+        model.filters.forEach(filter => {
+            let dslFilter = null;
+
+            switch (filter.type) {
+                case 'term':
+                    dslFilter = { term: { [filter.field]: filter.value } };
+                    break;
+                case 'match_phrase':
+                    dslFilter = { match_phrase: { [filter.field]: filter.value } };
+                    break;
+                case 'range':
+                    const rangeObj = {};
+                    if (filter.gte !== null && filter.gte !== undefined) rangeObj.gte = filter.gte;
+                    if (filter.lte !== null && filter.lte !== undefined) rangeObj.lte = filter.lte;
+                    if (filter.gt !== null && filter.gt !== undefined) rangeObj.gt = filter.gt;
+                    if (filter.lt !== null && filter.lt !== undefined) rangeObj.lt = filter.lt;
+                    dslFilter = { range: { [filter.field]: rangeObj } };
+                    break;
+                case 'exists':
+                    dslFilter = { exists: { field: filter.field } };
+                    break;
+                case 'query_string':
+                    dslFilter = { query_string: { query: filter.query, default_field: filter.default_field || '_all' } };
+                    break;
+            }
+
+            if (dslFilter) {
+                if (filter.negate) {
+                    boolQuery.must_not.push(dslFilter);
+                } else {
+                    boolQuery.filter.push(dslFilter);
+                }
+            }
+        });
+    }
+
+    // Sort
+    if (model.sort && model.sort.length > 0) {
+        model.sort.forEach(s => {
+            dsl.sort.push({ [s.field]: s.order });
+        });
+    }
+
+    // Build final query
+    if (boolQuery.must.length > 0 || boolQuery.filter.length > 0 || boolQuery.should.length > 0 || boolQuery.must_not.length > 0) {
+        dsl.query = { bool: {} };
         if (boolQuery.must.length > 0) dsl.query.bool.must = boolQuery.must;
         if (boolQuery.filter.length > 0) dsl.query.bool.filter = boolQuery.filter;
         if (boolQuery.should.length > 0) dsl.query.bool.should = boolQuery.should;
         if (boolQuery.must_not.length > 0) dsl.query.bool.must_not = boolQuery.must_not;
-
-        if (Object.keys(dsl.query.bool).length === 0) {
-            delete dsl.query.bool;
-            if (Object.keys(dsl.query).length === 0) delete dsl.query;
-        }
-
-        if (dsl.sort.length === 0) delete dsl.sort;
-        if (dsl._source.length === 0) delete dsl._source;
-
-    } catch (e) {
-        console.error('Error converting to DSL:', e);
-        return { error: e.message };
     }
+
+    // Clean up empty bool
+    if (dsl.query && dsl.query.bool && Object.keys(dsl.query.bool).length === 0) {
+        delete dsl.query.bool;
+        if (Object.keys(dsl.query).length === 0) delete dsl.query;
+    }
+
+    // Clean up empty arrays
+    if (dsl.sort && dsl.sort.length === 0) delete dsl.sort;
+    if (dsl._source && dsl._source.length === 0) delete dsl._source;
 
     return dsl;
 }
 
 // ============================================================
-// Convert Elasticsearch DSL query to Kibana RISON states
+// Main function: Convert Kibana RISON states to Elasticsearch DSL query
+// Uses Internal Model as intermediate representation
 // ============================================================
-function convertToKibanaStates(dslJson) {
-    const appState = {
-        query: { language: 'kuery', query: '' },
-        filters: [],
-        columns: ['_source'],
-        sort: []
-    };
-    const globalState = { time: { from: 'now-15m', to: 'now' } };
-
+function convertToDsl(appStateRison, globalStateRison) {
     try {
-        const dsl = typeof dslJson === 'string' ? JSON.parse(dslJson) : dslJson;
+        // Step 1: Parse Kibana URL to Internal Model
+        const model = parseKibanaUrlToModel(appStateRison, globalStateRison);
+        
+        // Step 2: Convert Internal Model to DSL
+        const dsl = modelToDsl(model);
+        
+        return dsl;
+    } catch (e) {
+        console.error('Error converting to DSL:', e);
+        return { error: e.message };
+    }
+}
 
-        if (dsl.query && dsl.query.bool) {
-            const bool = dsl.query.bool;
+// ============================================================
+// Step 3: Parse Elasticsearch DSL to Internal Model
+// ============================================================
+function parseDslToModel(dsl) {
+    const model = {
+        time: { from: 'now-15m', to: 'now' },
+        query: { language: 'kuery', text: '' },
+        filters: [],
+        sort: [],
+        columns: ['_source'],
+        size: 500,
+        dataView: null
+    };
 
-            if (bool.must && Array.isArray(bool.must)) {
-                bool.must.forEach(clause => {
-                    if (clause.query_string) {
-                        appState.query.query = clause.query_string.query;
-                    }
-                });
-            }
+    // Extract size
+    if (dsl.size) {
+        model.size = dsl.size;
+    }
 
-            const processClauses = (clauses, negate) => {
-                if (!clauses || !Array.isArray(clauses)) return;
-                clauses.forEach(clause => {
-                    let filter = { meta: { negate, disabled: false, index: '*' } };
-                    if (clause.range && clause.range['@timestamp']) {
-                        globalState.time.from = clause.range['@timestamp'].gte || 'now-15m';
-                        globalState.time.to = clause.range['@timestamp'].lte || 'now';
-                        return;
+    // Extract columns (_source)
+    if (dsl._source) {
+        model.columns = Array.isArray(dsl._source) ? dsl._source : [dsl._source];
+    }
+
+    // Extract sort
+    if (dsl.sort && Array.isArray(dsl.sort)) {
+        model.sort = dsl.sort.map(s => {
+            const field = Object.keys(s)[0];
+            return { field: field, order: s[field] };
+        });
+    }
+
+    // Extract query and filters
+    if (dsl.query && dsl.query.bool) {
+        const bool = dsl.query.bool;
+
+        // Process must clauses (queries)
+        if (bool.must && Array.isArray(bool.must)) {
+            bool.must.forEach(clause => {
+                if (clause.query_string) {
+                    model.query.text = clause.query_string.query || '';
+                    model.query.language = 'lucene';
+                } else if (clause.match || clause.match_phrase || clause.term) {
+                    // Extract simple queries as KQL text
+                    const fieldType = Object.keys(clause)[0];
+                    const field = Object.keys(clause[fieldType])[0];
+                    const value = clause[fieldType][field];
+                    if (!model.query.text) {
+                        model.query.text = `${field}: ${typeof value === 'object' ? value.query : value}`;
                     }
-                    if (clause.match) {
-                        const field = Object.keys(clause.match)[0];
-                        filter.query = { match: { [field]: { query: clause.match[field], type: 'phrase' } } };
-                        filter.meta.key = field;
-                        filter.meta.value = clause.match[field];
-                        filter.meta.type = 'phrase';
-                    } else if (clause.term) {
-                        const field = Object.keys(clause.term)[0];
-                        filter.query = { match: { [field]: { query: clause.term[field], type: 'phrase' } } };
-                        filter.meta.key = field;
-                        filter.meta.value = clause.term[field];
-                        filter.meta.type = 'phrase';
-                    } else if (clause.exists) {
-                        filter.exists = { field: clause.exists.field };
-                        filter.meta.key = clause.exists.field;
-                        filter.meta.type = 'exists';
-                        filter.meta.value = 'exists';
-                    }
-                    if (filter.query || filter.exists) appState.filters.push(filter);
-                });
+                }
+            });
+        }
+
+        // Process filter and must_not clauses
+        const processClauses = (clauses, negate) => {
+            if (!clauses || !Array.isArray(clauses)) return;
+            
+            clauses.forEach(clause => {
+                let internalFilter = null;
+
+                // Time range on @timestamp
+                if (clause.range && clause.range['@timestamp']) {
+                    const timeRange = clause.range['@timestamp'];
+                    model.time.from = timeRange.gte || 'now-15m';
+                    model.time.to = timeRange.lte || 'now';
+                    return;
+                }
+
+                // Range filter
+                if (clause.range) {
+                    const field = Object.keys(clause.range)[0];
+                    const rangeObj = clause.range[field];
+                    internalFilter = {
+                        type: 'range',
+                        field: field,
+                        gte: rangeObj.gte || null,
+                        lte: rangeObj.lte || null,
+                        gt: rangeObj.gt || null,
+                        lt: rangeObj.lt || null,
+                        negate: negate
+                    };
+                }
+                // Match phrase filter
+                else if (clause.match_phrase) {
+                    const field = Object.keys(clause.match_phrase)[0];
+                    const value = clause.match_phrase[field];
+                    internalFilter = {
+                        type: 'match_phrase',
+                        field: field,
+                        value: typeof value === 'object' ? value.query : value,
+                        negate: negate
+                    };
+                }
+                // Term filter
+                else if (clause.term) {
+                    const field = Object.keys(clause.term)[0];
+                    const value = clause.term[field];
+                    internalFilter = {
+                        type: 'term',
+                        field: field,
+                        value: value,
+                        negate: negate
+                    };
+                }
+                // Exists filter
+                else if (clause.exists) {
+                    internalFilter = {
+                        type: 'exists',
+                        field: clause.exists.field,
+                        negate: negate
+                    };
+                }
+                // Query string filter
+                else if (clause.query_string) {
+                    internalFilter = {
+                        type: 'query_string',
+                        query: clause.query_string.query || '',
+                        default_field: clause.query_string.default_field || '_all',
+                        negate: negate
+                    };
+                }
+
+                if (internalFilter) {
+                    model.filters.push(internalFilter);
+                }
+            });
+        };
+
+        processClauses(bool.filter, false);
+        processClauses(bool.must_not, true);
+    }
+
+    return model;
+}
+
+// ============================================================
+// Step 4: Convert Internal Model to Kibana RISON states
+// ============================================================
+function modelToKibanaRison(model) {
+    const appState = {
+        query: { language: model.query.language || 'kuery', query: model.query.text || '' },
+        filters: [],
+        columns: model.columns || ['_source'],
+        sort: [],
+        dataViewId: model.dataView
+    };
+    
+    const globalState = { 
+        time: { 
+            from: model.time.from || 'now-15m', 
+            to: model.time.to || 'now' 
+        } 
+    };
+
+    // Convert filters to Kibana format
+    if (model.filters && Array.isArray(model.filters)) {
+        model.filters.forEach(filter => {
+            let kibanaFilter = { 
+                meta: { 
+                    negate: filter.negate || false, 
+                    disabled: false, 
+                    index: model.dataView || '*',
+                    key: filter.field,
+                    value: null,
+                    type: filter.type
+                } 
             };
 
-            processClauses(bool.filter, false);
-            processClauses(bool.must_not, true);
-        }
+            switch (filter.type) {
+                case 'term':
+                    kibanaFilter.query = { term: { [filter.field]: filter.value } };
+                    kibanaFilter.meta.value = filter.value;
+                    break;
+                case 'match_phrase':
+                    kibanaFilter.query = { match_phrase: { [filter.field]: { query: filter.value, type: 'phrase' } } };
+                    kibanaFilter.meta.value = filter.value;
+                    kibanaFilter.meta.type = 'phrase';
+                    break;
+                case 'range':
+                    const rangeObj = {};
+                    if (filter.gte !== null && filter.gte !== undefined) rangeObj.gte = filter.gte;
+                    if (filter.lte !== null && filter.lte !== undefined) rangeObj.lte = filter.lte;
+                    if (filter.gt !== null && filter.gt !== undefined) rangeObj.gt = filter.gt;
+                    if (filter.lt !== null && filter.lt !== undefined) rangeObj.lt = filter.lt;
+                    kibanaFilter.range = { [filter.field]: rangeObj };
+                    kibanaFilter.meta.value = Object.values(rangeObj).join(' - ');
+                    break;
+                case 'exists':
+                    kibanaFilter.exists = { field: filter.field };
+                    kibanaFilter.meta.value = 'exists';
+                    break;
+                case 'query_string':
+                    kibanaFilter.query = { query_string: { query: filter.query, default_field: filter.default_field || '_all' } };
+                    break;
+            }
 
-        if (dsl._source) appState.columns = Array.isArray(dsl._source) ? dsl._source : [dsl._source];
-        if (dsl.sort && Array.isArray(dsl.sort)) {
-            appState.sort = dsl.sort.map(s => {
-                const field = Object.keys(s)[0];
-                return [field, s[field]];
-            })[0] || [];
-        }
+            appState.filters.push(kibanaFilter);
+        });
+    }
 
-    } catch (e) {
-        console.error('Error converting to Kibana states:', e);
-        return { error: e.message };
+    // Convert sort to Kibana format
+    if (model.sort && model.sort.length > 0) {
+        const firstSort = model.sort[0];
+        appState.sort = [firstSort.field, firstSort.order];
     }
 
     return {
@@ -342,7 +643,29 @@ function convertToKibanaStates(dslJson) {
 }
 
 // ============================================================
+// Main function: Convert Elasticsearch DSL query to Kibana RISON states
+// Uses Internal Model as intermediate representation
+// ============================================================
+function convertToKibanaStates(dslJson) {
+    try {
+        const dsl = typeof dslJson === 'string' ? JSON.parse(dslJson) : dslJson;
+        
+        // Step 3: Parse DSL to Internal Model
+        const model = parseDslToModel(dsl);
+        
+        // Step 4: Convert Internal Model to Kibana RISON states
+        const states = modelToKibanaRison(model);
+        
+        return states;
+    } catch (e) {
+        console.error('Error converting to Kibana states:', e);
+        return { error: e.message };
+    }
+}
+
+// ============================================================
 // Extract meaningful information from DSL for summary
+// Uses Internal Model for consistent extraction
 // ============================================================
 function extractSummaryFromDsl(appStateRison, globalStateRison) {
     const summary = {
@@ -354,25 +677,48 @@ function extractSummaryFromDsl(appStateRison, globalStateRison) {
     };
     
     try {
-        const gState = globalStateRison ? rison.decode(globalStateRison) : null;
-        if (gState && gState.time) {
-            summary.timeRange = `${gState.time.from || 'now'} → ${gState.time.to || 'now'}`;
+        // Use the internal model for consistent extraction
+        const model = parseKibanaUrlToModel(appStateRison, globalStateRison);
+        
+        // Time range
+        if (model.time) {
+            summary.timeRange = `${model.time.from || 'now'} → ${model.time.to || 'now'}`;
         }
         
-        const aState = appStateRison ? rison.decode(appStateRison) : null;
-        if (aState) {
-            if (aState.columns) summary.columns = aState.columns.slice(0, 5);
-            if (aState.filters) {
-                summary.filters = aState.filters.slice(0, 3).map(f => {
-                    if (f.meta) return `${f.meta.key} = ${f.meta.value}`;
-                    return 'Filter';
-                });
-            }
-            if (aState.sort && aState.sort.length > 0) {
-                summary.sort = `${aState.sort[0]} (${aState.sort[1] || 'asc'})`;
-            }
+        // Columns
+        if (model.columns) {
+            summary.columns = model.columns.slice(0, 5);
         }
-    } catch (e) { console.error('Summary error:', e); }
+        
+        // Filters
+        if (model.filters && model.filters.length > 0) {
+            summary.filters = model.filters.slice(0, 3).map(f => {
+                if (f.type === 'term' || f.type === 'match_phrase') {
+                    return `${f.field} = ${f.value}`;
+                } else if (f.type === 'range') {
+                    const parts = [];
+                    if (f.gte) parts.push(`≥ ${f.gte}`);
+                    if (f.lte) parts.push(`≤ ${f.lte}`);
+                    if (f.gt) parts.push(`> ${f.gt}`);
+                    if (f.lt) parts.push(`< ${f.lt}`);
+                    return `${f.field}: ${parts.join(', ')}`;
+                } else if (f.type === 'exists') {
+                    return `${f.field} exists`;
+                } else if (f.type === 'query_string') {
+                    return f.query || 'Query';
+                }
+                return `${f.field || 'Filter'}`;
+            });
+        }
+        
+        // Sort
+        if (model.sort && model.sort.length > 0) {
+            const firstSort = model.sort[0];
+            summary.sort = `${firstSort.field} (${firstSort.order || 'asc'})`;
+        }
+    } catch (e) { 
+        console.error('Summary error:', e); 
+    }
     return summary;
 }
 
