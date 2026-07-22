@@ -19,6 +19,9 @@
         code {
             word-break: break-all;
         }
+        .diff-hidden {
+            display: none;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col">
@@ -53,75 +56,131 @@
     </header>
 
     <main id="app" class="flex-grow p-6 space-y-8 max-w-7xl mx-auto w-full">
-        <!-- Feature 2: Main Conversion Area -->
-        <div class="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-4 items-start">
-            <!-- Left Column: URL -->
-            <div class="space-y-3">
-                <div class="flex items-center justify-between">
-                    <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">Kibana URL</label>
-                    <span class="text-xs text-gray-400">Contains #/discover?...</span>
+        <!-- Main Conversion Area -->
+        <div id="mainGrid" class="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-4 items-start">
+            <!-- Pair 1 -->
+            <div id="pair1" class="contents">
+                <!-- Left Column: URL 1 -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">Kibana URL <span class="diff-only hidden text-blue-500">#1</span></label>
+                        <span class="text-xs text-gray-400">Contains #/discover?...</span>
+                    </div>
+                    <textarea id="kibanaUrl" rows="12" 
+                        class="w-full p-4 font-mono text-sm border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none bg-white hover:border-gray-400 transition-colors"
+                        placeholder="Dán URL Kibana vào đây..."></textarea>
+                    <div class="flex items-center justify-between gap-2">
+                        <button id="btnParseToDsl" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold shadow transition-all flex items-center space-x-2">
+                            <i class="fas fa-arrow-right"></i>
+                            <span>Parse sang DSL</span>
+                        </button>
+                        <div class="flex items-center space-x-2">
+                            <button id="btnCopyUrl" class="text-xs text-gray-500 hover:text-blue-600 flex items-center bg-gray-50 px-3 py-1.5 rounded border border-gray-200 transition-colors" title="Copy URL">
+                                <i class="fas fa-copy mr-1"></i> Copy
+                            </button>
+                            <input type="checkbox" id="chkAutoDecode" checked class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                            <label for="chkAutoDecode" class="text-sm text-gray-600 cursor-pointer">Auto-decode</label>
+                        </div>
+                    </div>
                 </div>
-                <textarea id="kibanaUrl" rows="12" 
-                    class="w-full p-4 font-mono text-sm border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none bg-white hover:border-gray-400 transition-colors"
-                    placeholder="Dán URL Kibana vào đây..."></textarea>
-                <div class="flex items-center justify-between gap-2">
-                    <button id="btnParseToDsl" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold shadow transition-all flex items-center space-x-2">
-                        <i class="fas fa-arrow-right"></i>
-                        <span>Parse sang DSL</span>
+
+                <!-- Middle: Exchange Button 1 -->
+                <div class="flex flex-col items-center justify-center p-4 lg:pt-12">
+                    <button id="btnExchange" class="p-4 bg-white border-2 border-blue-100 hover:border-blue-500 hover:text-blue-600 text-gray-400 rounded-full shadow-lg transition-all transform hover:scale-110 active:scale-95 group" title="Exchange URL ↔ DSL">
+                        <i class="fas fa-exchange-alt text-2xl group-hover:rotate-180 transition-transform duration-500"></i>
                     </button>
-                    <div class="flex items-center space-x-2">
-                        <button id="btnCopyUrl" class="text-xs text-gray-500 hover:text-blue-600 flex items-center bg-gray-50 px-3 py-1.5 rounded border border-gray-200 transition-colors" title="Copy URL">
+                    <p class="text-xs text-gray-400 mt-2 text-center">Exchange</p>
+                </div>
+
+                <!-- Right Column: DSL 1 -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">DSL JSON <span class="diff-only hidden text-blue-500">#1</span></label>
+                        <div class="flex space-x-2">
+                            <button id="btnFormatJson" class="text-xs text-blue-600 hover:underline font-medium transition-colors" title="Format JSON with indentation">Format</button>
+                            <span class="text-gray-300">•</span>
+                            <button id="btnMinifyJson" class="text-xs text-gray-500 hover:underline font-medium transition-colors" title="Minify JSON">Minify</button>
+                        </div>
+                    </div>
+                    <textarea id="dslJson" rows="12" 
+                        class="w-full p-4 font-mono text-sm border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none bg-white hover:border-gray-400 transition-colors"
+                        placeholder='{ "query": { ... } }'></textarea>
+                    <div class="flex items-center gap-2">
+                        <button id="btnGenerateUrl" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-semibold shadow transition-all flex items-center space-x-2">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Tạo URL</span>
+                        </button>
+                        <button id="btnCopyDsl" class="text-xs text-gray-500 hover:text-blue-600 flex items-center bg-gray-50 px-3 py-1.5 rounded border border-gray-200 transition-colors" title="Copy DSL JSON">
                             <i class="fas fa-copy mr-1"></i> Copy
                         </button>
-                        <input type="checkbox" id="chkAutoDecode" checked class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
-                        <label for="chkAutoDecode" class="text-sm text-gray-600 cursor-pointer">Auto-decode</label>
                     </div>
                 </div>
             </div>
 
-            <!-- Middle: Exchange Button -->
-            <div class="flex flex-col items-center justify-center p-4 lg:pt-12">
-                <button id="btnExchange" class="p-4 bg-white border-2 border-blue-100 hover:border-blue-500 hover:text-blue-600 text-gray-400 rounded-full shadow-lg transition-all transform hover:scale-110 active:scale-95 group" title="Exchange URL ↔ DSL">
-                    <i class="fas fa-exchange-alt text-2xl group-hover:rotate-180 transition-transform duration-500"></i>
-                </button>
-                <p class="text-xs text-gray-400 mt-2 text-center">Exchange</p>
-            </div>
-
-            <!-- Right Column: DSL -->
-            <div class="space-y-3">
-                <div class="flex items-center justify-between">
-                    <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">DSL JSON</label>
-                    <div class="flex space-x-2">
-                        <button id="btnFormatJson" class="text-xs text-blue-600 hover:underline font-medium transition-colors" title="Format JSON with indentation">Format</button>
-                        <span class="text-gray-300">•</span>
-                        <button id="btnMinifyJson" class="text-xs text-gray-500 hover:underline font-medium transition-colors" title="Minify JSON">Minify</button>
+            <!-- Pair 2 (Hidden by default) -->
+            <div id="pair2" class="contents diff-hidden">
+                <div class="lg:col-span-3 border-t border-dashed border-gray-300 my-4"></div>
+                
+                <!-- Left Column: URL 2 -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">Kibana URL <span class="text-green-500">#2</span></label>
+                    </div>
+                    <textarea id="kibanaUrl2" rows="12" 
+                        class="w-full p-4 font-mono text-sm border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none bg-white hover:border-gray-400 transition-colors"
+                        placeholder="Dán URL Kibana thứ 2 vào đây..."></textarea>
+                    <div class="flex items-center justify-between gap-2">
+                        <button id="btnParseToDsl2" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold shadow transition-all flex items-center space-x-2">
+                            <i class="fas fa-arrow-right"></i>
+                            <span>Parse sang DSL</span>
+                        </button>
+                        <button id="btnCopyUrl2" class="text-xs text-gray-500 hover:text-blue-600 flex items-center bg-gray-50 px-3 py-1.5 rounded border border-gray-200 transition-colors" title="Copy URL 2">
+                            <i class="fas fa-copy mr-1"></i> Copy
+                        </button>
                     </div>
                 </div>
-                <textarea id="dslJson" rows="12" 
-                    class="w-full p-4 font-mono text-sm border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none bg-white hover:border-gray-400 transition-colors"
-                    placeholder='{ "query": { ... } }'></textarea>
-                <div class="flex items-center gap-2">
-                    <button id="btnGenerateUrl" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-semibold shadow transition-all flex items-center space-x-2">
-                        <i class="fas fa-arrow-left"></i>
-                        <span>Tạo URL</span>
+
+                <!-- Middle: Exchange Button 2 -->
+                <div class="flex flex-col items-center justify-center p-4 lg:pt-12">
+                    <button id="btnExchange2" class="p-4 bg-white border-2 border-blue-100 hover:border-blue-500 hover:text-blue-600 text-gray-400 rounded-full shadow-lg transition-all transform hover:scale-110 active:scale-95 group" title="Exchange URL ↔ DSL 2">
+                        <i class="fas fa-exchange-alt text-2xl group-hover:rotate-180 transition-transform duration-500"></i>
                     </button>
-                    <button id="btnCopyDsl" class="text-xs text-gray-500 hover:text-blue-600 flex items-center bg-gray-50 px-3 py-1.5 rounded border border-gray-200 transition-colors" title="Copy DSL JSON">
-                        <i class="fas fa-copy mr-1"></i> Copy
-                    </button>
+                </div>
+
+                <!-- Right Column: DSL 2 -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-sm font-bold text-gray-700 uppercase tracking-wider">DSL JSON <span class="text-green-500">#2</span></label>
+                        <div class="flex space-x-2">
+                            <button id="btnFormatJson2" class="text-xs text-blue-600 hover:underline font-medium transition-colors">Format</button>
+                        </div>
+                    </div>
+                    <textarea id="dslJson2" rows="12" 
+                        class="w-full p-4 font-mono text-sm border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none bg-white hover:border-gray-400 transition-colors"
+                        placeholder='{ "query": { ... } }'></textarea>
+                    <div class="flex items-center gap-2">
+                        <button id="btnGenerateUrl2" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-semibold shadow transition-all flex items-center space-x-2">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Tạo URL</span>
+                        </button>
+                        <button id="btnCopyDsl2" class="text-xs text-gray-500 hover:text-blue-600 flex items-center bg-gray-50 px-3 py-1.5 rounded border border-gray-200 transition-colors" title="Copy DSL JSON 2">
+                            <i class="fas fa-copy mr-1"></i> Copy
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Feature 3: Summary Cards -->
+        <!-- Summary Cards -->
         <div id="summaryContainer"></div>
 
-        <!-- Feature 4: GUI Builder -->
+        <!-- GUI Builder -->
         <div id="guiBuilderContainer"></div>
 
-        <!-- Feature 5: History -->
+        <!-- History -->
         <div id="historyContainer"></div>
 
-        <!-- Feature 6: Bookmarklet -->
+        <!-- Bookmarklet -->
         <div id="bookmarkletContainer"></div>
     </main>
 

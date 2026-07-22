@@ -3,7 +3,7 @@
  * 
  * Logic includes RISON parsing for Kibana URL states (_a, _g).
  * Features: URL↔DSL conversion, Summary cards, GUI Builder, History, Bookmarklet, Diff mode
- * Version: 0.1.1
+ * Version: 0.1.2
  */
 
 // ============================================================
@@ -388,105 +388,76 @@ function extractSummaryFromDsl(appStateRison, globalStateRison) {
 
 // ============================================================
 // Clean URL builder — raw RISON in URL (Kibana native format)
-// RISON chars ( , : ' ! ( ) ) are all unreserved/safe in query strings.
-// Only @ and / need encoding. This produces the same format Kibana itself uses.
 // ============================================================
 function buildKibanaUrl(appStateRison, globalStateRison, baseUrl) {
     const base = baseUrl || 'http://localhost:5601';
     
     // Encode only the characters that are NOT safe in URL query strings.
-    // RISON special chars ( , : ' ! ( ) _ - ) are all safe.
-    // We only need to encode: @ / = & ? # [ ] space and other unsafe chars.
-    const encodeRison = (str) => {
-        // Encode only truly unsafe characters, leave RISON syntax intact
-        return str.replace(/@/g, '%40').replace(/\//g, '%2F');
+    const safeEncode = (str) => {
+        if (!str) return '';
+        return str.replace(/%/g, '%25')
+                  .replace(/#/g, '%23')
+                  .replace(/&/g, '%26')
+                  .replace(/\+/g, '%2B')
+                  .replace(/\//g, '%2F')
+                  .replace(/@/g, '%40');
     };
+
+    const a = safeEncode(appStateRison);
+    const g = safeEncode(globalStateRison);
     
-    const parts = [];
-    if (globalStateRison) parts.push(`_g=${encodeRison(globalStateRison)}`);
-    if (appStateRison) parts.push(`_a=${encodeRison(appStateRison)}`);
-    
-    return `${base}/app/kibana#/discover?${parts.join('&')}`;
+    // Format: baseUrl + #/discover?_g=...&_a=...
+    let url = base;
+    if (!url.endsWith('/')) url += '/';
+    return `${url}#/discover?_g=${g}&_a=${a}`;
 }
 
 // ============================================================
-// Main DOM logic
+// UI Controllers & Event Handlers
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
+    // DOM Elements - Pair 1
     const kibanaUrlInput = document.getElementById('kibanaUrl');
     const dslJsonInput = document.getElementById('dslJson');
-    const btnParseToDsl = document.getElementById('btnParseToDsl');
-    const btnGenerateUrl = document.getElementById('btnGenerateUrl');
-    const btnExchange = document.getElementById('btnExchange');
-    const btnFormatJson = document.getElementById('btnFormatJson');
-    const btnMinifyJson = document.getElementById('btnMinifyJson');
-    const btnClearAll = document.getElementById('btnClearAll');
     const baseUrlInput = document.getElementById('baseUrl');
-    const chkAutoDecode = document.getElementById('chkAutoDecode');
+    
+    // DOM Elements - Pair 2
+    const kibanaUrlInput2 = document.getElementById('kibanaUrl2');
+    const dslJsonInput2 = document.getElementById('dslJson2');
 
     // State
-    let currentDsl = {};
     let diffMode = false;
+    let currentDsl = null;
 
-    const formatJson = (val) => {
-        try {
-            const obj = typeof val === 'string' ? JSON.parse(val) : val;
-            return JSON.stringify(obj, null, 2);
-        } catch (e) { return val; }
-    };
-
-    const minifyJson = (val) => {
-        try {
-            const obj = typeof val === 'string' ? JSON.parse(val) : val;
-            return JSON.stringify(obj);
-        } catch (e) { return val; }
-    };
-
-    // Helper: copy with visual feedback
-    const copyToClipboard = (text, btnEl) => {
-        navigator.clipboard.writeText(text).then(() => {
-            const originalHTML = btnEl.innerHTML;
-            btnEl.innerHTML = '<i class="fas fa-check mr-1"></i> Copied!';
-            btnEl.classList.add('text-green-600');
-            setTimeout(() => {
-                btnEl.innerHTML = originalHTML;
-                btnEl.classList.remove('text-green-600');
-            }, 1500);
-        });
-    };
+    // Helper: Format JSON
+    const formatJson = (obj) => JSON.stringify(obj, null, 4);
 
     // ---------- Summary Cards ----------
     window.updateSummary = (appState, globalState) => {
+        const summary = extractSummaryFromDsl(appState, globalState);
         const container = document.getElementById('summaryContainer');
-        if (!container) return;
-        if (!appState && !globalState) { container.innerHTML = ''; return; }
-        const s = extractSummaryFromDsl(appState, globalState);
+        
         container.innerHTML = `
-            <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-3">
-                <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center">
-                    <i class="fas fa-chart-pie mr-2 text-blue-500"></i> Visual Summary
-                </h3>
-                <div class="flex flex-wrap gap-3">
-                    <div class="flex items-center bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-blue-100">
-                        <span class="mr-2">🕐 Time:</span> ${s.timeRange}
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Time Range</p>
+                    <p class="text-sm font-semibold text-gray-700">${summary.timeRange}</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Active Filters</p>
+                    <div class="flex flex-wrap gap-1">
+                        ${summary.filters.length > 0 
+                            ? summary.filters.map(f => `<span class="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[10px] font-medium border border-blue-100">${f}</span>`).join('')
+                            : '<span class="text-xs text-gray-400 italic">None</span>'}
                     </div>
-                    ${s.filters.length > 0 ? s.filters.map(f => `
-                        <div class="flex items-center bg-green-50 text-green-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-green-100">
-                            <span class="mr-2">🔍 Filter:</span> ${f}
-                        </div>
-                    `).join('') : ''}
-                    ${s.columns.length > 0 ? `
-                    <div class="flex items-center bg-purple-50 text-purple-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-purple-100">
-                        <span class="mr-2">📋 Columns:</span> ${s.columns.join(', ')}
-                    </div>` : ''}
-                    ${s.sort !== 'N/A' ? `
-                    <div class="flex items-center bg-orange-50 text-orange-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-orange-100">
-                        <span class="mr-2">🔢 Sort:</span> ${s.sort}
-                    </div>` : ''}
-                    ${s.savedSearch ? `
-                    <div class="flex items-center bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-gray-200">
-                        <span class="mr-2">🏷️ Index:</span> ${s.savedSearch}
-                    </div>` : ''}
+                </div>
+                <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Columns</p>
+                    <p class="text-xs text-gray-600">${summary.columns.join(', ') || 'Default'}</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Sort</p>
+                    <p class="text-sm font-semibold text-gray-700">${summary.sort}</p>
                 </div>
             </div>
         `;
@@ -626,7 +597,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const idx = btn.getAttribute('data-idx');
                     const item = history[idx];
                     kibanaUrlInput.value = item.url || '';
-                    dslJsonInput.value = formatJson(item.dsl);
+                    dslJsonInput.value = formatJson(item.dsl_raw || item.dsl);
                     window.updateSummary(item.appState, item.globalState);
                 });
             });
@@ -636,6 +607,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Dedup: skip if the last saved entry has identical appState + globalState
             if (history.length > 0) {
                 const last = history[0];
+                // Deep comparison of states to avoid duplicates
                 if (last.appState === appState && last.globalState === globalState) {
                     return; // Same state — don't duplicate
                 }
@@ -654,7 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 time: timeStr,
                 label: label,
                 url: url,
-                dsl: { _a: appState, _g: globalState },
+                dsl_raw: { _a: appState, _g: globalState },
                 appState: appState,
                 globalState: globalState
             };
@@ -743,11 +715,19 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btnToggleDiff').addEventListener('click', () => {
         diffMode = !diffMode;
         const btn = document.getElementById('btnToggleDiff');
+        const pair2 = document.getElementById('pair2');
+        const diffOnlyLabels = document.querySelectorAll('.diff-only');
+        
         if (diffMode) {
-            btn.classList.add('bg-blue-100', 'text-blue-600', 'border-blue-300');
-            alert('Chế độ Diff được bật. Tính năng này cho phép so sánh 2 URL/DSL. (Đang phát triển)');
+            btn.classList.add('bg-blue-600', 'text-white', 'border-blue-700');
+            btn.classList.remove('bg-gray-50', 'text-gray-600', 'border-gray-200');
+            pair2.classList.remove('diff-hidden');
+            diffOnlyLabels.forEach(el => el.classList.remove('hidden'));
         } else {
-            btn.classList.remove('bg-blue-100', 'text-blue-600', 'border-blue-300');
+            btn.classList.remove('bg-blue-600', 'text-white', 'border-blue-700');
+            btn.classList.add('bg-gray-50', 'text-gray-600', 'border-gray-200');
+            pair2.classList.add('diff-hidden');
+            diffOnlyLabels.forEach(el => el.classList.add('hidden'));
         }
     });
 
@@ -763,8 +743,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ---------- Core Actions ----------
-    const parseUrlToDsl = () => {
-        const url = kibanaUrlInput.value.trim();
+    const parseUrlToDsl = (inputEl, outputEl) => {
+        const url = inputEl.value.trim();
         if (!url) return alert('Vui lòng nhập URL Kibana');
 
         const states = parseKibanaState(url);
@@ -773,99 +753,101 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Use the robust parser: convert RISON → DSL
         const dsl = convertToDsl(states.appState, states.globalState);
-        dslJsonInput.value = formatJson(dsl);
-        currentDsl = dsl;
+        outputEl.value = formatJson(dsl);
         
-        // Update summary
-        window.updateSummary(states.appState, states.globalState);
-        
-        // Add to history
-        if (window.addToHistory) window.addToHistory(states.appState, states.globalState, url);
+        // Update summary and history only for the main pair
+        if (inputEl === kibanaUrlInput) {
+            currentDsl = dsl;
+            window.updateSummary(states.appState, states.globalState);
+            if (window.addToHistory) window.addToHistory(states.appState, states.globalState, url);
+        }
     };
 
-    const generateUrlFromDsl = () => {
+    const generateUrlFromDsl = (inputEl, outputEl) => {
         try {
-            const dsl = JSON.parse(dslJsonInput.value);
+            const dsl = JSON.parse(inputEl.value);
             const baseUrl = baseUrlInput.value || 'http://localhost:5601';
-            
-            // Convert DSL → RISON states
             const states = convertToKibanaStates(dsl);
-            
-            // Build clean URL (raw RISON format, Kibana-native)
             const newUrl = buildKibanaUrl(states.appStateRison, states.globalStateRison, baseUrl);
-            kibanaUrlInput.value = newUrl;
+            outputEl.value = newUrl;
             
-            // Update summary
-            window.updateSummary(states.appStateRison, states.globalStateRison);
-            
-            // Add to history
-            if (window.addToHistory) window.addToHistory(states.appStateRison, states.globalStateRison, newUrl);
+            if (outputEl === kibanaUrlInput) {
+                window.updateSummary(states.appStateRison, states.globalStateRison);
+                if (window.addToHistory) window.addToHistory(states.appStateRison, states.globalStateRison, newUrl);
+            }
         } catch (e) {
             alert('JSON không hợp lệ! ' + e.message);
         }
     };
 
     // ---------- Event Listeners ----------
-    btnParseToDsl.addEventListener('click', parseUrlToDsl);
-    btnGenerateUrl.addEventListener('click', generateUrlFromDsl);
-    
-    btnExchange.addEventListener('click', () => {
-        if (kibanaUrlInput.value && !dslJsonInput.value) {
-            parseUrlToDsl();
-        } else if (dslJsonInput.value) {
-            generateUrlFromDsl();
-        } else {
-            alert('Vui lòng nhập URL hoặc DSL JSON');
-        }
+    // Pair 1
+    document.getElementById('btnParseToDsl').addEventListener('click', () => parseUrlToDsl(kibanaUrlInput, dslJsonInput));
+    document.getElementById('btnGenerateUrl').addEventListener('click', () => generateUrlFromDsl(dslJsonInput, kibanaUrlInput));
+    document.getElementById('btnExchange').addEventListener('click', () => {
+        const temp = kibanaUrlInput.value;
+        kibanaUrlInput.value = dslJsonInput.value;
+        dslJsonInput.value = temp;
+    });
+    document.getElementById('btnCopyUrl').addEventListener('click', () => {
+        navigator.clipboard.writeText(kibanaUrlInput.value).then(() => alert('URL đã được copy!'));
+    });
+    document.getElementById('btnCopyDsl').addEventListener('click', () => {
+        navigator.clipboard.writeText(dslJsonInput.value).then(() => alert('DSL JSON đã được copy!'));
+    });
+    document.getElementById('btnFormatJson').addEventListener('click', () => {
+        try {
+            const obj = JSON.parse(dslJsonInput.value);
+            dslJsonInput.value = formatJson(obj);
+        } catch (e) { alert('JSON không hợp lệ!'); }
+    });
+    document.getElementById('btnMinifyJson').addEventListener('click', () => {
+        try {
+            const obj = JSON.parse(dslJsonInput.value);
+            dslJsonInput.value = JSON.stringify(obj);
+        } catch (e) { alert('JSON không hợp lệ!'); }
     });
 
-    btnFormatJson.addEventListener('click', () => {
-        dslJsonInput.value = formatJson(dslJsonInput.value);
+    // Pair 2
+    document.getElementById('btnParseToDsl2').addEventListener('click', () => parseUrlToDsl(kibanaUrlInput2, dslJsonInput2));
+    document.getElementById('btnGenerateUrl2').addEventListener('click', () => generateUrlFromDsl(dslJsonInput2, kibanaUrlInput2));
+    document.getElementById('btnExchange2').addEventListener('click', () => {
+        const temp = kibanaUrlInput2.value;
+        kibanaUrlInput2.value = dslJsonInput2.value;
+        dslJsonInput2.value = temp;
+    });
+    document.getElementById('btnCopyUrl2').addEventListener('click', () => {
+        navigator.clipboard.writeText(kibanaUrlInput2.value).then(() => alert('URL 2 đã được copy!'));
+    });
+    document.getElementById('btnCopyDsl2').addEventListener('click', () => {
+        navigator.clipboard.writeText(dslJsonInput2.value).then(() => alert('DSL JSON 2 đã được copy!'));
+    });
+    document.getElementById('btnFormatJson2').addEventListener('click', () => {
+        try {
+            const obj = JSON.parse(dslJsonInput2.value);
+            dslJsonInput2.value = formatJson(obj);
+        } catch (e) { alert('JSON không hợp lệ!'); }
     });
 
-    btnMinifyJson.addEventListener('click', () => {
-        dslJsonInput.value = minifyJson(dslJsonInput.value);
-    });
-
-    if (btnClearAll) {
-        btnClearAll.addEventListener('click', () => {
+    // Global
+    document.getElementById('btnClearAll').addEventListener('click', () => {
+        if (confirm('Xóa toàn bộ nội dung nhập?')) {
             kibanaUrlInput.value = '';
             dslJsonInput.value = '';
-            window.updateSummary(null, null);
-        });
-    }
-
-    // ---------- Copy buttons for input textareas ----------
-    const btnCopyUrl = document.getElementById('btnCopyUrl');
-    if (btnCopyUrl) {
-        btnCopyUrl.addEventListener('click', () => {
-            const text = kibanaUrlInput.value;
-            if (!text) return alert('Chưa có URL để copy');
-            copyToClipboard(text, btnCopyUrl);
-        });
-    }
-
-    const btnCopyDsl = document.getElementById('btnCopyDsl');
-    if (btnCopyDsl) {
-        btnCopyDsl.addEventListener('click', () => {
-            const text = dslJsonInput.value;
-            if (!text) return alert('Chưa có DSL để copy');
-            copyToClipboard(text, btnCopyDsl);
-        });
-    }
-
-    // ---------- Load from URL param (auto-decode) ----------
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('url')) {
-        try {
-            kibanaUrlInput.value = atob(urlParams.get('url'));
-            if (chkAutoDecode && chkAutoDecode.checked) {
-                setTimeout(parseUrlToDsl, 100);
-            }
-        } catch (e) {
-            console.error('Failed to decode URL param:', e);
+            kibanaUrlInput2.value = '';
+            dslJsonInput2.value = '';
         }
+    });
+
+    // Auto-load from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const encodedUrl = urlParams.get('url');
+    if (encodedUrl) {
+        try {
+            const decodedUrl = atob(encodedUrl);
+            kibanaUrlInput.value = decodedUrl;
+            parseUrlToDsl(kibanaUrlInput, dslJsonInput);
+        } catch (e) { console.error('Auto-load failed:', e); }
     }
 });
