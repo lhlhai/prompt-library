@@ -423,7 +423,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnClearAll = document.getElementById('btnClearAll');
     const baseUrlInput = document.getElementById('baseUrl');
     const chkAutoDecode = document.getElementById('chkAutoDecode');
-    const kibanaVersionSelect = document.getElementById('kibanaVersion');
 
     // State
     let currentDsl = {};
