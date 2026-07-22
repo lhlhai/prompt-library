@@ -3,7 +3,7 @@
  * 
  * Logic includes RISON parsing for Kibana URL states (_a, _g).
  * Features: URL↔DSL conversion, Summary cards, GUI Builder, History, Bookmarklet, Diff mode
- * Version: 0.1.2
+ * Version: 0.1.3
  */
 
 // ============================================================
@@ -413,6 +413,35 @@ function buildKibanaUrl(appStateRison, globalStateRison, baseUrl) {
 }
 
 // ============================================================
+// Visual Diff Logic (Line-by-line comparison)
+// ============================================================
+function computeDiff(text1, text2) {
+    const lines1 = text1.split('\n');
+    const lines2 = text2.split('\n');
+    const result = [];
+    
+    const maxLines = Math.max(lines1.length, lines2.length);
+    
+    for (let i = 0; i < maxLines; i++) {
+        const l1 = lines1[i] || '';
+        const l2 = lines2[i] || '';
+        
+        if (l1 === l2) {
+            result.push({ type: 'equal', l1, l2 });
+        } else {
+            if (l1 && !l2) {
+                result.push({ type: 'removed', l1, l2: '' });
+            } else if (!l1 && l2) {
+                result.push({ type: 'added', l1: '', l2 });
+            } else {
+                result.push({ type: 'modified', l1, l2 });
+            }
+        }
+    }
+    return result;
+}
+
+// ============================================================
 // UI Controllers & Event Handlers
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -427,7 +456,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // State
     let diffMode = false;
-    let currentDsl = null;
 
     // Helper: Format JSON
     const formatJson = (obj) => JSON.stringify(obj, null, 4);
@@ -549,7 +577,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dslJsonInput.value = formatJson(dsl);
             
             // Generate URL and update summary
-            generateUrlFromDsl();
+            generateUrlFromDsl(dslJsonInput, kibanaUrlInput);
             
             // Clear inputs
             document.getElementById('guiField').value = '';
@@ -604,19 +632,16 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         window.addToHistory = (appState, globalState, url) => {
-            // Dedup: skip if the last saved entry has identical appState + globalState
             if (history.length > 0) {
                 const last = history[0];
-                // Deep comparison of states to avoid duplicates
                 if (last.appState === appState && last.globalState === globalState) {
-                    return; // Same state — don't duplicate
+                    return;
                 }
             }
             
             const now = new Date();
             const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
             
-            // Generate meaningful label from summary
             const summary = extractSummaryFromDsl(appState, globalState);
             const filterLabel = summary.filters.length > 0 ? summary.filters[0].split(' = ')[0] : 'Query';
             const timeRange = summary.timeRange.split(' → ')[0];
@@ -682,10 +707,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         Kéo tôi vào Bookmark Bar
                     </a>
                 </div>
-                
-                <p class="text-[10px] text-gray-500">
-                    * Hướng dẫn: Click vào bookmark này khi đang xem Discover trên Kibana để mở công cụ chuyển đổi với trạng thái hiện tại.
-                </p>
             </div>
         `;
 
@@ -728,18 +749,44 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.classList.add('bg-gray-50', 'text-gray-600', 'border-gray-200');
             pair2.classList.add('diff-hidden');
             diffOnlyLabels.forEach(el => el.classList.add('hidden'));
+            document.getElementById('visualDiffResult').classList.add('hidden');
         }
     });
 
-    // ---------- Share State ----------
-    const btnShareState = document.getElementById('btnShareState');
-    btnShareState.addEventListener('click', () => {
-        if (!kibanaUrlInput.value) return alert('Vui lòng nhập URL Kibana trước');
-        const url = new URL(window.location.href);
-        url.searchParams.set('url', btoa(kibanaUrlInput.value));
-        navigator.clipboard.writeText(url.toString()).then(() => {
-            alert('Link trạng thái đã được copy!');
+    // ---------- Run Visual Diff ----------
+    document.getElementById('btnRunVisualDiff').addEventListener('click', () => {
+        const dsl1 = dslJsonInput.value.trim();
+        const dsl2 = dslJsonInput2.value.trim();
+        
+        if (!dsl1 || !dsl2) return alert('Vui lòng nhập cả hai DSL JSON để so sánh');
+        
+        const diffs = computeDiff(dsl1, dsl2);
+        const container = document.getElementById('diffContent');
+        container.innerHTML = '';
+        
+        diffs.forEach(d => {
+            const row = document.createElement('div');
+            row.className = 'grid grid-cols-2 gap-4 border-b border-gray-100 py-1';
+            
+            const cell1 = document.createElement('pre');
+            cell1.className = 'diff-view p-1 rounded ' + (d.type === 'removed' || d.type === 'modified' ? 'diff-removed' : '');
+            cell1.textContent = d.l1 || ' ';
+            
+            const cell2 = document.createElement('pre');
+            cell2.className = 'diff-view p-1 rounded ' + (d.type === 'added' || d.type === 'modified' ? 'diff-added' : '');
+            cell2.textContent = d.l2 || ' ';
+            
+            row.appendChild(cell1);
+            row.appendChild(cell2);
+            container.appendChild(row);
         });
+        
+        document.getElementById('visualDiffResult').classList.remove('hidden');
+        document.getElementById('visualDiffResult').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    document.getElementById('btnCloseDiff').addEventListener('click', () => {
+        document.getElementById('visualDiffResult').classList.add('hidden');
     });
 
     // ---------- Core Actions ----------
@@ -756,9 +803,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dsl = convertToDsl(states.appState, states.globalState);
         outputEl.value = formatJson(dsl);
         
-        // Update summary and history only for the main pair
         if (inputEl === kibanaUrlInput) {
-            currentDsl = dsl;
             window.updateSummary(states.appState, states.globalState);
             if (window.addToHistory) window.addToHistory(states.appState, states.globalState, url);
         }
@@ -782,7 +827,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ---------- Event Listeners ----------
-    // Pair 1
     document.getElementById('btnParseToDsl').addEventListener('click', () => parseUrlToDsl(kibanaUrlInput, dslJsonInput));
     document.getElementById('btnGenerateUrl').addEventListener('click', () => generateUrlFromDsl(dslJsonInput, kibanaUrlInput));
     document.getElementById('btnExchange').addEventListener('click', () => {
@@ -790,26 +834,7 @@ document.addEventListener('DOMContentLoaded', () => {
         kibanaUrlInput.value = dslJsonInput.value;
         dslJsonInput.value = temp;
     });
-    document.getElementById('btnCopyUrl').addEventListener('click', () => {
-        navigator.clipboard.writeText(kibanaUrlInput.value).then(() => alert('URL đã được copy!'));
-    });
-    document.getElementById('btnCopyDsl').addEventListener('click', () => {
-        navigator.clipboard.writeText(dslJsonInput.value).then(() => alert('DSL JSON đã được copy!'));
-    });
-    document.getElementById('btnFormatJson').addEventListener('click', () => {
-        try {
-            const obj = JSON.parse(dslJsonInput.value);
-            dslJsonInput.value = formatJson(obj);
-        } catch (e) { alert('JSON không hợp lệ!'); }
-    });
-    document.getElementById('btnMinifyJson').addEventListener('click', () => {
-        try {
-            const obj = JSON.parse(dslJsonInput.value);
-            dslJsonInput.value = JSON.stringify(obj);
-        } catch (e) { alert('JSON không hợp lệ!'); }
-    });
-
-    // Pair 2
+    
     document.getElementById('btnParseToDsl2').addEventListener('click', () => parseUrlToDsl(kibanaUrlInput2, dslJsonInput2));
     document.getElementById('btnGenerateUrl2').addEventListener('click', () => generateUrlFromDsl(dslJsonInput2, kibanaUrlInput2));
     document.getElementById('btnExchange2').addEventListener('click', () => {
@@ -817,37 +842,36 @@ document.addEventListener('DOMContentLoaded', () => {
         kibanaUrlInput2.value = dslJsonInput2.value;
         dslJsonInput2.value = temp;
     });
-    document.getElementById('btnCopyUrl2').addEventListener('click', () => {
-        navigator.clipboard.writeText(kibanaUrlInput2.value).then(() => alert('URL 2 đã được copy!'));
-    });
-    document.getElementById('btnCopyDsl2').addEventListener('click', () => {
-        navigator.clipboard.writeText(dslJsonInput2.value).then(() => alert('DSL JSON 2 đã được copy!'));
+
+    document.getElementById('btnFormatJson').addEventListener('click', () => {
+        try { dslJsonInput.value = formatJson(JSON.parse(dslJsonInput.value)); } catch (e) { alert('JSON không hợp lệ!'); }
     });
     document.getElementById('btnFormatJson2').addEventListener('click', () => {
-        try {
-            const obj = JSON.parse(dslJsonInput2.value);
-            dslJsonInput2.value = formatJson(obj);
-        } catch (e) { alert('JSON không hợp lệ!'); }
+        try { dslJsonInput2.value = formatJson(JSON.parse(dslJsonInput2.value)); } catch (e) { alert('JSON không hợp lệ!'); }
     });
 
-    // Global
     document.getElementById('btnClearAll').addEventListener('click', () => {
-        if (confirm('Xóa toàn bộ nội dung nhập?')) {
-            kibanaUrlInput.value = '';
-            dslJsonInput.value = '';
-            kibanaUrlInput2.value = '';
-            dslJsonInput2.value = '';
+        if (confirm('Xóa toàn bộ nội dung?')) {
+            kibanaUrlInput.value = ''; dslJsonInput.value = '';
+            kibanaUrlInput2.value = ''; dslJsonInput2.value = '';
         }
     });
 
-    // Auto-load from URL
+    // Share state logic
+    document.getElementById('btnShareState').addEventListener('click', () => {
+        if (!kibanaUrlInput.value) return alert('Vui lòng nhập URL Kibana');
+        const url = new URL(window.location.href);
+        url.searchParams.set('url', btoa(kibanaUrlInput.value));
+        navigator.clipboard.writeText(url.toString()).then(() => alert('Link đã được copy!'));
+    });
+
+    // Auto-load
     const urlParams = new URLSearchParams(window.location.search);
     const encodedUrl = urlParams.get('url');
     if (encodedUrl) {
         try {
-            const decodedUrl = atob(encodedUrl);
-            kibanaUrlInput.value = decodedUrl;
+            kibanaUrlInput.value = atob(encodedUrl);
             parseUrlToDsl(kibanaUrlInput, dslJsonInput);
-        } catch (e) { console.error('Auto-load failed:', e); }
+        } catch (e) {}
     }
 });
