@@ -103,6 +103,86 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Feature 3: Summary Cards Logic
+    // Feature 4: GUI Builder Logic
+    const initGuiBuilder = () => {
+        const container = document.getElementById('guiBuilderContainer');
+        container.innerHTML = `
+            <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-4">
+                <div class="flex items-center justify-between cursor-pointer group" id="toggleGuiBuilder">
+                    <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center">
+                        <i class="fas fa-tools mr-2 text-orange-500"></i> GUI Builder (Quick Filter)
+                    </h3>
+                    <i class="fas fa-chevron-down text-gray-400 group-hover:text-gray-600 transition-transform" id="guiChevron"></i>
+                </div>
+                
+                <div id="guiBuilderContent" class="hidden border-t border-gray-100 pt-4">
+                    <div class="flex flex-wrap gap-3 items-end">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Field</label>
+                            <input type="text" id="guiField" placeholder="e.g. carrier" 
+                                class="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Operator</label>
+                            <select id="guiOperator" class="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                                <option value="is">equals</option>
+                                <option value="contains">contains</option>
+                                <option value="exists">exists</option>
+                                <option value="range">range</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1 flex-1 min-w-[150px]">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Value</label>
+                            <input type="text" id="guiValue" placeholder="e.g. JetBeats" 
+                                class="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        <button id="btnAddFilter" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-bold shadow-sm transition-colors">
+                            + Add Filter
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const toggleBtn = document.getElementById('toggleGuiBuilder');
+        const content = document.getElementById('guiBuilderContent');
+        const chevron = document.getElementById('guiChevron');
+        
+        toggleBtn.addEventListener('click', () => {
+            content.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-180');
+        });
+
+        const btnAddFilter = document.getElementById('btnAddFilter');
+        btnAddFilter.addEventListener('click', () => {
+            const field = document.getElementById('guiField').value;
+            const op = document.getElementById('guiOperator').value;
+            const val = document.getElementById('guiValue').value;
+
+            if (!field) return alert('Vui lòng nhập Field');
+
+            // Logic to update DSL
+            let dsl = {};
+            try {
+                dsl = JSON.parse(dslJsonInput.value || '{}');
+            } catch (e) { dsl = {}; }
+
+            // Simplified DSL update logic
+            if (!dsl.query) dsl.query = { bool: { filter: [] } };
+            if (!dsl.query.bool) dsl.query.bool = { filter: [] };
+            if (!dsl.query.bool.filter) dsl.query.bool.filter = [];
+
+            const newFilter = { term: {} };
+            newFilter.term[field] = val;
+            dsl.query.bool.filter.push(newFilter);
+
+            dslJsonInput.value = formatJson(dsl);
+            generateUrlFromDsl(); // Auto update URL
+            window.updateSummary(dsl); // Update summary
+        });
+    };
+    initGuiBuilder();
+
     window.updateSummary = (data) => {
         const container = document.getElementById('summaryContainer');
         if (!data) {
