@@ -183,6 +183,87 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     initGuiBuilder();
 
+    // Feature 5: History Logic
+    const initHistory = () => {
+        const container = document.getElementById('historyContainer');
+        container.innerHTML = `
+            <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center">
+                        <i class="fas fa-history mr-2 text-green-500"></i> History
+                    </h3>
+                    <div class="flex space-x-3">
+                        <button id="btnExportHistory" class="text-xs text-blue-600 hover:underline font-medium">📥 Xuất JSON</button>
+                        <button id="btnClearHistory" class="text-xs text-red-500 hover:underline font-medium">🗑️ Xóa hết</button>
+                    </div>
+                </div>
+                <div id="historyChips" class="flex flex-wrap gap-2">
+                    <span class="text-xs text-gray-400 italic">Chưa có lịch sử chuyển đổi...</span>
+                </div>
+            </div>
+        `;
+
+        let history = JSON.parse(localStorage.getItem('kibana_dsl_history') || '[]');
+        
+        const renderChips = () => {
+            const chipsContainer = document.getElementById('historyChips');
+            if (history.length === 0) {
+                chipsContainer.innerHTML = '<span class="text-xs text-gray-400 italic">Chưa có lịch sử chuyển đổi...</span>';
+                return;
+            }
+            chipsContainer.innerHTML = history.map((item, idx) => `
+                <button class="history-chip px-3 py-1 bg-gray-100 hover:bg-blue-100 hover:text-blue-700 text-gray-600 rounded-full text-xs border border-gray-200 transition-all flex items-center" data-idx="${idx}">
+                    <span class="font-bold mr-1">${item.time}</span> ${item.label}
+                </button>
+            `).join('');
+
+            document.querySelectorAll('.history-chip').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const idx = btn.getAttribute('data-idx');
+                    const item = history[idx];
+                    kibanaUrlInput.value = item.url || '';
+                    dslJsonInput.value = formatJson(item.dsl);
+                    window.updateSummary(item.dsl);
+                });
+            });
+        };
+
+        window.addToHistory = (data) => {
+            const now = new Date();
+            const timeStr = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
+            const newItem = {
+                time: timeStr,
+                label: "7d, Carrier:JetBeats", // Mock label
+                url: kibanaUrlInput.value,
+                dsl: data
+            };
+            history.unshift(newItem);
+            if (history.length > 10) history.pop();
+            localStorage.setItem('kibana_dsl_history', JSON.stringify(history));
+            renderChips();
+        };
+
+        document.getElementById('btnClearHistory').addEventListener('click', () => {
+            if (confirm('Xóa toàn bộ lịch sử?')) {
+                history = [];
+                localStorage.removeItem('kibana_dsl_history');
+                renderChips();
+            }
+        });
+
+        document.getElementById('btnExportHistory').addEventListener('click', () => {
+            const blob = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'kibana-dsl-history.json';
+            a.click();
+        });
+
+        renderChips();
+    };
+    initHistory();
+
     window.updateSummary = (data) => {
         const container = document.getElementById('summaryContainer');
         if (!data) {
