@@ -264,6 +264,46 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     initHistory();
 
+    // Feature 6: Bookmarklet Logic
+    const initBookmarklet = () => {
+        const container = document.getElementById('bookmarkletContainer');
+        const script = `javascript:(function(){const url=window.location.href;if(url.includes('kibana')){window.open('https://lhlhai.github.io/prompt-library/dsl-converter.html?url='+btoa(url),'_blank')}else{alert('Vui lòng sử dụng trên trang Kibana!')}})();`;
+        
+        container.innerHTML = `
+            <div class="bg-gray-100 p-6 rounded-lg border border-gray-200 space-y-4">
+                <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center">
+                    <i class="fas fa-bookmark mr-2 text-yellow-500"></i> 📌 Bookmarklet - Preview DSL ngay trên Kibana
+                </h3>
+                <p class="text-xs text-gray-500 italic">Kéo thả nút dưới đây vào thanh bookmark hoặc copy mã code.</p>
+                
+                <div class="bg-white p-3 rounded border border-gray-300 font-mono text-[10px] break-all overflow-hidden max-h-24 relative">
+                    <code>${script}</code>
+                    <div class="absolute inset-0 bg-gradient-to-t from-white to-transparent opacity-50"></div>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button id="btnCopyBookmarklet" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md text-sm font-bold shadow-sm transition-colors flex items-center">
+                        <i class="fas fa-copy mr-2"></i> Copy Bookmarklet
+                    </button>
+                    <a href="${script}" class="px-4 py-2 bg-white border border-yellow-500 text-yellow-600 hover:bg-yellow-50 rounded-md text-sm font-bold transition-colors">
+                        Kéo tôi vào Bookmark Bar
+                    </a>
+                </div>
+                
+                <p class="text-[10px] text-gray-400">
+                    * Hướng dẫn: Click vào bookmark này khi đang xem Discover trên Kibana để mở công cụ chuyển đổi với trạng thái hiện tại.
+                </p>
+            </div>
+        `;
+
+        document.getElementById('btnCopyBookmarklet').addEventListener('click', () => {
+            navigator.clipboard.writeText(script).then(() => {
+                alert('Bookmarklet code đã được copy!');
+            });
+        });
+    };
+    initBookmarklet();
+
     window.updateSummary = (data) => {
         const container = document.getElementById('summaryContainer');
         if (!data) {
