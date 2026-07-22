@@ -3,7 +3,7 @@
  * 
  * Logic includes RISON parsing for Kibana URL states (_a, _g).
  * Features: URL↔DSL conversion, Summary cards, GUI Builder, History, Bookmarklet, Diff mode
- * Version: 0.1.0
+ * Version: 0.1.1
  */
 
 // ============================================================
@@ -387,18 +387,24 @@ function extractSummaryFromDsl(appStateRison, globalStateRison) {
 }
 
 // ============================================================
-// Optimized URL builder — only encode what's truly needed
+// Clean URL builder — raw RISON in URL (Kibana native format)
+// RISON chars ( , : ' ! ( ) ) are all unreserved/safe in query strings.
+// Only @ and / need encoding. This produces the same format Kibana itself uses.
 // ============================================================
 function buildKibanaUrl(appStateRison, globalStateRison, baseUrl) {
     const base = baseUrl || 'http://localhost:5601';
     
-    // Build query string manually: _a and _g are already RISON-encoded.
-    // We only encode the full value to satisfy URL safety rules.
-    // But RISON characters ( , : ' ! ( ) ) are safe in URL query strings,
-    // so we can skip heavy encodeURIComponent for cleaner output.
+    // Encode only the characters that are NOT safe in URL query strings.
+    // RISON special chars ( , : ' ! ( ) _ - ) are all safe.
+    // We only need to encode: @ / = & ? # [ ] space and other unsafe chars.
+    const encodeRison = (str) => {
+        // Encode only truly unsafe characters, leave RISON syntax intact
+        return str.replace(/@/g, '%40').replace(/\//g, '%2F');
+    };
+    
     const parts = [];
-    if (globalStateRison) parts.push(`_g=${encodeURIComponent(globalStateRison)}`);
-    if (appStateRison) parts.push(`_a=${encodeURIComponent(appStateRison)}`);
+    if (globalStateRison) parts.push(`_g=${encodeRison(globalStateRison)}`);
+    if (appStateRison) parts.push(`_a=${encodeRison(appStateRison)}`);
     
     return `${base}/app/kibana#/discover?${parts.join('&')}`;
 }
@@ -435,6 +441,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const obj = typeof val === 'string' ? JSON.parse(val) : val;
             return JSON.stringify(obj);
         } catch (e) { return val; }
+    };
+
+    // Helper: copy with visual feedback
+    const copyToClipboard = (text, btnEl) => {
+        navigator.clipboard.writeText(text).then(() => {
+            const originalHTML = btnEl.innerHTML;
+            btnEl.innerHTML = '<i class="fas fa-check mr-1"></i> Copied!';
+            btnEl.classList.add('text-green-600');
+            setTimeout(() => {
+                btnEl.innerHTML = originalHTML;
+                btnEl.classList.remove('text-green-600');
+            }, 1500);
+        });
     };
 
     // ---------- Summary Cards ----------
@@ -767,17 +786,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Convert DSL → RISON states
             const states = convertToKibanaStates(dsl);
             
-            // Build clean URL using optimized builder
-            let newUrl = `${baseUrl}/app/kibana#/discover?`;
-            
-            if (states.globalStateRison) {
-                newUrl += `_g=${encodeURIComponent(states.globalStateRison)}&`;
-            }
-            
-            if (states.appStateRison) {
-                newUrl += `_a=${encodeURIComponent(states.appStateRison)}`;
-            }
-            
+            // Build clean URL (raw RISON format, Kibana-native)
+            const newUrl = buildKibanaUrl(states.appStateRison, states.globalStateRison, baseUrl);
             kibanaUrlInput.value = newUrl;
             
             // Update summary
@@ -817,6 +827,25 @@ document.addEventListener('DOMContentLoaded', () => {
             kibanaUrlInput.value = '';
             dslJsonInput.value = '';
             window.updateSummary(null, null);
+        });
+    }
+
+    // ---------- Copy buttons for input textareas ----------
+    const btnCopyUrl = document.getElementById('btnCopyUrl');
+    if (btnCopyUrl) {
+        btnCopyUrl.addEventListener('click', () => {
+            const text = kibanaUrlInput.value;
+            if (!text) return alert('Chưa có URL để copy');
+            copyToClipboard(text, btnCopyUrl);
+        });
+    }
+
+    const btnCopyDsl = document.getElementById('btnCopyDsl');
+    if (btnCopyDsl) {
+        btnCopyDsl.addEventListener('click', () => {
+            const text = dslJsonInput.value;
+            if (!text) return alert('Chưa có DSL để copy');
+            copyToClipboard(text, btnCopyDsl);
         });
     }
 

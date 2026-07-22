@@ -30,7 +30,7 @@
             </div>
             <div>
                 <h1 class="text-xl font-bold text-gray-800">Kibana DSL Converter</h1>
-                <p class="text-xs text-gray-500">URL ↔ DSL Parser & Builder • v0.1.0</p>
+                <p class="text-xs text-gray-500">URL ↔ DSL Parser & Builder</p>
             </div>
         </div>
 
@@ -79,6 +79,9 @@
                         <span>Parse sang DSL</span>
                     </button>
                     <div class="flex items-center space-x-2">
+                        <button id="btnCopyUrl" class="text-xs text-gray-500 hover:text-blue-600 flex items-center bg-gray-50 px-3 py-1.5 rounded border border-gray-200 transition-colors" title="Copy URL">
+                            <i class="fas fa-copy mr-1"></i> Copy
+                        </button>
                         <input type="checkbox" id="chkAutoDecode" checked class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
                         <label for="chkAutoDecode" class="text-sm text-gray-600 cursor-pointer">Auto-decode</label>
                     </div>
@@ -110,6 +113,9 @@
                     <button id="btnGenerateUrl" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-semibold shadow transition-all flex items-center space-x-2">
                         <i class="fas fa-arrow-left"></i>
                         <span>Tạo URL</span>
+                    </button>
+                    <button id="btnCopyDsl" class="text-xs text-gray-500 hover:text-blue-600 flex items-center bg-gray-50 px-3 py-1.5 rounded border border-gray-200 transition-colors" title="Copy DSL JSON">
+                        <i class="fas fa-copy mr-1"></i> Copy
                     </button>
                 </div>
             </div>
@@ -145,7 +151,7 @@
             </div>
             
             <div class="text-[10px] text-gray-400 font-medium text-center md:text-right">
-                © 2026 Kibana DSL Converter • v0.1.0 • Built with <i class="fas fa-heart text-red-400"></i>
+                © 2026 Kibana DSL Converter • Built with <i class="fas fa-heart text-red-400"></i>
             </div>
         </div>
     </footer>
