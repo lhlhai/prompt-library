@@ -2,68 +2,168 @@
  * Kibana URL ↔ DSL Converter Logic
  * 
  * Logic includes RISON parsing for Kibana URL states (_a, _g).
+ * Features: URL↔DSL conversion, Summary cards, GUI Builder, History, Bookmarklet, Diff mode
  */
 
-// Simple RISON-like parser for Kibana states
+// Robust RISON parser for Kibana states
 const rison = {
     decode: (str) => {
         if (!str) return null;
-        // Basic rison to json conversion
-        // Note: Real Kibana uses a more complex rison parser, 
-        // this is a simplified version for common cases.
         try {
-            let jsonStr = str
+            // Unescape RISON special characters
+            let result = str
                 .replace(/!t/g, 'true')
                 .replace(/!f/g, 'false')
                 .replace(/!n/g, 'null')
-                .replace(/\(([^)]+)\)/g, '{$1}')
-                .replace(/@\(([^)]+)\)/g, '[$1]')
-                .replace(/([a-zA-Z0-9_]+):/g, '"$1":')
-                .replace(/'([^']+)'/g, '"$1"');
+                .replace(/!'/g, "'");
             
-            // Fix potential issues with unquoted strings in arrays or values
-            // This is a very rough approximation
-            return JSON.parse(jsonStr);
+            // Convert RISON to JSON
+            // Handle arrays: @(a,b,c) -> [a,b,c]
+            result = result.replace(/@\(([^)]*)\)/g, (match, content) => {
+                const items = content.split(',').map(s => s.trim());
+                return '[' + items.map(item => {
+                    if (item === 'true' || item === 'false' || item === 'null' || !isNaN(item)) {
+                        return item;
+                    }
+                    return "'" + item + "'";
+                }).join(',') + ']';
+            });
+            
+            // Handle objects: (key:value,key2:value2) -> {key:value,key2:value2}
+            result = result.replace(/\(([^)]*)\)/g, (match, content) => {
+                if (content.includes(':')) {
+                    return '{' + content + '}';
+                }
+                return match;
+            });
+            
+            // Quote unquoted keys and string values
+            result = result.replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":');
+            result = result.replace(/:\s*'([^']*)'([,}])/g, ':"$1"$2');
+            result = result.replace(/:\s*([a-zA-Z_][a-zA-Z0-9_]*)([,}])/g, (match, val, end) => {
+                if (val === 'true' || val === 'false' || val === 'null') {
+                    return ':' + val + end;
+                }
+                return ':"' + val + '"' + end;
+            });
+            
+            return JSON.parse(result);
         } catch (e) {
-            // If simple replacement fails, try a more robust approach or return error
-            console.error('Rison decode failed, trying fallback', e);
+            console.error('RISON decode failed:', e, 'Input:', str);
             return null;
         }
     },
+    
     encode: (obj) => {
         if (!obj) return '';
-        return JSON.stringify(obj)
-            .replace(/"([^"]+)":/g, '$1:')
-            .replace(/"([^"]+)"/g, "'$1'")
-            .replace(/true/g, '!t')
-            .replace(/false/g, '!f')
-            .replace(/null/g, '!n')
-            .replace(/\{/g, '(')
-            .replace(/\}/g, ')')
-            .replace(/\[/g, '@(')
-            .replace(/\]/g, ')');
+        try {
+            let json = JSON.stringify(obj);
+            
+            // Convert JSON to RISON
+            json = json
+                .replace(/"([^"]+)":/g, '$1:')  // Remove quotes from keys
+                .replace(/true/g, '!t')
+                .replace(/false/g, '!f')
+                .replace(/null/g, '!n')
+                .replace(/\{/g, '(')
+                .replace(/\}/g, ')')
+                .replace(/\[/g, '@(')
+                .replace(/\]/g, ')');
+            
+            return json;
+        } catch (e) {
+            console.error('RISON encode failed:', e);
+            return '';
+        }
     }
 };
 
-// More robust Kibana state parser (handles the actual format better)
+// Parse Kibana URL and extract query parameters
 function parseKibanaState(url) {
     try {
-        const hash = url.split('#')[1] || '';
-        const params = new URLSearchParams(hash.split('?')[1] || '');
+        // Extract hash part
+        const hashIndex = url.indexOf('#');
+        if (hashIndex === -1) return null;
         
-        const _a = params.get('_a'); // App state
-        const _g = params.get('_g'); // Global state (time range)
+        const hashPart = url.substring(hashIndex + 1);
         
-        // In modern Kibana, these are often RISON or compressed RISON
-        // For simplicity, we'll focus on extracting the query parts
+        // Parse URL parameters in hash
+        const params = new URLSearchParams(hashPart.split('?')[1] || '');
+        
+        const _a = params.get('_a');  // App state
+        const _g = params.get('_g');  // Global state
+        
         return {
             appState: _a,
-            globalState: _g
+            globalState: _g,
+            rawUrl: url
         };
     } catch (e) {
-        console.error('Parse Kibana State failed', e);
+        console.error('Parse Kibana State failed:', e);
         return null;
     }
+}
+
+// Extract meaningful information from DSL for summary
+function extractSummaryFromDsl(appState, globalState) {
+    const summary = {
+        timeRange: 'N/A',
+        filters: [],
+        columns: [],
+        sort: 'N/A',
+        savedSearch: null
+    };
+    
+    try {
+        // Parse global state for time range
+        if (globalState) {
+            const gState = rison.decode(globalState);
+            if (gState && gState.time) {
+                const from = gState.time.from || 'now';
+                const to = gState.time.to || 'now';
+                summary.timeRange = `${from} → ${to}`;
+            }
+        }
+        
+        // Parse app state for filters, columns, sort
+        if (appState) {
+            const aState = rison.decode(appState);
+            if (aState) {
+                // Extract columns
+                if (aState.columns && Array.isArray(aState.columns)) {
+                    summary.columns = aState.columns.slice(0, 5);
+                }
+                
+                // Extract filters
+                if (aState.filters && Array.isArray(aState.filters)) {
+                    summary.filters = aState.filters.slice(0, 3).map(f => {
+                        if (f.query && f.query.match) {
+                            const key = Object.keys(f.query.match)[0];
+                            const val = f.query.match[key].query || f.query.match[key];
+                            return `${key} = ${val}`;
+                        }
+                        return 'Filter';
+                    });
+                }
+                
+                // Extract sort
+                if (aState.sort && Array.isArray(aState.sort) && aState.sort.length > 0) {
+                    const sortField = aState.sort[0];
+                    const sortDir = aState.sort[1] || 'asc';
+                    summary.sort = `${sortField} (${sortDir})`;
+                }
+                
+                // Check for saved search
+                if (aState.searchSource && aState.searchSource.index) {
+                    summary.savedSearch = aState.searchSource.index;
+                }
+            }
+        }
+    } catch (e) {
+        console.error('Extract summary failed:', e);
+    }
+    
+    return summary;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -81,6 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // State
     let currentDsl = {};
+    let diffMode = false;
 
     // Helper: Format JSON
     const formatJson = (val) => {
@@ -103,6 +204,47 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Feature 3: Summary Cards Logic
+    window.updateSummary = (appState, globalState) => {
+        const container = document.getElementById('summaryContainer');
+        
+        if (!appState && !globalState) {
+            container.innerHTML = '';
+            return;
+        }
+
+        const summary = extractSummaryFromDsl(appState, globalState);
+
+        container.innerHTML = `
+            <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-3">
+                <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center">
+                    <i class="fas fa-chart-pie mr-2 text-blue-500"></i> Visual Summary
+                </h3>
+                <div class="flex flex-wrap gap-3">
+                    <div class="flex items-center bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-blue-100">
+                        <span class="mr-2">🕐 Time:</span> ${summary.timeRange}
+                    </div>
+                    ${summary.filters.length > 0 ? summary.filters.map(f => `
+                        <div class="flex items-center bg-green-50 text-green-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-green-100">
+                            <span class="mr-2">🔍 Filter:</span> ${f}
+                        </div>
+                    `).join('') : ''}
+                    ${summary.columns.length > 0 ? `
+                    <div class="flex items-center bg-purple-50 text-purple-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-purple-100">
+                        <span class="mr-2">📋 Columns:</span> ${summary.columns.join(', ')}
+                    </div>` : ''}
+                    ${summary.sort !== 'N/A' ? `
+                    <div class="flex items-center bg-orange-50 text-orange-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-orange-100">
+                        <span class="mr-2">🔢 Sort:</span> ${summary.sort}
+                    </div>` : ''}
+                    ${summary.savedSearch ? `
+                    <div class="flex items-center bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-gray-200">
+                        <span class="mr-2">🏷️ Index:</span> ${summary.savedSearch}
+                    </div>` : ''}
+                </div>
+            </div>
+        `;
+    };
+
     // Feature 4: GUI Builder Logic
     const initGuiBuilder = () => {
         const container = document.getElementById('guiBuilderContainer');
@@ -155,30 +297,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const btnAddFilter = document.getElementById('btnAddFilter');
         btnAddFilter.addEventListener('click', () => {
-            const field = document.getElementById('guiField').value;
+            const field = document.getElementById('guiField').value.trim();
             const op = document.getElementById('guiOperator').value;
-            const val = document.getElementById('guiValue').value;
+            const val = document.getElementById('guiValue').value.trim();
 
-            if (!field) return alert('Vui lòng nhập Field');
+            if (!field || !val) return alert('Vui lòng nhập Field và Value');
 
-            // Logic to update DSL
+            // Parse current DSL
             let dsl = {};
             try {
                 dsl = JSON.parse(dslJsonInput.value || '{}');
             } catch (e) { dsl = {}; }
 
-            // Simplified DSL update logic
+            // Build filter based on operator
+            let newFilter = {};
+            if (op === 'is') {
+                newFilter = { term: { [field]: val } };
+            } else if (op === 'contains') {
+                newFilter = { match: { [field]: val } };
+            } else if (op === 'exists') {
+                newFilter = { exists: { field: field } };
+            } else if (op === 'range') {
+                newFilter = { range: { [field]: { gte: val } } };
+            }
+
+            // Update DSL structure
             if (!dsl.query) dsl.query = { bool: { filter: [] } };
             if (!dsl.query.bool) dsl.query.bool = { filter: [] };
-            if (!dsl.query.bool.filter) dsl.query.bool.filter = [];
+            if (!Array.isArray(dsl.query.bool.filter)) dsl.query.bool.filter = [];
 
-            const newFilter = { term: {} };
-            newFilter.term[field] = val;
             dsl.query.bool.filter.push(newFilter);
 
             dslJsonInput.value = formatJson(dsl);
-            generateUrlFromDsl(); // Auto update URL
-            window.updateSummary(dsl); // Update summary
+            
+            // Generate URL and update summary
+            generateUrlFromDsl();
+            
+            // Clear inputs
+            document.getElementById('guiField').value = '';
+            document.getElementById('guiValue').value = '';
         });
     };
     initGuiBuilder();
@@ -223,19 +380,28 @@ document.addEventListener('DOMContentLoaded', () => {
                     const item = history[idx];
                     kibanaUrlInput.value = item.url || '';
                     dslJsonInput.value = formatJson(item.dsl);
-                    window.updateSummary(item.dsl);
+                    window.updateSummary(item.appState, item.globalState);
                 });
             });
         };
 
-        window.addToHistory = (data) => {
+        window.addToHistory = (appState, globalState, url) => {
             const now = new Date();
-            const timeStr = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
+            const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+            
+            // Generate meaningful label from summary
+            const summary = extractSummaryFromDsl(appState, globalState);
+            const filterLabel = summary.filters.length > 0 ? summary.filters[0].split(' = ')[0] : 'Query';
+            const timeRange = summary.timeRange.split(' → ')[0];
+            const label = `${timeRange}, ${filterLabel}`;
+            
             const newItem = {
                 time: timeStr,
-                label: "7d, Carrier:JetBeats", // Mock label
-                url: kibanaUrlInput.value,
-                dsl: data
+                label: label,
+                url: url,
+                dsl: { _a: appState, _g: globalState },
+                appState: appState,
+                globalState: globalState
             };
             history.unshift(newItem);
             if (history.length > 10) history.pop();
@@ -258,6 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
             a.href = url;
             a.download = 'kibana-dsl-history.json';
             a.click();
+            URL.revokeObjectURL(url);
         });
 
         renderChips();
@@ -270,15 +437,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const script = `javascript:(function(){const url=window.location.href;if(url.includes('kibana')){window.open('https://lhlhai.github.io/prompt-library/dsl-converter.html?url='+btoa(url),'_blank')}else{alert('Vui lòng sử dụng trên trang Kibana!')}})();`;
         
         container.innerHTML = `
-            <div class="bg-gray-100 p-6 rounded-lg border border-gray-200 space-y-4">
+            <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200 space-y-4">
                 <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center">
                     <i class="fas fa-bookmark mr-2 text-yellow-500"></i> 📌 Bookmarklet - Preview DSL ngay trên Kibana
                 </h3>
                 <p class="text-xs text-gray-500 italic">Kéo thả nút dưới đây vào thanh bookmark hoặc copy mã code.</p>
                 
-                <div class="bg-white p-3 rounded border border-gray-300 font-mono text-[10px] break-all overflow-hidden max-h-24 relative">
+                <div class="bg-white p-3 rounded border border-gray-300 font-mono text-[10px] break-all overflow-auto max-h-24">
                     <code>${script}</code>
-                    <div class="absolute inset-0 bg-gradient-to-t from-white to-transparent opacity-50"></div>
                 </div>
 
                 <div class="flex items-center space-x-4">
@@ -290,7 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </a>
                 </div>
                 
-                <p class="text-[10px] text-gray-400">
+                <p class="text-[10px] text-gray-500">
                     * Hướng dẫn: Click vào bookmark này khi đang xem Discover trên Kibana để mở công cụ chuyển đổi với trạng thái hiện tại.
                 </p>
             </div>
@@ -304,76 +470,39 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     initBookmarklet();
 
-    // Feature 7: Footer Logic
+    // Feature 7: Footer Logic & Diff Mode
     const initFooter = () => {
         document.getElementById('btnCopyMarkdown').addEventListener('click', () => {
             const url = kibanaUrlInput.value;
+            if (!url) return alert('Vui lòng nhập URL Kibana');
             const md = `[Kibana Search](${url})`;
             navigator.clipboard.writeText(md).then(() => alert('Markdown đã được copy!'));
         });
 
         document.getElementById('btnCopyHtml').addEventListener('click', () => {
             const url = kibanaUrlInput.value;
+            if (!url) return alert('Vui lòng nhập URL Kibana');
             const html = `<a href="${url}">Kibana Search</a>`;
             navigator.clipboard.writeText(html).then(() => alert('HTML Link đã được copy!'));
         });
 
         document.getElementById('btnToggleDiff').addEventListener('click', () => {
-            alert('Chế độ Diff: Tính năng này sẽ nhân đôi giao diện để so sánh. (Đang phát triển)');
+            diffMode = !diffMode;
+            const btn = document.getElementById('btnToggleDiff');
+            if (diffMode) {
+                btn.classList.add('bg-blue-100', 'text-blue-600', 'border-blue-300');
+                alert('Chế độ Diff được bật. Tính năng này cho phép so sánh 2 URL/DSL. (Đang phát triển)');
+            } else {
+                btn.classList.remove('bg-blue-100', 'text-blue-600', 'border-blue-300');
+            }
         });
     };
     initFooter();
 
-    window.updateSummary = (data) => {
-        const container = document.getElementById('summaryContainer');
-        if (!data) {
-            container.innerHTML = '';
-            return;
-        }
-
-        // Mock data extraction for summary
-        // In a real scenario, we would parse the _a and _g objects
-        const summary = {
-            timeRange: "now-7d → now",
-            filters: ["Carrier = JetBeats", "Status = 200"],
-            columns: ["_source", "message", "timestamp"],
-            sort: "timestamp (desc)",
-            savedSearch: "Access Logs"
-        };
-
-        container.innerHTML = `
-            <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-3">
-                <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center">
-                    <i class="fas fa-chart-pie mr-2 text-blue-500"></i> Visual Summary
-                </h3>
-                <div class="flex flex-wrap gap-3">
-                    <div class="flex items-center bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-blue-100">
-                        <span class="mr-2">🕐 Time:</span> ${summary.timeRange}
-                    </div>
-                    ${summary.filters.map(f => `
-                        <div class="flex items-center bg-green-50 text-green-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-green-100">
-                            <span class="mr-2">🔍 Filter:</span> ${f}
-                        </div>
-                    `).join('')}
-                    <div class="flex items-center bg-purple-50 text-purple-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-purple-100">
-                        <span class="mr-2">📋 Columns:</span> ${summary.columns.join(', ')}
-                    </div>
-                    <div class="flex items-center bg-orange-50 text-orange-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-orange-100">
-                        <span class="mr-2">🔢 Sort:</span> ${summary.sort}
-                    </div>
-                    ${summary.savedSearch ? `
-                    <div class="flex items-center bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-gray-200">
-                        <span class="mr-2">🏷️ Saved:</span> ${summary.savedSearch}
-                    </div>` : ''}
-                </div>
-            </div>
-        `;
-    };
-
     // Action: Parse URL to DSL
     const parseUrlToDsl = () => {
         const url = kibanaUrlInput.value.trim();
-        if (!url) return;
+        if (!url) return alert('Vui lòng nhập URL Kibana');
 
         const states = parseKibanaState(url);
         if (!states) {
@@ -390,10 +519,10 @@ document.addEventListener('DOMContentLoaded', () => {
         currentDsl = result;
         
         // Trigger summary update
-        window.updateSummary(result);
+        window.updateSummary(states.appState, states.globalState);
         
-        // Add to history (Feature 5 - we'll implement later)
-        if (window.addToHistory) window.addToHistory(result);
+        // Add to history
+        if (window.addToHistory) window.addToHistory(states.appState, states.globalState, url);
     };
 
     // Action: Generate URL from DSL
@@ -401,28 +530,40 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const dsl = JSON.parse(dslJsonInput.value);
             const baseUrl = baseUrlInput.value || 'http://localhost:5601';
-            const version = kibanaVersionSelect.value;
             
-            // Simple reconstruction
+            // Build URL with RISON encoding
             let newUrl = `${baseUrl}/app/kibana#/discover?`;
-            if (dsl._g) newUrl += `_g=${dsl._g}&`;
-            if (dsl._a) newUrl += `_a=${dsl._a}`;
+            
+            if (dsl._g) {
+                const gEncoded = rison.encode(dsl._g);
+                newUrl += `_g=${encodeURIComponent(gEncoded)}&`;
+            }
+            
+            if (dsl._a) {
+                const aEncoded = rison.encode(dsl._a);
+                newUrl += `_a=${encodeURIComponent(aEncoded)}`;
+            }
             
             kibanaUrlInput.value = newUrl;
+            
+            // Update summary
+            window.updateSummary(dsl._a, dsl._g);
         } catch (e) {
-            alert('JSON không hợp lệ!');
+            alert('JSON không hợp lệ! ' + e.message);
         }
     };
 
     // Events
     btnParseToDsl.addEventListener('click', parseUrlToDsl);
     btnGenerateUrl.addEventListener('click', generateUrlFromDsl);
+    
     btnExchange.addEventListener('click', () => {
-        // Simple toggle logic or just trigger the most logical flow
         if (kibanaUrlInput.value && !dslJsonInput.value) {
             parseUrlToDsl();
         } else if (dslJsonInput.value) {
             generateUrlFromDsl();
+        } else {
+            alert('Vui lòng nhập URL hoặc DSL JSON');
         }
     });
 
@@ -437,17 +578,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // Feature 1: Share State
     const btnShareState = document.getElementById('btnShareState');
     btnShareState.addEventListener('click', () => {
+        if (!kibanaUrlInput.value) return alert('Vui lòng nhập URL Kibana trước');
         const url = new URL(window.location.href);
-        if (kibanaUrlInput.value) url.searchParams.set('url', btoa(kibanaUrlInput.value));
+        url.searchParams.set('url', btoa(kibanaUrlInput.value));
         navigator.clipboard.writeText(url.toString()).then(() => {
             alert('Link trạng thái đã được copy!');
         });
     });
 
-    // Load from URL if present
+    // Load from URL if present (with auto-decode support)
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('url')) {
-        kibanaUrlInput.value = atob(urlParams.get('url'));
-        if (chkAutoDecode.checked) parseUrlToDsl();
+        try {
+            kibanaUrlInput.value = atob(urlParams.get('url'));
+            if (chkAutoDecode.checked) {
+                // Delay to ensure DOM is ready
+                setTimeout(parseUrlToDsl, 100);
+            }
+        } catch (e) {
+            console.error('Failed to decode URL param:', e);
+        }
     }
 });
