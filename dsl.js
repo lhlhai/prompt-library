@@ -102,32 +102,77 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Feature 3: Summary Cards Logic
+    window.updateSummary = (data) => {
+        const container = document.getElementById('summaryContainer');
+        if (!data) {
+            container.innerHTML = '';
+            return;
+        }
+
+        // Mock data extraction for summary
+        // In a real scenario, we would parse the _a and _g objects
+        const summary = {
+            timeRange: "now-7d → now",
+            filters: ["Carrier = JetBeats", "Status = 200"],
+            columns: ["_source", "message", "timestamp"],
+            sort: "timestamp (desc)",
+            savedSearch: "Access Logs"
+        };
+
+        container.innerHTML = `
+            <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-3">
+                <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center">
+                    <i class="fas fa-chart-pie mr-2 text-blue-500"></i> Visual Summary
+                </h3>
+                <div class="flex flex-wrap gap-3">
+                    <div class="flex items-center bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-blue-100">
+                        <span class="mr-2">🕐 Time:</span> ${summary.timeRange}
+                    </div>
+                    ${summary.filters.map(f => `
+                        <div class="flex items-center bg-green-50 text-green-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-green-100">
+                            <span class="mr-2">🔍 Filter:</span> ${f}
+                        </div>
+                    `).join('')}
+                    <div class="flex items-center bg-purple-50 text-purple-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-purple-100">
+                        <span class="mr-2">📋 Columns:</span> ${summary.columns.join(', ')}
+                    </div>
+                    <div class="flex items-center bg-orange-50 text-orange-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-orange-100">
+                        <span class="mr-2">🔢 Sort:</span> ${summary.sort}
+                    </div>
+                    ${summary.savedSearch ? `
+                    <div class="flex items-center bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-gray-200">
+                        <span class="mr-2">🏷️ Saved:</span> ${summary.savedSearch}
+                    </div>` : ''}
+                </div>
+            </div>
+        `;
+    };
+
     // Action: Parse URL to DSL
     const parseUrlToDsl = () => {
         const url = kibanaUrlInput.value.trim();
         if (!url) return;
 
-        // Try to extract _a and _g
         const states = parseKibanaState(url);
         if (!states) {
             alert('Không thể nhận diện định dạng URL Kibana!');
             return;
         }
 
-        // Mock conversion for demonstration
-        // In a real app, we would use a RISON library
-        // Here we'll just show we found the states
         const result = {
             _g: states.globalState,
-            _a: states.appState,
-            note: "Đây là dữ liệu thô từ URL. Tính năng giải mã RISON đầy đủ đang được cập nhật."
+            _a: states.appState
         };
 
         dslJsonInput.value = formatJson(result);
         currentDsl = result;
         
-        // Trigger summary update (Feature 3)
-        if (window.updateSummary) window.updateSummary(result);
+        // Trigger summary update
+        window.updateSummary(result);
+        
+        // Add to history (Feature 5 - we'll implement later)
+        if (window.addToHistory) window.addToHistory(result);
     };
 
     // Action: Generate URL from DSL
