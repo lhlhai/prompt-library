@@ -4,6 +4,7 @@
  * 
  * Logic includes RISON parsing for Kibana URL states (_a, _g).
  * Features: URL↔DSL conversion, Summary cards, GUI Builder, History, Bookmarklet, Diff mode
+ * Version: 0.0.1
  */
 
 // Robust RISON parser for Kibana states
@@ -434,6 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnExchange = document.getElementById('btnExchange');
     const btnFormatJson = document.getElementById('btnFormatJson');
     const btnMinifyJson = document.getElementById('btnMinifyJson');
+    const btnClearAll = document.getElementById('btnClearAll');
     const chkAutoDecode = document.getElementById('chkAutoDecode');
     const baseUrlInput = document.getElementById('baseUrl');
     const kibanaVersionSelect = document.getElementById('kibanaVersion');
@@ -838,6 +840,14 @@ document.addEventListener('DOMContentLoaded', () => {
     btnMinifyJson.addEventListener('click', () => {
         dslJsonInput.value = minifyJson(dslJsonInput.value);
     });
+
+    if (btnClearAll) {
+        btnClearAll.addEventListener('click', () => {
+            kibanaUrlInput.value = '';
+            dslJsonInput.value = '';
+            window.updateSummary(null, null);
+        });
+    }
 
     // Feature 1: Share State
     const btnShareState = document.getElementById('btnShareState');
