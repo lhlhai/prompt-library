@@ -633,6 +633,14 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         window.addToHistory = (appState, globalState, url) => {
+            // Dedup: skip if the last saved entry has identical appState + globalState
+            if (history.length > 0) {
+                const last = history[0];
+                if (last.appState === appState && last.globalState === globalState) {
+                    return; // Same state — don't duplicate
+                }
+            }
+            
             const now = new Date();
             const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
             
