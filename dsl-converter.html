@@ -40,7 +40,7 @@
         </div>
     </header>
 
-    <main id="app" class="flex-grow p-6 space-y-8">
+    <main id="app" class="flex-grow p-6 space-y-8 max-w-7xl mx-auto w-full">
         <!-- Feature 2: Main Conversion Area -->
         <div class="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-4 items-center">
             <!-- Left Column: URL -->
@@ -95,6 +95,28 @@
         <div id="historyContainer"></div>
         <div id="bookmarkletContainer"></div>
     </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 px-6 py-4 mt-8 shadow-[0_-1px_3px_rgba(0,0,0,0.05)]">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-4">
+                <button id="btnCopyMarkdown" class="text-xs font-semibold text-gray-600 hover:text-blue-600 flex items-center bg-gray-50 px-3 py-1.5 rounded border border-gray-200 transition-colors">
+                    <i class="fab fa-markdown mr-2"></i> Copy as Markdown
+                </button>
+                <button id="btnCopyHtml" class="text-xs font-semibold text-gray-600 hover:text-blue-600 flex items-center bg-gray-50 px-3 py-1.5 rounded border border-gray-200 transition-colors">
+                    <i class="fas fa-link mr-2"></i> Copy as HTML Link
+                </button>
+                <div class="h-4 w-[1px] bg-gray-300"></div>
+                <button id="btnToggleDiff" class="text-xs font-semibold text-gray-600 hover:text-blue-600 flex items-center bg-gray-50 px-3 py-1.5 rounded border border-gray-200 transition-colors">
+                    <i class="fas fa-columns mr-2"></i> Chế độ Diff
+                </button>
+            </div>
+            
+            <div class="text-[10px] text-gray-400 font-medium">
+                © 2026 Kibana DSL Converter • v1.0.0 • Built with <i class="fas fa-heart text-red-400"></i>
+            </div>
+        </div>
+    </footer>
 
     <script src="dsl.js"></script>
 </body>

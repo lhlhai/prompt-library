@@ -304,6 +304,26 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     initBookmarklet();
 
+    // Feature 7: Footer Logic
+    const initFooter = () => {
+        document.getElementById('btnCopyMarkdown').addEventListener('click', () => {
+            const url = kibanaUrlInput.value;
+            const md = `[Kibana Search](${url})`;
+            navigator.clipboard.writeText(md).then(() => alert('Markdown đã được copy!'));
+        });
+
+        document.getElementById('btnCopyHtml').addEventListener('click', () => {
+            const url = kibanaUrlInput.value;
+            const html = `<a href="${url}">Kibana Search</a>`;
+            navigator.clipboard.writeText(html).then(() => alert('HTML Link đã được copy!'));
+        });
+
+        document.getElementById('btnToggleDiff').addEventListener('click', () => {
+            alert('Chế độ Diff: Tính năng này sẽ nhân đôi giao diện để so sánh. (Đang phát triển)');
+        });
+    };
+    initFooter();
+
     window.updateSummary = (data) => {
         const container = document.getElementById('summaryContainer');
         if (!data) {
