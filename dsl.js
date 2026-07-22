@@ -1,3 +1,4 @@
+
 /**
  * Kibana URL ↔ DSL Converter Logic
  * 
@@ -15,7 +16,8 @@ const rison = {
                 .replace(/!t/g, 'true')
                 .replace(/!f/g, 'false')
                 .replace(/!n/g, 'null')
-                .replace(/!'/g, "'");
+                .replace(/!'(.)/g, (match, char) => `'${char}'`)
+                .replace(/!'(?!')/g, "'"); // Handle single quotes not followed by another quote
             
             // Convert RISON to JSON
             // Handle arrays: @(a,b,c) -> [a,b,c]
@@ -25,23 +27,34 @@ const rison = {
                     if (item === 'true' || item === 'false' || item === 'null' || !isNaN(item)) {
                         return item;
                     }
-                    return "'" + item + "'";
+                    // Ensure strings are properly quoted, handle already quoted strings
+                    if (item.startsWith("'") && item.endsWith("'")) {
+                        return item.replace(/'/g, '"');
+                    }
+                    return '"' + item + '"';
                 }).join(',') + ']';
             });
             
             // Handle objects: (key:value,key2:value2) -> {key:value,key2:value2}
             result = result.replace(/\(([^)]*)\)/g, (match, content) => {
                 if (content.includes(':')) {
+                    // Quote unquoted keys and string values within objects
+                    content = content.replace(/([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '"$1":');
+                    content = content.replace(/:\s*([a-zA-Z_][a-zA-Z0-9_]*)([,}])/g, (match, val, end) => {
+                        if (val === 'true' || val === 'false' || val === 'null' || !isNaN(val)) {
+                            return ':' + val + end;
+                        }
+                        return ':"' + val + '"' + end;
+                    });
                     return '{' + content + '}';
                 }
                 return match;
             });
             
-            // Quote unquoted keys and string values
+            // Quote unquoted keys and string values at top level (if any remain)
             result = result.replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":');
-            result = result.replace(/:\s*'([^']*)'([,}])/g, ':"$1"$2');
             result = result.replace(/:\s*([a-zA-Z_][a-zA-Z0-9_]*)([,}])/g, (match, val, end) => {
-                if (val === 'true' || val === 'false' || val === 'null') {
+                if (val === 'true' || val === 'false' || val === 'null' || !isNaN(val)) {
                     return ':' + val + end;
                 }
                 return ':"' + val + '"' + end;
@@ -68,7 +81,8 @@ const rison = {
                 .replace(/\{/g, '(')
                 .replace(/\}/g, ')')
                 .replace(/\[/g, '@(')
-                .replace(/\]/g, ')');
+                .replace(/\]/g, ')')
+                .replace(/"/g, "'"); // Replace double quotes with single quotes for RISON strings
             
             return json;
         } catch (e) {
@@ -102,6 +116,244 @@ function parseKibanaState(url) {
         console.error('Parse Kibana State failed:', e);
         return null;
     }
+}
+
+// Convert Kibana RISON states to Elasticsearch DSL query
+function convertToDsl(appStateRison, globalStateRison) {
+    const dsl = {
+        query: { bool: {} },
+        size: 500, // Default size, can be adjusted
+        sort: [],
+        _source: { excludes: [] }
+    };
+
+    const boolQuery = { must: [], filter: [], should: [], must_not: [] };
+
+    try {
+        const appState = appStateRison ? rison.decode(appStateRison) : {};
+        const globalState = globalStateRison ? rison.decode(globalStateRison) : {};
+
+        // Process globalState for time range
+        if (globalState && globalState.time) {
+            const timeRange = {};
+            if (globalState.time.from) timeRange.gte = globalState.time.from;
+            if (globalState.time.to) timeRange.lte = globalState.time.to;
+            if (Object.keys(timeRange).length > 0) {
+                boolQuery.filter.push({ range: { '@timestamp': timeRange } });
+            }
+        }
+
+        // Process appState
+        if (appState) {
+            // Handle query string
+            if (appState.query && appState.query.query) {
+                boolQuery.must.push({ query_string: { query: appState.query.query } });
+            }
+
+            // Handle filters
+            if (appState.filters && Array.isArray(appState.filters)) {
+                appState.filters.forEach(filter => {
+                    if (filter.meta && filter.meta.disabled) return; // Skip disabled filters
+
+                    let dslFilter = {};
+                    if (filter.query) {
+                        // Handle query_string filter
+                        if (filter.query.query) {
+                            dslFilter = { query_string: { query: filter.query.query } };
+                        } else if (filter.query.match) {
+                            // Handle match filter (e.g., field:value)
+                            const field = Object.keys(filter.query.match)[0];
+                            const value = filter.query.match[field].query || filter.query.match[field];
+                            dslFilter = { match: { [field]: value } };
+                        }
+                    } else if (filter.range) {
+                        // Handle range filter
+                        const field = Object.keys(filter.range)[0];
+                        dslFilter = { range: { [field]: filter.range[field] } };
+                    } else if (filter.exists) {
+                        // Handle exists filter
+                        dslFilter = { exists: { field: filter.exists.field } };
+                    } else if (filter.geo_bounding_box) {
+                        // Handle geo_bounding_box filter
+                        const field = Object.keys(filter.geo_bounding_box)[0];
+                        dslFilter = { geo_bounding_box: { [field]: filter.geo_bounding_box[field] } };
+                    } else if (filter.script) {
+                        // Handle script filter
+                        dslFilter = { script: filter.script };
+                    }
+
+                    if (Object.keys(dslFilter).length > 0) {
+                        if (filter.meta && filter.meta.negate) {
+                            boolQuery.must_not.push(dslFilter);
+                        } else {
+                            boolQuery.filter.push(dslFilter);
+                        }
+                    }
+                });
+            }
+
+            // Handle columns (_source)
+            if (appState.columns && Array.isArray(appState.columns)) {
+                dsl._source = appState.columns;
+            }
+
+            // Handle sort
+            if (appState.sort && Array.isArray(appState.sort) && appState.sort.length > 0) {
+                const sortField = appState.sort[0];
+                const sortOrder = appState.sort[1] || 'asc';
+                dsl.sort.push({ [sortField]: sortOrder });
+            }
+        }
+
+        // Clean up empty bool clauses
+        if (boolQuery.must.length > 0) dsl.query.bool.must = boolQuery.must;
+        if (boolQuery.filter.length > 0) dsl.query.bool.filter = boolQuery.filter;
+        if (boolQuery.should.length > 0) dsl.query.bool.should = boolQuery.should;
+        if (boolQuery.must_not.length > 0) dsl.query.bool.must_not = boolQuery.must_not;
+
+        if (Object.keys(dsl.query.bool).length === 0) {
+            delete dsl.query.bool; // Remove bool if empty
+            if (Object.keys(dsl.query).length === 0) {
+                delete dsl.query; // Remove query if empty
+            }
+        }
+
+        if (dsl.sort.length === 0) delete dsl.sort;
+        if (dsl._source.length === 0) delete dsl._source;
+
+    } catch (e) {
+        console.error('Error converting to DSL:', e);
+        return { error: e.message };
+    }
+
+    return dsl;
+}
+
+// Convert Elasticsearch DSL query to Kibana RISON states
+function convertToKibanaStates(dslJson) {
+    const appState = {
+        query: { language: 'kuery', query: '' },
+        filters: [],
+        columns: ['_source'],
+        sort: []
+    };
+    const globalState = { time: { from: 'now-15m', to: 'now' } };
+
+    try {
+        const dsl = typeof dslJson === 'string' ? JSON.parse(dslJson) : dslJson;
+
+        // Process query and filters from DSL
+        if (dsl.query && dsl.query.bool) {
+            const bool = dsl.query.bool;
+
+            // Handle must queries (e.g., query_string)
+            if (bool.must && Array.isArray(bool.must)) {
+                bool.must.forEach(clause => {
+                    if (clause.query_string) {
+                        appState.query.query = clause.query_string.query;
+                        appState.query.language = clause.query_string.default_field ? 'lucene' : 'kuery'; // Heuristic
+                    } else if (clause.match) {
+                        const field = Object.keys(clause.match)[0];
+                        const value = clause.match[field];
+                        appState.filters.push({
+                            query: { match: { [field]: value } },
+                            meta: { negate: false, disabled: false, alias: null, index: '*' }
+                        });
+                    }
+                });
+            }
+
+            // Handle filter queries
+            if (bool.filter && Array.isArray(bool.filter)) {
+                bool.filter.forEach(clause => {
+                    if (clause.range && clause.range['@timestamp']) {
+                        // This is likely the global time filter
+                        globalState.time.from = clause.range['@timestamp'].gte || 'now-15m';
+                        globalState.time.to = clause.range['@timestamp'].lte || 'now';
+                    } else if (clause.match) {
+                        const field = Object.keys(clause.match)[0];
+                        const value = clause.match[field];
+                        appState.filters.push({
+                            query: { match: { [field]: value } },
+                            meta: { negate: false, disabled: false, alias: null, index: '*' }
+                        });
+                    } else if (clause.term) {
+                        const field = Object.keys(clause.term)[0];
+                        const value = clause.term[field];
+                        appState.filters.push({
+                            query: { term: { [field]: value } },
+                            meta: { negate: false, disabled: false, alias: null, index: '*' }
+                        });
+                    } else if (clause.exists) {
+                        appState.filters.push({
+                            exists: { field: clause.exists.field },
+                            meta: { negate: false, disabled: false, alias: null, index: '*' }
+                        });
+                    } else if (clause.query_string) {
+                        appState.filters.push({
+                            query: { query_string: clause.query_string },
+                            meta: { negate: false, disabled: false, alias: null, index: '*' }
+                        });
+                    }
+                    // Add more filter types as needed
+                });
+            }
+
+            // Handle must_not queries
+            if (bool.must_not && Array.isArray(bool.must_not)) {
+                bool.must_not.forEach(clause => {
+                    if (clause.match) {
+                        const field = Object.keys(clause.match)[0];
+                        const value = clause.match[field];
+                        appState.filters.push({
+                            query: { match: { [field]: value } },
+                            meta: { negate: true, disabled: false, alias: null, index: '*' }
+                        });
+                    } else if (clause.term) {
+                        const field = Object.keys(clause.term)[0];
+                        const value = clause.term[field];
+                        appState.filters.push({
+                            query: { term: { [field]: value } },
+                            meta: { negate: true, disabled: false, alias: null, index: '*' }
+                        });
+                    } else if (clause.exists) {
+                        appState.filters.push({
+                            exists: { field: clause.exists.field },
+                            meta: { negate: true, disabled: false, alias: null, index: '*' }
+                        });
+                    } else if (clause.query_string) {
+                        appState.filters.push({
+                            query: { query_string: clause.query_string },
+                            meta: { negate: true, disabled: false, alias: null, index: '*' }
+                        });
+                    }
+                });
+            }
+        }
+
+        // Process _source
+        if (dsl._source && Array.isArray(dsl._source)) {
+            appState.columns = dsl._source;
+        }
+
+        // Process sort
+        if (dsl.sort && Array.isArray(dsl.sort)) {
+            appState.sort = dsl.sort.map(s => {
+                const field = Object.keys(s)[0];
+                const order = s[field];
+                return [field, order];
+            });
+        }
+
+    } catch (e) {
+        console.error('Error converting to Kibana states:', e);
+        return { error: e.message };
+    }
+
+    return {
+        appStateRison: rison.encode(appState),
+        globalStateRison: rison.encode(globalState)
+    };
 }
 
 // Extract meaningful information from DSL for summary
@@ -141,6 +393,13 @@ function extractSummaryFromDsl(appState, globalState) {
                             const key = Object.keys(f.query.match)[0];
                             const val = f.query.match[key].query || f.query.match[key];
                             return `${key} = ${val}`;
+                        } else if (f.query && f.query.query_string) {
+                            return `Query: ${f.query.query_string.query}`;
+                        } else if (f.range) {
+                            const key = Object.keys(f.range)[0];
+                            const from = f.range[key].gte || f.range[key].gt || '';
+                            const to = f.range[key].lte || f.range[key].lt || '';
+                            return `Range: ${key} ${from}-${to}`;
                         }
                         return 'Filter';
                     });
@@ -347,7 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm space-y-3">
                 <div class="flex items-center justify-between">
                     <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center">
-                        <i class="fas fa-history mr-2 text-green-500"></i> History
+                        <i class="fas fa-history mr-2 text-purple-500"></i> Lịch sử
                     </h3>
                     <div class="flex space-x-3">
                         <button id="btnExportHistory" class="text-xs text-blue-600 hover:underline font-medium">📥 Xuất JSON</button>
@@ -399,7 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 time: timeStr,
                 label: label,
                 url: url,
-                dsl: { _a: appState, _g: globalState },
+                dsl: { _a: appState, _g: globalState }, // Store raw RISON for history display
                 appState: appState,
                 globalState: globalState
             };
@@ -510,13 +769,14 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const result = {
-            _g: states.globalState,
-            _a: states.appState
-        };
+        const dslResult = convertToDsl(states.appState, states.globalState);
+        if (dslResult.error) {
+            alert('Lỗi chuyển đổi sang DSL: ' + dslResult.error);
+            return;
+        }
 
-        dslJsonInput.value = formatJson(result);
-        currentDsl = result;
+        dslJsonInput.value = formatJson(dslResult);
+        currentDsl = dslResult;
         
         // Trigger summary update
         window.updateSummary(states.appState, states.globalState);
@@ -528,26 +788,30 @@ document.addEventListener('DOMContentLoaded', () => {
     // Action: Generate URL from DSL
     const generateUrlFromDsl = () => {
         try {
-            const dsl = JSON.parse(dslJsonInput.value);
+            const dslText = dslJsonInput.value;
+            if (!dslText) return alert('Vui lòng nhập DSL JSON');
+
+            const kibanaStates = convertToKibanaStates(dslText);
+            if (kibanaStates.error) {
+                alert('Lỗi chuyển đổi sang Kibana URL: ' + kibanaStates.error);
+                return;
+            }
+
             const baseUrl = baseUrlInput.value || 'http://localhost:5601';
-            
-            // Build URL with RISON encoding
             let newUrl = `${baseUrl}/app/kibana#/discover?`;
             
-            if (dsl._g) {
-                const gEncoded = rison.encode(dsl._g);
-                newUrl += `_g=${encodeURIComponent(gEncoded)}&`;
+            if (kibanaStates.globalStateRison) {
+                newUrl += `_g=${encodeURIComponent(kibanaStates.globalStateRison)}&`;
             }
             
-            if (dsl._a) {
-                const aEncoded = rison.encode(dsl._a);
-                newUrl += `_a=${encodeURIComponent(aEncoded)}`;
+            if (kibanaStates.appStateRison) {
+                newUrl += `_a=${encodeURIComponent(kibanaStates.appStateRison)}`;
             }
             
             kibanaUrlInput.value = newUrl;
             
             // Update summary
-            window.updateSummary(dsl._a, dsl._g);
+            window.updateSummary(kibanaStates.appStateRison, kibanaStates.globalStateRison);
         } catch (e) {
             alert('JSON không hợp lệ! ' + e.message);
         }
