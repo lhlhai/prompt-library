@@ -192,19 +192,25 @@ function parseKibanaUrlToModel(appStateRison, globalStateRison) {
         query: { language: 'kuery', text: '' },
         filters: [],
         sort: [],
-        columns: ['_source'],
-        size: 500,
-        dataView: null
+        columns: [],
+        size: null,
+        dataView: null,
+        refreshInterval: null
     };
 
     try {
         const appState = appStateRison ? rison.decode(appStateRison) : {};
         const globalState = globalStateRison ? rison.decode(globalStateRison) : {};
 
-        // Parse global state (_g) - time range
+        // Parse global state (_g) - time range and refresh interval
         if (globalState && globalState.time) {
             if (globalState.time.from) model.time.from = globalState.time.from;
             if (globalState.time.to) model.time.to = globalState.time.to;
+        }
+
+        // Parse refresh interval from global state
+        if (globalState && globalState.refreshInterval) {
+            model.refreshInterval = globalState.refreshInterval;
         }
 
         // Parse app state (_a)
@@ -215,15 +221,35 @@ function parseKibanaUrlToModel(appStateRison, globalStateRison) {
                 model.query.text = appState.query.query || '';
             }
 
-            // Filters
+            // Data View / Index - support both dataViewId and index
+            if (appState.dataViewId) {
+                model.dataView = appState.dataViewId;
+            } else if (appState.index) {
+                model.dataView = appState.index;
+            }
+
+            // Filters - preserve ALL filters
             if (appState.filters && Array.isArray(appState.filters)) {
                 appState.filters.forEach(filter => {
                     if (filter.meta && filter.meta.disabled) return;
 
                     let internalFilter = null;
 
-                    // Match phrase filter
-                    if (filter.query && filter.query.match) {
+                    // Match phrase filter (check for match_phrase first)
+                    if (filter.query && filter.query.match_phrase) {
+                        const field = Object.keys(filter.query.match_phrase)[0];
+                        const matchVal = filter.query.match_phrase[field];
+                        const value = (typeof matchVal === 'object' && matchVal !== null) 
+                            ? (matchVal.query || matchVal) 
+                            : matchVal;
+                        internalFilter = {
+                            type: 'match_phrase',
+                            field: field,
+                            value: value
+                        };
+                    }
+                    // Match filter (could be phrase or term-like)
+                    else if (filter.query && filter.query.match) {
                         const field = Object.keys(filter.query.match)[0];
                         const matchVal = filter.query.match[field];
                         const value = (typeof matchVal === 'object' && matchVal !== null) 
@@ -282,26 +308,26 @@ function parseKibanaUrlToModel(appStateRison, globalStateRison) {
                 });
             }
 
-            // Columns
+            // Columns - store in model, don't auto-generate _source
             if (appState.columns && Array.isArray(appState.columns)) {
                 model.columns = appState.columns;
             }
 
-            // Sort
-            if (appState.sort && Array.isArray(appState.sort) && appState.sort.length > 0) {
-                const sortField = appState.sort[0];
-                const sortOrder = appState.sort[1] || 'asc';
-                model.sort = [{ field: sortField, order: sortOrder }];
+            // Sort - support multiple sort fields
+            if (appState.sort && Array.isArray(appState.sort)) {
+                // Kibana stores sort as [field1, order1, field2, order2, ...]
+                for (let i = 0; i < appState.sort.length; i += 2) {
+                    const sortField = appState.sort[i];
+                    const sortOrder = appState.sort[i + 1] || 'asc';
+                    if (sortField) {
+                        model.sort.push({ field: sortField, order: sortOrder });
+                    }
+                }
             }
 
-            // Data View
-            if (appState.dataViewId) {
-                model.dataView = appState.dataViewId;
-            }
-
-            // Size (from interval or default)
-            if (appState.interval) {
-                model.size = 500; // Default size for Discover
+            // Size - only set if explicitly provided
+            if (appState.interval !== undefined) {
+                model.size = typeof appState.interval === 'number' ? appState.interval : 500;
             }
         }
     } catch (e) {
@@ -315,11 +341,12 @@ function parseKibanaUrlToModel(appStateRison, globalStateRison) {
 // Step 2: Convert Internal Model to Elasticsearch DSL
 // ============================================================
 function modelToDsl(model) {
-    const dsl = {
-        size: model.size || 500,
-        sort: [],
-        _source: model.columns || []
-    };
+    const dsl = {};
+
+    // Only include size if explicitly set
+    if (model.size !== null && model.size !== undefined) {
+        dsl.size = model.size;
+    }
 
     const boolQuery = { must: [], filter: [], should: [], must_not: [] };
 
@@ -381,8 +408,9 @@ function modelToDsl(model) {
         });
     }
 
-    // Sort
+    // Sort - support multiple sort fields
     if (model.sort && model.sort.length > 0) {
+        dsl.sort = [];
         model.sort.forEach(s => {
             dsl.sort.push({ [s.field]: s.order });
         });
@@ -395,6 +423,11 @@ function modelToDsl(model) {
         if (boolQuery.filter.length > 0) dsl.query.bool.filter = boolQuery.filter;
         if (boolQuery.should.length > 0) dsl.query.bool.should = boolQuery.should;
         if (boolQuery.must_not.length > 0) dsl.query.bool.must_not = boolQuery.must_not;
+    }
+
+    // Columns - only include _source if columns are explicitly specified
+    if (model.columns && model.columns.length > 0) {
+        dsl._source = model.columns;
     }
 
     // Clean up empty bool
@@ -438,13 +471,14 @@ function parseDslToModel(dsl) {
         query: { language: 'kuery', text: '' },
         filters: [],
         sort: [],
-        columns: ['_source'],
-        size: 500,
-        dataView: null
+        columns: [],
+        size: null,
+        dataView: null,
+        refreshInterval: null
     };
 
     // Extract size
-    if (dsl.size) {
+    if (dsl.size !== undefined && dsl.size !== null) {
         model.size = dsl.size;
     }
 
@@ -453,7 +487,7 @@ function parseDslToModel(dsl) {
         model.columns = Array.isArray(dsl._source) ? dsl._source : [dsl._source];
     }
 
-    // Extract sort
+    // Extract sort - support multiple sort fields
     if (dsl.sort && Array.isArray(dsl.sort)) {
         model.sort = dsl.sort.map(s => {
             const field = Object.keys(s)[0];
@@ -572,7 +606,7 @@ function modelToKibanaRison(model) {
     const appState = {
         query: { language: model.query.language || 'kuery', query: model.query.text || '' },
         filters: [],
-        columns: model.columns || ['_source'],
+        columns: model.columns && model.columns.length > 0 ? model.columns : ['_source'],
         sort: [],
         dataViewId: model.dataView
     };
@@ -583,6 +617,10 @@ function modelToKibanaRison(model) {
             to: model.time.to || 'now' 
         } 
     };
+    // Add refresh interval if present
+    if (model.refreshInterval) {
+        globalState.refreshInterval = model.refreshInterval;
+    }
 
     // Convert filters to Kibana format
     if (model.filters && Array.isArray(model.filters)) {
@@ -630,10 +668,12 @@ function modelToKibanaRison(model) {
         });
     }
 
-    // Convert sort to Kibana format
     if (model.sort && model.sort.length > 0) {
-        const firstSort = model.sort[0];
-        appState.sort = [firstSort.field, firstSort.order];
+        // Kibana stores sort as [field1, order1, field2, order2, ...]
+        appState.sort = [];
+        model.sort.forEach(s => {
+            appState.sort.push(s.field, s.order);
+        });
     }
 
     return {
