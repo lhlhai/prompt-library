@@ -1002,7 +1002,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---------- Bookmarklet ----------
     const initBookmarklet = () => {
         const container = document.getElementById('bookmarkletContainer');
-        const script = `javascript:(function(){const url=window.location.href;if(url.includes('kibana')){window.open('https://lhlhai.github.io/prompt-library/dsl-converter.html?url='+btoa(url),'_blank')}else{alert('Vui lòng sử dụng trên trang Kibana!')}})();`;
+        const script = `javascript:(function(){const url=window.location.href;if(url.includes('/app/discover#')||url.includes('/app/dashboards#')||url.includes('/app/analytics#')||url.includes('kibana')){window.open('https://lhlhai.github.io/prompt-library/dsl-converter.html?url='+btoa(url),'_blank')}else{alert('Vui lòng sử dụng trên trang Kibana!')}})();`;
         container.innerHTML = `
             <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200 space-y-4">
                 <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center">
