@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lộ trình học Katalon Studio cho Manual Tester</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+    
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary-color: #1a73e8;
+            --primary-dark: #1557b0;
+            --secondary-color: #3B82F6;
+            --accent-color: #10b981;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Reset & Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        /* Header Section */
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+
+        header .target-audience {
+            background: rgba(255,255,255,0.15);
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            display: inline-block;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Navigation / Table of Contents */
+        nav {
+            background: var(--card-bg);
+            padding: 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-md);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        nav h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .toc-list {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .toc-list li a {
+            color: var(--text-secondary);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+        .toc-list li a:hover {
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        section {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+        }
+
+        section h2 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        section h3 {
+            color: var(--text-primary);
+            font-size: 1.4rem;
+            margin: 2rem 0 1rem;
+            font-weight: 600;
+        }
+
+        section h4 {
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            margin: 1.5rem 0 0.8rem;
+            font-weight: 600;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background: var(--bg-color);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card h4 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+
+        /* Timeline/Roadmap */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--primary-color);
+            border-radius: 3px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-left: 1.5rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.3rem;
+            top: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+            background: var(--primary-color);
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .phase-badge {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .phase-beginner { background: #10b981; }
+        .phase-intermediate { background: #f59e0b; }
+        .phase-advanced { background: #ef4444; }
+
+        /* Resource Links */
+        .resource-list {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .resource-list li {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: var(--bg-color);
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .resource-list a {
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .resource-list a::after {
+            content: '→';
+            font-size: 1.2rem;
+        }
+
+        /* Tips Box */
+        .tip-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid #f59e0b;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .tip-box h4 {
+            color: #92400e;
+            margin-top: 0;
+        }
+
+        .tip-box p {
+            color: #78350f;
+        }
+
+        /* Code Block */
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin: 1rem 0;
+        }
+
+        /* Project Structure */
+        .project-structure {
+            background: var(--bg-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .project-structure div {
+            padding: 0.3rem 0;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .project-structure div:last-child {
+            border-bottom: none;
+        }
+
+        .folder {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--primary-color);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            z-index: 1000;
+        }
+
+        .back-to-top:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+            text-decoration: none;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-primary);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        footer p {
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            header .subtitle {
+                font-size: 1rem;
+            }
+
+            section {
+                padding: 1.5rem;
+            }
+
+            section h2 {
+                font-size: 1.5rem;
+            }
+
+            .toc-list {
+                flex-direction: column;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            nav {
+                position: relative;
+            }
+
+            .back-to-top {
+                bottom: 1rem;
+                right: 1rem;
+                width: 45px;
+                height: 45px;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        section {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Highlight important text */
+        .highlight {
+            background: linear-gradient(120deg, #dbeafe 0%, #bfdbfe 100%);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .important {
+            background: linear-gradient(120deg, #fee2e2 0%, #fecaca 100%);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="header-content">
+            <h1>🚀 Lộ trình học Katalon Studio cho Manual Tester</h1>
+            <p class="subtitle">
+                Hướng dẫn toàn diện từ cơ bản đến nâng cao để chuyển đổi từ Manual Testing sang Automation Testing với Katalon Studio
+            </p>
+            <div class="target-audience">
+                <strong>🎯 Đối tượng:</strong> Manual Tester muốn chuyển sang Automation, chưa biết code hoặc biết ít
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation / Table of Contents -->
+    <nav>
+        <div class="nav-container">
+            <h2>📑 Mục lục</h2>
+            <ul class="toc-list">
+                <li><a href="#gioi-thieu">Giới thiệu</a></li>
+                <li><a href="#tong-quan">Tổng quan</a></li>
+                <li><a href="#lo-trinh">Lộ trình học</a></li>
+                <li><a href="#ky-nang">Kỹ năng cần thiết</a></li>
+                <li><a href="#tai-nguyen">Tài nguyên</a></li>
+                <li><a href="#loi-khuyen">Lời khuyên</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Section I: Giới thiệu -->
+        <section id="gioi-thieu">
+            <h2>📖 Giới thiệu về Katalon Studio</h2>
+            
+            <p>
+                <strong>Katalon Studio</strong> là một công cụ automation testing toàn diện hỗ trợ kiểm thử tự động cho 
+                <span class="highlight">Web, API, Mobile và Desktop applications</span>. Được xây dựng dựa trên nền tảng 
+                Selenium và Appium, Katalon cung cấp giải pháp "all-in-one" giúp tester dễ dàng tiếp cận automation mà không 
+                cần nhiều kiến thức về lập trình.
+            </p>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h4>🌐 Web Testing</h4>
+                    <p>Automated testing cho các ứng dụng web trên nhiều trình duyệt khác nhau (Chrome, Firefox, Edge, Safari)</p>
+                </div>
+                <div class="card">
+                    <h4>📱 Mobile Testing</h4>
+                    <p>Kiểm thử ứng dụng mobile trên cả iOS và Android với support cho real devices và emulators</p>
+                </div>
+                <div class="card">
+                    <h4>🔌 API Testing</h4>
+                    <p>Test RESTful và SOAP APIs với đầy đủ các phương thức HTTP và validation</p>
+                </div>
+                <div class="card">
+                    <h4>💻 Desktop Testing</h4>
+                    <p>Automation cho ứng dụng desktop trên Windows với support cho WinAppDriver</p>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <h4>💡 Tại sao chọn Katalon Studio?</h4>
+                <p>
+                    Katalon Studio được thiết kế đặc biệt cho tester với giao diện trực quan, hỗ trợ cả manual view (không cần code) 
+                    và script view (cho advanced users). Đây là lựa chọn hoàn hảo cho Manual Tester muốn bắt đầu hành trình automation 
+                    mà không bị choáng ngợp bởi code phức tạp.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section II: Tổng quan về Katalon Studio -->
+        <section id="tong-quan">
+            <h2>🔍 Tổng quan về Katalon Studio</h2>
+
+            <h3>Katalon Studio là gì?</h3>
+            <p>
+                Katalon Studio là một Integrated Development Environment (IDE) cho automation testing, cung cấp đầy đủ các tính năng 
+                cần thiết để tạo, thực thi và quản lý test cases tự động. Với Katalon, bạn có thể bắt đầu ngay mà không cần cài đặt 
+                thêm thư viện hay cấu hình phức tạp.
+            </p>
+
+            <h3>Các tính năng chính</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4>🎬 Record & Playback</h4>
+                    <p>Ghi lại thao tác của bạn trên ứng dụng và tự động tạo test case. Perfect cho người mới bắt đầu!</p>
+                </div>
+                <div class="card">
+                    <h4>📝 Manual View</h4>
+                    <p>Tạo test steps bằng cách chọn keywords từ dropdown - không cần viết code!</p>
+                </div>
+                <div class="card">
+                    <h4>💻 Script View</h4>
+                    <p>Viết code Groovy/Java cho các logic phức tạp khi bạn đã sẵn sàng</p>
+                </div>
+                <div class="card">
+                    <h4>📊 Data-driven Testing</h4>
+                    <p>Chạy cùng test case với nhiều bộ dữ liệu khác nhau từ Excel, CSV, Database</p>
+                </div>
+                <div class="card">
+                    <h4>🔄 CI/CD Integration</h4>
+                    <p>Tích hợp với Jenkins, GitLab CI, Azure DevOps để chạy test tự động trong pipeline</p>
+                </div>
+                <div class="card">
+                    <h4>📈 Báo cáo chi tiết</h4>
+                    <p>Xem kết quả test với screenshots, logs, và video recording khi test fail</p>
+                </div>
+            </div>
+
+            <h3>Cấu trúc project Katalon điển hình</h3>
+            <div class="project-structure">
+                <div class="folder">📁 Test Cases/</div>
+                <div style="padding-left: 1.5rem;">- Chứa các test cases individual</div>
+                <div class="folder">📁 Object Repository/</div>
+                <div style="padding-left: 1.5rem;">- Chứa các đối tượng (element locators)</div>
+                <div class="folder">📁 Keywords/</div>
+                <div style="padding-left: 1.5rem;">- Chứa custom keywords (hàm tái sử dụng)</div>
+                <div class="folder">📁 Test Suites/</div>
+                <div style="padding-left: 1.5rem;">- Nhóm các test cases lại với nhau</div>
+                <div class="folder">📁 Profiles/</div>
+                <div style="padding-left: 1.5rem;">- Chứa biến môi trường (dev, staging, prod)</div>
+                <div class="folder">📁 Data Files/</div>
+                <div style="padding-left: 1.5rem;">- Chứa file dữ liệu cho data-driven testing</div>
+            </div>
+        </section>
+
+        <!-- Section III: Lộ trình học chi tiết -->
+        <section id="lo-trinh">
+            <h2>📚 Lộ trình học chi tiết</h2>
+            <p>
+                Lộ trình này được thiết kế trong <span class="highlight">6 tuần</span>, chia thành 3 giai đoạn phù hợp cho Manual Tester.
+            </p>
+
+            <div class="timeline">
+                <!-- Giai đoạn 1 -->
+                <div class="timeline-item">
+                    <span class="phase-badge phase-beginner">Giai đoạn 1: Tuần 1-2</span>
+                    <h3>Cơ bản - Làm quen và chạy được test</h3>
+                    
+                    <h4>🎯 Mục tiêu</h4>
+                    <p>Hiểu được cấu trúc project, biết cách mở và chạy test case có sẵn</p>
+
+                    <h4>📋 Nội dung học</h4>
+                    <ol>
+                        <li><strong>Cài đặt Katalon Studio</strong> - Tải từ <a href="https://katalon.com" target="_blank">katalon.com</a></li>
+                        <li><strong>Làm quen với giao diện:</strong>
+                            <ul>
+                                <li>Test Explorer - xem cấu trúc project</li>
+                                <li>Test Case Editor - xem và chỉnh sửa test cases</li>
+                                <li>Toolbar - các nút điều khiển và chạy test</li>
+                            </ul>
+                        </li>
+                        <li><strong>Hiểu cấu trúc thư mục project:</strong>
+                            <ul>
+                                <li>Test Cases - chứa các kịch bản test</li>
+                                <li>Object Repository - lưu trữ element locators</li>
+                                <li>Keywords - các hàm reusable</li>
+                                <li>Test Suites - nhóm test cases</li>
+                                <li>Profiles - cấu hình môi trường</li>
+                            </ul>
+                        </li>
+                        <li><span class="important">Quan trọng:</span> Mở project có sẵn (file zip) và chạy thử test case</li>
+                        <li><strong>Tìm hiểu Manual View</strong> - Tạo test step bằng cách chọn keyword từ dropdown</li>
+                        <li><strong>Làm quen với Built-in Keywords:</strong>
+                            <ul>
+                                <li><code>WebUI.openBrowser()</code> - Mở trình duyệt</li>
+                                <li><code>WebUI.navigateToUrl()</code> - Điều hướng đến URL</li>
+                                <li><code>WebUI.click()</code> - Click vào element</li>
+                                <li><code>WebUI.setText()</code> - Nhập text vào field</li>
+                                <li><code>WebUI.verifyElementPresent()</code> - Kiểm tra element tồn tại</li>
+                            </ul>
+                        </li>
+                        <li><strong>Chạy test case và xem report</strong> - Phân tích kết quả test</li>
+                    </ol>
+
+                    <h4>📖 Tài liệu tham khảo</h4>
+                    <ul class="resource-list">
+                        <li><a href="https://docs.katalon.com/display/KD/Quick+guide+for+testers" target="_blank">Quick guide for testers</a></li>
+                        <li><a href="https://docs.katalon.com/display/KD/Explore+Katalon+Studio" target="_blank">Explore Katalon Studio</a></li>
+                        <li><a href="https://docs.katalon.com/display/KD/Generate+test+steps+in+manual+view" target="_blank">Generate test steps in manual view</a></li>
+                    </ul>
+                </div>
+
+                <!-- Giai đoạn 2 -->
+                <div class="timeline-item">
+                    <span class="phase-badge phase-intermediate">Giai đoạn 2: Tuần 3-4</span>
+                    <h3>Trung cấp - Hiểu và chỉnh sửa test case</h3>
+                    
+                    <h4>🎯 Mục tiêu</h4>
+                    <p>Biết cách đọc hiểu test case, sửa lỗi, thêm mới test case</p>
+
+                    <h4>📋 Nội dung học</h4>
+                    <ol>
+                        <li><strong>Hiểu rõ Test Case:</strong>
+                            <ul>
+                                <li>Cách tạo mới test case</li>
+                                <li>Các thành phần của một test case</li>
+                                <li>Test case lifecycle</li>
+                            </ul>
+                        </li>
+                        <li><strong>Sử dụng Record & Playback</strong> để tạo test case nhanh chóng</li>
+                        <li><strong>Quản lý Object Repository:</strong>
+                            <ul>
+                                <li>Hiểu cách Katalon lưu element locators</li>
+                                <li>Cập nhật object khi UI thay đổi</li>
+                                <li>Tổ chức object theo page/module</li>
+                            </ul>
+                        </li>
+                        <li><strong>Sử dụng Test Suites:</strong>
+                            <ul>
+                                <li>Group test cases lại với nhau</li>
+                                <li>Chạy nhiều test cases cùng lúc</li>
+                                <li>Thiết lập execution order</li>
+                            </ul>
+                        </li>
+                        <li><strong>Sử dụng Profiles:</strong>
+                            <ul>
+                                <li>Quản lý biến môi trường</li>
+                                <li>URL, username, password cho từng environment</li>
+                                <li>Switch giữa dev, staging, production</li>
+                            </ul>
+                        </li>
+                        <li><strong>Data-driven Testing:</strong>
+                            <ul>
+                                <li>Chạy cùng test case với nhiều bộ dữ liệu</li>
+                                <li>Sử dụng Excel, CSV files</li>
+                                <li>Parameterization trong test cases</li>
+                            </ul>
+                        </li>
+                        <li><strong>Xem và phân tích test report:</strong>
+                            <ul>
+                                <li>Đọc execution logs</li>
+                                <li>Xem screenshots khi fail</li>
+                                <li>Export báo cáo</li>
+                            </ul>
+                        </li>
+                    </ol>
+
+                    <h4>📖 Tài liệu tham khảo</h4>
+                    <ul class="resource-list">
+                        <li><a href="https://docs.katalon.com/display/KD/Create+or+manage+test+suites" target="_blank">Create or manage test suites</a></li>
+                        <li><a href="https://docs.katalon.com/display/KD/Katalon+Studio+best+practices" target="_blank">Katalon Studio best practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Giai đoạn 3 -->
+                <div class="timeline-item">
+                    <span class="phase-badge phase-advanced">Giai đoạn 3: Tuần 5-6</span>
+                    <h3>Nâng cao - Maintenance và mở rộng</h3>
+                    
+                    <h4>🎯 Mục tiêu</h4>
+                    <p>Biết cách bảo trì test case khi ứng dụng thay đổi, viết custom keyword</p>
+
+                    <h4>📋 Nội dung học</h4>
+                    <ol>
+                        <li><strong>Test Maintenance - Khi ứng dụng thay đổi:</strong>
+                            <ul>
+                                <li><strong>Self-healing mechanism:</strong> Tự động sửa locator bị broken</li>
+                                <li><strong>Failure handling settings:</strong> Cấu hình xử lý khi test fail</li>
+                                <li><strong>Time Capsule:</strong> Xem snapshot của ứng dụng khi test fail</li>
+                                <li><strong>Refactor test objects:</strong> Xóa/update object không dùng</li>
+                            </ul>
+                        </li>
+                        <li><strong>Custom Keywords:</strong>
+                            <ul>
+                                <li>Viết hàm tái sử dụng bằng Groovy</li>
+                                <li>Import vào test cases</li>
+                                <li>Best practices cho custom keywords</li>
+                            </ul>
+                        </li>
+                        <li><strong>Test Listeners:</strong>
+                            <ul>
+                                <li>Chạy code trước/sau test suite (setUp/tearDown)</li>
+                                <li>Global setup and teardown</li>
+                                <li>Capture screenshots on failure</li>
+                            </ul>
+                        </li>
+                        <li><strong>Tích hợp CI/CD:</strong>
+                            <ul>
+                                <li>Chạy test tự động với Jenkins</li>
+                                <li>Command line execution</li>
+                                <li>Integration với Git</li>
+                            </ul>
+                        </li>
+                        <li><strong>Testing API với Katalon:</strong>
+                            <ul>
+                                <li>Tạo API test cases</li>
+                                <li>Validate response</li>
+                                <li>Chain API requests</li>
+                            </ul>
+                        </li>
+                    </ol>
+
+                    <h4>📖 Tài liệu tham khảo</h4>
+                    <ul class="resource-list">
+                        <li><a href="https://docs.katalon.com/display/KD/Introduction+to+test+maintenance" target="_blank">Introduction to test maintenance</a></li>
+                        <li><a href="https://docs.katalon.com/display/KD/Custom+keywords+in+Katalon+Studio" target="_blank">Custom keywords in Katalon Studio</a></li>
+                        <li><a href="https://docs.katalon.com/display/KD/Test+Fixtures+and+Test+Listeners" target="_blank">Test Fixtures and Test Listeners</a></li>
+                        <li><a href="https://docs.katalon.com/display/KD/Katalon+Studio+best+practices" target="_blank">Katalon Studio best practices</a></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section IV: Kỹ năng cần thiết -->
+        <section id="ky-nang">
+            <h2>🛠️ Kỹ năng cần thiết cho Manual Tester</h2>
+            <p>
+                Phần này đặc biệt quan trọng vì tình huống thực tế của bạn là nhận file zip bao gồm 
+                <span class="highlight">Katalon exe + testsuite, test case, config</span> - đây là 1 framework đang chạy.
+            </p>
+
+            <h3>1. Cách mở project từ file zip</h3>
+            <div class="card">
+                <ol>
+                    <li><strong>Giải nén file zip</strong> vào một thư mục trên máy tính</li>
+                    <li>Mở <strong>Katalon Studio</strong></li>
+                    <li>Vào menu <strong>File → Open Project</strong></li>
+                    <li>Chọn thư mục project vừa giải nén</li>
+                    <li>Hoặc: <strong>File → Import → Existing Katalon Project</strong></li>
+                </ol>
+            </div>
+
+            <h3>2. Cách đọc hiểu cấu trúc project có sẵn</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4>📂 Xem Test Suites</h4>
+                    <p>Xem thư mục <code>Test Suites/</code> để biết có những suite nào, mỗi suite chứa những test cases gì</p>
+                </div>
+                <div class="card">
+                    <h4>📝 Mở Test Cases</h4>
+                    <p>Mở từng test case để xem các step bên trong, hiểu flow của test</p>
+                </div>
+                <div class="card">
+                    <h4>⚙️ Xem Profiles</h4>
+                    <p>Kiểm tra file <code>Profiles/</code> để biết cấu hình môi trường (URL, credentials, etc.)</p>
+                </div>
+                <div class="card">
+                    <h4>🎯 Object Repository</h4>
+                    <p>Xem cách các elements được định nghĩa và tổ chức trong project</p>
+                </div>
+            </div>
+
+            <h3>3. Cách chạy test</h3>
+            <div class="card">
+                <ul>
+                    <li><strong>Chạy 1 test case:</strong> Mở test case → Click nút <code>Run</code> (hoặc Ctrl+F9)</li>
+                    <li><strong>Chạy 1 test suite:</strong> Mở test suite → Click nút <code>Run</code></li>
+                    <li><strong>Chạy nhiều test suites:</strong> Tạo <strong>Test Suite Collection</strong> để group và chạy nhiều suites</li>
+                    <li><strong>Chạy từ command line:</strong> Sử dụng console mode cho CI/CD integration</li>
+                </ul>
+            </div>
+
+            <h3>4. Cách thêm mới test case</h3>
+            <div class="card">
+                <ol>
+                    <li>Right-click vào folder <code>Test Cases/</code> → <strong>New → Test Case</strong></li>
+                    <li>Chọn <strong>Manual View</strong> hoặc <strong>Script View</strong> tùy preference</li>
+                    <li>Thêm test steps bằng cách chọn keywords từ dropdown</li>
+                    <li>Configure test data và parameters nếu cần</li>
+                    <li>Thêm test case vào test suite phù hợp</li>
+                    <li>Run để verify test case mới hoạt động đúng</li>
+                </ol>
+            </div>
+
+            <h3>5. Cách maintenance test case khi application thay đổi</h3>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>Bước 1: Xác định test case bị fail</h4>
+                    <p>Xem report sau khi chạy test để biết test case nào fail, error message là gì</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>Bước 2: Tìm nguyên nhân</h4>
+                    <ul>
+                        <li>Object locator thay đổi? (UI elements bị change ID, class, XPath...)</li>
+                        <li>Logic thay đổi? (Flow của application bị modify)</li>
+                        <li>Data thay đổi? (Test data không còn valid)</li>
+                    </ul>
+                </div>
+                <div class="timeline-item">
+                    <h4>Bước 3: Sửa object trong Object Repository</h4>
+                    <p>Dùng <strong>Spy Web</strong> để capture lại element với locator mới, update vào Object Repository</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>Bước 4: Sửa logic trong test case</h4>
+                    <p>Update test steps, thêm/xóa steps, modify conditions nếu cần</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>Bước 5: Chạy lại để verify</h4>
+                    <p>Execute test case để đảm bảo fix hoạt động đúng, không gây side effects</p>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <h4>💡 Mẹo maintenance hiệu quả</h4>
+                <p>
+                    Sử dụng tính năng <strong>Self-healing</strong> của Katalon để tự động phát hiện và đề xuất locator alternatives 
+                    khi element không tìm thấy. Enable tính năng này trong <strong>Project Settings → Execution</strong>.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section V: Tài nguyên học tập -->
+        <section id="tai-nguyen">
+            <h2>📖 Tài nguyên học tập</h2>
+            <p>Các nguồn tài liệu chính thống và hữu ích để học Katalon Studio:</p>
+
+            <ul class="resource-list">
+                <li>
+                    <a href="https://academy.katalon.com/" target="_blank">Katalon Academy</a>
+                    <p>Các khóa học miễn phí, lộ trình bài bản từ cơ bản đến nâng cao. Có certification sau khi hoàn thành.</p>
+                </li>
+                <li>
+                    <a href="https://docs.katalon.com/" target="_blank">Katalon Documentation</a>
+                    <p>Tài liệu chính thức đầy đủ nhất, cập nhật thường xuyên với examples và tutorials.</p>
+                </li>
+                <li>
+                    <a href="https://forum.katalon.com/" target="_blank">Katalon Community Forum</a>
+                    <p>Cộng đồng 100,000+ thành viên, hỏi đáp, chia sẻ kinh nghiệm và solutions.</p>
+                </li>
+                <li>
+                    <a href="#" onclick="alert('Trong Katalon Studio: File → New Sample Project')">Sample Projects</a>
+                    <p>Project mẫu có sẵn trong Katalon Studio. Vào <strong>File → New Sample Project</strong> để tạo.</p>
+                </li>
+                <li>
+                    <a href="https://www.udemy.com/topic/katalon-studio/" target="_blank">Udemy - Katalon Studio Courses</a>
+                    <p>Các khóa học từ cơ bản đến advanced với video tutorials và exercises.</p>
+                </li>
+                <li>
+                    <a href="https://docs.katalon.com/display/KD/Katalon+Studio+Certification" target="_blank">Katalon Certification</a>
+                    <p>Chứng chỉ Practitioner, Professional miễn phí. Great cho CV của bạn!</p>
+                </li>
+            </ul>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h4>📺 YouTube Channels</h4>
+                    <ul>
+                        <li>Katalon Official</li>
+                        <li>Automation Step by Step</li>
+                        <li>Rahul Shetty Academy</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>📚 Books</h4>
+                    <ul>
+                        <li>"Katalon Studio for Beginners"</li>
+                        <li>"Test Automation with Katalon"</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>🎧 Podcasts</h4>
+                    <ul>
+                        <li>Test Guild Automation Podcast</li>
+                        <li>Ministry of Testing</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section VI: Lời khuyên -->
+        <section id="loi-khuyen">
+            <h2>💡 Lời khuyên cho Manual Tester</h2>
+            
+            <div class="card-grid">
+                <div class="card">
+                    <h4>🎯 Bắt đầu đúng cách</h4>
+                    <p>Bắt đầu từ <strong>Manual View</strong> trước, không cần code. Làm quen với interface và workflow của Katalon.</p>
+                </div>
+                <div class="card">
+                    <h4>⚡ Tận dụng Record & Playback</h4>
+                    <p>Sử dụng Record feature để tạo test cases nhanh, sau đó refine và optimize lại.</p>
+                </div>
+                <div class="card">
+                    <h4>📈 Học dần Groovy/Java</h4>
+                    <p>Khi đã quen với Manual View, học dần scripting để handle complex scenarios.</p>
+                </div>
+                <div class="card">
+                    <h4>👥 Tham gia cộng đồng</h4>
+                    <p>Join Katalon Forum, Facebook groups để hỏi đáp khi gặp khó khăn.</p>
+                </div>
+                <div class="card">
+                    <h4>🔥 Thực hành hàng ngày</h4>
+                    <p>Thực hành với project có sẵn, tạo test cases cho chính ứng dụng bạn đang test manual.</p>
+                </div>
+                <div class="card">
+                    <h4>📝 Document mọi thứ</h4>
+                    <p>Ghi chú lại những gì học được, tạo cheat sheet cho bản thân.</p>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <h4>🚀 Lộ trình career development</h4>
+                <p>
+                    <strong>Manual Tester → Automation Tester (Katalon) → SDET (Software Development Engineer in Test)</strong>
+                </p>
+                <p>
+                    Sau khi master Katalon, bạn có thể học thêm về programming (Java/Python), CI/CD pipelines, 
+                    cloud testing platforms, và advanced automation frameworks để tiến lên SDET role.
+                </p>
+            </div>
+
+            <h3>✅ Checklist cho người mới bắt đầu</h3>
+            <div class="card">
+                <ul>
+                    <li>☐ Cài đặt Katalon Studio thành công</li>
+                    <li>☐ Mở được sample project và chạy test</li>
+                    <li>☐ Hiểu cấu trúc project Katalon</li>
+                    <li>☐ Tạo được test case đầu tiên với Manual View</li>
+                    <li>☐ Sử dụng được Record & Playback</li>
+                    <li>☐ Hiểu và sử dụng được Object Repository</li>
+                    <li>☐ Tạo và chạy được Test Suite</li>
+                    <li>☐ Đọc hiểu test reports</li>
+                    <li>☐ Hoàn thành khóa học trên Katalon Academy</li>
+                    <li>☐ Lấy certification Katalon</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Back to top">
+        ↑
+    </button>
+
+    <!-- Footer -->
+    <footer>
+        <p>📚 Created for Manual Testers transitioning to Automation Testing</p>
+        <p>© 2024 Katalon Studio Learning Roadmap | Made with ❤️ for the testing community</p>
+        <p style="margin-top: 1rem; font-size: 0.9rem;">
+            Resources: 
+            <a href="https://katalon.com" style="color: #60a5fa;" target="_blank">Katalon.com</a> | 
+            <a href="https://academy.katalon.com" style="color: #60a5fa;" target="_blank">Katalon Academy</a> | 
+            <a href="https://docs.katalon.com" style="color: #60a5fa;" target="_blank">Documentation</a>
+        </p>
+    </footer>
+
+    <!-- Smooth scroll script -->
+    <script>
+        // Add smooth scrolling for all anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add active state to navigation based on scroll position
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.toc-list li a');
+            
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.style.background = '';
+                link.style.color = '';
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.style.background = 'var(--primary-color)';
+                    link.style.color = 'white';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
