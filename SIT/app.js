@@ -25,6 +25,7 @@
   function setBusy(busy) {
     state.running = busy;
     runButtons.forEach(button => { button.disabled = busy; });
+    $$('[data-example-run]').forEach(button => { button.disabled = busy; });
     $('#resetButton').disabled = busy;
     speedSelect.disabled = busy;
     runStatus.textContent = busy ? 'Đang chạy…' : 'Sẵn sàng';
@@ -334,6 +335,12 @@
   $('#runST').addEventListener('click', () => runOne('st'));
   $('#runSIT').addEventListener('click', () => runOne('sit'));
   $('#runAll').addEventListener('click', runAll);
+  $$('[data-example-run]').forEach(button => {
+    button.addEventListener('click', () => {
+      runOne(button.dataset.exampleRun);
+      $('#diagramWrap').scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
+    });
+  });
   $('#resetButton').addEventListener('click', resetState);
   speedSelect.addEventListener('change', () => { state.speed = Number(speedSelect.value) || 1; });
   $('#themeToggle').addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'));

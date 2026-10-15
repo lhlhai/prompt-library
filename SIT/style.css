@@ -47,3 +47,64 @@ button { color:inherit; }
 @media (prefers-reduced-motion: reduce) {
   *,*::before,*::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
 }
+
+/* One-order, three-test-scopes learning story. */
+.story-section { margin:0 0 23px; }
+.story-heading { margin:0 0 13px; }
+.story-heading h2 { margin:0; font-size:clamp(20px,5vw,27px); line-height:1.22; letter-spacing:-.035em; }
+.story-heading>p:last-child { margin:7px 0 0; max-width:700px; color:var(--muted); font-size:12px; }
+.story-heading>p:last-child strong { color:var(--text); }
+.story-scenario { display:flex; align-items:center; gap:10px; margin:0 0 10px; padding:11px 13px; border:1px solid rgba(56,189,248,.19); border-radius:12px; background:rgba(56,189,248,.055); }
+.story-scenario p { margin:0; color:var(--muted); font-size:12px; }
+.story-scenario strong { color:var(--text); }
+.scenario-icon { width:32px; height:32px; flex:0 0 auto; display:grid; place-items:center; border-radius:10px; background:rgba(56,189,248,.1); font-size:16px; }
+.story-grid { display:grid; grid-template-columns:1fr; gap:9px; }
+.story-card { min-width:0; padding:14px; border:1px solid var(--border); border-top:3px solid var(--it); border-radius:14px; background:var(--surface); box-shadow:var(--shadow); }
+.story-st { border-top-color:var(--st); }
+.story-sit { border-top-color:var(--sit); }
+.story-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.story-number { color:var(--it); font-size:10px; font-weight:900; letter-spacing:.12em; }
+.story-st .story-number { color:var(--st); }
+.story-sit .story-number { color:var(--sit); }
+.story-label { padding:4px 7px; border-radius:7px; color:var(--it); background:rgba(56,189,248,.09); font-size:8px; font-weight:850; letter-spacing:.09em; }
+.story-st .story-label { color:var(--st); background:rgba(167,139,250,.1); }
+.story-sit .story-label { color:var(--sit); background:rgba(251,146,60,.1); }
+.story-card h3 { margin:10px 0 5px; font-size:15px; line-height:1.3; }
+.story-card>p:not(.story-question) { min-height:0; margin:0; color:var(--muted); font-size:11px; }
+.story-flow { min-height:43px; margin:11px 0; padding:7px 9px; display:flex; justify-content:center; align-items:center; gap:8px; border:1px dashed var(--border); border-radius:10px; background:var(--bg); }
+.story-flow span { max-width:68%; color:var(--text); font-size:10px; font-weight:800; text-align:center; }
+.story-flow b { flex:0 0 auto; color:var(--it); font-size:14px; }
+.story-st .story-flow b { color:var(--st); }
+.story-sit .story-flow b { color:var(--sit); }
+.story-question { margin:0; padding:9px 10px; border-radius:9px; background:var(--surface-2); color:var(--muted); font-size:10px; }
+.story-question strong { color:var(--text); }
+.story-action { width:100%; min-height:44px; margin-top:9px; padding:8px 9px; display:flex; align-items:center; justify-content:space-between; gap:8px; border:1px solid rgba(56,189,248,.25); border-radius:10px; background:rgba(56,189,248,.07); color:var(--it); text-align:left; font-size:10px; font-weight:800; cursor:pointer; transition:background .2s,border-color .2s,transform .2s; }
+.story-st .story-action { color:var(--st); border-color:rgba(167,139,250,.26); background:rgba(167,139,250,.07); }
+.story-sit .story-action { color:var(--sit); border-color:rgba(251,146,60,.26); background:rgba(251,146,60,.07); }
+.story-action:hover:not(:disabled) { transform:translateY(-1px); background:var(--surface-2); }
+.story-action:disabled { opacity:.55; cursor:wait; }
+.story-action span { font-size:14px; }
+.memory-ribbon { margin-top:10px; padding:12px 13px; border:1px solid rgba(167,139,250,.22); border-radius:12px; background:rgba(167,139,250,.065); }
+.memory-ribbon-label { display:block; margin-bottom:4px; color:var(--st); font-size:9px; font-weight:900; letter-spacing:.14em; }
+.memory-ribbon p { display:flex; flex-wrap:wrap; gap:4px 7px; margin:0; color:var(--text); font-size:11px; }
+.memory-ribbon p span { color:var(--subtle); }
+.story-caveat { margin:8px 1px 0; color:var(--muted); font-size:10px; }
+.story-caveat strong { color:var(--text); }
+@media (min-width:640px) {
+  .story-section { margin-bottom:26px; }
+  .story-heading { margin-bottom:15px; }
+  .story-scenario { padding:12px 15px; }
+  .story-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+  .story-card { display:flex; flex-direction:column; padding:15px; }
+  .story-card>p:not(.story-question) { flex:1; }
+  .story-flow { margin:12px 0; }
+  .story-action { margin-top:10px; }
+  .memory-ribbon { display:flex; align-items:center; gap:14px; }
+  .memory-ribbon-label { flex:0 0 auto; margin:0; }
+}
+@media (min-width:1024px) {
+  .story-grid { gap:13px; }
+  .story-card { padding:17px; }
+  .story-card h3 { font-size:16px; }
+  .story-card>p:not(.story-question) { font-size:12px; }
+}

@@ -37,6 +37,42 @@
         <h1>Ba phạm vi. <span>Một sơ đồ.</span></h1>
         <p class="hero-copy">Chạy thử từng loại để thấy <strong>đối tượng được kiểm tra</strong> và <strong>ranh giới phạm vi</strong> thay đổi ra sao.</p>
       </div>
+      <section class="story-section" aria-labelledby="story-title">
+        <div class="story-heading">
+          <p class="eyebrow">MỘT ĐƠN HÀNG · BA GÓC NHÌN</p>
+          <h2 id="story-title">Cùng mua hàng online, test khác nhau ở đâu?</h2>
+          <p>Hãy theo một đơn hàng từ lúc thanh toán — rồi để ý <strong>ranh giới mình đang kiểm tra</strong>.</p>
+        </div>
+        <div class="story-scenario"><span class="scenario-icon" aria-hidden="true">🛒</span><p><strong>Tình huống:</strong> Lan đặt một đôi giày, thanh toán bằng thẻ và chờ nhận xác nhận đơn.</p></div>
+        <div class="story-grid">
+          <article class="story-card story-it">
+            <div class="story-top"><span class="story-number">01</span><span class="story-label">GHÉP BÊN TRONG</span></div>
+            <h3>IT · Payment ↔ Database</h3>
+            <p>Trong cùng ứng dụng cửa hàng, kiểm tra module Payment ghi đúng số tiền và trạng thái “đã thanh toán” vào Database.</p>
+            <div class="story-flow" aria-label="Payment kết nối Database"><span>Payment</span><b aria-hidden="true">→</b><span>Database</span></div>
+            <p class="story-question"><strong>Tự hỏi:</strong> Hai module trong cùng hệ thống trao đổi đúng chưa?</p>
+            <button class="story-action" type="button" data-example-run="it">Xem kết nối này trên sơ đồ <span aria-hidden="true">→</span></button>
+          </article>
+          <article class="story-card story-st">
+            <div class="story-top"><span class="story-number">02</span><span class="story-label">NHÌN CẢ HỘP</span></div>
+            <h3>ST · Toàn bộ cửa hàng</h3>
+            <p>QA đặt hàng từ giao diện, nhập địa chỉ, thanh toán và kiểm tra hệ thống trả về trang xác nhận đúng yêu cầu — không cần biết module nào xử lý.</p>
+            <div class="story-flow" aria-label="Khách hàng tương tác với toàn hệ thống"><span>Lan đặt hàng</span><b aria-hidden="true">→</b><span>Có xác nhận</span></div>
+            <p class="story-question"><strong>Tự hỏi:</strong> Cả sản phẩm có hành xử đúng yêu cầu không?</p>
+            <button class="story-action" type="button" data-example-run="st">Xem black-box trên sơ đồ <span aria-hidden="true">→</span></button>
+          </article>
+          <article class="story-card story-sit">
+            <div class="story-top"><span class="story-number">03</span><span class="story-label">NỐI QUA RANH GIỚI</span></div>
+            <h3>SIT · Cửa hàng ↔ Ngân hàng</h3>
+            <p>Kiểm tra Payment Service gửi đúng số tiền đến Bank API độc lập, nhận đúng kết quả giao dịch và xử lý timeout hoặc từ chối thẻ.</p>
+            <div class="story-flow" aria-label="Dịch vụ thanh toán kết nối API ngân hàng"><span>Payment Service</span><b aria-hidden="true">⇄</b><span>Bank API</span></div>
+            <p class="story-question"><strong>Tự hỏi:</strong> Các hệ thống độc lập kết nối đúng chưa?</p>
+            <button class="story-action" type="button" data-example-run="sit">Xem kết nối liên hệ thống <span aria-hidden="true">→</span></button>
+          </article>
+        </div>
+        <div class="memory-ribbon"><span class="memory-ribbon-label">NHỚ NHANH</span><p><strong>IT = Ghép module</strong><span>·</span><strong>ST = Nhìn cả hệ thống</strong><span>·</span><strong>SIT = Nối các hệ thống</strong></p></div>
+        <p class="story-caveat">Mẹo phân loại: đừng đếm số thành phần — hãy nhìn xem chúng nằm <strong>trong cùng hệ thống</strong> hay ở <strong>ranh giới giữa các hệ thống độc lập</strong>.</p>
+      </section>
       <section class="sim-card card" aria-labelledby="sim-heading">
         <div class="section-heading sim-heading">
           <div><p class="eyebrow">CHỌN MỘT KỊCH BẢN</p><h2 id="sim-heading">Chạy mô phỏng</h2></div>
