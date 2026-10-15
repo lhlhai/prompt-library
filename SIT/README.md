@@ -1,6 +1,6 @@
 # Test Scope Lab — IT · ST · SIT
 
-Ứng dụng học tập tương tác giúp phân biệt **Integration Test (IT)**, **System Test (ST)** và **System Integration Test (SIT)** qua sơ đồ SVG có animation, phần lý thuyết, bảng so sánh và quiz.
+Ứng dụng học tập tương tác giúp phân biệt **Integration Test (IT)**, **System Test (ST)** và **System Integration Test (SIT)** qua một tình huống mua hàng online nhìn từ ba phạm vi, sơ đồ SVG có animation, phần lý thuyết, bảng so sánh và quiz. Ba nút trên thẻ ví dụ chạy mô phỏng liên quan và đưa người học tới sơ đồ.
 
 ## Vị trí trong repository
 
@@ -34,3 +34,7 @@ Nếu Pages của repository đang dùng GitHub Actions hoặc một nhánh/thư
 - **SIT:** kiểm tra luồng tích hợp giữa các subsystem/service độc lập qua API, message queue hoặc network.
 
 Ranh giới phân biệt cốt lõi là đối tượng và phạm vi kiểm thử, không chỉ là số lượng thành phần.
+
+## Ví dụ ghi nhớ nhanh
+
+Theo cùng tình huống Lan mua một đôi giày: **IT** kiểm tra Payment ghi trạng thái vào Database trong cùng ứng dụng; **ST** kiểm tra toàn luồng đặt hàng tới trang xác nhận như black-box; **SIT** kiểm tra Payment Service trao đổi với Bank API độc lập. Mẹo nhớ: **IT = ghép module · ST = nhìn cả hệ thống · SIT = nối các hệ thống**.
