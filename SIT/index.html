@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="Mô phỏng trực quan để phân biệt Integration Test, System Test và System Integration Test.">
+  <title>IT · ST · SIT — Phòng mô phỏng kiểm thử</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Bỏ qua điều hướng</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#panel-simulation" aria-label="Về trang mô phỏng">
+        <span class="brand-mark" aria-hidden="true">QA</span>
+        <span><strong>Test Scope Lab</strong><small>Hiểu đúng phạm vi kiểm thử</small></span>
+      </a>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Chuyển giao diện sáng/tối" title="Chuyển giao diện sáng/tối">
+        <span class="theme-icon" aria-hidden="true">☼</span><span class="theme-label">Giao diện sáng</span>
+      </button>
+    </div>
+    <nav class="tabbar" aria-label="Các mục nội dung" role="tablist">
+      <button class="tab-button is-active" id="tab-simulation" type="button" role="tab" aria-selected="true" aria-controls="panel-simulation" tabindex="0" data-tab="simulation"><span aria-hidden="true">◉</span> Mô phỏng</button>
+      <button class="tab-button" id="tab-theory" type="button" role="tab" aria-selected="false" aria-controls="panel-theory" tabindex="-1" data-tab="theory"><span aria-hidden="true">▤</span> Lý thuyết</button>
+      <button class="tab-button" id="tab-summary" type="button" role="tab" aria-selected="false" aria-controls="panel-summary" tabindex="-1" data-tab="summary"><span aria-hidden="true">▦</span> So sánh</button>
+      <button class="tab-button" id="tab-quiz" type="button" role="tab" aria-selected="false" aria-controls="panel-quiz" tabindex="-1" data-tab="quiz"><span aria-hidden="true">✓</span> Trắc nghiệm</button>
+      <button class="tab-button" id="tab-about" type="button" role="tab" aria-selected="false" aria-controls="panel-about" tabindex="-1" data-tab="about"><span aria-hidden="true">ⓘ</span> Giới thiệu</button>
+    </nav>
+  </header>
+
+  <main id="main" class="main-content">
+    <section class="tab-panel is-visible" id="panel-simulation" role="tabpanel" aria-labelledby="tab-simulation" tabindex="0">
+      <div class="hero">
+        <p class="eyebrow">PHÒNG MÔ PHỎNG KIỂM THỬ</p>
+        <h1>Ba phạm vi. <span>Một sơ đồ.</span></h1>
+        <p class="hero-copy">Chạy thử từng loại để thấy <strong>đối tượng được kiểm tra</strong> và <strong>ranh giới phạm vi</strong> thay đổi ra sao.</p>
+      </div>
+      <section class="sim-card card" aria-labelledby="sim-heading">
+        <div class="section-heading sim-heading">
+          <div><p class="eyebrow">CHỌN MỘT KỊCH BẢN</p><h2 id="sim-heading">Chạy mô phỏng</h2></div>
+          <button class="button button-quiet reset-button" id="resetButton" type="button">↺ <span>Đặt lại</span></button>
+        </div>
+        <div class="control-grid" aria-label="Điều khiển mô phỏng">
+          <button class="run-button run-it" id="runIT" type="button"><span class="play-icon" aria-hidden="true">▶</span><span>Chạy Integration Test</span></button>
+          <button class="run-button run-st" id="runST" type="button"><span class="play-icon" aria-hidden="true">▶</span><span>Chạy System Test</span></button>
+          <button class="run-button run-sit" id="runSIT" type="button"><span class="play-icon" aria-hidden="true">▶</span><span>Chạy SIT</span></button>
+          <button class="run-button run-all" id="runAll" type="button"><span class="play-icon" aria-hidden="true">▶▶</span><span>Chạy tất cả <small>so sánh tuần tự</small></span></button>
+        </div>
+        <div class="sim-toolbar">
+          <div class="legend" aria-label="Chú giải">
+            <span><i class="legend-dot legend-it"></i>IT · trong hệ thống</span>
+            <span><i class="legend-dot legend-st"></i>ST · black-box</span>
+            <span><i class="legend-dot legend-sit"></i>SIT · liên hệ thống</span>
+          </div>
+          <label class="speed-control" for="speedSelect">Tốc độ
+            <select id="speedSelect" aria-label="Tốc độ animation"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select>
+          </label>
+        </div>
+
+        <div class="diagram-wrap" id="diagramWrap">
+          <div class="diagram-caption"><span>KIẾN TRÚC HỆ THỐNG MẪU</span><span class="diagram-hint">Chạm một nút phía trên để bắt đầu</span></div>
+          <div class="diagram-scroll">
+            <svg id="systemDiagram" class="system-diagram" viewBox="0 0 900 500" role="img" aria-labelledby="diagramTitle diagramDesc">
+              <title id="diagramTitle">Sơ đồ Frontend, Backend và hệ thống bên thứ ba</title>
+              <desc id="diagramDesc">Frontend gồm UI và Auth; Backend gồm Payment, Database, Notification; Third-party gồm External Bank API. Các đường nối biểu thị interface giữa module và service.</desc>
+              <defs>
+                <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"></path></marker>
+                <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="blur"></feGaussianBlur><feMerge><feMergeNode in="blur"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge></filter>
+              </defs>
+              <g class="blackbox-outline" aria-hidden="true"><rect x="22" y="63" width="636" height="393" rx="24"></rect><text x="340" y="51" text-anchor="middle">APPLICATION SYSTEM · BLACK-BOX SCOPE</text></g>
+              <g class="st-arrows" aria-hidden="true">
+                <path class="input-output-arrow" d="M2 245 H35" marker-end="url(#arrow)"></path><text x="4" y="226">USER INPUT</text>
+                <path class="input-output-arrow" d="M645 245 H695" marker-end="url(#arrow)"></path><text x="648" y="226">SYSTEM OUTPUT</text>
+              </g>
+              <g class="container container-a" data-container="a">
+                <rect class="container-box" x="40" y="90" width="235" height="340" rx="18"></rect>
+                <text class="container-title" x="58" y="121">A · FRONTEND SYSTEM</text><text class="container-subtitle" x="58" y="143">Ứng dụng giao diện</text>
+              </g>
+              <g class="container container-b" data-container="b">
+                <rect class="container-box" x="315" y="90" width="330" height="340" rx="18"></rect>
+                <text class="container-title" x="333" y="121">B · BACKEND SYSTEM</text><text class="container-subtitle" x="333" y="143">Các service phía máy chủ</text>
+              </g>
+              <g class="container container-c" data-container="c">
+                <rect class="container-box" x="695" y="90" width="185" height="340" rx="18"></rect>
+                <text class="container-title" x="712" y="121">C · THIRD-PARTY</text><text class="container-subtitle" x="712" y="143">Bên thứ ba</text>
+              </g>
+              <g class="edges" aria-label="Các kết nối giữa module">
+                <g class="edge edge-it" data-edge="ui-auth"><path id="path-ui-auth" d="M145 223 C145 242 145 258 145 277"></path><circle class="edge-dot" r="6"><animateMotion dur="0.8s" begin="indefinite" fill="freeze"><mpath href="#path-ui-auth"></mpath></animateMotion></circle></g>
+                <g class="edge edge-it" data-edge="payment-db"><path id="path-payment-db" d="M440 222 C466 237 495 251 515 270"></path><circle class="edge-dot" r="6"><animateMotion dur="0.8s" begin="indefinite" fill="freeze"><mpath href="#path-payment-db"></mpath></animateMotion></circle></g>
+                <g class="edge edge-it" data-edge="payment-notification"><path id="path-payment-notification" d="M420 222 C420 262 420 293 420 323"></path><circle class="edge-dot" r="6"><animateMotion dur="0.8s" begin="indefinite" fill="freeze"><mpath href="#path-payment-notification"></mpath></animateMotion></circle></g>
+                <g class="edge edge-cross" data-edge="auth-payment"><path id="path-auth-payment" d="M235 300 C280 265 330 216 385 202"></path><circle class="edge-dot" r="6"><animateMotion dur="0.8s" begin="indefinite" fill="freeze"><mpath href="#path-auth-payment"></mpath></animateMotion></circle></g>
+                <g class="edge edge-cross" data-edge="payment-bank"><path id="path-payment-bank" d="M475 195 C570 168 650 168 724 228"></path><circle class="edge-dot" r="6"><animateMotion dur="0.8s" begin="indefinite" fill="freeze"><mpath href="#path-payment-bank"></mpath></animateMotion></circle></g>
+                <g class="edge edge-cross" data-edge="notification-bank"><path id="path-notification-bank" d="M465 354 C575 390 660 351 730 282"></path><circle class="edge-dot" r="6"><animateMotion dur="0.8s" begin="indefinite" fill="freeze"><mpath href="#path-notification-bank"></mpath></animateMotion></circle></g>
+              </g>
+              <g class="node node-ui" data-node="ui"><rect x="95" y="178" width="100" height="48" rx="12"></rect><text class="node-icon" x="111" y="207">▣</text><text class="node-label" x="145" y="207" text-anchor="middle">UI</text></g>
+              <g class="node node-auth" data-node="auth"><rect x="95" y="277" width="100" height="48" rx="12"></rect><text class="node-icon" x="110" y="307">◈</text><text class="node-label" x="147" y="307" text-anchor="middle">Auth</text></g>
+              <g class="node node-payment" data-node="payment"><rect x="385" y="174" width="110" height="48" rx="12"></rect><text class="node-icon" x="399" y="204">$</text><text class="node-label" x="445" y="204" text-anchor="middle">Payment</text></g>
+              <g class="node node-db" data-node="database"><rect x="480" y="270" width="115" height="48" rx="12"></rect><text class="node-icon" x="493" y="300">▤</text><text class="node-label" x="542" y="300" text-anchor="middle">Database</text></g>
+              <g class="node node-notification" data-node="notification"><rect x="365" y="323" width="115" height="48" rx="12"></rect><text class="node-icon" x="378" y="353">♧</text><text class="node-label" x="431" y="353" text-anchor="middle">Notification</text></g>
+              <g class="node node-bank" data-node="bank"><rect x="725" y="230" width="125" height="60" rx="12"></rect><text class="node-icon" x="738" y="255">⇄</text><text class="node-label" x="790" y="254" text-anchor="middle">External Bank</text><text class="node-small" x="790" y="274" text-anchor="middle">API</text></g>
+            </svg>
+          </div>
+          <p class="diagram-footnote"><span class="mini-line"></span> Đường liền: kết nối module <span class="mini-dash"></span> Đường chấm: ranh giới hệ thống</p>
+        </div>
+
+        <div class="result-area" aria-live="polite" aria-atomic="false">
+          <div class="scope-badge" id="scopeBadge"><span class="status-dot"></span><span id="scopeText">Chọn kịch bản để xem phạm vi</span></div>
+          <div class="log-panel" id="logPanel"><div class="log-title"><span>NHẬT KÝ MÔ PHỎNG</span><span id="runStatus">Sẵn sàng</span></div><ol class="log-list" id="logList"><li class="log-placeholder">Kết quả từng bước sẽ xuất hiện tại đây.</li></ol></div>
+          <section class="comparison-result" id="comparisonResult" hidden aria-labelledby="resultComparisonTitle">
+            <h3 id="resultComparisonTitle">So sánh nhanh sau khi chạy</h3>
+            <div class="result-table-wrap"><table><thead><tr><th>Tiêu chí</th><th>IT</th><th>ST</th><th>SIT</th></tr></thead><tbody><tr><th>Phạm vi</th><td>Nhỏ, trong hệ thống</td><td>Toàn hệ thống</td><td>Nhiều hệ thống</td></tr><tr><th>Module nội bộ</th><td>Kiểm tra trực tiếp</td><td>Ẩn trong black-box</td><td>Không phải trọng tâm</td></tr><tr><th>External</th><td>Không</td><td>Không trong flow này</td><td>Có</td></tr><tr><th>Thường thực hiện</th><td>Dev</td><td>QA</td><td>QA + DevOps/SysEng</td></tr></tbody></table></div>
+          </section>
+        </div>
+      </section>
+      <aside class="key-takeaway"><span class="takeaway-icon" aria-hidden="true">!</span><p><strong>Mẹo nhớ:</strong> IT nối <em>module trong cùng hệ thống</em> · ST nhìn <em>cả hệ thống như hộp đen</em> · SIT nối <em>các hệ thống độc lập</em>.</p></aside>
+    </section>
+
+    <section class="tab-panel" id="panel-theory" role="tabpanel" aria-labelledby="tab-theory" tabindex="0" hidden>
+      <div class="page-intro"><p class="eyebrow">NẮM VỮNG KHÁI NIỆM</p><h1>Lý thuyết, thật gọn.</h1><p>Mở từng mục để xem định nghĩa, thời điểm sử dụng và ví dụ thực tế.</p></div>
+      <div class="theory-list">
+        <details class="theory-card it-card" open><summary><span class="theory-code">IT</span><span class="summary-copy"><strong>Integration Test</strong><small>Kiểm thử tích hợp module</small></span><span class="chevron" aria-hidden="true">⌄</span></summary><div class="theory-body"><p class="tldr"><strong>TL;DR:</strong> Kiểm tra interface giữa hai hoặc một vài module/component ghép với nhau, thường <strong>trong cùng một hệ thống</strong>.</p><div class="theory-grid"><div><h3>Định nghĩa</h3><p>Integration Test xác minh các unit/module trao đổi dữ liệu và phối hợp đúng tại điểm kết nối. Phạm vi nhỏ, tập trung vào interface giữa các thành phần như service, repository hay API nội bộ.</p></div><div><h3>Khi nào dùng</h3><p>Sau khi các unit riêng lẻ đã được kiểm tra, trước khi xác nhận toàn bộ hệ thống hoặc tích hợp với hệ thống bên ngoài.</p></div><div><h3>Ai thường thực hiện</h3><p>Thường là developer; QA có thể tham gia xây dựng hoặc chạy bộ kiểm thử tích hợp.</p></div><div><h3>Input / Output điển hình</h3><p><strong>Input:</strong> request, dữ liệu giả lập hoặc bản ghi test. <strong>Output:</strong> response, dữ liệu lưu/đọc và kết quả phối hợp giữa các module.</p></div></div><div class="example-box"><strong>Ví dụ thực tế</strong><p>Kiểm tra API đăng nhập gọi Auth Service và Auth Service đọc đúng tài khoản từ Database.</p></div><div class="confusion-box"><strong>Đừng nhầm:</strong> “Integration” trong IT ở đây là tích hợp <em>module/component</em> với phạm vi nhỏ; không đồng nghĩa kiểm tra nhiều hệ thống/deployable services — đó là trọng tâm của SIT.</div></div></details>
+        <details class="theory-card st-card"><summary><span class="theory-code">ST</span><span class="summary-copy"><strong>System Test</strong><small>Kiểm thử toàn hệ thống</small></span><span class="chevron" aria-hidden="true">⌄</span></summary><div class="theory-body"><p class="tldr"><strong>TL;DR:</strong> Kiểm tra <strong>toàn bộ hệ thống như một black-box</strong> để xác nhận hành vi end-to-end theo requirement.</p><div class="theory-grid"><div><h3>Định nghĩa</h3><p>System Test đánh giá hệ thống hoàn chỉnh so với yêu cầu chức năng và phi chức năng. Người kiểm thử quan sát đầu vào và đầu ra, không tập trung vào cách các module bên trong được cài đặt.</p></div><div><h3>Khi nào dùng</h3><p>Sau khi các thành phần đã tích hợp thành hệ thống có thể kiểm thử; thường trước UAT hoặc phát hành.</p></div><div><h3>Ai thường thực hiện</h3><p>QA/tester thường phụ trách, phối hợp với dev để chuẩn bị môi trường và dữ liệu.</p></div><div><h3>Input / Output điển hình</h3><p><strong>Input:</strong> hành động người dùng và dữ liệu theo kịch bản. <strong>Output:</strong> kết quả hiển thị, trạng thái và hành vi so với requirement.</p></div></div><div class="example-box"><strong>Ví dụ thực tế</strong><p>Người dùng điền biểu mẫu đăng ký, gửi yêu cầu và nhận màn hình xác nhận đúng quy định.</p></div><div class="confusion-box"><strong>Đừng nhầm:</strong> System Test nhìn toàn bộ sản phẩm như một khối; nó không có mục tiêu chính là kiểm tra riêng từng interface nội bộ hay kết nối giữa các hệ thống triển khai độc lập.</div></div></details>
+        <details class="theory-card sit-card"><summary><span class="theory-code">SIT</span><span class="summary-copy"><strong>System Integration Test</strong><small>Kiểm thử tích hợp liên hệ thống</small></span><span class="chevron" aria-hidden="true">⌄</span></summary><div class="theory-body"><p class="tldr"><strong>TL;DR:</strong> Kiểm tra <strong>các subsystem/service độc lập ghép nối với nhau</strong> qua API, message queue hoặc network.</p><div class="theory-grid"><div><h3>Định nghĩa</h3><p>SIT xác minh luồng dữ liệu và hợp đồng tích hợp giữa nhiều hệ thống con hoặc deployable units. Phạm vi rộng hơn IT và thường bao gồm phụ thuộc bên ngoài.</p></div><div><h3>Khi nào dùng</h3><p>Khi các hệ thống liên quan đã sẵn sàng tích hợp; thường trước UAT để tìm lỗi ở ranh giới hệ thống.</p></div><div><h3>Ai thường thực hiện</h3><p>QA phối hợp với developer, DevOps hoặc System Engineer phụ trách các service và môi trường.</p></div><div><h3>Input / Output điển hình</h3><p><strong>Input:</strong> giao dịch/ message đầu-cuối qua các service. <strong>Output:</strong> phản hồi nhất quán, trạng thái đồng bộ và xử lý lỗi xuyên hệ thống.</p></div></div><div class="example-box"><strong>Ví dụ thực tế</strong><p>Payment Service gọi Bank API, phát sự kiện thanh toán qua Kafka và Notification Service gửi thông báo đúng trạng thái.</p></div><div class="confusion-box"><strong>Đừng nhầm:</strong> SIT không phải chỉ là “IT lớn hơn” theo số lượng module; điểm phân biệt là ranh giới giữa các subsystem/service độc lập, thường giao tiếp qua mạng hoặc message broker.</div></div></details>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="panel-summary" role="tabpanel" aria-labelledby="tab-summary" tabindex="0" hidden>
+      <div class="page-intro"><p class="eyebrow">NHÌN MỘT LẦN, NHỚ LÂU</p><h1>So sánh phạm vi.</h1><p>Câu hỏi quyết định: bạn đang kiểm tra module, cả hệ thống, hay kết nối giữa nhiều hệ thống?</p></div>
+      <div class="summary-table-wrap"><table class="summary-table"><thead><tr><th>Tiêu chí</th><th class="it-col">Integration Test (IT)</th><th class="st-col">System Test (ST)</th><th class="sit-col">System Integration Test (SIT)</th></tr></thead><tbody>
+        <tr><th>Đối tượng</th><td>Hai hoặc một vài module/component</td><td>Toàn bộ hệ thống hoàn chỉnh</td><td>Nhiều subsystem/service độc lập</td></tr>
+        <tr><th>Phạm vi</th><td>Nhỏ; thường trong một hệ thống</td><td>Toàn hệ thống, đầu-cuối</td><td>Rộng; qua nhiều hệ thống/deployable units</td></tr>
+        <tr><th>Trọng tâm</th><td>Interface và trao đổi giữa module</td><td>Hành vi so với requirement</td><td>Hợp đồng, dữ liệu và luồng liên hệ thống</td></tr>
+        <tr><th>Cách nhìn</th><td>Thấy và kiểm tra các module tham gia</td><td>Black-box; không xét cấu trúc bên trong</td><td>Thấy các ranh giới và giao tiếp giữa subsystem</td></tr>
+        <tr><th>Phụ thuộc external</th><td>Thường không cần</td><td>Không phải trọng tâm của ví dụ này</td><td>Thường có API, queue hoặc network</td></tr>
+        <tr><th>Ví dụ</th><td>Auth ↔ Database trong một ứng dụng</td><td>Đăng ký tài khoản từ thao tác đến phản hồi</td><td>Payment ↔ Bank API ↔ Notification qua Kafka</td></tr>
+        <tr><th>Thời điểm</th><td>Sau unit test, trong quá trình tích hợp module</td><td>Sau khi hệ thống hoàn chỉnh</td><td>Sau khi các subsystem sẵn sàng kết nối, trước UAT</td></tr>
+        <tr><th>Ai thường làm</th><td>Developer</td><td>QA / Tester</td><td>QA + DevOps / System Engineer + Dev</td></tr>
+        <tr><th>Ví von</th><td>Kiểm tra các bộ phận bắt tay đúng</td><td>Đánh giá chiếc máy như một hộp kín</td><td>Kiểm tra nhiều máy độc lập trao đổi đúng</td></tr>
+      </tbody></table></div>
+      <div class="summary-cards" aria-label="So sánh trên thiết bị nhỏ">
+        <article class="summary-card it-card"><h2>Integration Test <span>IT</span></h2><dl><dt>Đối tượng</dt><dd>Hai hoặc một vài module/component</dd><dt>Phạm vi</dt><dd>Nhỏ; thường trong một hệ thống</dd><dt>Trọng tâm</dt><dd>Interface và trao đổi giữa module</dd><dt>Cách nhìn</dt><dd>Kiểm tra trực tiếp module tham gia</dd><dt>External</dt><dd>Thường không cần</dd><dt>Ví dụ</dt><dd>Auth ↔ Database trong một ứng dụng</dd><dt>Thời điểm</dt><dd>Sau unit test, trong lúc tích hợp module</dd><dt>Ai thường làm</dt><dd>Developer</dd></dl></article>
+        <article class="summary-card st-card"><h2>System Test <span>ST</span></h2><dl><dt>Đối tượng</dt><dd>Toàn bộ hệ thống hoàn chỉnh</dd><dt>Phạm vi</dt><dd>Toàn hệ thống, đầu-cuối</dd><dt>Trọng tâm</dt><dd>Hành vi theo requirement</dd><dt>Cách nhìn</dt><dd>Black-box; không xét nội bộ</dd><dt>External</dt><dd>Không phải trọng tâm của flow này</dd><dt>Ví dụ</dt><dd>Đăng ký tài khoản từ thao tác đến phản hồi</dd><dt>Thời điểm</dt><dd>Sau khi hệ thống hoàn chỉnh</dd><dt>Ai thường làm</dt><dd>QA / Tester</dd></dl></article>
+        <article class="summary-card sit-card"><h2>System Integration Test <span>SIT</span></h2><dl><dt>Đối tượng</dt><dd>Nhiều subsystem/service độc lập</dd><dt>Phạm vi</dt><dd>Nhiều hệ thống/deployable units</dd><dt>Trọng tâm</dt><dd>Hợp đồng và luồng liên hệ thống</dd><dt>Cách nhìn</dt><dd>Giao tiếp qua các ranh giới</dd><dt>External</dt><dd>Thường có API, queue hoặc network</dd><dt>Ví dụ</dt><dd>Payment ↔ Bank API ↔ Notification qua Kafka</dd><dt>Thời điểm</dt><dd>Trước UAT, khi subsystem sẵn sàng</dd><dt>Ai thường làm</dt><dd>QA + DevOps / System Engineer + Dev</dd></dl></article>
+      </div>
+      <section class="decision-tree card"><p class="eyebrow">QUYẾT ĐỊNH NHANH</p><h2>Bạn đang test cái gì?</h2><div class="tree-root">Bắt đầu từ đối tượng cần xác minh</div><div class="tree-branches"><div class="tree-branch"><span class="branch-question">Một vài module/component đang phối hợp trong cùng hệ thống?</span><span class="branch-arrow">↓ Có</span><strong class="tree-answer it-answer">Integration Test (IT)</strong></div><div class="tree-branch"><span class="branch-question">Toàn bộ sản phẩm theo requirement, không soi nội bộ?</span><span class="branch-arrow">↓ Có</span><strong class="tree-answer st-answer">System Test (ST)</strong></div><div class="tree-branch"><span class="branch-question">Nhiều subsystem/service độc lập giao tiếp qua API/queue/network?</span><span class="branch-arrow">↓ Có</span><strong class="tree-answer sit-answer">System Integration Test (SIT)</strong></div></div><p class="decision-note">Nếu câu trả lời chưa rõ, xác định trước ranh giới của đơn vị triển khai và mục tiêu kiểm thử.</p></section>
+    </section>
+
+    <section class="tab-panel" id="panel-quiz" role="tabpanel" aria-labelledby="tab-quiz" tabindex="0" hidden>
+      <div class="page-intro"><p class="eyebrow">TỰ KIỂM TRA</p><h1>Phân loại tình huống.</h1><p>Chọn loại kiểm thử phù hợp nhất. Mỗi câu có phản hồi và giải thích ngay.</p></div>
+      <div class="quiz-card card" id="quizCard"><div class="quiz-progress"><span id="quizCount">Câu 1 / 5</span><span id="quizScorePreview">Đúng: 0</span></div><div class="progress-track"><span id="progressBar"></span></div><h2 id="questionText"></h2><div class="quiz-options" id="quizOptions"></div><div class="quiz-feedback" id="quizFeedback" aria-live="polite" hidden></div><button class="button button-primary quiz-next" id="quizNext" type="button" hidden>Câu tiếp theo →</button></div>
+      <div class="quiz-result card" id="quizResult" hidden><span class="result-mark" aria-hidden="true">✓</span><p class="eyebrow">KẾT QUẢ CỦA BẠN</p><h2 id="finalScore"></h2><p id="finalMessage"></p><button class="button button-primary" id="restartQuiz" type="button">Làm lại</button></div>
+    </section>
+
+    <section class="tab-panel" id="panel-about" role="tabpanel" aria-labelledby="tab-about" tabindex="0" hidden>
+      <div class="page-intro"><p class="eyebrow">VỀ PHÒNG MÔ PHỎNG</p><h1>Học nhanh bằng mắt.</h1><p>Một tài liệu tương tác nhỏ cho người học QA/Tester và developer.</p></div>
+      <div class="about-grid"><article class="card about-card"><span class="about-number">01</span><h2>Không cần cài đặt</h2><p>Ứng dụng chỉ gồm HTML, CSS và JavaScript thuần. Mở trực tiếp <code>index.html</code> hoặc host miễn phí bằng GitHub Pages.</p></article><article class="card about-card"><span class="about-number">02</span><h2>Phạm vi là điểm mấu chốt</h2><p>IT kiểm tra kết nối giữa module; ST xác minh cả hệ thống theo requirement theo cách black-box; SIT kiểm tra tích hợp giữa subsystem/service độc lập.</p></article><article class="card about-card"><span class="about-number">03</span><h2>Ghi chú triển khai</h2><p>Không dùng thư viện, API hay tài nguyên bên ngoài. Có thể tải repo và tùy biến ví dụ, màu sắc hoặc các bước mô phỏng.</p></article></div>
+      <section class="deploy-card card"><p class="eyebrow">DEPLOY LÊN GITHUB PAGES</p><h2>Xuất bản miễn phí</h2><ol><li>Tạo repository tên <code>sit-vs-st-vs-it-sim</code>.</li><li>Đưa <code>index.html</code>, <code>style.css</code>, <code>app.js</code> và <code>README.md</code> vào thư mục gốc rồi push lên nhánh <code>main</code>.</li><li>Mở <strong>Settings → Pages</strong>, chọn <strong>Deploy from a branch</strong> → <code>main</code> → <code>/(root)</code> → <strong>Save</strong>.</li><li>Trang sẽ có địa chỉ <code>https://&lt;username&gt;.github.io/sit-vs-st-vs-it-sim/</code>.</li></ol><p class="deploy-note">Có thể kiểm thử trước bằng cách mở file <code>index.html</code> trực tiếp trong trình duyệt.</p></section>
+      <footer class="site-footer"><span>Test Scope Lab</span><span>Được tạo để học tập · Không phụ thuộc thư viện bên ngoài</span></footer>
+    </section>
+  </main>
+</body>
+</html>
