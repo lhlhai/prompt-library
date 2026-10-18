@@ -23,7 +23,6 @@
   const modeKeys = activePatterns().map(pattern => pattern.key);
   const modeNames = Object.fromEntries(PATTERN_CONFIG.map(pattern => [pattern.key, pattern.label]));
   const modeBadges = Object.fromEntries(PATTERN_CONFIG.map(pattern => [pattern.key, pattern.badge]));
-  const githubExampleBase = 'https://github.com/lhlhai/prompt-library/blob/main/AI-2026/';
   const speedSelect = $('#speedSelect');
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   function sleep(baseMs) {
@@ -70,7 +69,8 @@
       const link = $('.markdown-example-link', card);
       if (link) {
         link.dataset.patternKey = pattern.key;
-        link.href = `${githubExampleBase}${pattern.exampleFile}`;
+        link.href = `./${pattern.exampleFile}`;
+        link.title = `Mở ${pattern.exampleFile} trực tiếp trên site`;
         link.replaceChildren(document.createTextNode(`📄 Xem ví dụ Markdown · ${pattern.label}`));
         const arrow = document.createElement('span');
         arrow.setAttribute('aria-hidden', 'true');
