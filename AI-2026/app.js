@@ -6,6 +6,7 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const diagram = $('#mainDiagram');
+  const FEATURE_CONFIG = Object.freeze({ markdownViewer: true });
 
   // Single source of truth for every AI pattern exposed by the static app.
   // Maintainers can disable a feature here without editing multiple UI sections.
@@ -33,6 +34,164 @@
     state.running = value;
     $$('[data-run-mode], #runAllButton, #resetButton, #speedSelect, [data-play-pattern]').forEach(button => { button.disabled = value; });
     if (value) $('#runStatus').textContent = 'Đang chạy…';
+  }
+
+  function escapeMarkdownHtml(value) {
+    return value.replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
+  }
+
+  function inlineMarkdown(value) {
+    let html = escapeMarkdownHtml(value);
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    return html;
+  }
+
+  function renderMarkdown(markdown) {
+    const content = $('#markdownContent');
+    content.replaceChildren();
+    const lines = markdown.replace(/\r\n?/g, '\n').split('\n');
+    let list = null;
+    let codeLines = null;
+    let codeLanguage = '';
+
+    const flushList = () => {
+      if (list) content.append(list);
+      list = null;
+    };
+    const flushCode = () => {
+      if (!codeLines) return;
+      const pre = document.createElement('pre');
+      const code = document.createElement('code');
+      code.className = codeLanguage ? `language-${codeLanguage}` : '';
+      code.textContent = codeLines.join('\n');
+      const copy = document.createElement('button');
+      copy.type = 'button';
+      copy.className = 'markdown-copy-button';
+      copy.dataset.copyCode = 'true';
+      copy.textContent = 'Copy';
+      pre.append(code, copy);
+      content.append(pre);
+      codeLines = null;
+      codeLanguage = '';
+    };
+
+    lines.forEach(line => {
+      if (line.startsWith('```')) {
+        if (codeLines) flushCode();
+        else {
+          flushList();
+          codeLines = [];
+          codeLanguage = line.slice(3).trim();
+        }
+        return;
+      }
+      if (codeLines) {
+        codeLines.push(line);
+        return;
+      }
+      if (!line.trim()) {
+        flushList();
+        return;
+      }
+      const heading = line.match(/^(#{1,3})\s+(.+)$/);
+      if (heading) {
+        flushList();
+        const element = document.createElement(`h${heading[1].length}`);
+        element.innerHTML = inlineMarkdown(heading[2]);
+        content.append(element);
+        return;
+      }
+      const unordered = line.match(/^\s*[-*]\s+(.+)$/);
+      const ordered = line.match(/^\s*\d+\.\s+(.+)$/);
+      if (unordered || ordered) {
+        const listType = ordered ? 'ol' : 'ul';
+        if (!list || list.tagName.toLowerCase() !== listType) {
+          flushList();
+          list = document.createElement(listType);
+        }
+        const item = document.createElement('li');
+        item.innerHTML = inlineMarkdown((unordered || ordered)[1]);
+        list.append(item);
+        return;
+      }
+      if (line.startsWith('> ')) {
+        flushList();
+        const quote = document.createElement('blockquote');
+        quote.innerHTML = inlineMarkdown(line.slice(2));
+        content.append(quote);
+        return;
+      }
+      flushList();
+      const paragraph = document.createElement('p');
+      paragraph.innerHTML = inlineMarkdown(line);
+      content.append(paragraph);
+    });
+    flushList();
+    flushCode();
+  }
+
+  function setMarkdownStatus(message, type = '') {
+    const status = $('#markdownStatus');
+    status.textContent = message;
+    status.className = `markdown-status${type ? ` is-${type}` : ''}`;
+  }
+
+  async function openMarkdownViewer(pattern, trigger) {
+    const dialog = $('#markdownDialog');
+    if (!dialog || !FEATURE_CONFIG.markdownViewer) return;
+    state.markdownTrigger = trigger;
+    $('#markdownDialogTitle').textContent = `${pattern.label} · Markdown example`;
+    $('#markdownSourceLink').href = `./${pattern.exampleFile}`;
+    $('#markdownContent').replaceChildren();
+    setMarkdownStatus(`Đang tải ${pattern.exampleFile}…`);
+    dialog.showModal();
+    try {
+      const response = await fetch(`./${pattern.exampleFile}`, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      renderMarkdown(await response.text());
+      setMarkdownStatus(`${pattern.exampleFile} · xem trực tiếp trong dialog`, 'ok');
+    } catch (error) {
+      setMarkdownStatus(`Không thể tải file trong dialog: ${error.message}`, 'error');
+      const fallback = document.createElement('p');
+      fallback.textContent = 'Bạn vẫn có thể mở file trực tiếp bằng nút “Mở file .md”.';
+      $('#markdownContent').append(fallback);
+    }
+  }
+
+  function bindMarkdownViewer() {
+    $$('.markdown-example-link').forEach(link => {
+      link.removeAttribute('target');
+      link.addEventListener('click', event => {
+        if (!FEATURE_CONFIG.markdownViewer) return;
+        event.preventDefault();
+        const pattern = patternByKey.get(link.dataset.patternKey);
+        if (pattern) openMarkdownViewer(pattern, link);
+      });
+    });
+    $('#markdownContent').addEventListener('click', async event => {
+      const copy = event.target.closest('[data-copy-code]');
+      if (!copy) return;
+      const code = copy.parentElement.querySelector('code');
+      try {
+        await navigator.clipboard.writeText(code.textContent);
+        copy.textContent = 'Đã copy';
+        window.setTimeout(() => { copy.textContent = 'Copy'; }, 1200);
+      } catch (_) {
+        copy.textContent = 'Copy lỗi';
+      }
+    });
+    const dialog = $('#markdownDialog');
+    $('#markdownDialogClose').addEventListener('click', () => dialog.close());
+    dialog.addEventListener('close', () => {
+      if (state.markdownTrigger) state.markdownTrigger.focus();
+      state.markdownTrigger = null;
+    });
+    dialog.addEventListener('click', event => {
+      if (event.target === dialog) dialog.close();
+    });
   }
 
   function renderPatternRegistry() {
@@ -578,6 +737,7 @@
     renderQuestion();
   });
   renderPatternRegistry();
+  bindMarkdownViewer();
   $$('[data-run-mode]').forEach(button => button.addEventListener('click', () => runSingle(button.dataset.runMode)));
   $('#runAllButton').addEventListener('click', runAll);
   $('#resetButton').addEventListener('click', resetSimulation);
