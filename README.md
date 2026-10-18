@@ -5,7 +5,7 @@ Repository này giữ ứng dụng Prompt Library hiện có và bổ sung landi
 ## Hai mô phỏng học tập
 
 - **[SIT vs ST vs IT](https://lhlhai.github.io/prompt-library/SIT/)** — phân biệt Integration Test, System Test và System Integration Test bằng animation, ví dụ và quiz.
-- **[AI Pattern Lab](https://lhlhai.github.io/prompt-library/AI-2026/)** — trực quan hóa Zero/One-shot, Few-shot, Planning, Tool Use, Agent, Skill và Harness; có Playground mock, lý thuyết, bảng so sánh, decision tree và 9 câu quiz.
+- **[AI Pattern Lab](https://lhlhai.github.io/prompt-library/AI-2026/)** — trực quan hóa bảy pattern; nhấn rõ Skill giúp tái sử dụng quy trình, tăng tính nhất quán của output và được Agent/Runtime sử dụng thế nào. Có Playground mock, lý thuyết, bảng so sánh, decision tree và 9 câu quiz.
 
 Hai app nằm trong thư mục riêng (`SIT/`, `AI-2026/`) và chạy bằng HTML/CSS/vanilla JavaScript, không cần framework, npm, build step hoặc API. Các phản hồi trong AI Pattern Lab là dữ liệu minh họa, không phải kết quả từ model thật.
 
