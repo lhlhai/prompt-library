@@ -71,6 +71,7 @@
     $('#exampleStack').hidden = true;
     $('#planPanel').hidden = true;
     $('#toolBubble').hidden = true;
+    $('#skillPanel').hidden = true;
     $('#runSummary').hidden = true;
     $$('#planSteps li').forEach(step => step.classList.remove('is-active', 'is-done'));
     $$('.example-chips span').forEach(chip => chip.classList.remove('is-added'));
@@ -264,17 +265,20 @@
   }
 
   async function runSkill() {
-    addLog('Loaded skill “summarize_article”: instructions + allowed tools + examples.', 'info');
+    $('#skillPanel').hidden = false;
+    addLog('[caller/agent] Chọn skill “summarize_article” vì task có quy trình lặp lại.', 'info');
     await animatePacket('prompt-llm', 'task');
-    addLog('Skill khởi chạy mini-flow tái sử dụng: read → summarize.', 'info');
+    addLog('[runtime/harness] Nạp instructions + examples + tool reference; cùng package có thể tái sử dụng.', 'info');
     await pulseNode('llm', 380);
+    addLog('[skill] Định nghĩa các bước read → summarize; không tự suy luận hay thực thi tool.', 'info');
     showToolCall({ name: 'read_article', args: { source: 'sample_article' } });
     await animatePacket('llm-tools', 'read');
     await pulseNode('tools', 280);
+    addLog('[runtime] Thực thi read_article và kiểm tra quyền tool.', 'warn');
     await animatePacket('tools-llm', 'article');
     await pulseNode('llm', 380);
     await animatePacket('llm-output', 'summary');
-    addLog('Output → tóm tắt theo quy tắc của skill; capability có thể gọi lại.', 'ok');
+    addLog('Output theo cùng tiêu chuẩn; Skill giúp reuse + consistency, còn runtime enforce quyền.', 'ok');
   }
 
   async function runHarness() {
@@ -407,6 +411,7 @@
       oneshot: ['Prompt: task + instruction', 'LLM call #1', 'Output trực tiếp'],
       planning: ['LLM tạo plan', 'Thực hiện các bước tuần tự', 'Tổng hợp final answer'],
       agent: ['Thought: xác định goal', 'Action: gọi tool mock', 'Observation: đọc kết quả', 'Lặp / kết thúc khi đạt goal'],
+      skill: ['Caller/Agent chọn capability phù hợp task', 'Nạp procedure + examples + tool references', 'LLM áp dụng cùng quy tắc/format', 'Runtime thực thi tool và kiểm tra quyền', 'Tái sử dụng Skill cho task tương tự'],
       harness: ['Build context + tool schema + history', 'LLM đề xuất action', 'Guardrail kiểm tra quyền', 'Runtime thực thi an toàn / chặn', 'Trả kết quả + log']
     };
     const list = $('#playFlow');
@@ -430,7 +435,7 @@
     { q: 'Một bài toán được tách thành “đọc đề → lập biến → giải → kiểm tra”, không gọi tool ngoài. Pattern trọng tâm?', a: 2, o: ['Tool Use', 'Harness', 'Planning / Decomposition', 'Few-shot'], e: 'Trọng tâm là chia bài toán thành các bước có thứ tự: planning.' },
     { q: 'LLM gửi function-call JSON một lần; app chạy weather API và gửi kết quả lại để model trả lời. Đây là gì?', a: 0, o: ['Tool Use / Function Calling', 'Agent loop', 'Few-shot', 'Skill'], e: 'Một vòng function call qua runtime là Tool Use; chưa đủ để gọi là agent loop.' },
     { q: 'Sau mỗi kết quả tìm kiếm, model quyết định tiếp tục gọi công cụ hay kết thúc; lặp tới khi đạt goal. Đây là gì?', a: 1, o: ['One-shot', 'Agent · ReAct loop', 'Tool Use đơn lẻ', 'Fine-tuning'], e: 'Loop dựa trên action và observation mới là đặc trưng của agent.' },
-    { q: 'Một nhóm muốn dùng lại cùng instructions, danh sách tools được phép và examples cho tác vụ tóm tắt. Nên đóng gói gì?', a: 2, o: ['Một tool function', 'Harness', 'Skill', 'Zero-shot'], e: 'Skill gom instructions, tools và examples thành capability tái sử dụng.' },
+    { q: 'Nhiều Agent cần áp dụng cùng quy trình phân loại bug và format báo cáo; muốn cập nhật/test quy trình một chỗ. Chọn gì?', a: 2, o: ['Một tool function', 'Harness', 'Skill', 'Zero-shot'], e: 'Skill đóng gói procedure/examples để reuse và giữ output nhất quán. Caller/Agent chọn nó; runtime nạp và enforce quyền. Skill không tự suy luận hoặc thực thi tool.' },
     { q: 'Lớp runtime tạo context, lưu history, cấp tool registry, quản lý loop và chặn thao tác nguy hiểm là gì?', a: 3, o: ['Planning', 'Few-shot', 'Agent', 'Harness'], e: 'Đó là Harness: lớp runtime bao quanh và điều phối model/agent.' },
     { q: 'Điểm khác nhau quan trọng nhất giữa Tool Use và Agent là gì?', a: 1, o: ['Tool Use luôn an toàn hơn', 'Agent lặp theo observation; tool use có thể chỉ một vòng', 'Agent không được dùng tools', 'Tool Use cần fine-tune'], e: 'Tool Use mô tả tương tác với function; Agent nhấn mạnh loop quyết định tiếp theo dựa trên observation.' },
     { q: 'Bạn đã có agent policy, muốn thêm context building, logging, retry, guardrails và quản lý quyền trong production. Cần gì?', a: 2, o: ['Thêm one-shot example', 'Chuyển thành few-shot', 'Harness runtime', 'Thêm một tool rồi gọi xong'], e: 'Harness cung cấp runtime controls và có thể chạy agent hoặc các kiểu flow khác.' }
@@ -487,7 +492,7 @@
     $('#quizCard').hidden = true;
     $('#quizResult').hidden = false;
     $('#finalScore').textContent = `${state.quizScore} / ${quizQuestions.length} câu đúng`;
-    $('#finalMessage').textContent = state.quizScore >= 7 ? 'Rất tốt — bạn đã nắm các ranh giới giữa prompt, tool, loop và runtime.' : 'Ôn lại bảng so sánh: phân biệt số calls, loop, tool, capability và runtime rồi thử lại.';
+    $('#finalMessage').textContent = state.quizScore >= 7 ? 'Rất tốt — bạn đã nắm vai trò của prompt, tool, Skill, Agent và Harness.' : 'Ôn lại bảng so sánh: phân biệt số calls, loop, tool, capability và runtime rồi thử lại.';
   }
 
   $('#quizNext').addEventListener('click', () => {
