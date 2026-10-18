@@ -6,17 +6,24 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const diagram = $('#mainDiagram');
-  const modeKeys = ['oneshot', 'fewshot', 'planning', 'tool', 'agent', 'skill', 'harness'];
-  const modeNames = { oneshot: 'Zero / One-shot', fewshot: 'Few-shot', planning: 'Planning', tool: 'Tool Use', agent: 'Agent · ReAct', skill: 'Skill', harness: 'Harness' };
-  const modeBadges = {
-    oneshot: '1 LLM call · stateless · no tools',
-    fewshot: '1 LLM call · N examples in context',
-    planning: '1 + N LLM calls · sequential reasoning · no tools',
-    tool: '2 LLM calls · 1 tool call · single-shot tool',
-    agent: 'N LLM calls (dynamic) · tools + memory · loop until done',
-    skill: 'Packaged capability · reusable · composable',
-    harness: 'Runtime layer · context + tools + memory + loop + guardrails'
-  };
+
+  // Single source of truth for every AI pattern exposed by the static app.
+  // Maintainers can disable a feature here without editing multiple UI sections.
+  const PATTERN_CONFIG = Object.freeze([
+    { key: 'oneshot', order: '01', label: 'Zero / One-shot', buttonLabel: 'One-shot', buttonClass: 'p-one', badge: '1 LLM call · stateless · no tools', enabled: true, playground: true, theoryClass: 't-one', exampleFile: '01-zero-one-shot.md', summary: ['1', 'Một prompt, không/ít ví dụ; không tool'] },
+    { key: 'fewshot', order: '02', label: 'Few-shot', buttonLabel: 'Few-shot', buttonClass: 'p-few', badge: '1 LLM call · N examples in context', enabled: true, playground: true, theoryClass: 't-few', exampleFile: '02-few-shot.md', summary: ['1', 'Nhiều ví dụ trong context window'] },
+    { key: 'planning', order: '03', label: 'Planning', buttonLabel: 'Planning', buttonClass: 'p-plan', badge: '1 + N LLM calls · sequential reasoning · no tools', enabled: true, playground: true, theoryClass: 't-plan', exampleFile: '03-planning.md', summary: ['1 + N', 'Chia bước tuần tự; không nhất thiết có tool'] },
+    { key: 'tool', order: '04', label: 'Tool Use', buttonLabel: 'Tool Use', buttonClass: 'p-tool', badge: '2 LLM calls · 1 tool call · single-shot tool', enabled: true, playground: true, theoryClass: 't-tool', exampleFile: '04-tool-use.md', summary: ['Thường 2', 'Một vòng function call rồi trả kết quả'] },
+    { key: 'agent', order: '05', label: 'Agent · ReAct', buttonLabel: 'Agent', buttonClass: 'p-agent', badge: 'N LLM calls (dynamic) · tools + memory · loop until done', enabled: true, playground: true, theoryClass: 't-agent', exampleFile: '05-agent-react.md', summary: ['N, động', 'Lặp thought/action/observation tới goal'] },
+    { key: 'skill', order: '06', label: 'Skill', buttonLabel: 'Skill', buttonClass: 'p-skill', badge: 'Packaged capability · reusable · composable', enabled: true, playground: true, theoryClass: 't-skill', exampleFile: '06-skill.md', summary: ['Tùy flow', 'Capability tái sử dụng; Caller/Agent chọn, Runtime/Harness nạp và enforce quyền'] },
+    { key: 'harness', order: '07', label: 'Harness', buttonLabel: 'Harness', buttonClass: 'p-harness', badge: 'Runtime layer · context + tools + memory + loop + guardrails', enabled: true, playground: true, theoryClass: 't-harness', exampleFile: '07-harness.md', summary: ['N + overhead', 'Runtime điều phối context, tools, memory, guardrails'] }
+  ]);
+  const patternByKey = new Map(PATTERN_CONFIG.map(pattern => [pattern.key, pattern]));
+  const activePatterns = () => PATTERN_CONFIG.filter(pattern => pattern.enabled);
+  const modeKeys = activePatterns().map(pattern => pattern.key);
+  const modeNames = Object.fromEntries(PATTERN_CONFIG.map(pattern => [pattern.key, pattern.label]));
+  const modeBadges = Object.fromEntries(PATTERN_CONFIG.map(pattern => [pattern.key, pattern.badge]));
+  const githubExampleBase = 'https://github.com/lhlhai/prompt-library/blob/main/AI-2026/';
   const speedSelect = $('#speedSelect');
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   function sleep(baseMs) {
@@ -27,6 +34,68 @@
     state.running = value;
     $$('[data-run-mode], #runAllButton, #resetButton, #speedSelect, [data-play-pattern]').forEach(button => { button.disabled = value; });
     if (value) $('#runStatus').textContent = 'Đang chạy…';
+  }
+
+  function renderPatternRegistry() {
+    const enabled = activePatterns();
+    const simulationStrip = $('#patternStrip');
+    const playgroundButtons = $('#playButtons');
+    if (simulationStrip) {
+      simulationStrip.replaceChildren();
+      enabled.forEach(pattern => {
+        const button = document.createElement('button');
+        button.className = `pattern-button ${pattern.buttonClass}`;
+        button.type = 'button';
+        button.dataset.runMode = pattern.key;
+        const order = document.createElement('span');
+        order.textContent = pattern.order;
+        button.append(order, document.createTextNode(pattern.buttonLabel));
+        simulationStrip.append(button);
+      });
+    }
+    if (playgroundButtons) {
+      playgroundButtons.replaceChildren();
+      enabled.filter(pattern => pattern.playground).forEach(pattern => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.dataset.playPattern = pattern.key;
+        button.textContent = `Run as ${pattern.buttonLabel}`;
+        playgroundButtons.append(button);
+      });
+    }
+    PATTERN_CONFIG.forEach(pattern => {
+      const card = $(`.theory-card.${pattern.theoryClass}`);
+      if (!card) return;
+      card.hidden = !pattern.enabled;
+      const link = $('.markdown-example-link', card);
+      if (link) {
+        link.dataset.patternKey = pattern.key;
+        link.href = `${githubExampleBase}${pattern.exampleFile}`;
+        link.replaceChildren(document.createTextNode(`📄 Xem ví dụ Markdown · ${pattern.label}`));
+        const arrow = document.createElement('span');
+        arrow.setAttribute('aria-hidden', 'true');
+        arrow.textContent = '↗';
+        link.append(arrow);
+      }
+    });
+    const summaryBody = $('#summaryBody');
+    if (summaryBody) {
+      summaryBody.replaceChildren();
+      enabled.forEach(pattern => {
+        const row = document.createElement('tr');
+        const name = document.createElement('th');
+        name.scope = 'row';
+        name.textContent = pattern.label;
+        const calls = document.createElement('td');
+        calls.textContent = pattern.summary[0];
+        const difference = document.createElement('td');
+        difference.textContent = pattern.summary[1];
+        row.append(name, calls, difference);
+        summaryBody.append(row);
+      });
+    }
+    const count = $('#summaryPatternCount');
+    if (count) count.textContent = `${enabled.length} PATTERN`;
   }
 
   function renderLogs() {
@@ -309,9 +378,11 @@
 
   const runners = { oneshot: runOneShot, fewshot: runFewShot, planning: runPlanning, tool: runToolUse, agent: runAgent, skill: runSkill, harness: runHarness };
   async function playAnimation(mode) {
+    const pattern = patternByKey.get(mode);
+    if (!pattern || !pattern.enabled || typeof runners[mode] !== 'function') throw new Error(`Pattern không khả dụng: ${mode}`);
     setMode(mode);
-    $('#runStatus').textContent = `Đang chạy ${modeNames[mode]}…`;
-    addLog(`── ${modeNames[mode]} ──`, 'info');
+    $('#runStatus').textContent = `Đang chạy ${pattern.label}…`;
+    addLog(`── ${pattern.label} ──`, 'info');
     await runners[mode]();
   }
 
@@ -352,7 +423,7 @@
         }
       }
       $('#runSummary').hidden = false;
-      $('#runStatus').textContent = 'Hoàn tất · 7 pattern';
+      $('#runStatus').textContent = `Hoàn tất · ${modeKeys.length} pattern`;
       $('#runSummary').scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'nearest' });
     } catch (error) {
       addLog(`Lỗi mô phỏng: ${error.message}`, 'block');
@@ -409,7 +480,9 @@
     $('#playOutput').textContent = 'Đang mô phỏng…';
     const flows = {
       oneshot: ['Prompt: task + instruction', 'LLM call #1', 'Output trực tiếp'],
+      fewshot: ['Prompt + examples trong context', 'LLM call #1', 'Output theo pattern mẫu'],
       planning: ['LLM tạo plan', 'Thực hiện các bước tuần tự', 'Tổng hợp final answer'],
+      tool: ['LLM đề xuất function call', 'Runtime thực thi tool mock', 'LLM nhận result và trả lời'],
       agent: ['Thought: xác định goal', 'Action: gọi tool mock', 'Observation: đọc kết quả', 'Lặp / kết thúc khi đạt goal'],
       skill: ['Caller/Agent chọn capability phù hợp task', 'Nạp procedure + examples + tool references', 'LLM áp dụng cùng quy tắc/format', 'Runtime thực thi tool và kiểm tra quyền', 'Tái sử dụng Skill cho task tương tự'],
       harness: ['Build context + tool schema + history', 'LLM đề xuất action', 'Guardrail kiểm tra quyền', 'Runtime thực thi an toàn / chặn', 'Trả kết quả + log']
@@ -504,6 +577,7 @@
     $('#quizCard').hidden = false; $('#quizResult').hidden = true;
     renderQuestion();
   });
+  renderPatternRegistry();
   $$('[data-run-mode]').forEach(button => button.addEventListener('click', () => runSingle(button.dataset.runMode)));
   $('#runAllButton').addEventListener('click', runAll);
   $('#resetButton').addEventListener('click', resetSimulation);

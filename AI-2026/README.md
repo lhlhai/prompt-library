@@ -32,6 +32,10 @@ Các file dưới đây là ví dụ độc lập để đọc và sao chép khi
 
 Mỗi ví dụ nêu mục tiêu, khi nên dùng, prompt hoặc schema mẫu, flow, guardrail và ranh giới của pattern. Dữ liệu chỉ mang tính minh họa; không có file nào gọi API thật.
 
+### Cấu hình feature
+
+Metadata và trạng thái bật/tắt của các pattern được tập trung trong `app.js` ở hằng số `PATTERN_CONFIG`. Tất cả feature mặc định là `enabled: true`; để tạm tắt một pattern trên GitHub Pages, sửa trực tiếp giá trị `enabled` trong JavaScript. Không có remote config, backend hoặc write-back dữ liệu.
+
 
 ## Skills: vai trò và lợi ích
 
