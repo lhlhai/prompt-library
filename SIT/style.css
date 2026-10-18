@@ -108,3 +108,6 @@ button { color:inherit; }
   .story-card h3 { font-size:16px; }
   .story-card>p:not(.story-question) { font-size:12px; }
 }
+
+.landing-back { margin:0 0 14px; }
+.landing-back a { min-height:44px; padding:0 12px; display:inline-flex; align-items:center; border:1px solid var(--border); border-radius:10px; background:var(--surface); color:var(--it); font-size:12px; font-weight:750; text-decoration:none; }

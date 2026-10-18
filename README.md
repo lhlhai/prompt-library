@@ -1,6 +1,15 @@
-# 📚 Prompt Library
+# AI Field Notes · Prompt Library
 
-Một thư viện QA Prompts toàn diện được thiết kế để giúp các QA Engineer tối ưu hóa quy trình kiểm thử của mình. Thư viện này cung cấp các prompt được tạo bởi các chuyên gia QA với 15+ năm kinh nghiệm.
+Repository này giữ ứng dụng Prompt Library hiện có và bổ sung landing page cùng hai mô phỏng học tập tương tác. Root `index.html` là landing; ứng dụng Prompt Library cũ vẫn dùng được tại `prompts.html`.
+
+## Hai mô phỏng học tập
+
+- **[SIT vs ST vs IT](https://lhlhai.github.io/prompt-library/SIT/)** — phân biệt Integration Test, System Test và System Integration Test bằng animation, ví dụ và quiz.
+- **[AI Pattern Lab](https://lhlhai.github.io/prompt-library/AI-2026/)** — trực quan hóa Zero/One-shot, Few-shot, Planning, Tool Use, Agent, Skill và Harness; có Playground mock, lý thuyết, bảng so sánh, decision tree và 9 câu quiz.
+
+Hai app nằm trong thư mục riêng (`SIT/`, `AI-2026/`) và chạy bằng HTML/CSS/vanilla JavaScript, không cần framework, npm, build step hoặc API. Các phản hồi trong AI Pattern Lab là dữ liệu minh họa, không phải kết quả từ model thật.
+
+**[Mở landing page](https://lhlhai.github.io/prompt-library/)** · **[Mở Prompt Library](https://lhlhai.github.io/prompt-library/prompts.html)**
 
 ## ✨ Tính Năng
 
@@ -26,7 +35,7 @@ Một thư viện QA Prompts toàn diện được thiết kế để giúp các
 ### Truy Cập Thư Viện
 Thư viện được host trên GitHub Pages. Truy cập tại:
 ```
-https://lhlhai.github.io/prompt-library/
+https://lhlhai.github.io/prompt-library/prompts.html
 ```
 
 ### Tìm Kiếm Prompt
@@ -56,11 +65,13 @@ https://lhlhai.github.io/prompt-library/
 
 ```
 prompt-library/
-├── index.html              # File HTML chính (chứa CSS + JS)
-├── index_backup.html       # Backup phiên bản cũ
-├── README.md              # File này
-└── .git/                  # Git repository
+├── index.html              # Landing page cho hai mô phỏng
+├── prompts.html            # Prompt Library hiện có
+├── README.md
+├── SIT/                    # Mô phỏng IT / ST / SIT
+└── AI-2026/                # Mô phỏng bảy AI pattern
 ```
+Các tài sản CSS, JavaScript và dữ liệu ở root vẫn được giữ cho Prompt Library cùng các trang khác trong repository.
 
 ## 🔧 Cải Tiến Gần Đây (v2.0)
 
@@ -79,7 +90,7 @@ prompt-library/
 ## 🛠️ Hướng Dẫn Phát Triển
 
 ### Thêm Prompt Mới
-1. Mở file `index.html`
+1. Mở file `prompts.html`
 2. Tìm mảng `PROMPTS` (khoảng dòng 358)
 3. Thêm object mới theo schema:
 
@@ -119,7 +130,7 @@ prompt-library/
 | 3 | Risk Analysis | Test Architect Level | Phân tích rủi ro hệ thống |
 | 4 | Critical Path Analysis | Test Architect Level | Xác định Critical User Flow |
 
-*Xem file `index.html` để danh sách đầy đủ tất cả prompts*
+*Xem file `prompts.html` để tìm kiếm và sử dụng thư viện đầy đủ.*
 
 ## 🤝 Đóng Góp
 
