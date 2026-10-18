@@ -1,243 +1,26 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>📚 Prompt Library</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="AI Field Notes — các mô phỏng học tập tương tác về kiểm thử phần mềm và pattern AI.">
+  <title>AI Field Notes — Học bằng mô phỏng</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0f172a;--surface:#1e293b;--text:#e5edf8;--muted:#9aabc1;--border:rgba(148,163,184,.18);--sky:#38bdf8;--violet:#a78bfa;--green:#22c55e;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 12% 0,rgba(56,189,248,.11),transparent 36%),radial-gradient(ellipse at 90% 28%,rgba(167,139,250,.11),transparent 34%),var(--bg);color:var(--text);line-height:1.55}.wrap{width:min(100% - 30px,1100px);margin:auto}.top{height:70px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}.brand{display:flex;align-items:center;gap:10px;color:var(--text);text-decoration:none}.logo{width:39px;height:39px;display:grid;place-items:center;border-radius:13px;background:rgba(56,189,248,.12);color:var(--sky);font-size:12px;font-weight:900}.brand strong,.brand small{display:block;line-height:1.2}.brand strong{font-size:13px}.brand small{margin-top:4px;color:var(--muted);font-size:10px}.prompt-link{min-height:42px;padding:0 12px;display:flex;align-items:center;border:1px solid var(--border);border-radius:11px;color:var(--muted);text-decoration:none;font-size:11px;font-weight:750}.prompt-link:hover{border-color:var(--sky);color:var(--sky)}.hero{padding:56px 0 33px;max-width:730px}.eyebrow{margin:0 0 9px;color:var(--sky);font-size:10px;font-weight:900;letter-spacing:.16em}.hero h1{margin:0;font-size:clamp(36px,8vw,65px);line-height:1.04;letter-spacing:-.055em}.hero h1 span{color:var(--sky)}.hero p:last-child{max-width:640px;margin:15px 0 0;color:var(--muted);font-size:15px}.grid{display:grid;gap:13px}.sim-card{position:relative;overflow:hidden;padding:20px;border:1px solid var(--border);border-radius:19px;background:linear-gradient(145deg,rgba(30,41,59,.98),rgba(30,41,59,.86));box-shadow:0 18px 48px rgba(0,0,0,.2);transition:transform .2s,border-color .2s}.sim-card:hover{transform:translateY(-3px);border-color:rgba(148,163,184,.4)}.sim-card:before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)}.sit{--accent:var(--sky)}.ai{--accent:var(--violet)}.tag{color:var(--accent);font-size:9px;font-weight:900;letter-spacing:.13em}.sim-card h2{margin:10px 0 7px;font-size:23px;letter-spacing:-.025em}.sim-card>p{margin:0;color:var(--muted);font-size:13px}.chips{display:flex;flex-wrap:wrap;gap:6px;margin:15px 0 18px}.chips span{padding:5px 8px;border:1px solid var(--border);border-radius:8px;background:rgba(15,23,42,.3);color:var(--muted);font-size:9px;font-weight:700}.cta{min-height:46px;padding:0 14px;display:inline-flex;align-items:center;gap:10px;border-radius:11px;background:var(--accent);color:#08111e;text-decoration:none;font-size:12px;font-weight:900}.cta:hover{filter:brightness(1.08)}.cta span{font-size:16px}.prompt-section{margin:16px 0 0;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--border);border-radius:14px;background:rgba(30,41,59,.6)}.prompt-section h2{margin:0;font-size:14px}.prompt-section p{margin:3px 0 0;color:var(--muted);font-size:11px}.prompt-section a{color:var(--sky);font-size:11px;font-weight:800;text-decoration:none;white-space:nowrap}.note{margin:21px 0 0;color:var(--muted);font-size:11px}.footer{margin-top:43px;padding:17px 0 25px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:10px}@media(min-width:700px){.wrap{width:min(100% - 48px,1100px)}.hero{padding-top:78px}.grid{grid-template-columns:1fr 1fr;gap:18px}.sim-card{padding:25px;min-height:310px;display:flex;flex-direction:column;align-items:flex-start}.sim-card>p{max-width:470px}.chips{margin-top:auto;padding-top:18px}.prompt-section{padding:18px 21px}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important}}
+  </style>
 </head>
 <body>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-  <script src="config.js"></script>
-  <script src="search-optimizer.js"></script>
-
-  <!-- Navigation Bar -->
-  <nav class="navbar" id="navbar" style="display: none;">
-    <div class="navbar-container">
-      <div class="navbar-brand">
-        <span class="navbar-logo">📚</span>
-        <span class="navbar-title">Prompt Library</span>
-      </div>
-      <div class="navbar-menu" id="navbarMenu">
-        <!-- Menu items will be injected here -->
-      </div>
-    </div>
-  </nav>
-
-  <!-- Comparison Bar -->
-  <div class="comparison-bar" id="comparisonBar" style="display: none;">
-    <div class="comparison-info">
-      <span id="comparisonCount">0</span> prompts selected for comparison
-    </div>
-    <div class="comparison-actions">
-      <button class="btn btn-compare-now" id="compareNowBtn">📊 Compare Now</button>
-      <button class="btn btn-clear-compare" id="clearCompareBtn">✕ Clear</button>
-    </div>
-  </div>
-
-  <div class="container">
-    <header>
-      <h1>📚 Prompt Library</h1>
-      <p>Tìm kiếm & copy prompts cho QA Workflow</p>
-    </header>
-
-    <div class="search-box">
-
-
-      <div class="search-container">
-        <input 
-          type="text" 
-          class="search-input" 
-          id="searchInput" 
-          placeholder="🔍 Search by name, label, description, or prompt content..."
-          autofocus
-        />
-        <div class="view-toggles">
-          <button class="view-btn active" id="gridViewBtn" title="Grid View">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-          </button>
-          <button class="view-btn" id="listViewBtn" title="List View">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="stats">
-      <span class="stat-badge" id="totalBadge">📦 Total: <strong>0</strong></span>
-      <span class="stat-badge favorite-toggle-badge" id="favoriteFilterBtn" title="Toggle Favorites Only" style="cursor: pointer; transition: all 0.2s;">
-        <span class="star-icon">☆</span> Favorites
-      </span>
-      <span class="stat-badge" id="activeBadge">✅ Active: <strong>0</strong></span>
-      <span class="stat-badge" id="resultsBadge">🔎 Results: <strong>0</strong></span>
-      <button class="stat-badge mobile-filter-btn" id="mobileFilterBtn">
-        <span>🔍 Show Filter</span>
-      </button>
-    </div>
-
-    <!-- Category Filter - Scrollable Chips -->
-    <div class="main-layout">
-      <aside class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-          <div class="sidebar-title">📂 Categories</div>
-          <div class="sidebar-list" id="categoryList">
-            <!-- Categories will be injected here -->
-          </div>
-        </div>
-        <div class="sidebar-section">
-          <div class="sidebar-title">⭐ Quick Access</div>
-          <div class="sidebar-list">
-            <div class="sidebar-item" id="sidebarFavorites">
-              <span class="sidebar-icon">⭐</span> Favorites
-            </div>
-            <div class="sidebar-item" id="sidebarRecent">
-              <span class="sidebar-icon">🕒</span> Recently Used
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      <main class="content-area">
-        <div class="filter-bar">
-          <div class="filter-label">📂 Active Filters:</div>
-          <div class="category-chips-container" id="categoryChipsContainer"></div>
-          <button class="btn-clear-all" id="clearAllFilters">✕ Clear All</button>
-        </div>
-
-        <div class="prompt-grid" id="promptGrid"></div>
-      </main>
-    </div>
-
-    <div class="quick-toolbar" id="quickToolbar" style="display: none;">
-      <div class="quick-toolbar-title">⚡ Quick Copy:</div>
-      <div class="quick-snippets" id="quickSnippets">
-        <!-- Snippets will be injected here -->
-      </div>
-    </div>
-
-    <div class="empty-state" id="emptyState" style="display:none">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-      </svg>
-      <p>Không tìm thấy prompt nào phù hợp với từ khóa của bạn.</p>
-    </div>
-  </div>
-
-  <!-- Comparison Modal -->
-  <div class="modal comparison-modal" id="comparisonModal">
-    <div class="modal-content" style="max-width: 95%; width: 1200px;">
-      <button class="modal-close" id="comparisonModalClose">&times;</button>
-      <h2 style="margin-bottom: 24px;">📊 Prompt Comparison</h2>
-      <div class="comparison-grid" id="comparisonGrid">
-        <!-- Comparison columns will be injected here -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Filter Modal for Mobile -->
-  <div class="modal filter-modal" id="filterModal">
-    <div class="modal-content">
-      <button class="modal-close" id="filterModalClose">&times;</button>
-      <h2 style="margin-bottom: 20px;">🔍 Filter Prompts</h2>
-      
-      <div class="filter-section">
-        <div class="filter-section-title">📂 Categories</div>
-        <div class="mobile-category-list" id="mobileCategoryList">
-          <!-- Categories will be injected here -->
-        </div>
-      </div>
-
-      <div class="filter-section" style="margin-top: 24px;">
-        <div class="filter-section-title">⭐ Quick Access</div>
-        <div class="mobile-quick-access">
-          <div class="sidebar-item" id="mobileSidebarFavorites">
-            <span class="sidebar-icon">⭐</span> Favorites
-          </div>
-          <div class="sidebar-item" id="mobileSidebarRecent">
-            <span class="sidebar-icon">🕒</span> Recently Used
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-footer" style="margin-top: 30px;">
-        <button class="btn btn-copy" id="applyFiltersBtn" style="width: 100%;">Apply Filters</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal -->
-  <div class="modal" id="modal">
-    <div class="modal-content">
-      <button class="modal-close" id="modalClose">&times;</button>
-      <h2 id="modalTitle" style="margin-bottom:8px"></h2>
-      <div class="card-meta" id="modalMeta" style="margin-bottom:16px"></div>
-      <!-- Variable Tags Section -->
-      <div class="card-section" id="variablesSection" style="display:none;">
-        <div class="card-section-title">🔤 Variables to Fill</div>
-        <div class="variables-container" id="variablesContainer"></div>
-      </div>
-
-      <div class="card-section">
-        <div class="card-section-title">📝 Prompt</div>
-        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-          <button class="btn btn-edit" id="modalEditBtn" style="flex: 1;">✍️ Edit</button>
-          <button class="btn btn-edit-save" id="modalEditSaveBtn" style="flex: 1; display: none;">✅ Save Changes</button>
-          <button class="btn btn-edit-cancel" id="modalEditCancelBtn" style="flex: 1; display: none;">❌ Cancel</button>
-        </div>
-        <!-- Tabs for Preview/Raw -->
-        <div class="modal-tabs" id="modalTabs" style="display: none; margin-bottom: 12px;">
-          <button class="modal-tab active" data-tab="raw">📄 Raw</button>
-          <button class="modal-tab" data-tab="preview">👁️ Preview</button>
-        </div>
-        <pre class="modal-prompt" id="modalPrompt"></pre>
-        <div class="modal-prompt-preview" id="modalPromptPreview" style="display: none;"></div>
-        <textarea class="modal-prompt-edit" id="modalPromptEdit" style="display: none;"></textarea>
-      </div>
-      <div class="card-section">
-        <div class="card-section-title">💡 When to use</div>
-        <p id="modalWhen" class="card-desc"></p>
-      </div>
-      <div class="card-section">
-        <div class="card-section-title">⚙️ How to use</div>
-        <p id="modalHow" class="card-desc"></p>
-      </div>
-      <div class="card-section" id="modalExampleSection" style="display:none;">
-        <div class="card-section-title">✨ Example Output</div>
-        <pre id="modalExample" class="prompt-content" style="background: #f8f9fa; border: 1px dashed #dee2e6;"></pre>
-      </div>
-      <!-- Format Selector -->
-      <div class="format-selector" id="formatSelector" style="display:none !important; margin-bottom: 16px;">
-        <div class="card-section-title">📋 Copy Format</div>
-        <div class="format-buttons">
-          <button class="format-btn active" data-format="plain" title="Copy as plain text">📄 Plain Text</button>
-          <button class="format-btn" data-format="markdown" title="Copy with Markdown formatting">🎨 Markdown</button>
-        </div>
-      </div>
-
-      <div class="card-footer" style="margin-top:20px; gap: 8px;">
-        <button class="btn btn-copy" id="modalCopy">📋 Copy Prompt</button>
-        <button class="btn btn-copy" id="askGPT">ASK GPT</button>
-        <button class="btn btn-view" id="modalDownload">⬇️ Download .txt</button>
-        <button class="btn btn-export-csv" id="modalExportCSV" title="Export as CSV for Jira/TestRail">📊 Export CSV</button>
-        <button class="btn btn-share" id="modalShare" title="Copy shareable link">🔗 Share</button>
-        <button class="btn btn-reset" id="modalResetBtn" title="Reset to original prompt" style="display: none;">🔄 Reset</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast -->
-  <div class="toast" id="toast">✓ Copied to clipboard!</div>
-
-  <!-- Back to Top -->
-  <button id="backToTop" title="Back to Top">
-    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
-  </button>
-
-  <footer></footer>
-
-  <script src="prompts.js"></script>
-  <script src="shared-components.js"></script>
-  <script src="script.js"></script>
+  <header class="wrap top"><a class="brand" href="./"><span class="logo">FIELD</span><span><strong>AI Field Notes</strong><small>Học khái niệm bằng flow trực quan</small></span></a><a class="prompt-link" href="prompts.html">📚 Prompt Library</a></header>
+  <main class="wrap">
+    <section class="hero"><p class="eyebrow">TWO INTERACTIVE LEARNING SIMULATORS</p><h1>Hiểu bằng cách<br><span>nhìn thấy.</span></h1><p>Hai phòng mô phỏng ngắn gọn giúp team nắm được phạm vi kiểm thử và cách các pattern AI điều phối LLM — bằng animation, ví dụ và thử nghiệm trực tiếp.</p></section>
+    <section class="grid" aria-label="Các mô phỏng học tập">
+      <article class="sim-card sit"><span class="tag">QUALITY ENGINEERING · 3 PHẠM VI</span><h2>SIT vs ST vs IT</h2><p>Phân biệt kiểm thử module trong cùng hệ thống, kiểm thử toàn hệ thống theo black-box và kiểm thử tích hợp giữa các subsystem độc lập.</p><div class="chips"><span>SVG flow animation</span><span>Theory + Summary</span><span>Quiz tình huống</span><span>Mobile-first</span></div><a class="cta" href="SIT/">Mở mô phỏng kiểm thử <span>→</span></a></article>
+      <article class="sim-card ai"><span class="tag">AI ENGINEERING · 7 PATTERN</span><h2>AI Pattern Lab</h2><p>Nhìn luồng One-shot, Few-shot, Planning, Tool Use, Agent, Skill và Harness; thử Playground mock mà không gọi API.</p><div class="chips"><span>7 animated flows</span><span>Mock Playground</span><span>Decision tree + Quiz</span><span>Không API</span></div><a class="cta" href="AI-2026/">Mở phòng mô phỏng AI <span>→</span></a></article>
+    </section>
+    <section class="prompt-section"><div><h2>Đang cần tìm prompt cho QA workflow?</h2><p>Ứng dụng Prompt Library hiện tại vẫn được giữ nguyên.</p></div><a href="prompts.html">Mở Prompt Library →</a></section>
+    <p class="note">Các mô phỏng chạy ngay trên trình duyệt, không cần tài khoản hay cài đặt. Kết quả trong AI Pattern Lab là dữ liệu minh họa, không phải phản hồi từ model thật.</p>
+  </main>
+  <footer class="wrap footer"><span>AI Field Notes · Learning by visualization</span><span>HTML · CSS · Vanilla JavaScript</span></footer>
 </body>
 </html>

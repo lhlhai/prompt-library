@@ -23,7 +23,7 @@ const SharedComponents = {
         id: 'index',
         name: 'Library',
         icon: '📚',
-        href: 'index.html',
+        href: 'prompts.html',
         description: 'Browse all prompts'
       },
       {
@@ -68,7 +68,7 @@ const SharedComponents = {
         <div class="footer-section">
           <h4>Quick Links</h4>
           <ul>
-            <li><a href="index.html">Library</a></li>
+            <li><a href="prompts.html">Library</a></li>
             <li><a href="about.html">About</a></li>
             <li><a href="guide.html">Guide</a></li>
           </ul>
