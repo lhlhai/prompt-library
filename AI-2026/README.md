@@ -16,6 +16,22 @@ https://lhlhai.github.io/prompt-library/AI-2026/
 
 Trang About có liên kết về landing ở `../index.html`. Có thể tùy chỉnh các ví dụ và quiz trong `app.js`, nội dung/diagram trong `index.html`, và màu sắc/layout trong `style.css`.
 
+## Ví dụ Markdown theo pattern
+
+Các file dưới đây là ví dụ độc lập để đọc và sao chép khi thiết kế prompt hoặc workflow:
+
+| Pattern | File ví dụ |
+|---|---|
+| Zero / One-shot | [`01-zero-one-shot.md`](./01-zero-one-shot.md) |
+| Few-shot | [`02-few-shot.md`](./02-few-shot.md) |
+| Planning | [`03-planning.md`](./03-planning.md) |
+| Tool Use | [`04-tool-use.md`](./04-tool-use.md) |
+| Agent · ReAct | [`05-agent-react.md`](./05-agent-react.md) |
+| Skill | [`06-skill.md`](./06-skill.md) |
+| Harness | [`07-harness.md`](./07-harness.md) |
+
+Mỗi ví dụ nêu mục tiêu, khi nên dùng, prompt hoặc schema mẫu, flow, guardrail và ranh giới của pattern. Dữ liệu chỉ mang tính minh họa; không có file nào gọi API thật.
+
 
 ## Skills: vai trò và lợi ích
 
