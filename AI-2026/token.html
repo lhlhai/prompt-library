@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Token Counter — AI-2026</title>
+
+  <!-- Dùng chung palette / dark mode với app chính -->
+  <link rel="stylesheet" href="style.css" />
+  <!-- Chỉ các rule bổ sung cho trang token -->
+  <link rel="stylesheet" href="token.css" />
+
+  <!-- Preconnect CDN tokenizer -->
+  <link rel="preconnect" href="https://esm.sh" crossorigin />
+</head>
+<body class="token-page">
+
+  <!-- ===== HEADER ===== -->
+  <header class="tc-header">
+    <a href="index.html" class="tc-back">← AI-2026</a>
+    <h1 class="tc-title">Token Counter</h1>
+    <div class="tc-header-actions">
+      <button id="copySummaryBtn" class="tc-icon-btn" title="Copy summary" aria-label="Copy summary">📋</button>
+      <button id="themeToggle" class="tc-icon-btn" title="Toggle dark / light" aria-label="Toggle theme">🌙</button>
+    </div>
+  </header>
+
+  <main class="tc-main">
+
+    <!-- ===== INPUT ZONE ===== -->
+    <section class="tc-input-zone" aria-label="Input">
+      <textarea
+        id="input"
+        class="tc-textarea"
+        placeholder="Paste text, markdown, prompt… ở đây"
+        spellcheck="false"
+        autocomplete="off"
+      ></textarea>
+
+      <div class="tc-input-actions">
+        <button id="uploadBtn" class="tc-btn">
+          📁 Upload file
+        </button>
+        <input
+          id="fileInput"
+          type="file"
+          accept=".md,.txt,.markdown,.json,.csv"
+          hidden
+        />
+        <button id="clearBtn" class="tc-btn tc-btn--ghost">🗑 Clear</button>
+      </div>
+
+      <div id="fileInfo" class="tc-file-info" hidden></div>
+      <div id="warningBanner" class="tc-banner tc-banner--warn" hidden></div>
+      <div id="errorBanner" class="tc-banner tc-banner--error" hidden></div>
+    </section>
+
+    <!-- ===== STATS GRID ===== -->
+    <section class="tc-stats" aria-label="Text statistics">
+      <div class="tc-stat-card">
+        <span class="tc-stat-label">Characters</span>
+        <strong id="statChars" class="tc-stat-value">0</strong>
+        <span class="tc-stat-sub">(no space: <span id="statCharsNoSpace">0</span>)</span>
+      </div>
+      <div class="tc-stat-card">
+        <span class="tc-stat-label">Words</span>
+        <strong id="statWords" class="tc-stat-value">0</strong>
+      </div>
+      <div class="tc-stat-card">
+        <span class="tc-stat-label">Lines</span>
+        <strong id="statLines" class="tc-stat-value">0</strong>
+      </div>
+      <div class="tc-stat-card">
+        <span class="tc-stat-label">Bytes (UTF-8)</span>
+        <strong id="statBytes" class="tc-stat-value">0</strong>
+      </div>
+    </section>
+
+    <!-- ===== TOKEN CARDS ===== -->
+    <section class="tc-tokens" aria-label="Token counts per model">
+      <div id="tokenCards"></div>
+    </section>
+
+    <!-- ===== VISUALIZATION ===== -->
+    <section class="tc-viz" aria-label="Token visualization">
+      <button id="vizToggle" class="tc-viz-toggle" aria-expanded="false">
+        <span>Xem token visualization</span>
+        <span class="tc-viz-arrow">▾</span>
+      </button>
+      <div id="vizContainer" class="tc-viz-body" hidden>
+        <div id="vizContent" class="tc-viz-content"></div>
+        <button id="vizMoreBtn" class="tc-btn tc-btn--small" hidden>
+          Show next 2000
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="tc-footer">
+    <p>All processing is client-side. No data leaves your browser.</p>
+  </footer>
+
+  <!-- ===== DRAG & DROP OVERLAY ===== -->
+  <div id="dropOverlay" class="tc-drop-overlay" hidden>
+    <div class="tc-drop-content">
+      <span class="tc-drop-icon">📄</span>
+      <p>Drop .md / .txt vào đây</p>
+    </div>
+  </div>
+
+  <!-- ===== MAIN SCRIPT ===== -->
+  <script type="module" src="token.js"></script>
+</body>
+</html>
