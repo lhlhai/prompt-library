@@ -236,7 +236,8 @@
     els.detailMeta.innerHTML = [...list(item.tags).map((tag) => `<span class="tag">#${escapeHtml(tag)}</span>`), item.level ? `<span class="tag">${escapeHtml(item.level)}</span>` : '', item.updated ? `<span class="tag">Updated ${escapeHtml(item.updated)}</span>` : ''].join('');
     els.detailContent.innerHTML = markdownToHtml(item.content);
     if (isEnabled('relatedSkills') && page === 'agents' && list(item.skills).length) {
-      els.relatedSkills.innerHTML = `<h3>Reusable skills</h3>${list(item.skills).map((skill) => `<a class="tag" href="skills.html#${encodeURIComponent(skill)}">↗ ${escapeHtml(skill)}</a>`).join('')}`;
+      els.relatedSkills.innerHTML = `<div class="related-skills-heading"><span class="related-skills-icon" aria-hidden="true">✦</span><div><h3>Agent skills</h3><p>Skills được gắn vào profile này. Mở skill để xem hướng dẫn chi tiết.</p></div></div><div class="related-skills-links">${list(item.skills).map((skill) => `<a class="skill-link" href="skills.html#${encodeURIComponent(skill)}"><span>${escapeHtml(skill)}</span><span aria-hidden="true">↗</span></a>`).join('')}</div>`;
+      els.detailContent.parentNode.insertBefore(els.relatedSkills, els.detailContent);
     } else els.relatedSkills.innerHTML = '';
     els.backdrop.classList.add('open');
     document.body.style.overflow = 'hidden';

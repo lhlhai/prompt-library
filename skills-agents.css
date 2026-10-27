@@ -128,9 +128,14 @@ h1 { margin-bottom: 18px; max-width: 700px; font-size: clamp(40px, 6vw, 76px); l
 .markdown pre { background: var(--blue-deep); color: #ddf6e9; overflow: auto; padding: 16px; border-radius: 12px; line-height: 1.5; }
 .markdown pre code { background: transparent; color: inherit; padding: 0; }
 .markdown blockquote { margin: 18px 0; padding: 12px 17px; border-left: 3px solid var(--orange); background: #fff7f1; color: var(--ink-soft); }
-.related-skills { margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--line); }
-.related-skills h3 { font-size: 13px; margin-bottom: 10px; }
-.related-skills a { text-decoration: none; display: inline-flex; margin: 0 5px 6px 0; }
+.related-skills { margin: 18px 0 20px; padding: 16px; border: 1px solid #b7d8c8; border-left: 4px solid var(--mint-strong); border-radius: 14px; background: linear-gradient(135deg, #edf8f1, #f8fbf7); }
+.related-skills-heading { display: flex; align-items: flex-start; gap: 11px; margin-bottom: 12px; }
+.related-skills-icon { display: grid; place-items: center; flex: 0 0 30px; width: 30px; height: 30px; border-radius: 9px; background: var(--blue-deep); color: var(--mint); font-size: 15px; }
+.related-skills-heading h3 { margin: 0 0 3px; color: var(--ink); font-size: 14px; }
+.related-skills-heading p { margin: 0; color: var(--ink-soft); font-size: 11px; line-height: 1.5; }
+.related-skills-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.related-skills a.skill-link { display: inline-flex; align-items: center; gap: 10px; padding: 8px 11px; border: 1px solid #bdd9ca; border-radius: 999px; background: #fff; color: var(--blue); font: 700 11px ui-monospace, SFMono-Regular, Menlo, monospace; text-decoration: none; transition: background .18s ease, border-color .18s ease, transform .18s ease; }
+.related-skills a.skill-link:hover, .related-skills a.skill-link:focus-visible { border-color: var(--blue); background: #e2f2e9; transform: translateY(-1px); outline: 2px solid transparent; }
 
 /* VS Code / GitHub Copilot quick-install guide */
 .setup-guide { margin: 4px 0 30px; padding: 24px 26px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--paper-strong); box-shadow: var(--shadow); }
