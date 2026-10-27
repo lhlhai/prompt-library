@@ -168,6 +168,58 @@
     header.className = 'doc-head';
     const title = document.createElement('h2');
     title.textContent = doc.title;
+    const titleRow = document.createElement('div');
+    titleRow.className = 'doc-title-row';
+    const actions = document.createElement('div');
+    actions.className = 'doc-actions';
+    const copyButton = document.createElement('button');
+    copyButton.type = 'button';
+    copyButton.className = 'action-btn';
+    copyButton.textContent = 'Copy Markdown';
+    copyButton.disabled = Boolean(doc.error);
+    copyButton.addEventListener('click', async () => {
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(doc.source);
+        } else {
+          const textarea = document.createElement('textarea');
+          textarea.value = doc.source;
+          textarea.setAttribute('readonly', '');
+          textarea.style.position = 'fixed';
+          textarea.style.opacity = '0';
+          document.body.append(textarea);
+          textarea.select();
+          const copied = document.execCommand('copy');
+          textarea.remove();
+          if (!copied) throw new Error('clipboard unavailable');
+        }
+        const original = copyButton.textContent;
+        copyButton.textContent = 'Đã copy';
+        setStatus(`Đã copy Markdown: ${doc.path}`);
+        window.setTimeout(() => { copyButton.textContent = original; }, 1400);
+      } catch {
+        setStatus('Không thể copy tự động; hãy mở file trên GitHub để sao chép thủ công.');
+      }
+    });
+    const downloadButton = document.createElement('button');
+    downloadButton.type = 'button';
+    downloadButton.className = 'action-btn secondary';
+    downloadButton.textContent = 'Download .md';
+    downloadButton.disabled = Boolean(doc.error);
+    downloadButton.addEventListener('click', () => {
+      const blob = new Blob([doc.source], { type: 'text/markdown;charset=utf-8' });
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = objectUrl;
+      link.download = doc.path.replaceAll('/', '__');
+      document.body.append(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+      setStatus(`Đã tải ${link.download}`);
+    });
+    actions.append(copyButton, downloadButton);
+    titleRow.append(title, actions);
     const meta = document.createElement('div');
     meta.className = 'doc-meta';
     addTag(meta, doc.category);
@@ -178,7 +230,7 @@
     sourceLink.rel = 'noopener noreferrer';
     sourceLink.textContent = 'Mở file trên GitHub ↗';
     meta.append(sourceLink);
-    header.append(title, meta);
+    header.append(titleRow, meta);
     article.append(header);
 
     if (doc.frontmatter) {
