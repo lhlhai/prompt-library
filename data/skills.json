@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-27T14:21:23.984Z",
+  "generatedAt": "2026-10-27T14:30:00.282Z",
   "collection": "skills",
   "items": [
     {
@@ -35,6 +35,23 @@
       "source": "api-contract-testing.md"
     },
     {
+      "title": "Feature Test Case Design",
+      "slug": "feature-test-case-design",
+      "category": "Test Design",
+      "tags": [
+        "testcase",
+        "feature",
+        "acceptance-criteria",
+        "excel",
+        "story"
+      ],
+      "level": "Intermediate",
+      "description": "Chuyển story và product evidence thành test case có traceability, priority, dữ liệu và output dùng được ngay.",
+      "skills": [],
+      "content": "# Feature Test Case Design\n\n## Input agent có thể nhận\n\nAgent không bắt buộc một format duy nhất. Có thể nhận một hoặc nhiều nguồn sau:\n\n| Input | Ví dụ | Cách sử dụng |\n|---|---|---|\n| User story | `As a customer, I can reset my password` | Tách actor, goal và business value |\n| Acceptance criteria | Given/When/Then, bullet, checklist | Làm baseline cho expected result |\n| PRD/spec | Markdown, text, PDF đã copy text | Tìm rule, dependency và out-of-scope |\n| Figma/screenshot | Link public hoặc mô tả màn hình | Bổ sung UI state và validation |\n| Existing Excel | `.xlsx`, CSV hoặc dán bảng | Giữ format, ID và traceability cũ |\n| API/schema | OpenAPI, field list, sample payload | Bổ sung integration và data checks |\n| Context | Role, environment, feature flag, locale | Xác định biến thể test cần chạy |\n\nNếu chỉ có title của feature, agent phải tạo **draft assumptions** và hỏi lại, không được giả định business rule là sự thật.\n\n## Quy trình\n\n1. Chuẩn hóa input thành feature summary, actor, precondition, state và acceptance criteria.\n2. Tạo traceability map: mỗi acceptance criterion liên kết với ít nhất một test case.\n3. Bổ sung happy path, validation, boundary, negative, permission, state transition, interruption và integration scenario.\n4. Gán `priority` theo risk: P0 cho critical path/data loss/security, P1 cho core behavior, P2 cho polish và rare edge.\n5. Khai báo test data, environment, role, dependency và expected result đủ quan sát được.\n6. Kiểm tra duplicate, gap và assumption trước khi xuất kết quả.\n\n## Output mặc định\n\nAgent trả về cả hai dạng:\n\n- **Markdown table** để review nhanh trong chat hoặc pull request.\n- **CSV/TSV Excel-ready** với cột: `ID`, `Requirement/AC`, `Title`, `Precondition`, `Steps`, `Test Data`, `Expected Result`, `Priority`, `Type`, `Role`, `Environment`, `Automation Candidate`, `Status`.\n\nNếu người dùng đã có Excel template, agent giữ nguyên tên cột và thứ tự cột; chỉ thêm cột khi nói rõ lý do. Agent không tự ghi vào file hoặc repository nếu chưa có thao tác upload/write được ủy quyền.\n\n## Khi thiếu input\n\n- Thiếu acceptance criteria: hỏi business rule và expected result.\n- Thiếu role/permission: tạo matrix role tối thiểu và đánh dấu `NEEDS_CONFIRMATION`.\n- Thiếu test data: tạo data contract và placeholder có format, không dùng dữ liệu production.\n- Thiếu environment: ghi assumption và đề xuất smoke matrix, không tuyên bố pass.\n\n## Definition of ready\n\nMột test case ready khi người khác có thể chạy mà không cần hỏi lại setup quan trọng, expected result đo được và có liên kết ngược về story/AC.",
+      "source": "feature-test-case-design.md"
+    },
+    {
       "title": "High-signal Bug Reporting",
       "slug": "bug-reporting",
       "category": "Communication",
@@ -49,6 +66,22 @@
       "skills": [],
       "content": "# High-signal Bug Reporting\n\n## Tiêu đề\n\nDùng công thức: **[Area] [action] causes [observable impact] when [condition]**. Tránh tiêu đề kiểu “Không hoạt động” hoặc mô tả giải pháp thay cho triệu chứng.\n\n## Nội dung bắt buộc\n\n1. Environment: build, browser/device, account role, feature flag và data setup.\n2. Preconditions nếu có.\n3. Steps tối thiểu để tái hiện.\n4. Expected result và actual result tách biệt.\n5. Evidence: screenshot/video, request ID, console log hoặc response.\n6. Frequency và workaround.\n\n## Severity vs priority\n\nSeverity mô tả mức độ thiệt hại của lỗi; priority mô tả thứ tự team cần xử lý. Một lỗi typo có priority cao trước chiến dịch marketing, trong khi một lỗi hiếm gặp có severity cao nhưng cần thêm dữ liệu để triage.\n\n## Quality bar\n\nNgười khác phải có thể tái hiện mà không cần hỏi lại những thông tin quan trọng. Nếu chưa chắc root cause, mô tả observation và hypothesis riêng biệt.",
       "source": "bug-reporting.md"
+    },
+    {
+      "title": "QA Tool Selection",
+      "slug": "qa-tool-selection",
+      "category": "Workflow & Tooling",
+      "tags": [
+        "tooling",
+        "decision",
+        "automation",
+        "workflow"
+      ],
+      "level": "Intermediate",
+      "description": "Chọn tool vừa đủ dựa trên artifact, mục tiêu, quyền truy cập, chi phí và khả năng tái hiện.",
+      "skills": [],
+      "content": "# QA Tool Selection\n\n## Decision order\n\nAgent chọn tool theo thứ tự: **artifact đang có → câu hỏi cần trả lời → mức độ lặp lại → môi trường/quyền → output cần giao → chi phí bảo trì**. Không chọn tool chỉ vì tool quen thuộc hoặc có nhiều tính năng.\n\n## Quick map\n\n| Task | First choice | Khi nâng cấp tool |\n|---|---|---|\n| Review story/spec | Markdown/table + checklist | Spreadsheet khi cần bulk review hoặc sign-off |\n| Sinh feature testcase | Agent + Markdown/CSV | Excel template khi team đã có format chuẩn |\n| Đọc Swagger/OpenAPI | Parser + agent | Schemathesis/contract runner khi cần execute nhiều endpoint |\n| Gọi API một request | curl/httpie | Postman/Bruno khi cần collection và environment |\n| Regression API | Newman/Bruno CLI/runner hiện có | CI job khi cần report và gate |\n| UI flow | Browser devtools/manual | Playwright/Cypress khi flow ổn định, lặp lại và có selector tốt |\n| Accessibility smoke | Keyboard + browser devtools | axe/Lighthouse audit sau khi smoke pass |\n| Bug evidence | Screenshot, HAR, console, request ID | Video/trace khi timing hoặc concurrency khó tái hiện |\n\n## Tool output phải giải thích được\n\nMỗi đề xuất tool cần có `why this tool`, `input`, `command/setup`, `expected output`, `limitation` và `fallback`. Nếu không có quyền cài hoặc chạy tool, agent chỉ trả starter command/template, không giả vờ đã execute.\n\n## Safety boundary\n\nKhông gửi mutation tới production để khám phá. Không dùng credential thật trong collection mẫu. Với URL ngoài, chỉ đọc public resource khi được phép; với file riêng tư, yêu cầu người dùng upload hoặc dán nội dung cần phân tích.",
+      "source": "qa-tool-selection.md"
     },
     {
       "title": "Release Risk Review",
@@ -95,6 +128,24 @@
       "skills": [],
       "content": "# Structured Exploratory Testing\n\n## Test charter\n\nViết charter theo mẫu: **Explore [area] with [data/heuristic] to discover [risk] within [timebox].** Một charter tốt đủ mở để khám phá nhưng đủ hẹp để biết khi nào đã đi quá xa.\n\n## Session flow\n\n1. Chuẩn bị build, tài khoản, dữ liệu và baseline cần thiết.\n2. Chọn một charter duy nhất cho mỗi session 30–60 phút.\n3. Trong lúc test, ghi lại action, observation, question, anomaly và ý tưởng follow-up.\n4. Khi gặp lỗi, dừng việc khám phá ngẫu nhiên để tái hiện, cô lập và chụp evidence.\n5. Kết thúc bằng debrief: đã cover gì, còn câu hỏi gì, risk nào mới xuất hiện.\n\n## Heuristics gợi ý\n\n- CRUD tour và golden path.\n- Boundary tour: empty, min/max, Unicode, timezone, retry.\n- Consistency tour giữa UI, API, notification và audit log.\n- Interruption tour: refresh, back, timeout, duplicate submit.\n- Permission tour giữa role khác nhau.\n\n## Evidence chuẩn\n\nMỗi finding cần có session time, build/version, seed data, bước tái hiện, expected/actual và mức độ tự tin.",
       "source": "exploratory-testing.md"
+    },
+    {
+      "title": "Swagger / OpenAPI Test Case Design",
+      "slug": "swagger-api-test-design",
+      "category": "API & Integration",
+      "tags": [
+        "swagger",
+        "openapi",
+        "api",
+        "testcase",
+        "json",
+        "yaml"
+      ],
+      "level": "Advanced",
+      "description": "Chuẩn hóa Swagger/OpenAPI từ URL, JSON, YAML hoặc fragment rồi sinh API test matrix và runnable starter.",
+      "skills": [],
+      "content": "# Swagger / OpenAPI Test Case Design\n\n## Input được hỗ trợ\n\n### 1. Public URL\n\nNhận URL tới `openapi.json`, `swagger.json`, YAML hoặc Swagger UI. Nếu URL là Swagger UI, agent tìm spec URL trong config page hoặc yêu cầu người dùng cung cấp raw spec. Chỉ fetch URL public; không đoán token, không bypass auth và không gửi request mutation chỉ để “thử”.\n\n### 2. File hoặc JSON/YAML đầy đủ\n\nNhận nội dung dán trực tiếp, file JSON/YAML hoặc link raw. Agent detect OpenAPI 2.0, OpenAPI 3.x hoặc Swagger 2.0, sau đó normalize thành endpoint/method/parameter/request body/response/security.\n\n### 3. Một đoạn spec\n\nCó thể nhận riêng một `paths` object, một endpoint, schema request/response hoặc curl mẫu. Khi fragment thiếu `servers`, auth hoặc response code, agent phải ghi `PARTIAL_SPEC` và chỉ tạo case trong phạm vi quan sát được.\n\n## Matrix tối thiểu cho mỗi endpoint\n\n- Happy path theo từng success response.\n- Required field missing, wrong type, null, empty và malformed format.\n- Boundary của string/number/array, enum, pagination và date/time.\n- Auth missing, token expired, role forbidden và object-level authorization.\n- Resource not found, conflict, duplicate/idempotency và retry.\n- Contract: status code, headers, content type, schema, nullable và error body.\n- Với mutation: data side effect, read-after-write, rollback/partial failure và cleanup.\n\n## Tool selection\n\n| Tình huống | Tool đề xuất | Output |\n|---|---|---|\n| Chỉ cần đọc spec và sinh matrix | Parser OpenAPI + agent | Markdown/CSV test cases |\n| Muốn chạy request thủ công | curl/httpie | Request mẫu và evidence |\n| Team dùng collection | Postman/Insomnia/Bruno | Collection + environment template |\n| Có Newman collection | Newman CLI | CLI command, report và CI suggestion |\n| Contract/property-based | Schemathesis hoặc tương đương | Generated checks, không thay thế risk cases |\n| API có auth flow phức tạp | Playwright/API client hoặc runner hiện có | Setup sequence + secret placeholders |\n\nTool chỉ là đề xuất theo artifact và hệ sinh thái team; agent không tự cài package, gọi production endpoint hoặc dùng secret trong output.\n\n## Output contract\n\nTrả về: `Input interpretation`, `Assumptions`, `Endpoint inventory`, `Test case matrix`, `Auth/data setup`, `Runnable examples`, `Coverage gaps` và `Next questions`. Mỗi case có `TC-ID`, `Endpoint`, `Method`, `Setup`, `Request`, `Expected status`, `Expected schema`, `Priority`, `Risk` và `Cleanup`.\n\n## Guardrails\n\nKhông coi Swagger UI là contract đầy đủ nếu thiếu raw spec. Không coi response example là rule duy nhất. Phân biệt `spec says`, `observed from sample` và `needs confirmation`. Mask API key, cookie, PII và dữ liệu production trước khi copy vào testcase.",
+      "source": "swagger-api-test-design.md"
     }
   ]
 }
