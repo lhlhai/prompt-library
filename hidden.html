@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a2931">
+  <title>Markdown Browser · Prompt Library</title>
+  <meta name="description" content="Tìm kiếm và đọc Markdown trong repository prompt-library.">
+  <style>
+    :root { color-scheme: light; --ink:#102329; --soft:#5d7175; --paper:#f3f6f1; --white:#fff; --line:#d7e2dc; --mint:#cdf1dd; --mint-strong:#69d39c; --blue:#163f4a; --deep:#0a2931; --orange:#f2855d; --shadow:0 18px 45px rgba(16,35,41,.09); font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:var(--ink); background:var(--paper); }
+    * { box-sizing:border-box; }
+    body { margin:0; min-width:320px; min-height:100vh; background:var(--paper); }
+    button,input,select { font:inherit; }
+    a { color:var(--blue); }
+    .topbar { position:sticky; top:0; z-index:3; padding:15px 22px; background:rgba(10,41,49,.97); color:#fff; box-shadow:0 8px 24px rgba(10,41,49,.12); }
+    .topbar-inner { max-width:1500px; margin:auto; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+    .brand { display:flex; align-items:center; gap:12px; min-width:0; }
+    .mark { display:grid; place-items:center; width:38px; height:38px; flex:none; border-radius:12px; color:var(--deep); background:var(--mint); font-weight:900; }
+    .brand h1 { margin:0; font-size:17px; letter-spacing:-.035em; }
+    .brand p { margin:3px 0 0; color:#c5d6d3; font-size:11px; }
+    .repo-link { color:var(--mint); font-size:12px; font-weight:750; text-decoration:none; white-space:nowrap; }
+    .repo-link:hover { text-decoration:underline; }
+    main { width:min(1500px,calc(100% - 36px)); margin:24px auto 40px; }
+    .notice { margin-bottom:16px; padding:11px 14px; border:1px solid #e4d3a2; border-radius:12px; background:#fff8e5; color:#62552c; font-size:12px; line-height:1.55; }
+    .toolbar { display:grid; grid-template-columns:minmax(220px,1fr) minmax(190px,280px) auto; gap:10px; padding:13px; border-radius:16px; background:var(--blue); box-shadow:var(--shadow); }
+    .toolbar input,.toolbar select { width:100%; min-width:0; padding:12px 13px; border:1px solid transparent; border-radius:10px; outline:none; background:#fff; color:var(--ink); font-size:13px; }
+    .toolbar input:focus,.toolbar select:focus { border-color:var(--mint-strong); box-shadow:0 0 0 3px rgba(105,211,156,.25); }
+    .clear-btn { padding:0 16px; border:0; border-radius:10px; background:var(--mint); color:var(--blue); font-size:12px; font-weight:850; cursor:pointer; }
+    .clear-btn:hover { background:var(--mint-strong); }
+    .statusline { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; min-height:40px; padding:8px 3px; color:var(--soft); font-size:12px; }
+    .statusline strong { color:var(--ink); }
+    .progress { width:160px; height:6px; overflow:hidden; border-radius:99px; background:#dfe8e2; }
+    .progress span { display:block; width:0; height:100%; border-radius:inherit; background:#328466; transition:width .15s ease; }
+    .workspace { display:grid; grid-template-columns:minmax(270px,360px) minmax(0,1fr); gap:16px; align-items:start; }
+    .file-panel,.reader { min-width:0; border:1px solid var(--line); border-radius:16px; background:var(--white); box-shadow:var(--shadow); }
+    .file-panel { position:sticky; top:86px; max-height:calc(100vh - 110px); display:flex; flex-direction:column; overflow:hidden; }
+    .file-heading { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:15px 16px 12px; border-bottom:1px solid var(--line); }
+    .file-heading h2 { margin:0; font-size:13px; }
+    .file-heading span { color:var(--soft); font-size:11px; }
+    .file-list { overflow:auto; padding:7px; }
+    .file-item { display:block; width:100%; margin:0 0 4px; padding:10px 11px; border:1px solid transparent; border-radius:10px; background:transparent; color:var(--ink); text-align:left; cursor:pointer; }
+    .file-item:hover { background:#f2f7f3; }
+    .file-item[aria-current="true"] { border-color:#b8d7c8; background:#eaf6ee; }
+    .file-title { display:block; margin-bottom:4px; font-size:12px; font-weight:780; line-height:1.35; overflow-wrap:anywhere; }
+    .file-path { display:block; color:var(--soft); font:10px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace; overflow-wrap:anywhere; }
+    .file-category { display:inline-block; margin-top:7px; padding:3px 7px; border-radius:999px; background:#edf2ee; color:#496166; font-size:9px; font-weight:750; }
+    .reader { min-height:68vh; padding:clamp(18px,3vw,34px); }
+    .reader-empty { display:grid; min-height:58vh; place-items:center; color:var(--soft); text-align:center; }
+    .reader-empty div { max-width:440px; }
+    .reader-empty strong { display:block; margin-bottom:8px; color:var(--ink); font-size:20px; }
+    .doc-head { padding-bottom:19px; margin-bottom:20px; border-bottom:1px solid var(--line); }
+    .doc-head h2 { margin:0 0 8px; font-size:clamp(23px,3vw,34px); line-height:1.12; letter-spacing:-.055em; overflow-wrap:anywhere; }
+    .doc-meta { display:flex; flex-wrap:wrap; align-items:center; gap:8px; color:var(--soft); font-size:11px; }
+    .doc-meta a { font-weight:750; text-decoration:none; }
+    .doc-meta a:hover { text-decoration:underline; }
+    .tag { padding:4px 8px; border-radius:999px; background:#edf2ee; color:#496166; font-size:10px; font-weight:750; }
+    details.frontmatter { margin:0 0 19px; border:1px solid var(--line); border-radius:10px; background:#f8faf8; }
+    details.frontmatter summary { padding:9px 12px; color:var(--soft); font-size:11px; font-weight:750; cursor:pointer; }
+    details.frontmatter pre { max-height:230px; margin:0; padding:0 12px 12px; overflow:auto; color:#32545c; font:11px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .markdown { color:#2f4548; font-size:14px; line-height:1.75; overflow-wrap:anywhere; }
+    .markdown > :first-child { margin-top:0; }
+    .markdown h1,.markdown h2,.markdown h3,.markdown h4 { margin:1.5em 0 .45em; color:var(--ink); line-height:1.2; letter-spacing:-.035em; }
+    .markdown h1 { font-size:28px; } .markdown h2 { font-size:22px; } .markdown h3 { font-size:17px; } .markdown h4 { font-size:14px; }
+    .markdown p { margin:0 0 14px; }
+    .markdown ul,.markdown ol { padding-left:24px; }
+    .markdown li { margin:4px 0; }
+    .markdown blockquote { margin:16px 0; padding:10px 15px; border-left:3px solid var(--orange); border-radius:0 8px 8px 0; background:#fff7f1; color:#53696d; }
+    .markdown pre { max-width:100%; overflow:auto; padding:15px; border-radius:11px; background:var(--deep); color:#ddf6e9; font:12px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .markdown code { padding:2px 5px; border-radius:5px; background:#edf2ee; color:#163f4a; font: .91em ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .markdown pre code { padding:0; background:transparent; color:inherit; }
+    .markdown table { display:block; width:100%; overflow:auto; border-collapse:collapse; }
+    .markdown th,.markdown td { min-width:90px; padding:8px 10px; border:1px solid var(--line); text-align:left; vertical-align:top; }
+    .markdown th { background:#edf4ef; color:var(--ink); }
+    .markdown img { max-width:100%; height:auto; }
+    .markdown hr { border:0; border-top:1px solid var(--line); margin:22px 0; }
+    .error { padding:17px; border:1px solid #e9c9bb; border-radius:12px; background:#fff4ee; color:#794b3b; font-size:13px; line-height:1.6; }
+    .loading { color:var(--soft); font-size:13px; }
+    @media (max-width:850px) { .workspace { grid-template-columns:minmax(220px,300px) minmax(0,1fr); } .file-panel { top:82px; } }
+    @media (max-width:650px) { .topbar { padding:12px 14px; } .topbar-inner { align-items:flex-start; } .brand p { max-width:220px; } .repo-link { padding-top:10px; } main { width:calc(100% - 20px); margin-top:14px; } .toolbar { grid-template-columns:1fr 1fr; } .toolbar input { grid-column:1/-1; } .clear-btn { min-height:42px; } .workspace { grid-template-columns:1fr; } .file-panel { position:static; max-height:34vh; } .reader { min-height:55vh; } }
+  </style>
+  <script defer src="https://cdn.jsdelivr.net/npm/marked@15.0.7/marked.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+  <script defer src="hidden.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand"><span class="mark" aria-hidden="true">MD</span><div><h1>Markdown Browser</h1><p>Browse repository docs · tìm nội dung và lọc category</p></div></div>
+      <a class="repo-link" href="https://github.com/lhlhai/prompt-library" target="_blank" rel="noopener noreferrer">Mở repository ↗</a>
+    </div>
+  </header>
+  <main>
+    <div class="notice"><strong>Lưu ý:</strong> Trang này không nằm trong menu, nhưng repo là public nên đây không phải trang riêng tư. Nó hiển thị các file Markdown đang được commit trong repository.</div>
+    <section class="toolbar" aria-label="Tìm kiếm và lọc tài liệu">
+      <input id="search-input" type="search" placeholder="Tìm theo tiêu đề, đường dẫn hoặc nội dung..." autocomplete="off" aria-label="Tìm trong Markdown">
+      <select id="category-filter" aria-label="Lọc theo category"><option value="">Tất cả category</option></select>
+      <button class="clear-btn" id="clear-btn" type="button">Xóa lọc</button>
+    </section>
+    <div class="statusline"><span id="status" role="status" aria-live="polite">Đang kết nối tới repository…</span><span class="progress" aria-hidden="true"><span id="progress-bar"></span></span></div>
+    <section class="workspace">
+      <aside class="file-panel" aria-label="Danh sách tài liệu Markdown">
+        <div class="file-heading"><h2>Markdown files</h2><span id="file-count">0 tài liệu</span></div>
+        <div class="file-list" id="file-list"><p class="loading">Đang tải danh sách file…</p></div>
+      </aside>
+      <article class="reader" id="reader" aria-live="polite">
+        <div class="reader-empty"><div><strong>Chọn một file Markdown</strong>Dùng ô tìm kiếm để tra trong nội dung toàn file hoặc lọc theo category.</div></div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>
