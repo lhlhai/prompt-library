@@ -27,6 +27,20 @@ const SharedComponents = {
         description: 'Browse all prompts'
       },
       {
+        id: 'skills',
+        name: 'Skills',
+        icon: '🧩',
+        href: 'skills.html',
+        description: 'Reusable QA skills in Markdown'
+      },
+      {
+        id: 'agents',
+        name: 'Agents',
+        icon: '🤖',
+        href: 'agents.html',
+        description: 'QA agents that compose skills'
+      },
+      {
         id: 'about',
         name: 'About',
         icon: 'ℹ️',
@@ -69,6 +83,8 @@ const SharedComponents = {
           <h4>Quick Links</h4>
           <ul>
             <li><a href="prompts.html">Library</a></li>
+            <li><a href="skills.html">Skills</a></li>
+            <li><a href="agents.html">Agents</a></li>
             <li><a href="about.html">About</a></li>
             <li><a href="guide.html">Guide</a></li>
           </ul>

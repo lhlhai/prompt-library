@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skills Library — QA Skill & Agent Library</title>
+  <meta name="description" content="Bộ kỹ năng Markdown có thể tái sử dụng cho tester và QA workflow.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="skills-agents.css">
+</head>
+<body data-page="skills">
+  <header class="site-header"><div class="nav-shell">
+    <a class="brand" href="index.html"><span class="brand-mark">QA</span><span class="brand-copy"><small>Prompt · Skill · Agent</small><strong>QA Library</strong></span></a>
+    <nav class="main-nav" aria-label="Main navigation"><a href="prompts.html">Prompts</a><a class="active" href="skills.html">Skills</a><a href="agents.html">Agents</a></nav>
+  </div></header>
+  <main class="page-shell">
+    <section class="hero"><div><p class="eyebrow">Reusable playbooks</p><h1>Skills cho tester, dùng lại được.</h1><p class="hero-copy">Các playbook ngắn gọn để biến kinh nghiệm QA thành những khối Markdown dễ tìm, dễ copy và dễ gắn vào agent.</p></div><aside class="hero-note"><h2>Thêm skill mới trong vài giây</h2><p>Đặt file Markdown vào thư mục nguồn. Frontmatter giúp library tự nhận diện category, tag và metadata.</p><code class="path-line">skills/my-skill.md</code></aside></section>
+    <section class="tool-row" aria-label="Search tools"><div class="search-wrap"><span class="search-icon">⌕</span><input id="search-input" type="search" placeholder="Tìm trong title, tag, mô tả và nội dung..." autocomplete="off"><kbd class="shortcut">⌘ K</kbd></div><button class="filter-btn" id="filter-toggle" type="button">☷ Bộ lọc</button><button class="clear-btn" id="clear-btn" type="button">Xóa lọc</button></section>
+    <section class="filter-panel" id="filter-panel"><div><span class="filter-label">Category</span><div class="chip-list" id="category-list"></div></div><div><span class="filter-label">Tags</span><div class="chip-list" id="tag-list"></div></div></section>
+    <section class="library-head"><h2>Skill index</h2><span class="library-count" id="library-count">Đang tải...</span></section>
+    <section class="card-grid" id="card-grid"><p class="loading">Đang nạp Markdown library...</p></section>
+  </main>
+  <div class="detail-backdrop" id="detail-backdrop" role="dialog" aria-modal="true" aria-labelledby="detail-title"><article class="detail-panel"><header class="detail-header"><div class="detail-header-row"><div><div class="card-kicker"><span class="card-kind">Skill</span><span class="card-category" id="detail-category"></span></div><h2 id="detail-title"></h2><div class="detail-meta" id="detail-meta"></div></div><div class="detail-actions"><button class="icon-btn" id="copy-btn" type="button">Copy</button><button class="icon-btn" id="close-detail" type="button" aria-label="Đóng">×</button></div></div></header><div class="detail-body"><p class="card-description" id="detail-description"></p><div class="markdown" id="detail-content"></div><div class="related-skills" id="related-skills"></div></div></article></div>
+  <footer class="site-footer"><div class="page-shell footer-inner"><p>QA Library · read-only static knowledge base</p><p>Thêm `.md` → build → deploy</p></div></footer>
+  <script src="skills-agents-config.js"></script><script src="skills-agents.js"></script>
+</body>
+</html>

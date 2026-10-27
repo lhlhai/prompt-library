@@ -187,3 +187,10 @@ Cảm ơn tất cả những người đã đóng góp ý tưởng, feedback, v�
 **Phiên bản hiện tại**: v2.0  
 **Cập nhật lần cuối**: 02/04/2026  
 **Status**: ✅ Đang phát triển tích cực
+
+
+## Skills & Agents Library
+
+Repository hiện có thêm hai trang static: [`skills.html`](skills.html) và [`agents.html`](agents.html). Nội dung nguồn nằm trong hai thư mục [`skills/`](skills/) và [`agents/`](agents/) dưới dạng Markdown. Mỗi file có frontmatter gồm `title`, `slug`, `category`, `tags`, `description`; agent có thể thêm `skills: [skill-slug]` để khai báo các skill được tái sử dụng.
+
+Sau khi thêm hoặc sửa Markdown, chạy `node build-skills-agents.mjs` ở root để sinh lại `data/skills.json` và `data/agents.json`, sau đó commit cả file Markdown và JSON generated. Website chỉ đọc dữ liệu tĩnh, không có backend, account, integration hay write-back từ browser. Các cờ tính năng của hai trang nằm trong [`skills-agents-config.js`](skills-agents-config.js); mặc định đều bật và có thể tắt trực tiếp trong file JavaScript.

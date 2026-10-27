@@ -1,0 +1,100 @@
+{
+  "generatedAt": "2026-10-27T14:19:26.874Z",
+  "collection": "skills",
+  "items": [
+    {
+      "title": "Accessibility Smoke Test",
+      "slug": "accessibility-smoke-test",
+      "category": "Quality Attributes",
+      "tags": [
+        "a11y",
+        "keyboard",
+        "screen-reader",
+        "wcag"
+      ],
+      "level": "Beginner",
+      "description": "Một vòng smoke test accessibility nhanh cho mỗi feature trước khi chạy audit sâu.",
+      "skills": [],
+      "content": "# Accessibility Smoke Test\n\n## Vòng kiểm tra 10 phút\n\n- Điều hướng toàn bộ flow bằng keyboard: Tab, Shift+Tab, Enter, Space và Escape.\n- Focus luôn nhìn thấy và thứ tự focus khớp với thứ tự đọc.\n- Dialog, menu và popover đóng/mở được bằng keyboard; focus không rơi ra sau overlay.\n- Form field có label, error message liên kết được và trạng thái disabled/read-only rõ ràng.\n- Nội dung không bị mất khi zoom 200% hoặc viewport hẹp.\n- Màu không phải tín hiệu duy nhất; text và icon có contrast hợp lý.\n- Hình ảnh có alt text phù hợp; icon button có accessible name.\n\n## Evidence\n\nGhi lại URL/flow, browser, bước thao tác keyboard, screenshot focus state và các lỗi có ảnh hưởng cụ thể đến người dùng.\n\n## Không kết luận quá sớm\n\nSmoke pass không thay thế audit WCAG, screen reader test hoặc kiểm tra chuyên sâu theo component. Hãy dùng nó như quality gate sớm để tránh đẩy lỗi cơ bản sang cuối sprint.",
+      "source": "accessibility-smoke-test.md"
+    },
+    {
+      "title": "API Contract Testing",
+      "slug": "api-contract-testing",
+      "category": "API & Integration",
+      "tags": [
+        "api",
+        "contract",
+        "schema",
+        "integration"
+      ],
+      "level": "Intermediate",
+      "description": "Kiểm tra API ở lớp contract, validation, auth và compatibility trước khi phụ thuộc vào UI.",
+      "skills": [],
+      "content": "# API Contract Testing\n\n## Contract checklist\n\n- Method, path, auth scheme và permission đúng với spec.\n- Status code ổn định cho success, validation, not found và forbidden.\n- Response schema: required field, type, enum, nullable và pagination.\n- Error body có code máy đọc được và message đủ hữu ích.\n- Idempotency, retry và duplicate request có behavior rõ ràng.\n- Timestamp, timezone, currency và encoding nhất quán.\n\n## Test matrix\n\nVới mỗi endpoint, tạo ít nhất một happy path, một request thiếu field, một field sai type, boundary value, invalid auth, role không đủ quyền và resource không tồn tại. Với endpoint ghi dữ liệu, kiểm tra retry, duplicate submit và read-after-write.\n\n## Khi phát hiện mismatch\n\nGhi lại request tối thiểu có thể tái hiện, response headers/body, correlation ID, environment và contract version. Phân biệt breaking change với additive change; không đánh dấu fail chỉ vì field mới nếu consumer được phép bỏ qua field đó.",
+      "source": "api-contract-testing.md"
+    },
+    {
+      "title": "High-signal Bug Reporting",
+      "slug": "bug-reporting",
+      "category": "Communication",
+      "tags": [
+        "bug",
+        "evidence",
+        "triage",
+        "severity"
+      ],
+      "level": "Beginner",
+      "description": "Viết bug report ngắn, tái hiện được và giúp team ra quyết định nhanh hơn.",
+      "skills": [],
+      "content": "# High-signal Bug Reporting\n\n## Tiêu đề\n\nDùng công thức: **[Area] [action] causes [observable impact] when [condition]**. Tránh tiêu đề kiểu “Không hoạt động” hoặc mô tả giải pháp thay cho triệu chứng.\n\n## Nội dung bắt buộc\n\n1. Environment: build, browser/device, account role, feature flag và data setup.\n2. Preconditions nếu có.\n3. Steps tối thiểu để tái hiện.\n4. Expected result và actual result tách biệt.\n5. Evidence: screenshot/video, request ID, console log hoặc response.\n6. Frequency và workaround.\n\n## Severity vs priority\n\nSeverity mô tả mức độ thiệt hại của lỗi; priority mô tả thứ tự team cần xử lý. Một lỗi typo có priority cao trước chiến dịch marketing, trong khi một lỗi hiếm gặp có severity cao nhưng cần thêm dữ liệu để triage.\n\n## Quality bar\n\nNgười khác phải có thể tái hiện mà không cần hỏi lại những thông tin quan trọng. Nếu chưa chắc root cause, mô tả observation và hypothesis riêng biệt.",
+      "source": "bug-reporting.md"
+    },
+    {
+      "title": "Release Risk Review",
+      "slug": "release-risk-review",
+      "category": "Release",
+      "tags": [
+        "release",
+        "go-no-go",
+        "monitoring",
+        "rollback"
+      ],
+      "level": "Advanced",
+      "description": "Tạo quyết định go/no-go minh bạch dựa trên coverage, residual risk, monitoring và rollback.",
+      "skills": [],
+      "content": "# Release Risk Review\n\n## Câu hỏi chính\n\n- Thay đổi nào đi vào release và vùng nào bị ảnh hưởng gián tiếp?\n- Test evidence nào là mới nhất, còn gap nào chưa có lời giải?\n- Defect mở nào có thể ảnh hưởng revenue, data, security hoặc trust?\n- Monitoring/alert đã đủ để phát hiện regression sau deploy chưa?\n- Rollback có khả thi và dữ liệu có backward-compatible không?\n\n## Decision record\n\nTóm tắt bằng bốn dòng: **Decision**, **Evidence**, **Residual risk**, **Owner & trigger**. Nếu go có điều kiện, viết rõ điều kiện, thời điểm kiểm tra và ai có quyền dừng rollout.\n\n## Sau release\n\nTheo dõi error rate, latency, conversion, failed job, support signal và business metric liên quan. So sánh với baseline trước release; đừng chỉ nhìn dashboard kỹ thuật nếu risk nằm ở hành vi người dùng.",
+      "source": "release-risk-review.md"
+    },
+    {
+      "title": "Risk-based Test Design",
+      "slug": "risk-based-test-design",
+      "category": "Test Design",
+      "tags": [
+        "risk",
+        "prioritization",
+        "test-plan"
+      ],
+      "level": "Intermediate",
+      "description": "Chuyển product risk thành danh sách test ưu tiên, có lý do và phạm vi rõ ràng.",
+      "skills": [],
+      "content": "# Risk-based Test Design\n\n## Mục tiêu\n\nThiết kế một test plan tập trung vào nơi có xác suất lỗi và impact cao nhất, thay vì cố gắng kiểm thử mọi thứ với cùng một mức độ.\n\n## Quy trình\n\n1. Liệt kê các **business flow**, integration point và vùng thay đổi trong release.\n2. Với mỗi vùng, ước lượng `probability` và `impact` theo thang 1–5.\n3. Ghi nhận các yếu tố làm tăng rủi ro: code churn, dependency bên ngoài, dữ liệu nhạy cảm, permission, concurrency và lịch sử defect.\n4. Xếp hạng theo `risk score = probability × impact`.\n5. Chọn test depth tương ứng: smoke, happy path, negative path, boundary, integration hoặc exploratory.\n6. Nêu rõ phần chưa test, lý do chấp nhận rủi ro và tín hiệu cần theo dõi sau release.\n\n## Output tối thiểu\n\n- Risk register có owner và score.\n- Danh sách test ưu tiên theo P0/P1/P2.\n- Assumption và dependency cần xác minh.\n- Coverage gap và quyết định go/no-go.\n\n## Heuristic\n\nKhông gọi một flow là “low risk” chỉ vì nó ít được người dùng nhìn thấy. Hãy xem cả khả năng làm hỏng dữ liệu, mất tiền, vi phạm quyền truy cập và khả năng rollback.",
+      "source": "risk-based-test-design.md"
+    },
+    {
+      "title": "Structured Exploratory Testing",
+      "slug": "exploratory-testing",
+      "category": "Test Execution",
+      "tags": [
+        "exploratory",
+        "charter",
+        "heuristics"
+      ],
+      "level": "Intermediate",
+      "description": "Tổ chức exploratory testing thành các charter có mục tiêu, timebox, heuristic và evidence.",
+      "skills": [],
+      "content": "# Structured Exploratory Testing\n\n## Test charter\n\nViết charter theo mẫu: **Explore [area] with [data/heuristic] to discover [risk] within [timebox].** Một charter tốt đủ mở để khám phá nhưng đủ hẹp để biết khi nào đã đi quá xa.\n\n## Session flow\n\n1. Chuẩn bị build, tài khoản, dữ liệu và baseline cần thiết.\n2. Chọn một charter duy nhất cho mỗi session 30–60 phút.\n3. Trong lúc test, ghi lại action, observation, question, anomaly và ý tưởng follow-up.\n4. Khi gặp lỗi, dừng việc khám phá ngẫu nhiên để tái hiện, cô lập và chụp evidence.\n5. Kết thúc bằng debrief: đã cover gì, còn câu hỏi gì, risk nào mới xuất hiện.\n\n## Heuristics gợi ý\n\n- CRUD tour và golden path.\n- Boundary tour: empty, min/max, Unicode, timezone, retry.\n- Consistency tour giữa UI, API, notification và audit log.\n- Interruption tour: refresh, back, timeout, duplicate submit.\n- Permission tour giữa role khác nhau.\n\n## Evidence chuẩn\n\nMỗi finding cần có session time, build/version, seed data, bước tái hiện, expected/actual và mức độ tự tin.",
+      "source": "exploratory-testing.md"
+    }
+  ]
+}
