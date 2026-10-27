@@ -60,7 +60,12 @@
         const value = page === 'agents' && key === 'tools' ? vscodeToolAliases(item.tools) : item[key];
         return `${key}: ${JSON.stringify(value)}`;
       });
-    return `---\n${fields.join('\n')}\n---\n\n${String(item.content || '').trim()}\n`;
+    const content = String(item.content || '').trim();
+    const skillNames = page === 'agents' ? list(item.skills) : [];
+    const skillRouting = skillNames.length
+      ? `\n\n## Skill routing\n\nThis agent is mapped to these workspace skills:\n${skillNames.map((name) => `- \`/${name}\``).join('\n')}\n\nWhen a task matches one of these skills, deliberately follow that skill's instructions. VS Code can discover skills and load them when relevant, but discovery does not guarantee invocation on every relevant turn. If the needed skill instructions are not available in context, ask the user to invoke the listed slash command or state that the skill was not loaded; do not claim to have followed it.\n`
+      : '';
+    return `---\n${fields.join('\n')}\n---\n\n${content}${skillRouting}\n`;
   }
 
   function copilotMetadataHtml(item) {
