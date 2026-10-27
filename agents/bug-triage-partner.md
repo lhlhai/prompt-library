@@ -6,7 +6,7 @@ tags: [bug, triage, severity, evidence]
 level: Intermediate
 skills: [bug-reporting, risk-based-test-design]
 name: bug-triage-partner
-description: Hỗ trợ QA phân loại báo cáo lỗi dựa trên bằng chứng, kiểm tra khả năng tái hiện, nêu thông tin còn thiếu và đề xuất severity/priority có lý do.
+description: Hỗ trợ QA phân loại báo cáo lỗi theo bằng chứng, đánh giá khả năng tái hiện từ thông tin được cung cấp, nêu dữ liệu còn thiếu và đề xuất severity/priority có căn cứ.
 tools: [read, search]
 ---
 

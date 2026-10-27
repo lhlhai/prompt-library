@@ -38,12 +38,28 @@
   const installPath = (item) => page === 'agents'
     ? `.github/agents/${item.slug}.agent.md`
     : `.github/skills/${item.slug}/SKILL.md`;
+  function vscodeToolAliases(value) {
+    const tools = Array.isArray(value)
+      ? value
+      : (typeof value === 'string' ? value.split(/[\s,]+/).filter(Boolean) : []);
+    const aliases = {
+      view: 'read', read: 'read', notebookread: 'read',
+      grep: 'search', glob: 'search', search: 'search',
+      edit: 'edit', write: 'edit', multiedit: 'edit', notebookedit: 'edit',
+      bash: 'execute', shell: 'execute', powershell: 'execute', execute: 'execute',
+      task: 'agent', 'custom-agent': 'agent', agent: 'agent',
+    };
+    return [...new Set(tools.map((tool) => aliases[String(tool).toLowerCase()] || tool))];
+  }
   function markdownForInstall(item) {
     const keys = page === 'agents'
       ? ['name', 'description', 'tools', 'model', 'target', 'user-invocable', 'disable-model-invocation', 'argument-hint']
       : ['name', 'description', 'argument-hint', 'user-invocable', 'disable-model-invocation', 'context'];
     const fields = keys.filter((key) => item[key] !== undefined && item[key] !== null && item[key] !== '')
-      .map((key) => `${key}: ${JSON.stringify(item[key])}`);
+      .map((key) => {
+        const value = page === 'agents' && key === 'tools' ? vscodeToolAliases(item.tools) : item[key];
+        return `${key}: ${JSON.stringify(value)}`;
+      });
     return `---\n${fields.join('\n')}\n---\n\n${String(item.content || '').trim()}\n`;
   }
 
@@ -56,9 +72,17 @@
       if (!tools.length) return '<section class="copilot-meta"><h3>Tool access</h3><p>Agent không được cấp tool nào.</p></section>';
       const descriptions = {
         read: 'Đọc nội dung tệp trong workspace',
+        view: 'Đọc nội dung tệp trong workspace',
         search: 'Tìm tệp và nội dung theo từ khóa',
+        grep: 'Tìm kiếm nội dung trong tệp',
+        glob: 'Tìm tệp theo mẫu đường dẫn',
         edit: 'Tạo hoặc chỉnh sửa tệp',
+        write: 'Tạo hoặc chỉnh sửa tệp',
         execute: 'Chạy lệnh trong terminal/shell',
+        bash: 'Chạy lệnh trong terminal/shell',
+        shell: 'Chạy lệnh trong terminal/shell',
+        task: 'Ủy thác phần việc cho custom sub-agent',
+        agent: 'Ủy thác phần việc cho custom sub-agent',
         todo: 'Tạo và cập nhật danh sách công việc',
       };
       const rows = tools.map((tool) => {

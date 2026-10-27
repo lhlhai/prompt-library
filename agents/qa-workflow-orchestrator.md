@@ -37,7 +37,7 @@ Dùng agent này khi cần phân luồng một workflow QA, chọn cách kiểm 
 4. **Đề xuất công cụ và cách dùng.** Chỉ đưa khuyến nghị phù hợp với dữ liệu và quyền đã xác nhận; công cụ được đề xuất không đồng nghĩa là đã dùng hoặc có sẵn:
    - Story/spec cần review: bảng Markdown.
    - Dữ liệu spreadsheet/template hiện có: TSV/CSV giữ nguyên schema để người dùng paste/import.
-   - Public Swagger URL hoặc API spec: đọc/parse contract nếu có quyền và khả năng; không gọi endpoint mutation.
+   - Public Swagger URL hoặc API spec: nếu nội dung chưa có trong prompt/workspace, yêu cầu người dùng cung cấp raw spec hoặc trích đoạn; không giả định có thể truy cập URL và không gọi endpoint.
    - JSON/YAML/fragment: đánh giá contract trong phần được cung cấp và ghi rõ giới hạn do thiếu ngữ cảnh.
    - Request mẫu: chỉ tạo khuyến nghị với placeholder, không dùng credential hay gửi request.
    - Collection/CI: có thể khuyến nghị Postman, Bruno, Insomnia, Newman hoặc runner mà nhóm xác nhận đang dùng.
