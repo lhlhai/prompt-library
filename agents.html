@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Agents Library — QA Skill & Agent Library</title>
-  <meta name="description" content="Các QA agent có thể tái sử dụng skill Markdown trong workflow kiểm thử.">
+  <meta name="description" content="Custom QA agent profiles tương thích GitHub Copilot trong VS Code, sẵn sàng sao chép vào workspace.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="skills-agents.css">
 </head>
@@ -14,14 +14,25 @@
     <nav class="main-nav" aria-label="Main navigation"><a href="prompts.html">Prompts</a><a href="skills.html">Skills</a><a class="active" href="agents.html">Agents</a></nav>
   </div></header>
   <main class="page-shell">
-    <section class="hero"><div><p class="eyebrow">Composable QA operators</p><h1>Agents biết dùng đúng skill.</h1><p class="hero-copy">Mỗi agent là một vai trò rõ ràng, có context, output contract và danh sách skill có thể lắp ghép lại cho từng workflow.</p></div><aside class="hero-note"><h2>Agent tái sử dụng skill như thế nào?</h2><p>Trong frontmatter, khai báo `skills: [...]`. Library tự tạo liên kết từ agent đến các skill tương ứng.</p><code class="path-line">agents/release-risk.md</code></aside></section>
+    <section class="hero"><div><p class="eyebrow">Composable QA operators</p><h1>Agents cho workflow QA.</h1><p class="hero-copy">Custom agents có vai trò, quy trình và đầu ra rõ ràng; chọn đúng agent trong Copilot Chat để lập kế hoạch, viết test hay đánh giá rủi ro.</p></div><aside class="hero-note"><h2>Agent profile nguồn</h2><p>Chọn agent rồi dùng nút copy trong phần chi tiết. Nội dung gồm YAML frontmatter và prompt hoàn chỉnh, đặt sẵn tên file `.agent.md`.</p><code class="path-line">agents/&lt;agent-name&gt;.md</code></aside></section>
+
+    <section class="setup-guide" id="vs-code-setup" aria-labelledby="setup-title">
+      <div class="setup-guide-heading"><div><p class="eyebrow">VS Code · GitHub Copilot</p><h2 id="setup-title">Cài custom agent vào workspace</h2></div><a href="https://code.visualstudio.com/docs/agent-customization/custom-agents" target="_blank" rel="noreferrer">Tài liệu VS Code ↗</a></div>
+      <div class="setup-grid">
+        <article class="setup-step"><span class="step-number">01</span><h3>Tạo agent profile</h3><p>Mở Chat → <strong>Open Customizations</strong> → <strong>Agents</strong> → <strong>New Custom Agent</strong> và chọn <strong>Workspace</strong>.</p></article>
+        <article class="setup-step"><span class="step-number">02</span><h3>Copy file hoàn chỉnh</h3><p>Chọn một agent, mở chi tiết rồi nhấn <strong>Copy for VS Code</strong>. Dán toàn bộ YAML frontmatter và prompt để thay nội dung template.</p></article>
+        <article class="setup-step"><span class="step-number">03</span><h3>Chọn agent trong Copilot</h3><p>File workspace nằm tại <code>.github/agents/&lt;agent-name&gt;.agent.md</code>. Trong Chat, chọn Session Target <strong>Copilot</strong>, sau đó chọn custom agent trong menu Agent.</p></article>
+      </div>
+      <p class="setup-note">Cài thủ công cũng được: tạo `.github/agents/` trong workspace, lưu nội dung đã copy thành `<agent-name>.agent.md`, rồi mở lại Agent dropdown. Hãy xem lại `tools` trong frontmatter và chỉ cấp quyền cần thiết cho vai trò.</p>
+    </section>
+
     <section class="tool-row" aria-label="Search tools"><div class="search-wrap"><span class="search-icon">⌕</span><input id="search-input" type="search" placeholder="Tìm trong role, skills, tag và instruction..." autocomplete="off"><kbd class="shortcut">⌘ K</kbd></div><button class="filter-btn" id="filter-toggle" type="button">☷ Bộ lọc</button><button class="clear-btn" id="clear-btn" type="button">Xóa lọc</button></section>
     <section class="filter-panel" id="filter-panel"><div><span class="filter-label">Category</span><div class="chip-list" id="category-list"></div></div><div><span class="filter-label">Tags</span><div class="chip-list" id="tag-list"></div></div></section>
-    <section class="library-head"><h2>Agent index</h2><span class="library-count" id="library-count">Đang tải...</span></section>
+    <section class="library-head"><h2>Chọn agent để xem và copy</h2><span class="library-count" id="library-count">Đang tải...</span></section>
     <section class="card-grid" id="card-grid"><p class="loading">Đang nạp Markdown library...</p></section>
   </main>
-  <div class="detail-backdrop" id="detail-backdrop" role="dialog" aria-modal="true" aria-labelledby="detail-title"><article class="detail-panel"><header class="detail-header"><div class="detail-header-row"><div><div class="card-kicker"><span class="card-kind">Agent</span><span class="card-category" id="detail-category"></span></div><h2 id="detail-title"></h2><div class="detail-meta" id="detail-meta"></div></div><div class="detail-actions"><button class="icon-btn" id="copy-btn" type="button">Copy</button><button class="icon-btn" id="close-detail" type="button" aria-label="Đóng">×</button></div></div></header><div class="detail-body"><p class="card-description" id="detail-description"></p><div class="markdown" id="detail-content"></div><div class="related-skills" id="related-skills"></div></div></article></div>
-  <footer class="site-footer"><div class="page-shell footer-inner"><p>QA Library · read-only static knowledge base</p><p>Thêm `.md` → build → deploy</p></div></footer>
+  <div class="detail-backdrop" id="detail-backdrop" role="dialog" aria-modal="true" aria-labelledby="detail-title"><article class="detail-panel"><header class="detail-header"><div class="detail-header-row"><div><div class="card-kicker"><span class="card-kind">Agent</span><span class="card-category" id="detail-category"></span></div><h2 id="detail-title"></h2><div class="detail-meta" id="detail-meta"></div></div><div class="detail-actions"><button class="icon-btn" id="copy-btn" type="button">Copy for VS Code</button><button class="icon-btn" id="close-detail" type="button" aria-label="Đóng">×</button></div></div></header><div class="detail-body"><p class="card-description" id="detail-description"></p><p class="install-path" id="install-path" aria-live="polite"></p><div class="markdown" id="detail-content"></div><div class="related-skills" id="related-skills"></div></div></article></div>
+  <footer class="site-footer"><div class="page-shell footer-inner"><p>QA Library · nguồn Markdown cho thư viện</p><p>Custom agents được cài trong workspace VS Code tại `.github/agents/`</p></div></footer>
   <script src="skills-agents-config.js"></script><script src="skills-agents.js"></script>
 </body>
 </html>

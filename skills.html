@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Skills Library — QA Skill & Agent Library</title>
-  <meta name="description" content="Bộ kỹ năng Markdown có thể tái sử dụng cho tester và QA workflow.">
+  <meta name="description" content="Các QA Agent Skills theo định dạng SKILL.md, sẵn sàng sao chép vào GitHub Copilot trong VS Code.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="skills-agents.css">
 </head>
@@ -14,14 +14,25 @@
     <nav class="main-nav" aria-label="Main navigation"><a href="prompts.html">Prompts</a><a class="active" href="skills.html">Skills</a><a href="agents.html">Agents</a></nav>
   </div></header>
   <main class="page-shell">
-    <section class="hero"><div><p class="eyebrow">Reusable playbooks</p><h1>Skills cho tester, dùng lại được.</h1><p class="hero-copy">Các playbook ngắn gọn để biến kinh nghiệm QA thành những khối Markdown dễ tìm, dễ copy và dễ gắn vào agent.</p></div><aside class="hero-note"><h2>Thêm skill mới trong vài giây</h2><p>Đặt file Markdown vào thư mục nguồn. Frontmatter giúp library tự nhận diện category, tag và metadata.</p><code class="path-line">skills/my-skill.md</code></aside></section>
+    <section class="hero"><div><p class="eyebrow">Reusable playbooks</p><h1>Skills cho tester, dùng lại được.</h1><p class="hero-copy">Các QA playbook theo định dạng Agent Skills chuẩn, để Copilot nạp theo ngữ cảnh hoặc gọi trực tiếp trong VS Code.</p></div><aside class="hero-note"><h2>Skill nguồn trong thư viện</h2><p>Chọn một skill bên dưới rồi dùng nút copy trong phần chi tiết. Nội dung copy gồm YAML frontmatter và hướng dẫn đầy đủ.</p><code class="path-line">skills/&lt;skill-name&gt;.md</code></aside></section>
+
+    <section class="setup-guide" id="vs-code-setup" aria-labelledby="setup-title">
+      <div class="setup-guide-heading"><div><p class="eyebrow">VS Code · GitHub Copilot</p><h2 id="setup-title">Cài skill vào workspace</h2></div><a href="https://code.visualstudio.com/docs/agent-customization/agent-skills" target="_blank" rel="noreferrer">Tài liệu VS Code ↗</a></div>
+      <div class="setup-grid">
+        <article class="setup-step"><span class="step-number">01</span><h3>Tạo skill trong VS Code</h3><p>Mở Chat → <strong>Open Customizations</strong> → <strong>Skills</strong> → <strong>New Skill</strong>, chọn <strong>Workspace</strong> và nhập tên skill.</p></article>
+        <article class="setup-step"><span class="step-number">02</span><h3>Copy file hoàn chỉnh</h3><p>Chọn một thẻ skill, mở chi tiết rồi nhấn <strong>Copy for VS Code</strong>. Dán toàn bộ nội dung vào `SKILL.md` vừa tạo, thay template.</p></article>
+        <article class="setup-step"><span class="step-number">03</span><h3>Kiểm tra đường dẫn và dùng</h3><p>Skill workspace nằm tại <code>.github/skills/&lt;skill-name&gt;/SKILL.md</code>. Tên thư mục phải trùng với `name` trong frontmatter. Gọi bằng `/&lt;skill-name&gt;` hoặc mô tả yêu cầu để Copilot tự nạp skill phù hợp.</p></article>
+      </div>
+      <p class="setup-note">Muốn cài thủ công: tạo thư mục `.github/skills/&lt;skill-name&gt;` trong workspace đang mở và lưu nội dung đã copy thành `SKILL.md`. Skills chỉ được Copilot phát hiện khi đặt trong thư mục native được hỗ trợ.</p>
+    </section>
+
     <section class="tool-row" aria-label="Search tools"><div class="search-wrap"><span class="search-icon">⌕</span><input id="search-input" type="search" placeholder="Tìm trong title, tag, mô tả và nội dung..." autocomplete="off"><kbd class="shortcut">⌘ K</kbd></div><button class="filter-btn" id="filter-toggle" type="button">☷ Bộ lọc</button><button class="clear-btn" id="clear-btn" type="button">Xóa lọc</button></section>
     <section class="filter-panel" id="filter-panel"><div><span class="filter-label">Category</span><div class="chip-list" id="category-list"></div></div><div><span class="filter-label">Tags</span><div class="chip-list" id="tag-list"></div></div></section>
-    <section class="library-head"><h2>Skill index</h2><span class="library-count" id="library-count">Đang tải...</span></section>
+    <section class="library-head"><h2>Chọn skill để xem và copy</h2><span class="library-count" id="library-count">Đang tải...</span></section>
     <section class="card-grid" id="card-grid"><p class="loading">Đang nạp Markdown library...</p></section>
   </main>
-  <div class="detail-backdrop" id="detail-backdrop" role="dialog" aria-modal="true" aria-labelledby="detail-title"><article class="detail-panel"><header class="detail-header"><div class="detail-header-row"><div><div class="card-kicker"><span class="card-kind">Skill</span><span class="card-category" id="detail-category"></span></div><h2 id="detail-title"></h2><div class="detail-meta" id="detail-meta"></div></div><div class="detail-actions"><button class="icon-btn" id="copy-btn" type="button">Copy</button><button class="icon-btn" id="close-detail" type="button" aria-label="Đóng">×</button></div></div></header><div class="detail-body"><p class="card-description" id="detail-description"></p><div class="markdown" id="detail-content"></div><div class="related-skills" id="related-skills"></div></div></article></div>
-  <footer class="site-footer"><div class="page-shell footer-inner"><p>QA Library · read-only static knowledge base</p><p>Thêm `.md` → build → deploy</p></div></footer>
+  <div class="detail-backdrop" id="detail-backdrop" role="dialog" aria-modal="true" aria-labelledby="detail-title"><article class="detail-panel"><header class="detail-header"><div class="detail-header-row"><div><div class="card-kicker"><span class="card-kind">Skill</span><span class="card-category" id="detail-category"></span></div><h2 id="detail-title"></h2><div class="detail-meta" id="detail-meta"></div></div><div class="detail-actions"><button class="icon-btn" id="copy-btn" type="button">Copy for VS Code</button><button class="icon-btn" id="close-detail" type="button" aria-label="Đóng">×</button></div></div></header><div class="detail-body"><p class="card-description" id="detail-description"></p><p class="install-path" id="install-path" aria-live="polite"></p><div class="markdown" id="detail-content"></div><div class="related-skills" id="related-skills"></div></div></article></div>
+  <footer class="site-footer"><div class="page-shell footer-inner"><p>QA Library · nguồn Markdown cho thư viện</p><p>Skills được cài trong workspace VS Code tại `.github/skills/`</p></div></footer>
   <script src="skills-agents-config.js"></script><script src="skills-agents.js"></script>
 </body>
 </html>

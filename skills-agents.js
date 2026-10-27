@@ -19,6 +19,7 @@
     detailCategory: document.querySelector('#detail-category'),
     detailMeta: document.querySelector('#detail-meta'),
     detailDescription: document.querySelector('#detail-description'),
+    installPath: document.querySelector('#install-path'),
     detailContent: document.querySelector('#detail-content'),
     relatedSkills: document.querySelector('#related-skills'),
   };
@@ -33,6 +34,17 @@
   const normalized = (value) => String(value ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[char]));
   const list = (value) => Array.isArray(value) ? value : (value ? [value] : []);
+  const installPath = (item) => page === 'agents'
+    ? `.github/agents/${item.slug}.agent.md`
+    : `.github/skills/${item.slug}/SKILL.md`;
+  function markdownForInstall(item) {
+    const keys = page === 'agents'
+      ? ['name', 'description', 'tools', 'model', 'target', 'user-invocable', 'disable-model-invocation', 'argument-hint']
+      : ['name', 'description', 'argument-hint', 'user-invocable', 'disable-model-invocation', 'context'];
+    const fields = keys.filter((key) => item[key] !== undefined && item[key] !== null && item[key] !== '')
+      .map((key) => `${key}: ${JSON.stringify(item[key])}`);
+    return `---\n${fields.join('\n')}\n---\n\n${String(item.content || '').trim()}\n`;
+  }
 
   function inlineMarkdown(value) {
     return escapeHtml(value)
@@ -156,6 +168,7 @@
     els.detailTitle.textContent = item.title;
     els.detailCategory.textContent = item.category || 'General';
     els.detailDescription.textContent = item.description || '';
+    els.installPath.textContent = `Đường dẫn cài đặt: ${installPath(item)}`;
     els.detailMeta.innerHTML = [...list(item.tags).map((tag) => `<span class="tag">#${escapeHtml(tag)}</span>`), item.level ? `<span class="tag">${escapeHtml(item.level)}</span>` : '', item.updated ? `<span class="tag">Updated ${escapeHtml(item.updated)}</span>` : ''].join('');
     els.detailContent.innerHTML = markdownToHtml(item.content);
     if (isEnabled('relatedSkills') && page === 'agents' && list(item.skills).length) {
@@ -175,7 +188,7 @@
 
   async function copyActive() {
     if (!state.activeItem || !isEnabled('copy')) return;
-    const text = state.activeItem.content;
+    const text = markdownForInstall(state.activeItem);
     try { await navigator.clipboard.writeText(text); } catch {
       const textarea = document.createElement('textarea'); textarea.value = text; document.body.appendChild(textarea); textarea.select(); document.execCommand('copy'); textarea.remove();
     }

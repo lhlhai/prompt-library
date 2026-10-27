@@ -7,6 +7,10 @@ const outputDirectory = path.join(root, 'data');
 function parseScalar(value) {
   const trimmed = value.trim();
   if (!trimmed) return '';
+  if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
+    try { return JSON.parse(trimmed); } catch { return trimmed.slice(1, -1); }
+  }
+  if (trimmed.startsWith("'") && trimmed.endsWith("'")) return trimmed.slice(1, -1).replaceAll("''", "'");
   if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
     try { return JSON.parse(trimmed.replaceAll("'", '"')); } catch {
       return trimmed.slice(1, -1).split(',').map((entry) => entry.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean);
@@ -28,10 +32,19 @@ function parseMarkdown(raw, filename) {
   const frontmatter = {};
   let content = normalized;
   if (hasFrontmatter && end > -1) {
+    let pendingListKey = '';
     for (const line of normalized.slice(4, end).split('\n')) {
+      const listItem = line.match(/^\s+-\s+(.+)$/);
+      if (listItem && pendingListKey) {
+        frontmatter[pendingListKey].push(parseScalar(listItem[1]));
+        continue;
+      }
       const separator = line.indexOf(':');
       if (separator === -1) continue;
-      frontmatter[line.slice(0, separator).trim()] = parseScalar(line.slice(separator + 1));
+      const key = line.slice(0, separator).trim();
+      const value = line.slice(separator + 1).trim();
+      frontmatter[key] = value ? parseScalar(value) : [];
+      pendingListKey = value ? '' : key;
     }
     content = normalized.slice(end + 4).trim();
   }
