@@ -55,7 +55,7 @@
   </main><footer class="wrap"><span>© <span id="year"></span> Hai Le · Built for curious minds.</span><span>Made with HTML, CSS & a little JavaScript.</span></footer>
   <script>
     // Feature switches: đổi true/false tại đây để tùy biến homepage.
-    const CONFIG={themeToggle:true,search:true,categoryFilter:true,animations:true,externalLinks:true,showLegacyPromptVersions:true,showJekyllLayouts:false};
+    const CONFIG={themeToggle:true,search:true,categoryFilter:true,animations:true,externalLinks:true,showJekyllLayouts:false};
     const ITEMS=[
       {path:'./100-days/index.html',title:'100 Days of Manual Testing',category:'Learning',icon:'🧪',tags:['QA','Manual Testing'],description:'Series 100 ngày học Manual Testing với daily posts, nguồn tham khảo và archive tương tác.'},
       {path:'./100-days/categories.html',title:'Testing Knowledge Categories',category:'Learning',icon:'🗂️',tags:['QA','Archive'],description:'Khám phá kho kiến thức testing theo từng domain, từ UI checks đến API validation.'},
@@ -63,31 +63,22 @@
       {path:'./AI-2026/index.html',title:'AI Pattern Lab',category:'Simulator',icon:'🧠',tags:['AI','Patterns','Interactive'],description:'Mô phỏng trực quan 7 pattern AI: prompting, planning, tools, agent, skill và harness.'},
       {path:'./AI-2026/token.html',title:'Token Counter',category:'Tool',icon:'🔢',tags:['AI','Developer Tool'],description:'Đếm ký tự, từ, dòng, byte và xem token visualization ngay trên trình duyệt.'},
       {path:'./DSL-learn-v3-pro.html',title:'DSL Security Detective',category:'Security',icon:'🛡️',tags:['Elasticsearch','OWASP'],description:'Thực hành security logging và alerting với Elasticsearch DSL, OWASP và MITRE ATT&CK.'},
-      {path:'./DSL-learn-v3.html',title:'Elasticsearch Query DSL v3',category:'Learning',icon:'🔎',tags:['Elasticsearch','Observability'],description:'Lộ trình Query DSL từ cơ bản đến nâng cao, gắn với logging, security và analytics.'},
-      {path:'./DSL-learn-v4-pro.html',title:'Elasticsearch DSL Deep Dive v4',category:'Learning',icon:'📚',tags:['Elasticsearch','OWASP'],description:'18 bài học, 3 cấp độ và 54 AI prompts để xây dựng tư duy phân tích hệ thống.'},
-      {path:'./DSL-learn-v5-pro.html',title:'ELK Query DSL v5 · MES Edition',category:'Learning',icon:'⚙️',tags:['ELK','Kubernetes','MES'],description:'Toolkit cho Automation Tester với functional testing, log quality, K8s và MES/OT.'},
+      {path:'./DSL-learn-v5-pro.html',title:'ELK Query DSL · MES Edition',category:'Learning',icon:'⚙️',tags:['ELK','Kubernetes','MES'],description:'Bản học tập mới nhất về Query DSL cho Automation Tester, functional testing, log quality, Kubernetes và MES/OT.'},
       {path:'./DSL.html',title:'Kibana UI to Query DSL',category:'Guide',icon:'📊',tags:['Kibana','Elasticsearch'],description:'Cẩm nang chuyển từ filter trên Kibana sang sức mạnh linh hoạt của Query DSL.'},
-      {path:'./DSL_learn.html',title:'Query DSL Learning Paths',category:'Learning',icon:'🎓',tags:['Elasticsearch','SDET'],description:'Ba lộ trình Bug Hunter, Data Analyst và SDET để học Query DSL theo mục tiêu.'},
-      {path:'./DSL_learn_v2.html',title:'Mastering Elasticsearch Query DSL',category:'Learning',icon:'🚀',tags:['Elasticsearch','Advanced'],description:'Phiên bản mở rộng với Performance Engineer, profiling, caching và phân tích quy mô lớn.'},
       {path:'./SIT/index.html',title:'IT · ST · SIT Test Scope Lab',category:'Simulator',icon:'🧪',tags:['QA','Interactive','Testing'],description:'Mô phỏng trực quan để phân biệt Integration, System và System Integration Test.'},
       {path:'./about.html',title:'About Prompt Library',category:'About',icon:'ℹ️',tags:['Project'],description:'Câu chuyện, mục tiêu và các tính năng chính của Prompt Library.'},
-      {path:'./career_roadmap.html',title:'3-Year Automation Tester Roadmap',category:'Career',icon:'🗺️',tags:['Career','SDET'],description:'Lộ trình ba năm từ Automation Tester đến Expert qua SDET, Cloud, AI/ML và Security.'},
       {path:'./career_roadmap_optimized.html',title:'Optimized Career Roadmap',category:'Career',icon:'📈',tags:['Career','Dependencies'],description:'Roadmap tối ưu theo prerequisite, dependency, track kỹ năng và tiến độ học tập.'},
       {path:'./data/data-analyst.html',title:'Data Analyst Learning Path',category:'Career',icon:'📊',tags:['Data','Python'],description:'Lộ trình chuyển đổi từ Automation Tester sang Data Analyst với Python, SQL và analytics.'},
       {path:'./data/data-engineer.html',title:'Data Engineer Learning Path',category:'Career',icon:'⚙️',tags:['Data','Engineering'],description:'Lộ trình từ automation sang Data Engineer, bao gồm Python nâng cao, pipeline và cloud.'},
       {path:'./dsl-converter.html',title:'Kibana URL ↔ DSL Converter',category:'Tool',icon:'🔄',tags:['Kibana','JSON','Developer Tool'],description:'Parse, build, format và so sánh Kibana URL với DSL JSON bằng visual diff.'},
       {path:'./guide.html',title:'Prompt Library User Guide',category:'Guide',icon:'📖',tags:['Prompts','How-to'],description:'Hướng dẫn tìm kiếm, lọc, xem, copy, export và quản lý prompt trong thư viện.'},
       {path:'./harness_chatbot_flow.html',title:'Harness Chatbot Flow Simulation',category:'Simulator',icon:'🤖',tags:['AI','Agent','Simulation'],description:'Mô phỏng server-agent flow với clarification, interrupt, retry, reasoning và cost tracking.'},
-      {path:'./index_2.html',title:'Prompt Library · Premium QA Workflow',category:'Prompt Tool',icon:'📚',tags:['Prompts','QA'],description:'Thư viện prompt chuyên nghiệp cho QA workflow với tìm kiếm, favorites và comparison.'},
-      {path:'./index_backup.html',title:'Prompt Library · Backup',category:'Prompt Tool',icon:'🗃️',tags:['Prompts','Legacy'],description:'Bản backup của Prompt Library với các thao tác copy và download prompt.'},
-      {path:'./index_v2.html',title:'Prompt Library · Legacy v2',category:'Prompt Tool',icon:'📚',tags:['Prompts','Legacy'],description:'Phiên bản cũ của Prompt Library với category filter và quick access.'},
       {path:'./katalon.html',title:'Katalon Studio Learning Path',category:'Learning',icon:'🚀',tags:['Katalon','Automation'],description:'Hướng dẫn từ Manual Testing sang Automation Testing với Katalon Studio.'},
       {path:'./playwright_core.html',title:'Playwright Core Mastery',category:'Learning',icon:'🎭',tags:['Playwright','Automation'],description:'Nền tảng học tương tác để thực hành và làm chủ Browser Automation.'},
       {path:'./prompts.html',title:'Prompt Library',category:'Prompt Tool',icon:'🧩',tags:['Prompts','QA','Tool'],description:'Thư viện prompt với search, filters, favorites, compare, export và copy nhanh.'},
       {path:'./skills.html',title:'QA Skills Library',category:'Skill Library',icon:'🧠',tags:['Skills','QA','Markdown'],description:'Bộ skill QA tái sử dụng cho test design, API, accessibility, exploratory testing và release risk.'},
       {path:'./agents.html',title:'QA Agents Library',category:'Agent Library',icon:'🤖',tags:['Agents','Skills','QA'],description:'Các QA agent có thể lắp ghép và tái sử dụng skill Markdown cho planning, triage, API và release.'},
       {path:'./sap-btp-journey/',title:'SAP BTP Journey',category:'Learning',icon:'☁️',tags:['SAP','BTP','Field Service'],description:'Lộ trình học SAP Business Technology Platform và dự án Field Service to Cash từ nền tảng đến triển khai.'},
-      {path:'./index-old.html',title:'AI Field Notes · Previous Home',category:'Archive',icon:'🗄️',tags:['Archive','Legacy'],description:'Homepage cũ được giữ lại nguyên vẹn để tham chiếu.'}
     ];
     const state={query:'',category:'All'}; const $=s=>document.querySelector(s); const categories=['All',...new Set(ITEMS.map(x=>x.category))];
     function renderChips(){if(!CONFIG.categoryFilter){$('#chips').hidden=true;return;}$('#chips').innerHTML=categories.map(c=>`<button class="chip ${c===state.category?'active':''}" data-category="${c}">${c}</button>`).join('');}

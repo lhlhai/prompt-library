@@ -108,6 +108,13 @@ h1 { margin-bottom: 18px; max-width: 700px; font-size: clamp(40px, 6vw, 76px); l
 .icon-btn { border: 1px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 9px; padding: 9px 11px; font-size: 12px; font-weight: 800; }
 .icon-btn:hover { background: var(--mint); }
 .detail-body { padding: 28px; }
+.copilot-meta { margin: 18px 0; padding: 15px 17px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+.copilot-meta h3 { margin: 0 0 10px; color: var(--blue); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+.copilot-meta p { margin: 0; color: var(--ink-soft); font-size: 12px; line-height: 1.6; }
+.copilot-meta p + p { margin-top: 8px; }
+.tool-permission-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.tool-permission-list li { display: flex; align-items: baseline; gap: 9px; min-width: 0; color: var(--ink-soft); font-size: 12px; line-height: 1.5; }
+.tool-permission-list code, .copilot-meta p code { flex: none; padding: 3px 6px; border-radius: 6px; background: #fff; color: var(--blue); font: 700 11px ui-monospace, SFMono-Regular, Menlo, monospace; }
 .markdown { color: #2f4548; font-size: 14px; line-height: 1.75; }
 .markdown h1, .markdown h2, .markdown h3 { color: var(--ink); letter-spacing: -.04em; margin: 1.4em 0 .4em; }
 .markdown h1 { font-size: 27px; }
@@ -163,4 +170,5 @@ h1 { margin-bottom: 18px; max-width: 700px; font-size: clamp(40px, 6vw, 76px); l
   .detail-backdrop { padding: 9px; }
   .detail-header, .detail-body { padding: 20px; }
   .detail-header h2 { font-size: 26px; }
+  .tool-permission-list { grid-template-columns: 1fr; }
 }

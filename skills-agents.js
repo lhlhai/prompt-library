@@ -20,6 +20,7 @@
     detailMeta: document.querySelector('#detail-meta'),
     detailDescription: document.querySelector('#detail-description'),
     installPath: document.querySelector('#install-path'),
+    copilotMeta: document.querySelector('#copilot-meta'),
     detailContent: document.querySelector('#detail-content'),
     relatedSkills: document.querySelector('#related-skills'),
   };
@@ -44,6 +45,39 @@
     const fields = keys.filter((key) => item[key] !== undefined && item[key] !== null && item[key] !== '')
       .map((key) => `${key}: ${JSON.stringify(item[key])}`);
     return `---\n${fields.join('\n')}\n---\n\n${String(item.content || '').trim()}\n`;
+  }
+
+  function copilotMetadataHtml(item) {
+    if (page === 'agents') {
+      const tools = Array.isArray(item.tools)
+        ? item.tools
+        : (typeof item.tools === 'string' ? item.tools.split(/[\s,]+/).filter(Boolean) : null);
+      if (tools === null) return '<section class="copilot-meta"><h3>Tool access</h3><p>Không giới hạn trong frontmatter: Copilot có thể dùng các tool khả dụng trong phiên.</p></section>';
+      if (!tools.length) return '<section class="copilot-meta"><h3>Tool access</h3><p>Agent không được cấp tool nào.</p></section>';
+      const descriptions = {
+        read: 'Đọc nội dung tệp trong workspace',
+        search: 'Tìm tệp và nội dung theo từ khóa',
+        edit: 'Tạo hoặc chỉnh sửa tệp',
+        execute: 'Chạy lệnh trong terminal/shell',
+        todo: 'Tạo và cập nhật danh sách công việc',
+      };
+      const rows = tools.map((tool) => {
+        const label = String(tool);
+        const description = descriptions[label.toLowerCase()] || 'Tool được cấu hình cho agent';
+        return `<li><code>${escapeHtml(label)}</code><span>${description}</span></li>`;
+      }).join('');
+      return `<section class="copilot-meta"><h3>Tool access</h3><ul class="tool-permission-list">${rows}</ul></section>`;
+    }
+
+    const name = item.name || item.slug;
+    const userInvocable = item['user-invocable'] !== false;
+    const autoInvocation = item['disable-model-invocation'] !== true;
+    let invocation = autoInvocation ? 'Copilot có thể tự nạp skill theo mức độ liên quan.' : 'Chỉ nạp khi người dùng gọi thủ công.';
+    if (userInvocable) invocation += ` Lệnh gọi: /${escapeHtml(name)}.`;
+    else if (autoInvocation) invocation += ' Skill không hiển thị trong menu slash command.';
+    else invocation += ' Skill chỉ được gọi từ workflow/agent khác.';
+    const hint = item['argument-hint'] ? `<p><strong>Gợi ý input:</strong> <code>${escapeHtml(item['argument-hint'])}</code></p>` : '';
+    return `<section class="copilot-meta"><h3>Skill invocation</h3><p>${invocation}</p>${hint}</section>`;
   }
 
   function inlineMarkdown(value) {
@@ -169,6 +203,7 @@
     els.detailCategory.textContent = item.category || 'General';
     els.detailDescription.textContent = item.description || '';
     els.installPath.textContent = `Đường dẫn cài đặt: ${installPath(item)}`;
+    els.copilotMeta.innerHTML = copilotMetadataHtml(item);
     els.detailMeta.innerHTML = [...list(item.tags).map((tag) => `<span class="tag">#${escapeHtml(tag)}</span>`), item.level ? `<span class="tag">${escapeHtml(item.level)}</span>` : '', item.updated ? `<span class="tag">Updated ${escapeHtml(item.updated)}</span>` : ''].join('');
     els.detailContent.innerHTML = markdownToHtml(item.content);
     if (isEnabled('relatedSkills') && page === 'agents' && list(item.skills).length) {
