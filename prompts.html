@@ -1,18 +1,21 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>📚 Prompt Library</title>
+  <title>Prompt Library — QA Skill &amp; Agent Library</title>
+  <meta name="description" content="Thư viện prompt cho QA workflow: tìm kiếm, xem chi tiết, copy và so sánh prompt.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="prompts-redesign.css">
 </head>
-<body>
+<body data-page="prompts">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
   <script src="config.js"></script>
   <script src="search-optimizer.js"></script>
 
-  <!-- Navigation Bar -->
+  <!-- Navigation Bar (legacy, hidden by redesign CSS) -->
   <nav class="navbar" id="navbar" style="display: none;">
     <div class="navbar-container">
       <div class="navbar-brand">
@@ -24,6 +27,12 @@
       </div>
     </div>
   </nav>
+
+  <!-- Site header — đồng bộ skills.html / agents.html -->
+  <header class="site-header"><div class="nav-shell">
+    <a class="brand" href="index.html"><span class="brand-mark">QA</span><span class="brand-copy"><small>Prompt · Skill · Agent</small><strong>QA Library</strong></span></a>
+    <nav class="main-nav" aria-label="Main navigation"><a class="active" href="prompts.html">Prompts</a><a href="skills.html">Skills</a><a href="agents.html">Agents</a></nav>
+  </div></header>
 
   <!-- Comparison Bar -->
   <div class="comparison-bar" id="comparisonBar" style="display: none;">
@@ -37,30 +46,45 @@
   </div>
 
   <div class="container">
-    <header>
-      <h1>📚 Prompt Library</h1>
-      <p>Tìm kiếm & copy prompts cho QA Workflow</p>
-    </header>
+    <section class="hero">
+      <header>
+        <p class="eyebrow">Reusable QA prompts</p>
+        <h1>Prompts cho QA, dùng lại được.</h1>
+        <p class="hero-copy">Tìm kiếm theo tên, nhãn, mô tả hoặc nội dung prompt; điền biến, copy, xuất CSV hoặc so sánh song song vài prompt trong QA workflow.</p>
+      </header>
+      <aside class="hero-note">
+        <h2>Prompt nguồn trong thư viện</h2>
+        <p>Chọn một prompt bên dưới để mở chi tiết. Bản copy gồm prompt đầy đủ với các biến {PLACEHOLDER} đã điền nếu có.</p>
+        <code class="path-line">prompts.js · PROMPTS[]</code>
+      </aside>
+    </section>
 
     <div class="search-box">
-
-
-      <div class="search-container">
-        <input
-          type="text"
-          class="search-input"
-          id="searchInput"
-          placeholder="🔍 Search by name, label, description, or prompt content..."
-          autofocus
-        />
-        <div class="view-toggles">
-          <button class="view-btn active" id="gridViewBtn" title="Grid View">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-          </button>
-          <button class="view-btn" id="listViewBtn" title="List View">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-          </button>
+      <div class="tool-row" aria-label="Search tools">
+        <div class="search-container search-wrap">
+          <span class="search-icon">⌕</span>
+          <input
+            type="text"
+            class="search-input"
+            id="searchInput"
+            placeholder="Tìm trong name, label, description hoặc nội dung prompt..."
+            autocomplete="off"
+            autofocus
+          />
+          <div class="view-toggles">
+            <button class="view-btn active" id="gridViewBtn" title="Grid View">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            </button>
+            <button class="view-btn" id="listViewBtn" title="List View">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+            </button>
+          </div>
+          <kbd class="shortcut">/ ⌘K</kbd>
         </div>
+        <button class="stat-badge mobile-filter-btn" id="mobileFilterBtn">
+          <span>🔍 Show Filter</span>
+        </button>
+        <button class="clear-btn" id="clearAllFilters" type="button">Xóa lọc</button>
       </div>
     </div>
 
@@ -71,9 +95,6 @@
       </span>
       <span class="stat-badge" id="activeBadge">✅ Active: <strong>0</strong></span>
       <span class="stat-badge" id="resultsBadge">🔎 Results: <strong>0</strong></span>
-      <button class="stat-badge mobile-filter-btn" id="mobileFilterBtn">
-        <span>🔍 Show Filter</span>
-      </button>
     </div>
 
     <!-- Category Filter - Scrollable Chips -->
@@ -102,10 +123,21 @@
         <div class="filter-bar">
           <div class="filter-label">📂 Active Filters:</div>
           <div class="category-chips-container" id="categoryChipsContainer"></div>
-          <button class="btn-clear-all" id="clearAllFilters">✕ Clear All</button>
+        </div>
+
+        <div class="library-head">
+          <h2>Chọn prompt để xem và copy</h2>
+          <span class="library-count" id="libraryCount">Đang tải...</span>
         </div>
 
         <div class="prompt-grid" id="promptGrid"></div>
+
+        <div class="empty-state" id="emptyState" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <p>Không tìm thấy prompt nào phù hợp. Thử từ khóa ngắn hơn hoặc xóa bộ lọc.</p>
+        </div>
       </main>
     </div>
 
@@ -114,13 +146,6 @@
       <div class="quick-snippets" id="quickSnippets">
         <!-- Snippets will be injected here -->
       </div>
-    </div>
-
-    <div class="empty-state" id="emptyState" style="display:none">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-      </svg>
-      <p>Không tìm thấy prompt nào phù hợp với từ khóa của bạn.</p>
     </div>
   </div>
 
@@ -170,6 +195,7 @@
   <div class="modal" id="modal">
     <div class="modal-content">
       <button class="modal-close" id="modalClose">&times;</button>
+      <div class="card-kicker" style="margin-bottom: 6px;"><span class="card-kind">Prompt</span></div>
       <h2 id="modalTitle" style="margin-bottom:8px"></h2>
       <div class="card-meta" id="modalMeta" style="margin-bottom:16px"></div>
       <!-- Variable Tags Section -->
@@ -204,7 +230,7 @@
       </div>
       <div class="card-section" id="modalExampleSection" style="display:none;">
         <div class="card-section-title">✨ Example Output</div>
-        <pre id="modalExample" class="prompt-content" style="background: #f8f9fa; border: 1px dashed #dee2e6;"></pre>
+        <pre id="modalExample" class="prompt-content" style="background: var(--paper); border: 1px solid var(--line); max-height: none;"></pre>
       </div>
       <!-- Format Selector -->
       <div class="format-selector" id="formatSelector" style="display:none !important; margin-bottom: 16px;">
@@ -234,7 +260,7 @@
     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
   </button>
 
-  <footer></footer>
+  <footer class="site-footer"><div class="footer-inner"><p>QA Library · nguồn prompt cho workflow QA</p><p>Prompts hiển thị trên trang này được lưu trong <code>prompts.js</code></p></div></footer>
 
   <script src="prompts.js"></script>
   <script src="shared-components.js"></script>
