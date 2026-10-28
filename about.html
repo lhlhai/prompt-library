@@ -5,17 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Về Prompt Library — bộ sưu tập prompt, skill, agent và phòng thí nghiệm học tập tương tác cho QA, Developer và người làm sáng tạo." />
   <title>About · Prompt Library — Interactive Lab</title>
+  <meta name="theme-color" content="#090b14" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f4f6fb" media="(prefers-color-scheme: light)" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <!-- Không dùng style.css (trang cũ light-only) để tránh xung đột biến màu & padding body -->
+  <script>
+    // Đọc theme TRƯỚC khi render để tránh FOUC; đồng bộ key với index.html ('prompt-library-theme')
+    (function () {
+      var t = localStorage.getItem('prompt-library-theme');
+      if (t === null) t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
   <style>
-    /* ===== About page — standalone lab theme (không phụ thuộc style.css) ===== */
-    .about-lab { color-scheme: dark; }
-    .about-lab[data-theme="light"] { color-scheme: light; }
-
+    /* ===== About page — standalone lab theme =====
+       Dark là mặc định; light bật qua [data-theme="light"] trên <html>. */
     :root {
+      color-scheme: dark;
       --bg: #090b14;
       --surface: rgba(18, 22, 38, .72);
       --surface-solid: #121626;
@@ -24,9 +33,11 @@
       --muted: #a7afc3;
       --accent: #9b8cff;
       --accent-2: #61d9d1;
+      --glow-a: rgba(155, 140, 255, .55);
       --shadow: 0 24px 80px rgba(0, 0, 0, .32);
     }
-    .about-lab[data-theme="light"] {
+    :root[data-theme="light"] {
+      color-scheme: light;
       --bg: #f4f6fb;
       --surface: rgba(255, 255, 255, .78);
       --surface-solid: #ffffff;
@@ -35,6 +46,7 @@
       --muted: #64708a;
       --accent: #6655e8;
       --accent-2: #008f8a;
+      --glow-a: rgba(102, 85, 232, .4);
       --shadow: 0 24px 70px rgba(45, 50, 90, .14);
     }
 
@@ -130,7 +142,7 @@
       padding: 22px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface);
       backdrop-filter: blur(12px); transition: transform .25s, border-color .25s;
     }
-    .story-item:hover { transform: translateY(-4px); border-color: rgba(155,140,255,.55); }
+    .story-item:hover { transform: translateY(-4px); border-color: var(--glow-a); }
     .story-num {
       display: grid; place-items: center; width: 54px; height: 54px; border-radius: 16px; font-size: 24px;
       background: linear-gradient(135deg, rgba(155,140,255,.2), rgba(97,217,209,.14));
@@ -146,7 +158,7 @@
       border: 1px solid var(--line); border-radius: 18px; background: var(--surface);
       backdrop-filter: blur(12px); transition: transform .25s, border-color .25s, box-shadow .25s;
     }
-    .card:hover { transform: translateY(-6px); border-color: rgba(155,140,255,.55); box-shadow: var(--shadow); }
+    .card:hover { transform: translateY(-6px); border-color: var(--glow-a); box-shadow: var(--shadow); }
     .card-icon {
       display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; font-size: 23px;
       margin-bottom: 18px; background: linear-gradient(135deg, rgba(155,140,255,.2), rgba(97,217,209,.14));
@@ -160,7 +172,9 @@
       padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px;
       color: var(--muted); font-size: 13px; background: var(--surface); transition: .2s;
     }
-    .badge:hover { color: var(--text); border-color: var(--accent); background: rgba(155,140,255,.14); }
+    .badge:hover { color: var(--text); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+    .badge a { color: inherit; }
+    .badge a:hover { color: var(--text); }
 
     /* CTA panel */
     .cta-panel {
@@ -186,6 +200,12 @@
       border-top: 1px solid var(--line);
     }
     .al-footer a { color: var(--accent); }
+
+    /* Smooth theme transition (tắt khi user bật reduced motion) */
+    body.about-page, .card, .stat, .story-item, .badge, .al-text-btn, .al-icon-btn {
+      transition: background-color .3s ease, color .3s ease, border-color .3s ease;
+    }
+    .card, .story-item { transition: transform .25s, border-color .25s, box-shadow .25s, background-color .3s ease; }
 
     /* Reveal animation */
     .reveal { opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .6s ease; }
@@ -300,8 +320,9 @@
       <!-- DOMAINS -->
       <section class="al-section">
         <h2>🗂️ Các mảng nội dung</h2>
-        <p class="sub">Sáu lĩnh vực, một tinh thần: biến kinh nghiệm thành thứ bắt đầu gõ lệnh được.</p>
+        <p class="sub">Bảy mảng nội dung, một tinh thần: biến kinh nghiệm thành thứ bắt đầu gõ lệnh được.</p>
         <div class="grid-cards">
+          <a class="card reveal" href="https://lhlhai.github.io/notepad/" target="_blank" rel="noreferrer"><div class="card-icon">📝</div><h3>Notepad (Quartz)</h3><p>Kho ghi chú kỹ thuật cá nhân chạy song song: Testing, DevOps, Systems, Database, AI — tìm kiếm toàn văn bằng Ctrl+K, graph liên kết notes.</p><span style="color:var(--accent);font-weight:700;font-size:13px;margin-top:14px;">Mở Notepad ↗</span></a>
           <a class="card reveal" href="./prompts.html"><div class="card-icon">🧩</div><h3>Prompts</h3><p>Kho prompt cho QA, Test Architect, BA và Dev — đã kiểm chứng qua công việc thật.</p><span style="color:var(--accent);font-weight:700;font-size:13px;margin-top:14px;">Mở thư viện →</span></a>
           <a class="card reveal" href="./skills.html"><div class="card-icon">🧠</div><h3>Skills</h3><p>Skill Markdown tái sử dụng cho test design, API, accessibility và release risk.</p><span style="color:var(--accent);font-weight:700;font-size:13px;margin-top:14px;">Khám phá skills →</span></a>
           <a class="card reveal" href="./agents.html"><div class="card-icon">🤖</div><h3>Agents</h3><p>Agent QA lắp ghép skill: planning, triage, API và release — chạy được ngay.</p><span style="color:var(--accent);font-weight:700;font-size:13px;margin-top:14px;">Xem agents →</span></a>
@@ -331,6 +352,7 @@
           <span class="badge">CSS3</span>
           <span class="badge">Vanilla JavaScript</span>
           <span class="badge">GitHub Pages</span>
+          <span class="badge"><a href="https://lhlhai.github.io/notepad/" target="_blank" rel="noreferrer">Quartz Notepad ↗</a></span>
           <span class="badge">Markdown Skills</span>
           <span class="badge">localStorage</span>
           <span class="badge">Dark / Light mode</span>
@@ -364,14 +386,23 @@
     </script>
     <script src="shared-components.js"></script>
     <script>
-      // Theme toggle (ghi nhớ lựa chọn qua localStorage)
-      const lab = document.getElementById('aboutLab');
-      const savedTheme = localStorage.getItem('pl-theme');
-      if (savedTheme === 'light') lab.setAttribute('data-theme', 'light');
-      document.getElementById('themeToggle').addEventListener('click', () => {
-        const isLight = lab.getAttribute('data-theme') === 'light';
-        if (isLight) { lab.removeAttribute('data-theme'); localStorage.setItem('pl-theme', 'dark'); }
-        else { lab.setAttribute('data-theme', 'light'); localStorage.setItem('pl-theme', 'light'); }
+      // Theme toggle: lưu localStorage 'prompt-library-theme' (đồng bộ với index.html), cập nhật icon ☾/☼
+      const rootEl = document.documentElement;
+      const themeBtn = document.getElementById('themeToggle');
+      const applyThemeIcon = () => { themeBtn.textContent = rootEl.dataset.theme === 'light' ? '☾' : '☼'; };
+      applyThemeIcon();
+      themeBtn.addEventListener('click', () => {
+        const next = rootEl.dataset.theme === 'light' ? 'dark' : 'light';
+        rootEl.dataset.theme = next;
+        localStorage.setItem('prompt-library-theme', next);
+        applyThemeIcon();
+      });
+      // Theo dõi thay đổi hệ thống khi user chưa chọn thủ công
+      window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
+        if (localStorage.getItem('prompt-library-theme') === null) {
+          rootEl.dataset.theme = e.matches ? 'light' : 'dark';
+          applyThemeIcon();
+        }
       });
 
       // Reveal on scroll
