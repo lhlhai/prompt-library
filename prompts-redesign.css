@@ -219,11 +219,16 @@ h1, h2, h3, p { margin-top: 0; }
 .modal-prompt-edit { width: 100%; min-height: 260px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); color: var(--ink); font: 12.5px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; padding: 14px; outline: 0; resize: vertical; }
 .modal-prompt-edit:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--mint); }
 
-.variables-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
-.variable-input-group { display: flex; flex-direction: column; gap: 5px; }
-.variable-label { font: 700 11px ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--blue); background: #e8efea; border-radius: 5px; padding: 2px 6px; width: fit-content; }
-.variable-input { border: 1px solid var(--line); border-radius: 9px; background: var(--paper); color: var(--ink); padding: 9px 11px; font-size: 13px; outline: 0; }
+/* 🔤 Variables to Fill — section panel đồng bộ card-section khác trong modal */
+#variablesSection { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+#variablesSection .card-section-title { color: var(--blue); }
+.variables-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+.variable-input-group { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.variable-label { font: 700 11px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--blue); background: #e8efea; border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; width: fit-content; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.variable-input { width: 100%; box-sizing: border-box; border: 1px solid var(--line); border-radius: 9px; background: var(--paper-strong); color: var(--ink); padding: 9px 11px; font-size: 13px; outline: 0; transition: border-color .18s ease, box-shadow .18s ease; }
+.variable-input::placeholder { color: var(--ink-soft); opacity: .75; }
 .variable-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--mint); }
+@media (max-width: 560px) { .variables-container { grid-template-columns: 1fr; } }
 
 .format-selector { display: flex; flex-direction: column; gap: 8px; }
 .format-buttons { display: flex; gap: 7px; }
