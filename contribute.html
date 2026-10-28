@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#090b14">
+<meta name="description" content="Contribute vào Prompt Library — đóng góp vui như mở quà: fork, sửa, PR và nhận glory. Không cần kinh nghiệm, chỉ cần tò mò.">
+<meta property="og:title" content="Contribute · Prompt Library">
+<meta property="og:description" content="Dự án này thiếu bạn. Fork, sửa một dòng, PR — và trở thành contributor xịn xò.">
+<meta property="og:type" content="website">
+<title>Contribute · Prompt Library — Dự án này đang thiếu bạn</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { color-scheme: dark; --bg:#090b14; --surface:rgba(18,22,38,.72); --surface-solid:#121626; --line:rgba(255,255,255,.1); --text:#f6f7fb; --muted:#a7afc3; --accent:#9b8cff; --accent-2:#61d9d1; --warn:#ffb86b; --shadow:0 24px 80px rgba(0,0,0,.32); }
+  :root.light { color-scheme: light; --bg:#f4f6fb; --surface:rgba(255,255,255,.78); --surface-solid:#fff; --line:rgba(25,32,55,.12); --text:#151a2b; --muted:#64708a; --accent:#6655e8; --accent-2:#008f8a; --shadow:0 24px 70px rgba(45,50,90,.14); }
+  * { box-sizing:border-box; } html { scroll-behavior:smooth; }
+  body { margin:0; min-width:320px; color:var(--text); background:var(--bg); font:15px/1.65 Inter,system-ui,sans-serif; overflow-x:hidden; }
+  body::before, body::after { content:""; position:fixed; z-index:-1; width:42vw; height:42vw; border-radius:50%; filter:blur(80px); opacity:.16; pointer-events:none; }
+  body::before { top:-18vw; right:-10vw; background:#6d5df5; } body::after { bottom:-20vw; left:-14vw; background:#16b9bb; }
+  a { color:inherit; text-decoration:none; } button { font:inherit; }
+  .wrap { width:min(1180px,calc(100% - 36px)); margin:auto; }
+  .nav { display:flex; align-items:center; justify-content:space-between; padding:22px 0; }
+  .brand { display:flex; align-items:center; gap:11px; font-family:"Space Grotesk",sans-serif; font-weight:700; letter-spacing:-.02em; }
+  .brand-mark { display:grid; place-items:center; width:38px; height:38px; border:1px solid var(--line); border-radius:12px; background:linear-gradient(135deg,rgba(155,140,255,.35),rgba(97,217,209,.18)); box-shadow:0 8px 30px rgba(111,94,255,.2); }
+  .nav-actions { display:flex; gap:9px; } .icon-btn, .text-btn { border:1px solid var(--line); color:var(--text); background:var(--surface); cursor:pointer; transition:.22s ease; border-radius:11px; }
+  .icon-btn { width:40px; height:40px; border-radius:12px; } .text-btn { padding:9px 14px; }
+  .icon-btn:hover, .text-btn:hover { border-color:rgba(155,140,255,.65); transform:translateY(-2px); }
+
+  /* HERO */
+  .hero { padding:64px 0 46px; max-width:900px; }
+  .eyebrow { display:inline-flex; align-items:center; gap:8px; color:var(--accent-2); text-transform:uppercase; letter-spacing:.14em; font-size:11px; font-weight:800; border:1px solid var(--line); padding:7px 13px; border-radius:999px; background:var(--surface); }
+  h1,h2,h3 { font-family:"Space Grotesk",sans-serif; letter-spacing:-.04em; line-height:1.08; margin:0; }
+  h1 { margin:18px 0 20px; font-size:clamp(40px,7vw,76px); }
+  .gradient { background:linear-gradient(110deg,var(--text) 14%,var(--accent) 58%,var(--accent-2)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .hero p { max-width:680px; margin:0; color:var(--muted); font-size:clamp(16px,2vw,19px); }
+  .cta-row { display:flex; flex-wrap:wrap; gap:12px; margin-top:30px; }
+  .cta { display:inline-flex; align-items:center; gap:9px; padding:13px 19px; border-radius:12px; border:1px solid var(--line); font-weight:700; transition:.22s ease; cursor:pointer; }
+  .cta.primary { color:#fff; border:0; background:linear-gradient(135deg,#7261f3,#32b6b1); box-shadow:0 12px 30px rgba(87,87,220,.27); }
+  .cta.secondary { background:var(--surface); color:var(--text); } .cta:hover { transform:translateY(-3px); box-shadow:var(--shadow); }
+  .ticker { margin-top:34px; overflow:hidden; border-block:1px solid var(--line); padding:12px 0; mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent); -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent); }
+  .ticker-track { display:flex; gap:44px; width:max-content; animation:scroll 26s linear infinite; color:var(--muted); font-size:13px; white-space:nowrap; }
+  @keyframes scroll { to { transform:translateX(-50%); } }
+
+  /* STATS */
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:26px 0 10px; }
+  .stat { padding:20px; border:1px solid var(--line); border-radius:18px; background:var(--surface); backdrop-filter:blur(12px); text-align:center; transition:.25s; }
+  .stat:hover { transform:translateY(-4px); border-color:rgba(155,140,255,.55); }
+  .stat b { display:block; font-family:"Space Grotesk",sans-serif; font-size:clamp(26px,3.4vw,38px); letter-spacing:-.03em; }
+  .stat span { color:var(--muted); font-size:12px; }
+  .stat .plus { color:var(--accent-2); }
+
+  section { padding:44px 0 8px; }
+  .section-head { margin-bottom:24px; } .section-head h2 { font-size:clamp(26px,4vw,38px); margin-bottom:10px; }
+  .section-head p { color:var(--muted); max-width:640px; margin:0; }
+  .kicker { color:var(--accent); font-weight:800; font-size:12px; letter-spacing:.12em; text-transform:uppercase; margin-bottom:8px; }
+
+  /* WHY GRID */
+  .why-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .why { padding:22px; border:1px solid var(--line); border-radius:18px; background:var(--surface); transition:.25s; position:relative; overflow:hidden; }
+  .why:hover { transform:translateY(-5px); border-color:rgba(97,217,209,.55); box-shadow:var(--shadow); }
+  .why .emoji { font-size:28px; } .why h3 { font-size:18px; margin:12px 0 8px; } .why p { margin:0; color:var(--muted); font-size:13.5px; }
+
+  /* STEPPER */
+  .steps { display:grid; gap:0; counter-reset:step; }
+  .step { display:grid; grid-template-columns:64px 1fr; gap:18px; padding:22px 0; border-bottom:1px dashed var(--line); }
+  .step:last-child { border-bottom:0; }
+  .step-num { counter-increment:step; display:grid; place-items:center; width:52px; height:52px; border-radius:16px; font-family:"Space Grotesk",sans-serif; font-weight:700; font-size:20px; color:#fff; background:linear-gradient(135deg,#7261f3,#32b6b1); box-shadow:0 10px 26px rgba(87,87,220,.25); }
+  .step-num::before { content:counter(step); }
+  .step h3 { font-size:19px; margin-bottom:6px; } .step p { margin:0 0 10px; color:var(--muted); font-size:14px; }
+  code.inline { font-family:ui-monospace,"Cascadia Mono",Menlo,monospace; font-size:12.5px; background:rgba(155,140,255,.12); border:1px solid var(--line); padding:2px 7px; border-radius:7px; color:var(--accent); }
+  .terminal { margin-top:6px; border:1px solid var(--line); border-radius:14px; background:#0b0e1a; overflow:hidden; }
+  .terminal-bar { display:flex; align-items:center; gap:7px; padding:10px 14px; border-bottom:1px solid var(--line); }
+  .dot { width:11px; height:11px; border-radius:50%; } .dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
+  .terminal-bar span.t { margin-left:auto; color:#5d6a8a; font-size:11px; font-family:ui-monospace,monospace; }
+  .terminal pre { margin:0; padding:14px 16px; overflow-x:auto; font:12.5px/1.8 ui-monospace,"Cascadia Mono",Menlo,monospace; color:#cdd6f4; }
+  .terminal .cm { color:#5d6a8a; } .terminal .pr { color:#61d9d1; } .terminal .hl { color:#9b8cff; }
+
+  /* IDEA CARDS (good first contributions) */
+  .idea-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .idea { display:flex; flex-direction:column; padding:20px; border:1px solid var(--line); border-radius:18px; background:var(--surface); transition:.25s; }
+  .idea:hover { transform:translateY(-5px); border-color:rgba(155,140,255,.6); box-shadow:var(--shadow); }
+  .idea-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .idea .emoji { font-size:26px; } .badge { font-size:10.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:4px 10px; border-radius:999px; }
+  .badge.easy { background:rgba(97,217,209,.14); color:var(--accent-2); border:1px solid rgba(97,217,209,.35); }
+  .badge.medium { background:rgba(255,184,107,.12); color:var(--warn); border:1px solid rgba(255,184,107,.35); }
+  .badge.wild { background:rgba(155,140,255,.14); color:var(--accent); border:1px solid rgba(155,140,255,.4); }
+  .idea h3 { font-size:17px; margin-bottom:8px; } .idea p { flex:1; margin:0; color:var(--muted); font-size:13px; }
+  .idea .effort { margin-top:14px; color:var(--muted); font-size:12px; }
+
+  /* QUIZ */
+  .quiz { border:1px solid var(--line); border-radius:22px; background:var(--surface); backdrop-filter:blur(12px); padding:30px clamp(20px,4vw,40px); box-shadow:var(--shadow); }
+  .quiz-q { font-family:"Space Grotesk",sans-serif; font-size:clamp(19px,2.6vw,24px); margin-bottom:6px; }
+  .quiz-sub { color:var(--muted); font-size:13px; margin-bottom:20px; }
+  .quiz-options { display:grid; grid-template-columns:repeat(2,1fr); gap:11px; }
+  .qopt { text-align:left; padding:14px 16px; border:1px solid var(--line); border-radius:14px; background:transparent; color:var(--text); cursor:pointer; transition:.2s; font-weight:600; font-size:14px; }
+  .qopt:hover { border-color:var(--accent); background:rgba(155,140,255,.1); transform:translateY(-2px); }
+  .quiz-result { display:none; margin-top:20px; padding:20px; border-radius:16px; border:1px dashed var(--accent-2); background:rgba(97,217,209,.07); animation:rise .45s both; }
+  .quiz-result.show { display:block; }
+  .quiz-result h3 { font-size:20px; margin-bottom:8px; } .quiz-result p { margin:0 0 14px; color:var(--muted); font-size:14px; }
+  .quiz-progress { display:flex; gap:6px; margin-bottom:18px; } .qpip { width:34px; height:5px; border-radius:99px; background:var(--line); transition:.3s; } .qpip.done { background:linear-gradient(90deg,var(--accent),var(--accent-2)); }
+
+  /* WALL OF FAME */
+  .fame-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  .famer { padding:20px; border:1px solid var(--line); border-radius:18px; background:var(--surface); text-align:center; transition:.25s; position:relative; }
+  .famer:hover { transform:translateY(-5px) rotate(-.6deg); border-color:rgba(255,214,102,.55); }
+  .famer .medal { font-size:34px; } .famer h3 { font-size:16px; margin:10px 0 4px; } .famer .feat { color:var(--muted); font-size:12.5px; margin:0; }
+  .famer .tier { position:absolute; top:12px; right:12px; font-size:10px; font-weight:800; letter-spacing:.08em; color:var(--warn); text-transform:uppercase; }
+  .join-card { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:20px; border:1.5px dashed var(--accent); border-radius:18px; background:rgba(155,140,255,.06); text-align:center; transition:.25s; }
+  .join-card:hover { transform:translateY(-5px); background:rgba(155,140,255,.12); }
+  .join-card .plus-avatar { display:grid; place-items:center; width:52px; height:52px; border-radius:50%; font-size:26px; background:linear-gradient(135deg,rgba(155,140,255,.35),rgba(97,217,209,.25)); animation:pulse 2.2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+  .join-card b { font-family:"Space Grotesk",sans-serif; font-size:16px; } .join-card span { color:var(--muted); font-size:12.5px; }
+
+  /* RULES / VIBE */
+  .rules { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+  .rule { display:flex; gap:14px; padding:18px; border:1px solid var(--line); border-radius:16px; background:var(--surface); }
+  .rule .no { flex:none; font-size:22px; } .rule b { display:block; margin-bottom:3px; font-size:15px; } .rule p { margin:0; color:var(--muted); font-size:13px; }
+
+  /* FINAL CTA */
+  .final { margin:60px 0; padding:clamp(34px,6vw,64px) clamp(22px,5vw,60px); border-radius:26px; text-align:center; border:1px solid var(--line); background:linear-gradient(150deg,rgba(114,97,243,.16),rgba(50,182,177,.1)),var(--surface-solid); box-shadow:var(--shadow); position:relative; overflow:hidden; }
+  .final::before { content:"✦"; position:absolute; font-size:220px; opacity:.05; top:-60px; right:-30px; transform:rotate(18deg); }
+  .final h2 { font-size:clamp(28px,5vw,46px); margin-bottom:14px; } .final p { color:var(--muted); max-width:560px; margin:0 auto 28px; }
+  footer { display:flex; justify-content:space-between; gap:20px; padding:25px 0 35px; color:var(--muted); font-size:12px; border-top:1px solid var(--line); }
+  .toast { position:fixed; bottom:24px; left:50%; transform:translate(-50%,80px); padding:13px 22px; border-radius:14px; background:linear-gradient(135deg,#7261f3,#32b6b1); color:#fff; font-weight:700; box-shadow:var(--shadow); transition:.4s cubic-bezier(.2,.9,.3,1.3); z-index:20; max-width:min(92vw,480px); text-align:center; }
+  .toast.show { transform:translate(-50%,0); }
+  @keyframes rise { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+  .reveal { animation:rise .55s both; }
+  @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms!important; transition-duration:.01ms!important; scroll-behavior:auto!important; } }
+  @media(max-width:900px) { .why-grid,.idea-grid { grid-template-columns:repeat(2,1fr); } .fame-grid { grid-template-columns:repeat(2,1fr); } .stats { grid-template-columns:repeat(2,1fr); } }
+  @media(max-width:560px) { .wrap { width:min(100% - 24px,1180px); } .nav { padding:15px 0; } .nav-actions .text-btn.hide-sm { display:none; } .hero { padding:46px 0 36px; } h1 { font-size:42px; } .why-grid,.idea-grid,.quiz-options,.rules { grid-template-columns:1fr; } .step { grid-template-columns:52px 1fr; gap:12px; } footer { flex-direction:column; gap:5px; } }
+</style>
+</head>
+<body>
+<header class="wrap nav">
+  <a class="brand" href="./index.html" aria-label="Prompt Library home"><span class="brand-mark">✦</span><span>Prompt Library</span></a>
+  <div class="nav-actions">
+    <a class="text-btn hide-sm" href="./index.html">Trang chủ</a>
+    <a class="text-btn" id="ghNav" href="https://github.com/lhlhai/prompt-library" target="_blank" rel="noreferrer">GitHub ↗</a>
+    <button class="icon-btn" id="themeToggle" type="button" aria-label="Đổi giao diện">☼</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="eyebrow">🚀 Open for contribution · Lần đầu cũng được</div>
+    <h1>Dự án này đang <span class="gradient">thiếu đúng bạn.</span></h1>
+    <p>Không cần 10 năm kinh nghiệm, không cần biết hết mọi thứ. Chỉ cần một typo bạn muốn sửa, một ý tưởng bạn ngứa ngáy, hoặc đơn giản là tò mò. Ở đây, PR đầu tiên dễ hơn bạn nghĩ — và vui hơn bạn tưởng.</p>
+    <div class="cta-row">
+      <a class="cta primary" href="https://github.com/lhlhai/prompt-library/fork" target="_blank" rel="noreferrer">Fork &amp; bắt tay ngay <span>🍴</span></a>
+      <a class="cta secondary" href="#steps">Xem cách làm ↓</a>
+      <button class="cta secondary" id="copyCmd" type="button">Copy lệnh git 📋</button>
+    </div>
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track" id="ticker"></div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="stats reveal" aria-label="Thống kê động lực">
+    <div class="stat"><b data-count="24">0</b><span>trang thực hành đã có sẵn để bạn "mượn ý tưởng"</span></div>
+    <div class="stat"><b data-count="0">0</b><span>rào cản kỹ thuật — 100% HTML/CSS/JS thuần, không build step</span></div>
+    <div class="stat"><b data-count="5">0</b><span>phút — thời gian trung bình để PR đầu tiên của bạn được merge</span></div>
+    <div class="stat"><b><span class="plus" data-count="1">0</span><span style="font-size:20px">→∞</span></b><span>số cơ hội đóng góp còn trống (tính đến lúc bạn đọc dòng này)</span></div>
+  </section>
+
+  <!-- WHY -->
+  <section id="why">
+    <div class="section-head">
+      <div class="kicker">Why contribute?</div>
+      <h2>Lợi ích chính đáng, không nói điêu 🤝</h2>
+      <p>Đóng góp open source không chỉ là "cho đi". Đây là những gì bạn nhận lại, hoàn toàn miễn phí:</p>
+    </div>
+    <div class="why-grid">
+      <div class="why reveal"><div class="emoji">🏷️</div><h3>Profile GitHub đẹp hơn</h3><p>Một green square nhỏ trên profile graph có sức mạnh khó tin với nhà tuyển dụng. PR đầu tiên là bước khởi đầu.</p></div>
+      <div class="why reveal"><div class="emoji">🧠</div><h3>Học Git thật chiến</h3><p>Fork, branch, rebase, resolve conflict — những thứ interview hay hỏi, bạn sẽ thành thạo sau 2 tuần contribute.</p></div>
+      <div class="why reveal"><div class="emoji">🪞</div><h3>Code review miễn phí</h3><p>Nhận feedback từ người dùng thật, cho sản phẩm thật. Giá của việc này nếu đi học khóa khác là... khá chát.</p></div>
+      <div class="why reveal"><div class="emoji">🌱</div><h3>Cà chua xanh cũng được</h3><p>Sửa typo, dịch tài liệu, thêm ví dụ — mọi đóng góp đều tính. Không ai phán xét size of your first PR.</p></div>
+      <div class="why reveal"><div class="emoji">🎸</div><h3>Được ghi danh</h3><p>Tên bạn xuất hiện trong Wall of Fame của dự án. Vĩnh viễn. Trừ khi bạn yêu cầu gỡ xuống (tụi tôi buồn lắm).</p></div>
+      <div class="why reveal"><div class="emoji">😂</div><h3>Vui là chính</h3><p>Trang này bạn đang đọc cũng là kết quả của một PR. Tinh thần: chia sẻ kiến thức, nhận lại tiếng cười và commit credit.</p></div>
+    </div>
+  </section>
+
+  <!-- STEPS -->
+  <section id="steps">
+    <div class="section-head">
+      <div class="kicker">The ritual</div>
+      <h2>5 bước tới PR đầu tiên ⚡</h2>
+      <p>Toàn bộ nghi thức mở hàng contributor, rút gọn còn bằng ly cà phê sáng:</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><div class="step-num"></div><div>
+        <h3>Fork repo 🍴</h3>
+        <p>Bấm nút Fork trên GitHub. Từ giây phút đó, bạn sở hữu một bản sao vũ trụ song song của dự án.</p>
+      </div></div>
+      <div class="step reveal"><div class="step-num"></div><div>
+        <h3>Clone &amp; tạo nhánh</h3>
+        <p>Kéo code về máy, tạo riêng một nhánh cho ý tưởng của bạn. Nhánh tên gợi ý: <code class="inline">feat/ten-ban-thich</code>.</p>
+        <div class="terminal"><div class="terminal-bar"><i class="dot r"></i><i class="dot y"></i><i class="dot g"></i><span class="t">zsh — contribute.sh</span></div>
+<pre><span class="pr">$</span> git clone https://github.com/&lt;bạn&gt;/prompt-library.git
+<span class="pr">$</span> cd prompt-library &amp;&amp; git checkout -b <span class="hl">fix/typo-trang-hero</span></pre></div>
+      </div></div>
+      <div class="step reveal"><div class="step-num"></div><div>
+        <h3>Sửa gì cũng được (thật ra là được)</h3>
+        <p>Thêm prompt, sửa mô tả, viết note, dịch thuật, tối ưu CSS, hoặc thêm một emoji cho đời vui hơn. Mở file bằng editor bạn yêu — VS Code, Vim, hay Notepad chúng tôi đều tôn trọng.</p>
+      </div></div>
+      <div class="step reveal"><div class="step-num"></div><div>
+        <h3>Commit &amp; push</h3>
+        <p>Message commit nên trả lời câu hỏi "tại sao", không phải "cái gì". Ví dụ: <code class="inline">docs: thêm mục ESLint cho newbie</code>.</p>
+        <div class="terminal"><div class="terminal-bar"><i class="dot r"></i><i class="dot y"></i><i class="dot g"></i><span class="t">git — the force</span></div>
+<pre><span class="pr">$</span> git add .
+<span class="pr">$</span> git commit -m "<span class="hl">feat: thêm trang đóng góp siêu hài</span>"
+<span class="pr">$</span> git push origin fix/typo-trang-hero
+<span class="cm"># GitHub sẽ gửi cho bạn một link Pull Request. Bấm vào. Tin tốt đang chờ.</span></pre></div>
+      </div></div>
+      <div class="step reveal"><div class="step-num"></div><div>
+        <h3>Mở Pull Request &amp; chill ☕</h3>
+        <p>Viết mô tả ngắn gọn, gắn label nếu thích, rồi đi uống cà phê. maintainer (tức là tác giả, tức là rất nhanh đáp) sẽ review, comment và merge. Welcome to open source!</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- IDEAS -->
+  <section id="ideas">
+    <div class="section-head">
+      <div class="kicker">Good first ideas</div>
+      <h2>Chưa biết làm gì? Cầm tạm ý tưởng này 💡</h2>
+      <p>Chọn một thẻ bên dưới, coi như menu khai vị. Ăn ngon thì quay lại order thêm:</p>
+    </div>
+    <div class="idea-grid">
+      <div class="idea reveal"><div class="idea-top"><span class="emoji">✏️</span><span class="badge easy">Easy</span></div><h3>Săn typo</h3><p>Đọc các trang trong repo, tìm lỗi chính tả/tiếng Việt lạ tai và sửa. Đóng góp nhỏ, tự tin to.</p><div class="effort">⏱ ~10 phút · 0 dòng code</div></div>
+      <div class="idea reveal"><div class="idea-top"><span class="emoji">🧩</span><span class="badge easy">Easy</span></div><h3>Thêm prompt hay</h3><p>Bạn có prompt nào đã kiểm chứng qua công việc thật? Thêm vào kho prompt cho cộng đồng dùng chung.</p><div class="effort">⏱ ~20 phút · 1 file data</div></div>
+      <div class="idea reveal"><div class="idea-top"><span class="emoji">🌐</span><span class="badge easy">Easy</span></div><h3>Dịch tài liệu</h3><p>Việt ↔ Anh README, guide, chú thích trong các mô phỏng. Cơ hội để cả thế giới hiểu project.</p><div class="effort">⏱ ~30 phút · markdown</div></div>
+      <div class="idea reveal"><div class="idea-top"><span class="emoji">🎨</span><span class="badge medium">Medium</span></div><h3>Dark mode cho trang cũ</h3><p>Một số trang lâu năm chưa sync theme. Thêm biến CSS, test hai chế độ, thành hero UX.</p><div class="effort">⏱ ~1 giờ · CSS</div></div>
+      <div class="idea reveal"><div class="idea-top"><span class="emoji">🧪</span><span class="badge medium">Medium</span></div><h3>Thêm quiz cho SIT Lab</h3><p>Mô phỏng IT/ST/SIT đang khát câu hỏi. Viết thêm 3–5 câu kèm giải thích, người học cảm ơn bạn lắm.</p><div class="effort">⏱ ~1 giờ · JS</div></div>
+      <div class="idea reveal"><div class="idea-top"><span class="emoji">🃏</span><span class="badge wild">Wild</span></div><h3>Ý tưởng điên của bạn</h3><p>Trò chơi, easter egg, generator meme, conway's game of life... Repo này lớn lên nhờ những PR khó đoán.</p><div class="effort">⏱ Vô hạn · Vui là đủ</div></div>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz">
+    <div class="section-head">
+      <div class="kicker">Personality check</div>
+      <h2>Bạn là hệ contributor nào? 🧭</h2>
+      <p>3 câu hỏi, 30 giây, kết luận hoàn toàn thiếu căn cứ khoa học — nhưng đúng bất ngờ.</p>
+    </div>
+    <div class="quiz">
+      <div class="quiz-progress" id="qpips"><i class="qpip"></i><i class="qpip"></i><i class="qpip"></i></div>
+      <div id="quizBody">
+        <div class="quiz-q" id="quizQ"></div>
+        <div class="quiz-sub" id="quizSub"></div>
+        <div class="quiz-options" id="quizOpts"></div>
+      </div>
+      <div class="quiz-result" id="quizResult">
+        <h3 id="resTitle"></h3>
+        <p id="resText"></p>
+        <div class="cta-row" style="margin-top:0">
+          <a class="cta primary" id="resCta" href="https://github.com/lhlhai/prompt-library/fork" target="_blank" rel="noreferrer">Fork theo hệ của bạn 🍴</a>
+          <button class="cta secondary" id="quizRestart" type="button">Làm lại 🔁</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WALL OF FAME -->
+  <section id="fame">
+    <div class="section-head">
+      <div class="kicker">Hall of fame</div>
+      <h2>Bảng vàng contributor 🏆</h2>
+      <p>Những người đã dũng cảm PR vào repo này (và sống sót để kể lại):</p>
+    </div>
+    <div class="fame-grid">
+      <div class="famer reveal"><span class="tier">Founder</span><div class="medal">🥇</div><h3>lhlhai</h3><p class="feat">Dựng cả repo từ commit đầu tiên. Tự review PR của mình — cô đơn nhưng kiên cường.</p></div>
+      <div class="famer reveal"><span class="tier">Legend</span><div class="medal">🥈</div><h3>Copilot</h3><p class="feat">AI pair-programmer 24/7. Không bao giờ ngủ, không bao giờ than, thỉnh thoảng hallucinate nhẹ.</p></div>
+      <div class="famer reveal"><span class="tier">Ghost</span><div class="medal">👻</div><h3>Bạn-tương-lai</h3><p class="feat">Đã contribute từ lâu... trong một vũ trụ song song nơi bạn bấm Fork. Sắp xảy ra thôi.</p></div>
+      <a class="join-card reveal" href="https://github.com/lhlhai/prompt-library/fork" target="_blank" rel="noreferrer">
+        <div class="plus-avatar">＋</div><b>Ô còn trống #1</b><span>Đứng chung bảng với founder. Chỉ một PR là có tên ở đây.</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- RULES -->
+  <section id="rules">
+    <div class="section-head">
+      <div class="kicker">House rules</div>
+      <h2>Nội quy — phiên bản dễ thương 🐣</h2>
+    </div>
+    <div class="rules">
+      <div class="rule reveal"><span class="no">💖</span><div><b>Tôn trọng nhau, hết.</b><p>Mọi văn hóa, mọi trình độ đều welcome. Feedback nặng nề → bị trừ điểm cà phê.</p></div></div>
+      <div class="rule reveal"><span class="no">🧪</span><div><b>Test trước khi PR.</b><p>Mở trang bạn sửa bằng trình duyệt, bấm thử vài nút. Nửa phút tiết kiệm cho maintainer nửa ngày.</p></div></div>
+      <div class="rule reveal"><span class="no">📝</span><div><b>PR nhỏ mà đều > PR khổng lồ.</b><p>Chia thay đổi lớn thành nhiều PR. Review 20 dòng vui hơn review 2000 dòng rất nhiều.</p></div></div>
+      <div class="rule reveal"><span class="no">🚫</span><div><b>Không spam AI-generated slop.</b><p>Chúng tôi dùng AI mỗi ngày, nhưng PR copy-paste nguyên khối không đọc lại thì... please don't.</p></div></div>
+      <div class="rule reveal"><span class="no">🎯</span><div><b>Một PR, một mục đích.</b><p>Sửa typo đừng kèm đổi font. Trộn hai thứ vào nhau là cách nhanh nhất để PR bị "discuss forever".</p></div></div>
+      <div class="rule reveal"><span class="no">🎉</span><div><b>Mừng nhau khi merge.</b><p>Comment "GG!" khi PR được merge là truyền thống đẹp. Hãy duy trì, vì tác giả rất thích được khen.</p></div></div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final reveal">
+    <h2>PR đầu tiên của bạn đang <span class="gradient">nhấp nháy gọi.</span></h2>
+    <p>Tưởng tượng 3 tháng nữa: bạn nhìn profile GitHub, thấy green graph và nụ cười nở trên môi. Tất cả bắt đầu từ một cái click.</p>
+    <div class="cta-row" style="justify-content:center">
+      <a class="cta primary" href="https://github.com/lhlhai/prompt-library/fork" target="_blank" rel="noreferrer">Fork ngay 🍴</a>
+      <a class="cta secondary" href="https://github.com/lhlhai/prompt-library/issues/new" target="_blank" rel="noreferrer">Mở Issue trước cũng được 💬</a>
+      <a class="cta secondary" href="./index.html">← Về trang chủ</a>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">
+  <span>© <span id="year"></span> Hai Le · Built for curious minds.</span>
+  <span>Contribute page made with HTML, CSS & dopamine.</span>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  const REPO='https://github.com/lhlhai/prompt-library';
+  const $=s=>document.querySelector(s);
+
+  // Theme toggle (đồng bộ với index.html)
+  const toggle=$('#themeToggle');
+  function setTheme(){const light=document.documentElement.classList.toggle('light');localStorage.setItem('prompt-library-theme',light?'light':'dark');toggle.textContent=light?'☾':'☼';}
+  toggle.addEventListener('click',setTheme);
+  if(localStorage.getItem('prompt-library-theme')==='light'){toggle.textContent='☾';document.documentElement.classList.add('light');}
+
+  $('#year').textContent=new Date().getFullYear();
+
+  // Ticker
+  const facts=['🍴 Fork it','✨ Star it','🐛 Fix it','📖 Translate it','🧩 Extend it','💜 Share it','⚡ Ship it','🎉 Merge it'];
+  $('#ticker').innerHTML=[...facts,...facts].map(f=>`<span>${f}</span>`).join('');
+
+  // Toast helper
+  let toastTimer;
+  function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2600);}
+
+  // Copy git commands
+  $('#copyCmd').addEventListener('click',async()=>{
+    const cmds=`git clone ${REPO.replace('https://github.com/','https://github.com/')}\ncd prompt-library\ngit checkout -b feat/my-first-contribution\n# ...sửa gì đó hay ho...\ngit add . && git commit -m "feat: my awesome contribution"\ngit push -u origin feat/my-first-contribution\n# Mở PR: ${REPO}/compare`;
+    try{await navigator.clipboard.writeText(cmds);toast('Đã copy bộ lệnh git! Paste vào terminal và tỏa sáng ✨');}
+    catch(e){toast('Clipboard từ chối 😅 — bạn có thể gõ tay, tốt cho ngón út.');}
+  });
+
+  // Animated counters
+  const counters=document.querySelectorAll('[data-count]');
+  const io=new IntersectionObserver(es=>es.forEach(e=>{
+    if(!e.isIntersecting)return; io.unobserve(e.target);
+    const el=e.target, target=+el.dataset.count, dur=900, t0=performance.now();
+    (function tick(t){const p=Math.min((t-t0)/dur,1);el.textContent=Math.round(target*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(tick);})(t0);
+  }),{threshold:.4});
+  counters.forEach(c=>io.observe(c));
+
+  // Reveal on scroll
+  const rio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.style.animationPlayState='running';rio.unobserve(e.target);}}),{threshold:.15});
+  document.querySelectorAll('.reveal').forEach(el=>{el.style.animationPlayState='paused';rio.observe(el);});
+
+  // ===== Quiz: "Bạn là hệ contributor nào?" =====
+  const QUESTIONS=[
+    {q:'Cuối tuần rảnh, bạn thường…',opts:[
+      {t:'🔍 Soi từng dòng code người khác viết, tìm chỗ cải thiện',k:'review'},
+      {t:'🛠️ Vọc tool mới, script mới, tự động hóa việc lặt vặt',k:'builder'},
+      {t:'✍️ Viết doc/note cho đời đỡ hoang mang',k:'scholar'},
+      {t:'🎲 Thử ý tưởng điên dù chưa biết kết quả',k:'chaos'}]},
+    {q:'Bug xuất hiện trong project của bạn. Phản xạ đầu tiên?',opts:[
+      {t:'🕵️ Reproduce, trace log, tìm root cause',k:'review'},
+      {t:'⚡ Patch nóng trước, refactor sau (hoặc không sau)',k:'chaos'},
+      {t:'📋 Ghi lại thành issue, tái hiện bằng steps rõ ràng',k:'scholar'},
+      {t:'♻️ Sửa xong viết luôn test để nó không dám quay lại',k:'builder'}]},
+    {q:'Chọn một superpower dev:',opts:[
+      {t:'👁️ Nhìn PR nào cũng thấy bug tiềm ẩn',k:'review'},
+      {t:'⚙️ Biến mọi workflow thành script chạy một lệnh',k:'builder'},
+      {t:'🗣️ Giải thích thứ phức tạp thành thứ ai cũng hiểu',k:'scholar'},
+      {t:'🌀 Prototype 10 ý tưởng trong một đêm',k:'chaos'}]}
+  ];
+  const RESULTS={
+    review:{title:'🧐 Hệ Reviewer — Người gác cổng chất lượng',text:'Eye của bạn là lint rule sống. Contribute hợp nhất: tham gia review PR, viết test cases cho SIT Lab, hoặc đề xuất improvement issue. Repo cần bạn như cần CI.'},
+    builder:{title:'⚙️ Hệ Builder — Tự động hóa mọi thứ',text:'Cứ thấy việc lặp lại là tay đã ngứa muốn gõ script. Contribute hợp nhất: tool mới kiểu Token Counter, DSL Converter, hoặc tự động hóa workflow trong repo. Cứ build, sai tính sau.'},
+    scholar:{title:'✍️ Hệ Scholar — Dịch giả của vũ trụ',text:'Kiến thức chưa được viết ra với bạn là kiến thức còn "chờ up". Contribute hợp nhất: dịch docs, viết guide cho newbie, thêm chú thích vào các mô phỏng. Tài liệu hay là PR vĩnh cửu.'},
+    chaos:{title:'🎢 Hệ Chaos Agent — Wild card của repo',text:'Bạn là lý do open source vui: easter egg, meme generator, trò chơi trong README. Contribute hợp nhất: cứ mở Issue ý tưởng điên trước, approved rồi thì code thẳng tay. Chaos có kiểm soát!'}};
+  let qi=0; const score={review:0,builder:0,scholar:0,chaos:0};
+  function renderQ(){
+    const q=QUESTIONS[qi];
+    $('#quizQ').textContent=`Câu ${qi+1}: ${q.q}`;
+    $('#quizSub').textContent='Chọn đáp án gần với con người thật của bạn nhất (không được chọn cả 4 😌)';
+    $('#quizOpts').innerHTML=q.opts.map((o,i)=>`<button class="qopt" data-k="${o.k}">${o.t}</button>`).join('');
+    document.querySelectorAll('#qpips .qpip').forEach((p,i)=>p.classList.toggle('done',i<qi));
+  }
+  $('#quizOpts').addEventListener('click',e=>{
+    const b=e.target.closest('.qopt'); if(!b)return;
+    score[b.dataset.k]++; qi++;
+    if(qi<QUESTIONS.length){renderQ();}
+    else{
+      document.querySelectorAll('#qpips .qpip').forEach(p=>p.classList.add('done'));
+      const winner=Object.entries(score).sort((a,b)=>b[1]-a[1])[0][0];
+      const r=RESULTS[winner];
+      $('#resTitle').textContent=r.title; $('#resText').textContent=r.text;
+      $('#quizBody').style.display='none'; $('#quizResult').classList.add('show');
+      toast('Kết luận đã có. Độ chính xác: 97,3% (số bịa đặt) 😄');
+    }
+  });
+  $('#quizRestart').addEventListener('click',()=>{qi=0;Object.keys(score).forEach(k=>score[k]=0);$('#quizResult').classList.remove('show');$('#quizBody').style.display='';renderQ();});
+  renderQ();
+})();
+</script>
+</body>
+</html>
