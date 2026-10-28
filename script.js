@@ -503,6 +503,12 @@ const updateStats = () => {
   if (totalBadge) totalBadge.querySelector('strong').textContent = PROMPTS.length;
   if (activeBadge) activeBadge.querySelector('strong').textContent = PROMPTS.filter(p => !p.disabled).length;
   if (resultsBadge) resultsBadge.querySelector('strong').textContent = filteredPrompts.length;
+
+  // Library head counter (skills/agents-style "X / Y prompts")
+  const libraryCount = document.getElementById('libraryCount');
+  if (libraryCount) {
+    libraryCount.textContent = `${filteredPrompts.length} / ${PROMPTS.filter(p => !p.disabled).length} prompts`;
+  }
   
   // Update favorite filter button UI
   if (favoriteFilterBtn) {
