@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07121d">
+  <meta name="description" content="Mô phỏng trực quan quantization FP16, INT8, INT4 ảnh hưởng đến weights trong VRAM, KV cache và điều kiện tốc độ sinh token.">
+  <title>Quantization: FP16, INT8, INT4 · AI Pattern Lab</title>
+  <style>
+    :root{color-scheme:dark;--bg:#07121d;--panel:#101e2b;--panel2:#142535;--text:#e6f0f8;--muted:#9bb0c0;--subtle:#6d8495;--line:rgba(151,181,199,.17);--cyan:#38bdf8;--blue:#60a5fa;--green:#4ade80;--purple:#c084fc;--amber:#fbbf24;--red:#fb7185;--radius:16px;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text);background:var(--bg);font-synthesis:none}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-width:320px;background:radial-gradient(ellipse at 83% 0%,rgba(192,132,252,.08),transparent 38rem),var(--bg);font-size:15px;line-height:1.6}a{color:inherit}.skip{position:fixed;z-index:8;top:8px;left:8px;transform:translateY(-150%);padding:8px 12px;border-radius:8px;background:var(--cyan);color:#04121d}.skip:focus{transform:translateY(0)}.topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:9px max(16px,calc((100% - 1100px)/2));border-bottom:1px solid var(--line);background:rgba(7,18,29,.94);backdrop-filter:blur(12px)}.brand{display:flex;align-items:center;gap:9px;text-decoration:none}.mark{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:rgba(192,132,252,.13);color:#e0c6ff;font-size:12px;font-weight:950}.brand strong,.brand small{display:block;line-height:1.2}.brand strong{font-size:12px}.brand small{margin-top:4px;color:var(--muted);font-size:9px}.nav{display:flex;gap:14px}.nav a{color:var(--muted);font-size:10px;font-weight:800;text-decoration:none}.nav a:hover,.footer a:hover{color:var(--cyan)}main{width:min(1100px,calc(100% - 30px));margin:auto;padding:34px 0 45px}.hero{max-width:850px;margin-bottom:18px}.eyebrow{margin:0 0 6px;color:var(--cyan);font-size:10px;font-weight:900;letter-spacing:.15em}.hero h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:1.02;letter-spacing:-.06em}.hero h1 span{color:#d9b7ff}.hero>p:not(.eyebrow){max-width:760px;margin:13px 0;color:var(--muted);font-size:14px}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}.link{display:inline-flex;align-items:center;justify-content:center;min-height:39px;padding:8px 12px;border:1px solid rgba(56,189,248,.28);border-radius:9px;background:rgba(56,189,248,.08);color:#a9e8ff;font-size:10px;font-weight:850;text-decoration:none}.link.secondary{border-color:var(--line);background:var(--panel);color:var(--muted)}.link:hover{border-color:var(--cyan)}.analogy,.panel{border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(145deg,rgba(20,37,53,.96),rgba(13,27,40,.98));box-shadow:0 14px 35px rgba(0,0,0,.12)}.analogy{display:grid;grid-template-columns:auto 1fr;gap:11px;align-items:start;margin:15px 0;padding:13px;border-color:rgba(192,132,252,.2);background:rgba(192,132,252,.045)}.analogy-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:rgba(192,132,252,.12);font-size:17px}.analogy h2{margin:0 0 3px;font-size:13px}.analogy p{margin:0;color:var(--muted);font-size:11px;line-height:1.65}.analogy strong{color:var(--text)}.lab{padding:16px}.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}.heading h2{margin:0;font-size:19px;letter-spacing:-.025em}.heading p{margin:4px 0 0;color:var(--muted);font-size:11px}.badge{flex:none;padding:4px 8px;border:1px solid var(--line);border-radius:99px;color:var(--muted);font:800 9px ui-monospace,monospace}.controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;padding:11px;border:1px solid var(--line);border-radius:12px;background:rgba(5,14,22,.36)}.field{display:grid;gap:4px;min-width:0;color:var(--muted);font-size:10px;font-weight:800}.field select{width:100%;min-height:39px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:#0b1824;color:var(--text);font:inherit}.field select:focus-visible,.field input:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}.range{grid-column:1/-1}.rangehead{display:flex;justify-content:space-between;gap:8px}.rangehead output{color:var(--text);font:850 11px ui-monospace,monospace}.range input{width:100%;margin:7px 0 0;accent-color:var(--purple)}.ticks{display:flex;justify-content:space-between;color:var(--subtle);font:8px ui-monospace,monospace}.toggle{display:flex;align-items:center;gap:8px;min-height:40px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:rgba(16,30,43,.7);color:var(--muted);font-size:10px;font-weight:750}.toggle input{accent-color:var(--purple)}.config-note{grid-column:1/-1;margin:0;color:var(--subtle);font-size:9px;line-height:1.5}.scene{margin-top:12px;padding:13px;border:1px solid var(--line);border-radius:12px;background:#081521}.scenehead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:9px}.scenehead h3{margin:0;font-size:13px}.scenehead p{margin:2px 0 0;color:var(--subtle);font-size:9px}.state{flex:none;padding:4px 8px;border:1px solid var(--line);border-radius:99px;color:var(--subtle);font:850 8px ui-monospace,monospace}.state[data-fit="true"]{border-color:rgba(74,222,128,.32);color:var(--green)}.state[data-fit="false"]{border-color:rgba(251,113,133,.4);color:var(--red)}.disk{display:flex;align-items:center;gap:9px;margin-bottom:9px;padding:8px 10px;border:1px dashed rgba(251,191,36,.25);border-radius:9px;background:rgba(251,191,36,.035)}.disk b,.disk small{display:block}.disk b{font-size:10px}.disk small{color:var(--subtle);font-size:8px}.disk span{font-size:17px}.vram{padding:11px;border:1px solid rgba(151,181,199,.15);border-radius:10px;background:rgba(16,30,43,.75)}.vram[data-over="true"]{border-color:rgba(251,113,133,.65)}.vramhead{display:flex;justify-content:space-between;gap:8px}.vramhead strong{font-size:11px}.vramhead small{display:block;color:var(--subtle);font-size:8px}.vramhead output{font:850 10px ui-monospace,monospace;text-align:right}.track{display:flex;height:17px;overflow:hidden;margin-top:8px;border:1px solid rgba(151,181,199,.12);border-radius:5px;background:#06101a}.track i{display:block;height:100%;min-width:0;transition:width .3s ease}.weight{background:var(--purple)}.cache{background:var(--green)}.work{background:#7890a2}.legend{display:flex;flex-wrap:wrap;gap:7px 14px;margin-top:8px;color:var(--muted);font-size:9px}.legend span{display:inline-flex;align-items:center;gap:5px}.legend i{width:8px;height:8px;border-radius:2px}.legend .w{background:var(--purple)}.legend .k{background:var(--green)}.legend .r{background:#7890a2}.metertext{display:flex;justify-content:space-between;gap:8px;margin-top:6px;color:var(--subtle);font-size:8px}.status{display:grid;grid-template-columns:auto 1fr;gap:2px 9px;margin-top:10px;padding:11px;border:1px solid var(--line);border-radius:10px;background:rgba(16,30,43,.65)}.statusicon{grid-row:span 2;display:grid;place-items:center;width:25px;height:25px;border-radius:8px;background:rgba(56,189,248,.09);color:var(--cyan);font-weight:900}.status h3{margin:0;font-size:12px}.status p{grid-column:2;margin:2px 0 0;color:var(--muted);font-size:10px;line-height:1.6}.status[data-fit="true"] .statusicon{background:rgba(74,222,128,.1);color:var(--green)}.status[data-fit="false"] .statusicon{background:rgba(251,113,133,.1);color:var(--red)}.metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:10px}.metric{padding:9px;border:1px solid var(--line);border-radius:9px;background:rgba(16,30,43,.62)}.metric span{display:block;color:var(--muted);font-size:9px}.metric strong{display:block;margin-top:3px;color:var(--text);font:850 13px ui-monospace,monospace}.metric small{display:block;margin-top:2px;color:var(--subtle);font-size:8px}.speedbox{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;margin-top:11px;padding:12px;border:1px solid rgba(56,189,248,.2);border-radius:10px;background:rgba(56,189,248,.04)}.speedicon{display:grid;place-items:center;width:31px;height:31px;border-radius:9px;background:rgba(56,189,248,.1);color:var(--cyan);font-size:16px}.speedbox h3{margin:0;font-size:12px}.speedbox p{margin:3px 0 0;color:var(--muted);font-size:10px;line-height:1.6}.speedbox strong{color:var(--text)}.compare{margin-top:21px}.intro{max-width:780px;margin-bottom:11px}.intro .eyebrow{margin-bottom:3px}.intro h2{margin:0;font-size:20px;letter-spacing:-.025em}.intro p{margin:4px 0 0;color:var(--muted);font-size:11px}.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.card{padding:13px}.card h3{margin:0 0 5px;font-size:12px}.card p{margin:0;color:var(--muted);font-size:10px;line-height:1.65}.relative-list{display:grid;gap:9px;margin-top:9px}.relative-row{display:grid;grid-template-columns:52px 1fr 46px;gap:8px;align-items:center;color:var(--muted);font-size:9px}.relative-track{height:10px;overflow:hidden;border-radius:99px;background:#06101a}.relative-track i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#7e22ce,var(--purple));transition:width .3s}.relative-row[data-selected="true"]{color:var(--text);font-weight:850}.relative-row[data-selected="true"] .relative-track{outline:1px solid var(--purple);outline-offset:2px}.cycle{margin-top:21px;padding:15px}.cyclehead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.cyclehead h2{margin:0;font-size:19px}.cyclehead p{margin:4px 0 0;color:var(--muted);font-size:10px}.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:13px 0 0;padding:0;list-style:none;counter-reset:step}.decode-step{position:relative;min-height:102px;padding:11px;border:1px solid var(--line);border-radius:10px;background:rgba(16,30,43,.62);transition:border-color .2s,background .2s}.decode-step::before{counter-increment:step;content:counter(step);display:grid;place-items:center;width:23px;height:23px;margin-bottom:7px;border-radius:7px;background:rgba(151,181,199,.1);color:var(--muted);font:850 10px ui-monospace,monospace}.decode-step[data-state="active"]{border-color:rgba(56,189,248,.65);background:rgba(56,189,248,.07)}.decode-step[data-state="active"]::before,.decode-step[data-state="done"]::before{background:rgba(56,189,248,.16);color:#a9e8ff}.decode-step h3{margin:0 0 3px;font-size:10px}.decode-step p{margin:0;color:var(--muted);font-size:9px;line-height:1.5}.controls-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}.button{min-height:38px;padding:8px 11px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--text);font-size:10px;font-weight:850;cursor:pointer}.button:hover:not(:disabled){border-color:var(--cyan)}.button:disabled{opacity:.42;cursor:not-allowed}.button.primary{border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.08);color:#baf4ca}.output{min-height:45px;margin-top:10px;padding:9px;border:1px solid var(--line);border-radius:9px;background:rgba(5,14,22,.36)}.output-label{margin:0 0 5px;color:var(--subtle);font-size:8px}.tokens{display:flex;flex-wrap:wrap;gap:5px}.token{padding:3px 7px;border:1px solid rgba(56,189,248,.2);border-radius:7px;background:rgba(56,189,248,.06);color:#b8eaff;font:800 9px ui-monospace,monospace}.output-note{margin:6px 0 0;color:var(--subtle);font-size:8px}.context-meter{margin-top:10px;padding:10px;border:1px solid rgba(74,222,128,.16);border-radius:9px;background:rgba(74,222,128,.025)}.contextline{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:9px}.contextline strong{color:var(--text);font:850 9px ui-monospace,monospace}.contextbar{height:8px;margin-top:6px;overflow:hidden;border-radius:9px;background:#06101a}.contextbar i{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#7e22ce,var(--purple),var(--green));transition:width .3s}.context-note{margin:5px 0 0;color:var(--subtle);font-size:8px}.learn-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:11px}.learn{padding:12px}.learn .icon{font-size:17px}.learn h3{margin:4px 0;font-size:11px}.learn p{margin:0;color:var(--muted);font-size:9px;line-height:1.6}.learn strong{color:var(--text)}.formula{margin-top:10px;padding:11px;border:1px solid rgba(192,132,252,.2);border-radius:10px;background:rgba(192,132,252,.045);color:var(--muted);font-size:9px}.formula code{color:#e0c6ff;font:850 10px ui-monospace,monospace}.formula p{margin:5px 0 0}.footer{display:flex;justify-content:space-between;gap:10px;margin-top:18px;color:var(--subtle);font-size:9px}.footer a{color:var(--muted);font-weight:800;text-decoration:none}button:focus-visible,a:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}@media(max-width:850px){.controls{grid-template-columns:repeat(2,minmax(0,1fr))}.metrics{grid-template-columns:repeat(3,minmax(0,1fr))}.learn-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.topbar{padding:8px 11px}.nav{gap:8px}.nav a{font-size:8px}main{width:calc(100% - 20px);padding-top:23px}.hero h1{font-size:clamp(37px,10.5vw,53px)}.hero>p:not(.eyebrow){font-size:12px}.lab,.cycle{padding:10px}.controls{gap:7px;padding:8px}.heading{align-items:flex-start;flex-direction:column}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.compare-grid,.steps{grid-template-columns:1fr}.decode-step{min-height:auto}.decode-step p{font-size:10px}.scenehead{align-items:flex-start;flex-direction:column}.status{grid-template-columns:1fr}.statusicon{grid-row:auto}.status p{grid-column:1}.learn-grid{grid-template-columns:1fr}.footer{flex-direction:column}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.track i,.relative-track i,.contextbar i,.decode-step{transition:none!important}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Bỏ qua điều hướng</a>
+  <header class="topbar">
+    <a class="brand" href="index.html"><span class="mark">AI</span><span><strong>AI Pattern Lab</strong><small>Quantization playground</small></span></a>
+    <nav class="nav" aria-label="Điều hướng"><a href="cpu-gpu-guide.html">← Hướng dẫn CPU/GPU</a><a href="context-memory-effort.html">Context &amp; memory ↗</a></nav>
+  </header>
+  <main id="main">
+    <section class="hero">
+      <p class="eyebrow">MÔ PHỎNG TRỰC QUAN · FP16 / INT8 / INT4</p>
+      <h1>Weights gọn hơn.<br><span>Token có nhanh hơn?</span></h1>
+      <p>Đổi độ chính xác của weights rồi quan sát hai chuyện riêng: model chiếm bao nhiêu VRAM, và lượng dữ liệu cần đọc khi sinh từng token. Quantization có thể giúp tăng tốc trong một số điều kiện — không phải lúc nào cũng vậy.</p>
+      <div class="actions"><a class="link" href="#quant-lab">Bắt đầu mô phỏng ↓</a><a class="link secondary" href="cpu-gpu-guide.html">Quay lại chủ đề CPU/GPU ↗</a></div>
+    </section>
+
+    <aside class="analogy" aria-label="Phép so sánh về quantization"><span class="analogy-icon" aria-hidden="true">📦</span><div><h2>Cùng một cuốn sách, cách ghi số gọn khác nhau</h2><p><strong>Quantization</strong> lưu các giá trị weights bằng ít bit hơn. Ý tưởng giống ghi một con số với độ chi tiết thấp hơn để tiết kiệm chỗ — đổi lại có sai số xấp xỉ. FP16, INT8, INT4 là cách lưu weights; chúng không tự động đổi số parameters hay dung lượng KV cache.</p></div></aside>
+
+    <section class="lab panel" id="quant-lab" aria-labelledby="lab-title">
+      <div class="heading"><div><p class="eyebrow">THỬ ĐỔI CẤU HÌNH</p><h2 id="lab-title">Từ weights trong VRAM đến token tiếp theo</h2><p>Preset và công thức là xấp xỉ giáo dục; runtime thật còn tùy kiến trúc, kernel, allocator và định dạng quant.</p></div><span class="badge">LOCAL · KHÔNG GỌI API</span></div>
+
+      <div class="controls" aria-label="Cấu hình mô phỏng">
+        <label class="field" for="model-select">Kích thước model
+          <select id="model-select"><option value="1b">1B parameters</option><option value="8b" selected>8B parameters</option><option value="14b">14B parameters</option><option value="70b">70B parameters</option></select>
+        </label>
+        <label class="field" for="format-select">Độ chính xác weights
+          <select id="format-select"><option value="fp16">FP16 · 16 bit</option><option value="int8">INT8 · 8 bit</option><option value="int4" selected>INT4 · 4 bit</option></select>
+        </label>
+        <label class="field" for="vram-select">Ngân sách VRAM minh họa
+          <select id="vram-select"><option value="8">8 GB</option><option value="16">16 GB</option><option value="24" selected>24 GB</option><option value="80">80 GB</option></select>
+        </label>
+        <label class="field" for="bottleneck-select">Tình huống sinh token
+          <select id="bottleneck-select"><option value="memory" selected>Memory bandwidth đang nghẽn</option><option value="compute">Compute đang nghẽn</option></select>
+        </label>
+        <div class="range"><div class="rangehead"><label class="field" for="context-select">Context có sẵn trước khi sinh</label><output id="context-output" for="context-select">8K tokens</output></div><input id="context-select" type="range" min="2048" max="32768" step="2048" value="8192"><div class="ticks"><span>2K</span><span>8K</span><span>16K</span><span>32K</span></div></div>
+        <label class="toggle" for="kernel-select"><input id="kernel-select" type="checkbox" checked> Giả định runtime có kernel INT8/INT4 tối ưu</label>
+        <p class="config-note">Thanh VRAM giả định weights được quantize, còn KV cache giữ FP16. Cấu hình kernel chỉ để so sánh điều kiện; trang không đo tok/s thật.</p>
+      </div>
+
+      <div class="scene" aria-label="Minh họa cách model chiếm VRAM">
+        <div class="scenehead"><div><h3>Trong VRAM có những gì?</h3><p>Model weights được giữ sẵn; KV cache tăng theo context đang dùng; runtime cần thêm workspace.</p></div><span class="state" id="fit-state" data-fit="true">ĐANG TÍNH</span></div>
+        <div class="disk"><span aria-hidden="true">💽</span><div><b>File model trên ổ đĩa</b><small>Đổi format làm đổi cách weights được lưu/nạp; không đổi số parameters.</small></div></div>
+        <div class="vram" id="vram-box" data-over="false">
+          <div class="vramhead"><div><strong>GPU · Video RAM</strong><small>Ngân sách được chọn</small></div><output id="vram-value">0 / 24 GB</output></div>
+          <div class="track" role="img" aria-label="Các phần bộ nhớ đang dùng"><i class="weight" id="weight-bar"></i><i class="cache" id="cache-bar"></i><i class="work" id="work-bar"></i></div>
+          <div class="legend" aria-label="Chú giải"><span><i class="w"></i>Weights</span><span><i class="k"></i>KV cache · FP16</span><span><i class="r"></i>Runtime/workspace</span></div>
+          <div class="metertext"><span id="meter-left">Weights đã quantize; KV cache chưa đổi precision.</span><span id="meter-right">Ước tính</span></div>
+        </div>
+        <div class="status" id="fit-card" data-fit="true" aria-live="polite" aria-atomic="true"><span class="statusicon" id="fit-icon" aria-hidden="true">✓</span><div><h3 id="fit-title">Model vừa trong ngân sách minh họa</h3><p id="fit-copy">...</p></div></div>
+        <div class="metrics" aria-label="Ước tính dung lượng">
+          <div class="metric"><span>Parameters</span><strong id="params-value">8B</strong><small>Số giá trị đã học</small></div>
+          <div class="metric"><span>Weights</span><strong id="weights-value">0 GB</strong><small id="format-caption">INT4 · xấp xỉ</small></div>
+          <div class="metric"><span>KV cache</span><strong id="kv-value">0 GB</strong><small id="kv-unit">Giữ FP16 trong mô phỏng</small></div>
+          <div class="metric"><span>Runtime/workspace</span><strong id="work-value">0 GB</strong><small>Mức phụ trợ giả định</small></div>
+          <div class="metric"><span>Tổng VRAM ước tính</span><strong id="total-value">0 GB</strong><small>Weights + KV + runtime</small></div>
+        </div>
+        <div class="speedbox" id="speed-card" aria-live="polite" aria-atomic="true"><span class="speedicon" aria-hidden="true">↗</span><div><h3 id="speed-title">Tốc độ sinh token phụ thuộc điểm nghẽn</h3><p id="speed-copy">...</p></div></div>
+      </div>
+
+      <section class="compare" aria-labelledby="compare-title">
+        <div class="intro"><p class="eyebrow">MỘT TOKEN · BA CÁCH LƯU WEIGHTS</p><h2 id="compare-title">Dữ liệu nào phải đi qua mỗi bước decode?</h2><p>Ở lượt sinh từng token, GPU tính tiếp từ weights và context hiện có. Thanh dưới so sánh lượng weights cần đọc trong một bước — tương đối với FP16 — chứ không phải tok/s.</p></div>
+        <div class="compare-grid">
+          <article class="card panel"><h3>Footprint weights &amp; lượng đọc tương đối</h3><p>Với cùng số parameters, dùng ít bit thì khối weights nhỏ hơn. Mức 0,55 byte/parameter cho INT4 là preset có overhead minh họa; định dạng thực tế thay đổi.</p>
+            <div class="relative-list" id="relative-list">
+              <div class="relative-row" data-format="fp16"><span>FP16</span><div class="relative-track"><i style="width:100%"></i></div><b>100%</b></div>
+              <div class="relative-row" data-format="int8"><span>INT8</span><div class="relative-track"><i style="width:50%"></i></div><b>50%</b></div>
+              <div class="relative-row" data-format="int4"><span>INT4</span><div class="relative-track"><i style="width:27.5%"></i></div><b>≈28%</b></div>
+            </div>
+          </article>
+          <article class="card panel"><h3>Vì sao ít dữ liệu có thể giúp nhanh hơn?</h3><p id="movement-copy">...</p><p style="margin-top:7px">Đây là xu hướng có điều kiện: nếu không nghẽn băng thông, byte ít hơn không tự chuyển thành tok/s cao hơn.</p></article>
+        </div>
+      </section>
+    </section>
+
+    <section class="cycle panel" aria-labelledby="cycle-title">
+      <div class="cyclehead"><div><p class="eyebrow">NHÌN MỘT TOKEN ĐƯỢC SINH RA</p><h2 id="cycle-title">Đọc → tính → chọn → ghi KV</h2><p>Mỗi lần bấm, mô phỏng bốn bước của một lượt decode. Nhịp animation cố định để dễ nhìn, không đại diện cho tốc độ phần cứng.</p></div><span class="badge" id="token-count">0 token minh họa</span></div>
+      <ol class="steps" aria-label="Các bước tạo token">
+        <li class="decode-step" data-state="idle"><h3>Đọc weights</h3><p id="step-read">Đọc khối weights theo FP16, INT8 hoặc INT4; format thấp hơn cần ít byte hơn.</p></li>
+        <li class="decode-step" data-state="idle"><h3>Tính bước kế</h3><p>Kernel thực hiện phép tính và attention trên context; low-bit kernel có thể cần unpack/dequantize.</p></li>
+        <li class="decode-step" data-state="idle"><h3>Chọn token</h3><p>Logits được chuyển thành phân phối; bước lấy mẫu chọn mảnh tiếp theo cho câu trả lời.</p></li>
+        <li class="decode-step" data-state="idle"><h3>Cập nhật KV cache</h3><p>Ghi K/V của token mới vào cache FP16 trong mô phỏng; bước sau đọc lại context dài hơn.</p></li>
+      </ol>
+      <div class="controls-row" role="group" aria-label="Điều khiển sinh token"><button class="button primary" id="generate-button" type="button">▶ Mô phỏng sinh 1 token</button><button class="button" id="reset-button" type="button">↺ Xóa lượt mô phỏng</button></div>
+      <div class="output" aria-label="Các token minh họa"><p class="output-label">Câu trả lời đang thành hình</p><div class="tokens" id="token-output"><span class="output-note">Chưa sinh token nào.</span></div><p class="output-note">Mảnh chữ là placeholder dễ nhìn, không phải tokenizer output thật.</p></div>
+      <div class="context-meter"><div class="contextline"><span>Context đang giữ → KV cache</span><strong id="context-used">8.192 / 32.768 tokens</strong></div><div class="contextbar" role="progressbar" aria-label="Context đang dùng" aria-valuemin="0" aria-valuemax="32768" aria-valuenow="8192" id="context-progress"><i id="context-fill"></i></div><p class="context-note" id="context-note">Mỗi token mới kéo dài context; lượng KV cache tăng kể cả khi weights không đổi.</p></div>
+    </section>
+
+    <section class="compare" aria-labelledby="concept-title">
+      <div class="intro"><p class="eyebrow">TÁCH RIÊNG CÁC KHÁI NIỆM</p><h2 id="concept-title">Quantization giảm gì — và không giảm gì?</h2><p>Chỉ nhìn con số VRAM tổng sẽ dễ nhầm phần nào thực sự được nén.</p></div>
+      <div class="learn-grid">
+        <article class="learn panel"><span class="icon" aria-hidden="true">🔢</span><h3>FP16: 16 bit mỗi giá trị</h3><p>Xấp xỉ <strong>2 byte cho mỗi parameter</strong>. Tốn nhiều chỗ hơn, giữ độ chính xác biểu diễn cao hơn trong ba lựa chọn minh họa.</p></article>
+        <article class="learn panel"><span class="icon" aria-hidden="true">📦</span><h3>INT8 / INT4: đổi độ chi tiết lấy chỗ</h3><p>INT8 khoảng 1 byte; INT4 khoảng 0,5 byte trước metadata. Scale, zero-point, block size, padding và weights giữ precision cao hơn làm footprint thật khác đi.</p></article>
+        <article class="learn panel"><span class="icon" aria-hidden="true">🧠</span><h3>KV cache không tự quantize theo weights</h3><p>Trang giữ KV cache FP16. Vì vậy weights giảm nhưng context dài vẫn có thể ăn nhiều VRAM. Muốn giảm KV cache phải dùng kỹ thuật/format riêng.</p></article>
+        <article class="learn panel"><span class="icon" aria-hidden="true">⚙️</span><h3>Kernel quyết định có tận dụng bit thấp</h3><p>GPU/runtime phải có kernel phù hợp. Nếu không, thao tác unpack hoặc dequantize có thể tốn thêm công và làm lợi ích tốc độ nhỏ đi.</p></article>
+        <article class="learn panel"><span class="icon" aria-hidden="true">⏱</span><h3>Decode khác prefill</h3><p>Prefill xử lý nhiều token prompt song song; decode thường sinh từng token. Vì vậy bandwidth và lượng weights phải đọc có thể ảnh hưởng decode rõ hơn, tùy batch và phần cứng.</p></article>
+        <article class="learn panel"><span class="icon" aria-hidden="true">🎚</span><h3>Ít bit có thể đổi chất lượng</h3><p>Quantization xấp xỉ weights. INT4 có thể gây sai số lớn hơn INT8, nhưng chất lượng còn tùy model, phương pháp, calibration và phần weights được giữ ở precision cao.</p></article>
+      </div>
+      <div class="formula"><code>VRAM ước tính ≈ weights đã quantize + KV cache + runtime/workspace</code><p>Weights ≈ số parameters × byte/parameter. Trong trang: FP16 = 2, INT8 = 1, INT4 = 0,55 byte/parameter (mức minh họa có tính một phần overhead); KV cache giả định FP16 theo kiến trúc mẫu. Runtime thật có thể dùng format mixed precision, scales/metadata, allocator khác, offload hoặc kernel riêng. Không có con số tok/s chung cho mọi GPU/model; trang này không benchmark.</p></div>
+    </section>
+    <footer class="footer"><span>AI Pattern Lab · mô phỏng cục bộ, không gọi model/API</span><a href="cpu-gpu-guide.html">← Về hướng dẫn CPU/GPU</a></footer>
+  </main>
+  <script>
+    (() => {
+      'use strict';
+      const models = {
+        '1b': { label: '1B', params: 1e9, layers: 16, kvHeads: 8, headDim: 64 },
+        '8b': { label: '8B', params: 8e9, layers: 32, kvHeads: 8, headDim: 128 },
+        '14b': { label: '14B', params: 14e9, layers: 48, kvHeads: 8, headDim: 128 },
+        '70b': { label: '70B', params: 70e9, layers: 80, kvHeads: 8, headDim: 128 },
+      };
+      const formats = {
+        fp16: { label: 'FP16', bytes: 2 },
+        int8: { label: 'INT8', bytes: 1 },
+        int4: { label: 'INT4', bytes: .55 },
+      };
+      const $ = (id) => document.getElementById(id);
+      const ui = {
+        model: $('model-select'), format: $('format-select'), vram: $('vram-select'), bottleneck: $('bottleneck-select'),
+        context: $('context-select'), contextOutput: $('context-output'), kernel: $('kernel-select'),
+        vramBox: $('vram-box'), vramValue: $('vram-value'), weightBar: $('weight-bar'), cacheBar: $('cache-bar'), workBar: $('work-bar'),
+        fitState: $('fit-state'), fitCard: $('fit-card'), fitIcon: $('fit-icon'), fitTitle: $('fit-title'), fitCopy: $('fit-copy'),
+        params: $('params-value'), weights: $('weights-value'), formatCaption: $('format-caption'), kv: $('kv-value'), work: $('work-value'), total: $('total-value'),
+        speedTitle: $('speed-title'), speedCopy: $('speed-copy'), movementCopy: $('movement-copy'), relativeRows: [...document.querySelectorAll('.relative-row')],
+        steps: [...document.querySelectorAll('.decode-step')], stepRead: $('step-read'), generate: $('generate-button'), reset: $('reset-button'),
+        tokenCount: $('token-count'), tokenOutput: $('token-output'), contextUsed: $('context-used'), contextProgress: $('context-progress'), contextFill: $('context-fill'), contextNote: $('context-note'),
+      };
+      const controls = [ui.model, ui.format, ui.vram, ui.bottleneck, ui.context, ui.kernel];
+      const sampleTokens = ['▁AI', 'mô', 'hình', 'đang', 'tính', 'token', 'tiếp', 'theo', '▁.'];
+      ui.kvUnit = $('kv-unit');
+      let generated = 0;
+      let busy = false;
+      let stage = -1;
+      let timer = 0;
+
+      const gb = (value) => `${value.toFixed(value >= 10 ? 1 : 2)} GB`;
+      const gbPrecise = (value) => `${value.toFixed(4)} GB`;
+      const tokensUsed = () => Number(ui.context.value) + generated;
+      function requirements() {
+        const model = models[ui.model.value];
+        const format = formats[ui.format.value];
+        const contextTokens = tokensUsed();
+        const weights = model.params * format.bytes / 1e9;
+        // 2 (K,V) × layers × KV heads × head dimension × context × 2 bytes (FP16).
+        const kv = 2 * model.layers * model.kvHeads * model.headDim * contextTokens * 2 / 1e9;
+        const runtime = (weights + kv) * .15;
+        return { model, format, contextTokens, weights, kv, runtime, total: weights + kv + runtime, capacity: Number(ui.vram.value) };
+      }
+      function explainSpeed(s, fits) {
+        const lowBit = ui.format.value !== 'fp16';
+        const kernel = ui.kernel.checked;
+        if (!fits) {
+          ui.speedTitle.textContent = 'VRAM không đủ: tốc độ chưa thể so sánh';
+          ui.speedCopy.textContent = `Ước tính ${gb(s.total)} vượt ngân sách ${s.capacity} GB. Runtime thật có thể offload một phần sang RAM hoặc không nạp được; offload có thể chậm đáng kể và không được mô phỏng ở đây.`;
+          ui.movementCopy.textContent = 'Trước khi bàn tốc độ, model phải được nạp hoặc runtime phải offload. Tăng VRAM, giảm model/context hoặc đổi format rồi quan sát lại.';
+          return;
+        }
+        if (!lowBit) {
+          ui.speedTitle.textContent = ui.bottleneck.value === 'memory' ? 'FP16 là mốc: đang giả định nghẽn băng thông' : 'FP16 là mốc: đang giả định nghẽn compute';
+          ui.speedCopy.textContent = ui.bottleneck.value === 'memory' ? 'Trong tình huống này, mỗi bước decode phải đọc nhiều byte weights hơn. INT8/INT4 có thể giảm lượng dữ liệu phải di chuyển nếu GPU có kernel phù hợp — nhưng không suy ra một mức tok/s cụ thể.' : 'Nếu phép tính là điểm nghẽn, giảm byte weights có thể giảm VRAM mà tốc độ vẫn gần như cũ. FP16 cũng có thể chạy rất nhanh trên phần cứng tối ưu cho phép toán này.';
+          ui.movementCopy.textContent = `Với ${s.model.label} ở FP16, footprint weights xấp xỉ ${gb(s.weights)}. Nếu model weights được đọc qua nhiều layer cho mỗi token, ít bit hơn có thể giảm lượng traffic — lợi ích rõ hơn khi bandwidth thật sự là điểm nghẽn.`;
+        } else if (ui.bottleneck.value === 'memory' && kernel) {
+          ui.speedTitle.textContent = 'Có thể sinh nhanh hơn trong điều kiện này';
+          ui.speedCopy.textContent = `Memory-bound + kernel ${s.format.label} tối ưu: weights nhỏ hơn nên có thể giảm byte phải đọc ở mỗi bước decode. Đây chỉ là hướng tác động; tốc độ thật phụ thuộc GPU, kernel, batch, context và chất lượng model.`;
+          ui.movementCopy.textContent = `Ở ${s.format.label}, weights ước tính ${gb(s.weights)} — khoảng ${(s.format.bytes / 2 * 100).toFixed(0)}% lượng byte của FP16 cho cùng số parameters. Nếu bandwidth là nút thắt và kernel tận dụng được format này, decode có thể được lợi.`;
+        } else if (!kernel) {
+          ui.speedTitle.textContent = 'VRAM giảm, nhưng không bảo đảm token nhanh hơn';
+          ui.speedCopy.textContent = `Kernel low-bit đang tắt trong giả định này. Runtime có thể phải unpack/dequantize thêm; lợi ích bandwidth có thể mất đi hoặc chạy chậm hơn. Phần weights vẫn chiếm ít chỗ.`;
+          ui.movementCopy.textContent = `Footprint ${s.format.label} nhỏ hơn FP16, nhưng tốc độ chỉ được cải thiện nếu phần cứng/runtime xử lý format này hiệu quả. Không có kernel tối ưu thì không thể suy ra lợi ích từ số bit thấp.`;
+        } else {
+          ui.speedTitle.textContent = 'VRAM giảm; tốc độ có thể gần như không đổi';
+          ui.speedCopy.textContent = `Compute-bound: phép tính, không phải đọc weights, đang giới hạn. Kernel ${s.format.label} tối ưu có thể giúp tùy GPU, nhưng mức nhanh hơn không được bảo đảm; có thể gần như cũ.`;
+          ui.movementCopy.textContent = `Dữ liệu weights giảm còn khoảng ${(s.format.bytes / 2 * 100).toFixed(0)}% so với FP16, song compute-bound có nghĩa giảm traffic có thể không rút ngắn thời gian. So sánh tok/s cần benchmark trên đúng model và runtime.`;
+        }
+      }
+      function render() {
+        const s = requirements();
+        const fits = s.total <= s.capacity;
+        const contextMax = 32768;
+        const weightPct = Math.min(100, s.weights / s.capacity * 100);
+        const kvPct = Math.min(100 - weightPct, s.kv / s.capacity * 100);
+        const runtimePct = Math.min(100 - weightPct - kvPct, s.runtime / s.capacity * 100);
+        ui.contextOutput.textContent = `${Math.round(Number(ui.context.value) / 1024)}K tokens`;
+        ui.params.textContent = s.model.label;
+        ui.weights.textContent = gb(s.weights);
+        ui.formatCaption.textContent = `${s.format.label} · ${s.format.bytes} B/parameter*`;
+        ui.kv.textContent = gbPrecise(s.kv);
+        const cacheBytesPerToken = 2 * s.model.layers * s.model.kvHeads * s.model.headDim * 2;
+        ui.kvUnit.textContent = `FP16 · ≈${(cacheBytesPerToken / 1024).toFixed(0)} KiB mỗi token`;
+        ui.work.textContent = gb(s.runtime);
+        ui.total.textContent = gb(s.total);
+        ui.vramValue.textContent = `${gb(s.total)} / ${s.capacity} GB`;
+        ui.weightBar.style.width = `${weightPct}%`;
+        ui.cacheBar.style.width = `${kvPct}%`;
+        ui.workBar.style.width = `${runtimePct}%`;
+        ui.vramBox.dataset.over = String(!fits);
+        ui.fitState.dataset.fit = String(fits);
+        ui.fitState.textContent = fits ? 'VỪA NGÂN SÁCH' : 'VƯỢT VRAM';
+        ui.fitCard.dataset.fit = String(fits);
+        ui.fitIcon.textContent = fits ? '✓' : '⚠';
+        ui.fitTitle.textContent = fits ? 'Model vừa trong ngân sách minh họa' : 'Model vượt ngân sách VRAM đã chọn';
+        ui.fitCopy.textContent = fits ? `Weights ${gb(s.weights)} + KV cache ${gb(s.kv)} + runtime/workspace ${gb(s.runtime)} ≈ ${gb(s.total)} trong ${s.capacity} GB. Thực tế còn phụ thuộc allocator và phần memory hệ thống dành riêng.` : `Tổng ước tính ${gb(s.total)} lớn hơn ${s.capacity} GB. Runtime thật có thể offload một phần sang RAM hoặc từ chối nạp; mô phỏng này chỉ tính trường hợp đặt trong VRAM.`;
+        ui.relativeRows.forEach((row) => { row.dataset.selected = String(row.dataset.format === ui.format.value); });
+        explainSpeed(s, fits);
+        ui.contextUsed.textContent = `${s.contextTokens.toLocaleString('vi-VN')} / ${contextMax.toLocaleString('vi-VN')} tokens`;
+        ui.contextProgress.setAttribute('aria-valuenow', String(s.contextTokens));
+        ui.contextFill.style.width = `${Math.min(100, s.contextTokens / contextMax * 100)}%`;
+        ui.contextNote.textContent = generated ? `${generated} token minh họa đã được thêm. Weights không đổi; KV cache và ước tính VRAM tăng theo context.` : 'Mỗi token mới kéo dài context; lượng KV cache tăng kể cả khi weights không đổi.';
+        ui.tokenCount.textContent = `${generated} token minh họa`;
+        ui.generate.disabled = busy || !fits || s.contextTokens >= contextMax;
+        if (!busy) ui.generate.textContent = s.contextTokens >= contextMax ? 'Context đã đạt 32K' : !fits ? 'Cần đủ VRAM để mô phỏng' : '▶ Mô phỏng sinh 1 token';
+      }
+      function setControlsDisabled(disabled) { controls.forEach((control) => { control.disabled = disabled; }); }
+      function showStage(index) {
+        ui.steps.forEach((step, i) => { step.dataset.state = i < index ? 'done' : i === index ? 'active' : 'idle'; });
+      }
+      function finishToken() {
+        generated += 1;
+        const chip = document.createElement('span');
+        chip.className = 'token';
+        chip.textContent = sampleTokens[(generated - 1) % sampleTokens.length];
+        if (generated === 1) ui.tokenOutput.replaceChildren();
+        ui.tokenOutput.append(chip);
+        busy = false;
+        stage = -1;
+        setControlsDisabled(false);
+        ui.steps.forEach((step) => { step.dataset.state = 'done'; });
+        render();
+      }
+      function advanceStage() {
+        if (stage >= ui.steps.length) { finishToken(); return; }
+        showStage(stage);
+        stage += 1;
+        timer = window.setTimeout(advanceStage, 520);
+      }
+      function generateToken() {
+        if (busy) return;
+        const s = requirements();
+        if (s.total > s.capacity || s.contextTokens >= 32768) return;
+        busy = true;
+        stage = 0;
+        setControlsDisabled(true);
+        ui.generate.disabled = true;
+        ui.generate.textContent = 'Đang xử lý từng bước…';
+        advanceStage();
+      }
+      function reset() {
+        window.clearTimeout(timer);
+        busy = false;
+        stage = -1;
+        generated = 0;
+        setControlsDisabled(false);
+        ui.steps.forEach((step) => { step.dataset.state = 'idle'; });
+        ui.tokenOutput.innerHTML = '<span class="output-note">Chưa sinh token nào.</span>';
+        render();
+      }
+      [ui.model, ui.format, ui.vram, ui.bottleneck, ui.context, ui.kernel].forEach((control) => {
+        control.addEventListener(control === ui.context ? 'input' : 'change', render);
+      });
+      ui.generate.addEventListener('click', generateToken);
+      ui.reset.addEventListener('click', reset);
+      render();
+    })();
+  </script>
+</body>
+</html>
