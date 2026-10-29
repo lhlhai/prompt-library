@@ -7,7 +7,9 @@
   <meta name="description" content="Mô phỏng tương tác cách CPU, GPU, RAM và VRAM phối hợp khi chạy LLM local.">
   <title>CPU vs GPU khi chạy LLM · AI Pattern Lab</title>
   <link rel="stylesheet" href="cpu-gpu.css">
+  <link rel="stylesheet" href="unified-memory.css">
   <script src="cpu-gpu.js" defer></script>
+  <script src="unified-memory.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Bỏ qua điều khiển</a>
@@ -22,6 +24,7 @@
       <p>Nhìn thấy model weights được nạp vào bộ nhớ nào, prompt được xử lý ra sao và vì sao tốc độ sinh token thường bị giới hạn bởi băng thông bộ nhớ.</p>
       <div class="simulation-note"><span aria-hidden="true">i</span><p><strong>Mới tìm hiểu CPU, GPU, RAM?</strong> <a href="cpu-gpu-guide.html">Đọc hướng dẫn nhập môn: từ lúc nạp model đến khi AI trả lời câu hỏi →</a></p></div>
       <div class="simulation-note"><span aria-hidden="true">i</span><p><strong>Mô phỏng giáo dục, không phải benchmark.</strong> Tốc độ thực phụ thuộc runtime, kernel, batch, nhiệt độ, model file và context. Các từ xuất hiện bên dưới là chunk minh họa, không phải tokenization thật.</p></div>
+      <div class="simulation-note"><span aria-hidden="true">↔</span><p><strong>Prompt dài? So sánh hai kiểu bộ nhớ.</strong> <a href="#architectureComparison">Xem Dedicated GPU với Unified Memory, và quan sát KV cache lớn dần →</a></p></div>
     </section>
 
     <section class="workspace" aria-label="Điều khiển và mô phỏng">
@@ -88,6 +91,53 @@
           <div class="token-area"><div class="token-head"><div><p class="eyebrow">STREAMING OUTPUT</p><h3>Token stream</h3></div><span id="tokenCount">0 chunks</span></div><div id="tokenStream" class="token-stream" aria-live="polite"><span class="stream-placeholder">Bấm Generate Response để bắt đầu…</span></div></div>
         </section>
       </div>
+    </section>
+
+    <section class="architecture-comparison panel" id="architectureComparison" aria-labelledby="architectureTitle">
+      <div class="arch-heading"><div><p class="eyebrow">LONG PROMPT · MEMORY ARCHITECTURE</p><h2 id="architectureTitle">GPU rời (Dedicated) vs Unified Memory</h2><p>Panel dùng chung model và quantization ở sidebar; chọn context 32K để nhìn áp lực bộ nhớ khi prompt dài.</p></div><span class="arch-badge">MÔ PHỎNG · KHÔNG BENCHMARK</span></div>
+      <div class="arch-intro"><strong>Prefill prompt dài:</strong> weights đã nạp vẫn nằm trong bộ nhớ; prompt được xử lý thành nhiều khúc và KV cache tăng dần. Quantization làm gọn weights, không tự giảm KV trong ví dụ này (KV giả định FP16, trừ khi quantize KV riêng). Cùng model/context và cùng quant thì hai kiến trúc có footprint gần như giống nhau — khác ở cách các khối bộ nhớ được chia và chia sẻ.</div>
+      <div class="arch-controls" aria-label="Ngân sách bộ nhớ để so sánh">
+        <label class="arch-field" for="dedicatedBudget">GPU rời · VRAM khả dụng cho model
+          <select id="dedicatedBudget"><option value="8" selected>8 GB</option><option value="16">16 GB</option><option value="24">24 GB</option><option value="48">48 GB</option><option value="80">80 GB</option></select>
+        </label>
+        <label class="arch-field" for="hostRamBudget">Host RAM riêng · có thể offload
+          <select id="hostRamBudget"><option value="16">16 GB</option><option value="32" selected>32 GB</option><option value="64">64 GB</option><option value="128">128 GB</option></select>
+        </label>
+        <label class="arch-field" for="unifiedBudget">Unified Memory · budget khả dụng cho model
+          <select id="unifiedBudget"><option value="16">16 GB</option><option value="24">24 GB</option><option value="32">32 GB</option><option value="48">48 GB</option><option value="64" selected>64 GB</option><option value="96">96 GB</option><option value="128">128 GB</option></select>
+        </label>
+        <p class="arch-note">Budget “khả dụng cho model” đã tính chừa chỗ cho hệ thống/app ở mức minh họa; không đồng nghĩa dung lượng lắp trong máy. RAM host có thể hỗ trợ offload nếu runtime cho phép, nhưng không trở thành VRAM.</p>
+      </div>
+
+      <div class="prefill-panel" aria-labelledby="prefillTitle">
+        <div class="prefill-head"><div><h3 id="prefillTitle">Mô phỏng xử lý prompt (prefill)</h3><p>Weights giữ nguyên; KV cache được dựng dần khi đọc prompt.</p></div><output id="prefillCount" aria-live="polite">0 / 8.192 tokens</output></div>
+        <div class="prefill-steps" id="prefillSteps" aria-label="Bốn khúc của prompt"><span data-step="0">Khúc 1</span><span data-step="1">Khúc 2</span><span data-step="2">Khúc 3</span><span data-step="3">Khúc 4</span></div>
+        <div class="arch-progress" role="progressbar" aria-label="Tiến độ xử lý prompt" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="prefillProgress"><i id="prefillProgressFill"></i></div>
+        <div class="prefill-actions"><button class="arch-button start" id="runPrefill" type="button">▶ Xử lý prompt theo 4 khúc</button><button class="arch-button" id="resetPrefill" type="button">↺ Đặt lại</button><span id="prefillStatus" aria-live="polite">Chọn độ dài context ở sidebar rồi bắt đầu.</span></div>
+      </div>
+
+      <div class="arch-grid">
+        <article class="arch-card dedicated-card" aria-labelledby="dedicatedTitle">
+          <div class="arch-card-head"><div><span class="arch-icon" aria-hidden="true">▦</span><h3 id="dedicatedTitle">GPU rời · Dedicated VRAM</h3><p>VRAM riêng gần GPU; system RAM là pool khác.</p></div><span class="arch-kind">POOL RIÊNG</span></div>
+          <div class="arch-pool-label"><span>VRAM dùng / khả dụng</span><strong id="dedicatedUsage">—</strong></div>
+          <div class="arch-track" id="dedicatedTrack" role="img" aria-label="Phân bổ weights, KV cache và workspace trong VRAM"><i class="arch-weights" id="dedicatedWeights"></i><i class="arch-kv" id="dedicatedKv"></i><i class="arch-work" id="dedicatedWork"></i></div>
+          <div class="arch-legend"><span><i class="arch-weights-key"></i>Weights</span><span><i class="arch-kv-key"></i>KV cache</span><span><i class="arch-work-key"></i>Workspace</span></div>
+          <div class="host-pool"><div class="arch-pool-label"><span>System RAM riêng · host/offload</span><strong id="hostUsage">0 / 32 GB</strong></div><div class="arch-track host-track"><i id="hostOffload"></i></div><small id="hostCaption">RAM host không cộng vào dung lượng VRAM.</small></div>
+          <p class="arch-verdict" id="dedicatedVerdict" data-state="ready" aria-live="polite">Đang tính…</p>
+          <p class="arch-detail">Nếu VRAM không đủ, runtime có thể offload một phần sang RAM — nếu hỗ trợ. Dữ liệu phải đi giữa hai pool qua liên kết CPU–GPU; có thể tăng độ trễ, không phải “thêm VRAM miễn phí”.</p>
+        </article>
+
+        <article class="arch-card unified-card" aria-labelledby="unifiedTitle">
+          <div class="arch-card-head"><div><span class="arch-icon" aria-hidden="true">◉</span><h3 id="unifiedTitle">Unified Memory · kiểu Apple Silicon</h3><p>CPU và GPU dùng chung một pool vật lý.</p></div><span class="arch-kind">POOL CHUNG</span></div>
+          <div class="arch-pool-label"><span>Pool dùng / budget model</span><strong id="unifiedUsage">—</strong></div>
+          <div class="arch-track" id="unifiedTrack" role="img" aria-label="Phân bổ weights, KV cache và workspace trong Unified Memory"><i class="arch-weights" id="unifiedWeights"></i><i class="arch-kv" id="unifiedKv"></i><i class="arch-work" id="unifiedWork"></i></div>
+          <div class="arch-legend"><span><i class="arch-weights-key"></i>Weights</span><span><i class="arch-kv-key"></i>KV cache</span><span><i class="arch-work-key"></i>Workspace</span></div>
+          <div class="shared-pool"><span aria-hidden="true">↔</span><div><strong>CPU + GPU cùng mượn pool này</strong><small>Không tách thành RAM + VRAM rồi cộng hai lần; OS/app khác cũng tranh chỗ và bandwidth.</small></div></div>
+          <p class="arch-verdict" id="unifiedVerdict" data-state="ready" aria-live="polite">Đang tính…</p>
+          <p class="arch-detail">Chia sẻ bộ nhớ có thể tránh một số lần copy giữa host và GPU trong luồng hỗ trợ; nhưng capacity và bandwidth vẫn dùng chung, không phải truy cập vô hạn hay luôn nhanh hơn GPU rời.</p>
+        </article>
+      </div>
+      <div class="arch-takeaway"><strong>Điểm cần nhìn:</strong> prompt càng dài thì KV cache càng lớn ở cả hai kiến trúc. Dedicated có ngưỡng VRAM tách biệt và có thể vướng offload; Unified gộp CPU/GPU vào một pool nhưng model vẫn cạnh tranh với hệ thống. Các con số/budget chỉ để hiểu luồng, không phải benchmark Apple Silicon hay GPU cụ thể.</div>
     </section>
 
     <section class="lower-grid">
