@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07121d">
+  <meta name="description" content="Hướng dẫn nhập môn: CPU, GPU, RAM và VRAM phối hợp khi nạp AI model và trả lời câu hỏi.">
+  <title>AI chạy như thế nào? · AI Pattern Lab</title>
+  <style>
+    :root{color-scheme:dark;--bg:#07121d;--panel:#101e2b;--panel2:#142535;--panel3:#1b3041;--text:#e6f0f8;--muted:#9bb0c0;--subtle:#6d8495;--line:rgba(151,181,199,.17);--cyan:#38bdf8;--blue:#60a5fa;--green:#4ade80;--purple:#c084fc;--amber:#fbbf24;--radius:17px;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text);background:var(--bg);font-synthesis:none}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-width:320px;background:radial-gradient(ellipse at 78% 0%,rgba(56,189,248,.075),transparent 36rem),var(--bg);font-size:15px;line-height:1.65}.topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px max(18px,calc((100% - 1120px)/2));border-bottom:1px solid var(--line);background:rgba(7,18,29,.93);backdrop-filter:blur(14px)}a{color:inherit}.brand{display:flex;align-items:center;gap:10px;text-decoration:none}.brand-mark{display:grid;place-items:center;width:37px;height:37px;border-radius:11px;background:rgba(56,189,248,.13);color:#8edcff;font-size:12px;font-weight:950}.brand strong,.brand small{display:block;line-height:1.2}.brand strong{font-size:12px}.brand small{margin-top:4px;color:var(--muted);font-size:9px}.topbar nav{display:flex;align-items:center;gap:16px}.topbar nav a{color:var(--muted);font-size:11px;font-weight:750;text-decoration:none}.topbar nav a:hover,.text-link:hover,.footer a:hover{color:var(--cyan)}.skip-link{position:fixed;z-index:9;top:8px;left:8px;transform:translateY(-150%);padding:8px 12px;border-radius:8px;background:var(--cyan);color:#04121d}.skip-link:focus{transform:translateY(0)}main{width:min(1120px,calc(100% - 32px));margin:auto;padding:38px 0 52px}.hero{max-width:810px;margin-bottom:22px}.eyebrow{margin:0 0 6px;color:var(--cyan);font-size:10px;font-weight:900;letter-spacing:.15em}.hero h1{margin:0;font-size:clamp(37px,7vw,67px);line-height:1.02;letter-spacing:-.06em}.hero h1 span{color:#9fe8ba}.hero>p:not(.eyebrow){max-width:750px;margin:13px 0;color:var(--muted);font-size:15px}.hero-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:17px}.button-link{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:9px 13px;border:1px solid rgba(56,189,248,.28);border-radius:10px;background:rgba(56,189,248,.09);color:#a9e8ff;font-size:11px;font-weight:850;text-decoration:none}.button-link.secondary{border-color:var(--line);background:var(--panel);color:var(--muted)}.button-link:hover{border-color:var(--cyan);transform:translateY(-1px)}.panel{border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(145deg,rgba(20,37,53,.96),rgba(13,27,40,.98));box-shadow:0 14px 35px rgba(0,0,0,.15)}.analogy{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;margin:16px 0;padding:14px 16px;border:1px solid rgba(56,189,248,.2);border-radius:13px;background:rgba(56,189,248,.045)}.analogy-icon{display:grid;place-items:center;width:35px;height:35px;border-radius:10px;background:rgba(56,189,248,.12);color:#8edcff;font-size:18px}.analogy h2{margin:0 0 3px;font-size:13px}.analogy p{margin:0;color:var(--muted);font-size:12px}.analogy strong{color:var(--text)}.journey{padding:18px}.section-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:15px}.section-heading h2{margin:0;font-size:19px;letter-spacing:-.025em}.section-heading p{margin:3px 0 0;color:var(--muted);font-size:11px}.tag{flex:none;padding:4px 8px;border:1px solid var(--line);border-radius:99px;color:var(--muted);font:800 9px ui-monospace,monospace}.step-tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;margin:0 0 14px}.step-tab{min-height:70px;padding:9px 7px;border:1px solid var(--line);border-radius:11px;background:#0b1824;color:var(--muted);text-align:left;cursor:pointer}.step-tab:hover{border-color:rgba(56,189,248,.5)}.step-tab[aria-selected=true]{border-color:rgba(56,189,248,.6);background:rgba(56,189,248,.1);color:var(--text);box-shadow:inset 0 0 0 1px rgba(56,189,248,.1)}.step-tab .step-no{display:block;color:var(--cyan);font:900 9px ui-monospace,monospace}.step-tab strong{display:block;margin-top:4px;font-size:10px;line-height:1.25}.journey-body{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(260px,.9fr);gap:12px;align-items:stretch}.flow-wrap{display:flex;min-height:245px;flex-direction:column;justify-content:center;gap:12px;padding:14px;border:1px solid var(--line);border-radius:13px;background:radial-gradient(ellipse at 50% 45%,rgba(56,189,248,.05),transparent 70%),#081521}.flow-label{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--subtle);font-size:9px;font-weight:800;letter-spacing:.06em}.live-label{color:var(--green);font:800 9px ui-monospace,monospace}.flow-line{display:flex;align-items:stretch;justify-content:center;gap:5px}.flow-node{display:flex;min-width:0;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:11px 6px;border:1px solid rgba(151,181,199,.15);border-radius:12px;background:rgba(16,30,43,.78);color:var(--muted);text-align:center;transition:border-color .2s,background .2s,transform .2s,box-shadow .2s}.flow-node .icon{font-size:20px;line-height:1}.flow-node strong{font-size:9px}.flow-node small{color:var(--subtle);font-size:8px;line-height:1.25}.flow-node.is-active{transform:translateY(-2px);border-color:var(--node-color,var(--cyan));background:color-mix(in srgb,var(--node-color,var(--cyan)) 12%,#0b1824);color:var(--text);box-shadow:0 0 18px color-mix(in srgb,var(--node-color,var(--cyan)) 16%,transparent)}.flow-node[data-node=disk]{--node-color:var(--amber)}.flow-node[data-node=ram]{--node-color:var(--purple)}.flow-node[data-node=cpu]{--node-color:var(--blue)}.flow-node[data-node=gpu]{--node-color:var(--green)}.flow-node[data-node=answer]{--node-color:var(--cyan)}.flow-arrow{display:grid;flex:none;place-items:center;color:var(--subtle);font-size:14px}.flow-footnote{margin:0;color:var(--subtle);font-size:9px;text-align:center}.story-card{display:flex;flex-direction:column;justify-content:center;padding:16px;border:1px solid var(--line);border-radius:13px;background:rgba(16,30,43,.72)}.story-card .phase{color:var(--cyan);font:900 9px ui-monospace,monospace;letter-spacing:.12em}.story-card h3{margin:5px 0 6px;font-size:17px;line-height:1.25}.story-card p{margin:0;color:var(--muted);font-size:12px;line-height:1.65}.story-card .takeaway{margin-top:11px;padding:9px 10px;border-left:2px solid var(--green);border-radius:0 8px 8px 0;background:rgba(74,222,128,.055);color:#d6f6df;font-size:10px}.story-card .takeaway strong{color:var(--green)}.step-controls{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px}.step-controls p{margin:0;color:var(--subtle);font-size:9px}.step-controls button{min-height:34px;padding:6px 11px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--text);font-size:10px;font-weight:800}.step-controls button:hover:not(:disabled){border-color:var(--cyan)}.step-controls button:disabled{opacity:.4;cursor:not-allowed}.section{margin-top:25px}.section-intro{max-width:730px;margin:0 0 12px}.section-intro .eyebrow{margin-bottom:3px}.section-intro h2{margin:0;font-size:22px;letter-spacing:-.03em}.section-intro p{margin:5px 0 0;color:var(--muted);font-size:12px}.role-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.role-card{padding:14px}.role-card-head{display:flex;align-items:center;gap:9px}.role-icon{display:grid;place-items:center;flex:none;width:34px;height:34px;border:1px solid var(--line);border-radius:10px;background:rgba(56,189,248,.065);font-size:16px}.role-card h3{margin:0;font-size:13px}.role-card .short{display:block;margin-top:1px;color:var(--subtle);font-size:9px}.role-card p{margin:9px 0 0;color:var(--muted);font-size:11px;line-height:1.6}.role-card p strong{color:var(--text)}.role-card .limit{padding-top:8px;border-top:1px solid var(--line);color:var(--subtle);font-size:9px}.two-lanes{display:grid;grid-template-columns:1fr 1fr;gap:11px}.lane{padding:16px}.lane-start{border-top:2px solid var(--purple)}.lane-question{border-top:2px solid var(--green)}.lane h3{margin:0;font-size:15px}.lane>p{margin:4px 0 9px;color:var(--muted);font-size:10px}.lane ol{display:grid;gap:8px;margin:0;padding:0;list-style:none;counter-reset:lane}.lane li{position:relative;padding:0 0 0 31px;color:var(--muted);font-size:10px;counter-increment:lane}.lane li:before{position:absolute;left:0;top:0;display:grid;place-items:center;width:22px;height:22px;border:1px solid var(--line);border-radius:7px;color:var(--cyan);content:counter(lane);font:900 9px ui-monospace,monospace}.lane li strong{color:var(--text)}.lane li span{display:block;color:var(--subtle);font-size:9px}.callout{margin-top:11px;padding:10px 12px;border:1px solid rgba(251,191,36,.2);border-radius:10px;background:rgba(251,191,36,.045);color:var(--muted);font-size:10px}.callout strong{color:#ffe5a2}.memory-equation{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:12px;padding:14px;border:1px solid rgba(192,132,252,.2);border-radius:12px;background:rgba(192,132,252,.045);text-align:center}.memory-equation span{color:var(--muted);font-size:11px}.memory-equation b{color:var(--purple);font-size:16px}.memory-equation strong{color:#e0c6ff;font-size:11px}.example{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-top:10px;padding:12px 14px}.example h3{margin:0;font-size:12px}.example p{margin:3px 0 0;color:var(--muted);font-size:10px}.example .number{color:#d8b4fe;font:900 20px ui-monospace,monospace;text-align:right}.example .number small{display:block;color:var(--subtle);font:700 8px system-ui,sans-serif}.myths{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.myth{padding:13px}.myth h3{margin:0 0 4px;color:#fcd783;font-size:11px}.myth p{margin:0;color:var(--muted);font-size:10px;line-height:1.6}.myth strong{color:var(--text)}.glossary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.term{padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:rgba(16,30,43,.7)}.term dt{color:#ccefff;font-size:10px;font-weight:900}.term dd{margin:3px 0 0;color:var(--muted);font-size:10px;line-height:1.55}.closing{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:25px;padding:17px}.closing h2{margin:0;font-size:15px}.closing p{margin:4px 0 0;color:var(--muted);font-size:10px}.footer{display:flex;justify-content:space-between;gap:12px;margin-top:15px;color:var(--subtle);font-size:9px}.footer a{color:var(--muted);font-weight:750;text-decoration:none}button:focus-visible,a:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}@media(max-width:820px){.step-tabs{grid-template-columns:repeat(3,1fr)}.journey-body{grid-template-columns:1fr}.flow-wrap{min-height:200px}.role-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:580px){.topbar{padding:9px 12px}.topbar nav{gap:9px}.topbar nav a{font-size:9px}main{width:calc(100% - 20px);padding-top:25px}.hero h1{font-size:clamp(39px,11vw,57px)}.hero>p:not(.eyebrow){font-size:13px}.journey{padding:12px}.step-tabs{grid-template-columns:repeat(2,1fr)}.step-tab{min-height:56px}.flow-wrap{padding:10px}.flow-line{gap:3px}.flow-node{padding:9px 3px}.flow-node .icon{font-size:17px}.flow-node strong{font-size:8px}.flow-node small{font-size:7px}.flow-arrow{font-size:10px}.role-grid,.two-lanes,.myths,.glossary{grid-template-columns:1fr}.section-intro h2{font-size:19px}.memory-equation{gap:5px;padding:11px 7px}.memory-equation span,.memory-equation strong{font-size:9px}.memory-equation b{font-size:13px}.closing{align-items:flex-start;flex-direction:column}.footer{flex-direction:column}.analogy{padding:11px}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important}}
+  </style>
+  <style>
+    .analogy p,.story-card p,.role-card p,.lane>p,.lane li,.callout,.example p,.myth p,.term dd,.section-intro p{font-size:13px;line-height:1.7}
+    .section-heading p{font-size:12px}.step-tab strong{font-size:11px}.story-card .takeaway{font-size:12px}.role-card .short,.role-card .limit,.lane li span{font-size:11px}.example h3,.myth h3{font-size:13px}.term dt{font-size:12px}
+    @media(max-width:580px){.analogy p,.story-card p,.role-card p,.lane>p,.lane li,.callout,.example p,.myth p,.term dd,.section-intro p{font-size:12px}}
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Bỏ qua điều hướng</a>
+  <header class="topbar">
+    <a class="brand" href="index.html"><span class="brand-mark">AI</span><span><strong>AI Pattern Lab</strong><small>Hiểu phần cứng AI</small></span></a>
+    <nav aria-label="Điều hướng"><a href="cpu-gpu.html">← Mô phỏng CPU/GPU</a><a href="index.html">AI Pattern Lab</a></nav>
+  </header>
+  <main id="main">
+    <section class="hero">
+      <p class="eyebrow">GIẢI THÍCH NHẬP MÔN · KHÔNG CẦN BIẾT PHẦN CỨNG</p>
+      <h1>AI chạy như thế nào?<br><span>Từ lúc bật đến câu trả lời.</span></h1>
+      <p>CPU, GPU và bộ nhớ không “nghĩ” giống con người. Chúng phối hợp để nạp những con số của model, xử lý câu hỏi, rồi tính ra từng mảnh câu trả lời.</p>
+      <div class="hero-actions"><a class="button-link" href="#journey">Bắt đầu xem từng bước ↓</a><a class="button-link secondary" href="cpu-gpu.html">Thử mô phỏng CPU vs GPU ↗</a></div>
+    </section>
+
+    <aside class="analogy" aria-label="Phép so sánh dễ hình dung">
+      <span class="analogy-icon" aria-hidden="true">🧰</span>
+      <div><h2>Hãy tưởng tượng một xưởng đang làm bài tập</h2><p><strong>Model</strong> là cuốn sách công thức; <strong>RAM/VRAM</strong> là mặt bàn để đặt sách và ghi chú; <strong>CPU</strong> là người quản lý nhận yêu cầu và sắp việc; <strong>GPU</strong> là một đội rất đông cùng tính toán. Đây chỉ là phép so sánh: máy thật còn có nhiều bước và nhiều kiểu bộ nhớ khác nhau.</p></div>
+    </aside>
+
+    <section class="journey panel" id="journey" aria-labelledby="journey-title">
+      <div class="section-heading"><div><p class="eyebrow">NHÌN LUỒNG CHẠY</p><h2 id="journey-title">Một câu hỏi đi qua những đâu?</h2><p>Chọn một bước hoặc dùng phím ← / → khi một bước đang được chọn.</p></div><span class="tag">6 BƯỚC</span></div>
+      <div class="step-tabs" role="tablist" aria-label="Các bước chạy AI">
+        <button class="step-tab" id="tab-1" role="tab" aria-selected="true" aria-controls="step-story" tabindex="0" data-step="0"><span class="step-no">BƯỚC 01</span><strong>Nạp model</strong></button>
+        <button class="step-tab" id="tab-2" role="tab" aria-selected="false" aria-controls="step-story" tabindex="-1" data-step="1"><span class="step-no">BƯỚC 02</span><strong>Nhận câu hỏi</strong></button>
+        <button class="step-tab" id="tab-3" role="tab" aria-selected="false" aria-controls="step-story" tabindex="-1" data-step="2"><span class="step-no">BƯỚC 03</span><strong>Đọc prompt</strong></button>
+        <button class="step-tab" id="tab-4" role="tab" aria-selected="false" aria-controls="step-story" tabindex="-1" data-step="3"><span class="step-no">BƯỚC 04</span><strong>Tính token kế</strong></button>
+        <button class="step-tab" id="tab-5" role="tab" aria-selected="false" aria-controls="step-story" tabindex="-1" data-step="4"><span class="step-no">BƯỚC 05</span><strong>Gửi câu trả lời</strong></button>
+        <button class="step-tab" id="tab-6" role="tab" aria-selected="false" aria-controls="step-story" tabindex="-1" data-step="5"><span class="step-no">BƯỚC 06</span><strong>Chờ lượt sau</strong></button>
+      </div>
+      <div class="journey-body">
+        <div class="flow-wrap" aria-label="Sơ đồ minh họa luồng dữ liệu">
+          <div class="flow-label"><span>ĐĨA LƯU TRỮ → BỘ NHỚ → TÍNH TOÁN → BẠN</span><span class="live-label" id="liveStep">ĐANG XEM · 01 / 06</span></div>
+          <div class="flow-line" aria-hidden="true">
+            <div class="flow-node" data-node="disk"><span class="icon">💾</span><strong>Ổ đĩa</strong><small>nơi model nằm</small></div><span class="flow-arrow">→</span>
+            <div class="flow-node" data-node="ram"><span class="icon">🧠</span><strong>RAM / VRAM</strong><small>nơi làm việc</small></div><span class="flow-arrow">→</span>
+            <div class="flow-node" data-node="cpu"><span class="icon">🧭</span><strong>CPU</strong><small>điều phối</small></div><span class="flow-arrow">→</span>
+            <div class="flow-node" data-node="gpu"><span class="icon">⚙️</span><strong>GPU</strong><small>tính song song</small></div><span class="flow-arrow">→</span>
+            <div class="flow-node" data-node="answer"><span class="icon">💬</span><strong>Câu trả lời</strong><small>token nối tiếp</small></div>
+          </div>
+          <p class="flow-footnote">Mũi tên là ý tưởng tổng quát, không phải mọi máy đều đi đúng một đường như nhau.</p>
+        </div>
+        <article class="story-card" id="step-story" role="tabpanel" aria-labelledby="tab-1" tabindex="0" aria-live="polite">
+          <span class="phase" id="step-phase">TRƯỚC KHI CÓ CÂU HỎI</span>
+          <h3 id="step-title">Model được nạp vào bộ nhớ</h3>
+          <p id="step-text">Khi bạn mở model, chương trình đọc các weights (những con số đã học) từ ổ đĩa. Tùy máy và runtime, chúng được đưa vào RAM, VRAM, hoặc chia giữa hai nơi. Ổ đĩa là chỗ cất; bộ nhớ là chỗ để model làm việc.</p>
+          <div class="takeaway" id="step-takeaway"><strong>Điểm nhớ:</strong> model vừa ổ đĩa chưa có nghĩa là đã vừa VRAM; cần tính cả bộ nhớ tạm để chạy.</div>
+        </article>
+      </div>
+      <div class="step-controls"><button id="prev-step" type="button" disabled>← Bước trước</button><p id="step-counter">Bước 1 trên 6</p><button id="next-step" type="button">Bước tiếp →</button></div>
+    </section>
+
+    <section class="section" aria-labelledby="roles-title">
+      <div class="section-intro"><p class="eyebrow">AI / PHẦN CỨNG 101</p><h2 id="roles-title">Mỗi bộ phận làm một việc khác nhau</h2><p>Không cần nhớ thông số kỹ thuật trước. Chỉ cần hình dung vai trò và giới hạn của từng thành phần.</p></div>
+      <div class="role-grid">
+        <article class="role-card panel"><div class="role-card-head"><span class="role-icon">🧭</span><div><h3>CPU</h3><span class="short">Người điều phối tổng quát</span></div></div><p>Chạy chương trình, nhận yêu cầu, chuẩn bị dữ liệu và giao việc. CPU cũng có thể tính model nếu không có GPU phù hợp, nhưng thường ít phép toán ma trận đồng thời hơn GPU.</p><p class="limit"><strong>Nhớ:</strong> CPU vẫn bận khi GPU làm phần tính chính.</p></article>
+        <article class="role-card panel"><div class="role-card-head"><span class="role-icon">⚙️</span><div><h3>GPU</h3><span class="short">Đội tính toán song song</span></div></div><p>Rất nhiều bộ xử lý nhỏ cùng làm các phép toán tương tự. Đây là kiểu công việc phù hợp với nhiều phép nhân ma trận trong LLM; GPU thường có bộ nhớ riêng gọi là VRAM.</p><p class="limit"><strong>Nhớ:</strong> GPU nhanh không có nghĩa VRAM của nó là vô hạn.</p></article>
+        <article class="role-card panel"><div class="role-card-head"><span class="role-icon">🟣</span><div><h3>RAM hệ thống</h3><span class="short">Mặt bàn của máy tính</span></div></div><p>Bộ nhớ chính thường được CPU sử dụng. Nếu chạy bằng CPU, model và phần dữ liệu tạm có thể nằm ở đây. RAM rộng giúp chứa được nhiều hơn, nhưng không tự biến phép tính thành nhanh hơn.</p><p class="limit"><strong>Nhớ:</strong> dung lượng là “để được bao nhiêu”, không phải “chạy nhanh cỡ nào”.</p></article>
+        <article class="role-card panel"><div class="role-card-head"><span class="role-icon">🟢</span><div><h3>VRAM</h3><span class="short">Bộ nhớ gần GPU</span></div></div><p>Giữ weights và dữ liệu tạm mà GPU cần truy cập nhanh. Model không vừa VRAM đôi khi vẫn chạy được bằng cách để một phần ở RAM, nhưng việc trao đổi có thể làm chậm đáng kể.</p><p class="limit"><strong>Nhớ:</strong> “không đủ VRAM” không luôn đồng nghĩa “không thể chạy”.</p></article>
+        <article class="role-card panel"><div class="role-card-head"><span class="role-icon">📚</span><div><h3>Weights của model</h3><span class="short">Cuốn sách công thức đã học</span></div></div><p>Hàng tỷ giá trị được học trong quá trình huấn luyện. Khi bạn đặt câu hỏi thông thường, chương trình dùng lại weights này để tính; nó không viết lại “kiến thức” vào weights sau mỗi câu.</p><p class="limit"><strong>Nhớ:</strong> weights là phần tương đối cố định, khác với lịch sử chat.</p></article>
+        <article class="role-card panel"><div class="role-card-head"><span class="role-icon">📝</span><div><h3>Context &amp; KV cache</h3><span class="short">Đề bài và giấy nháp đang dùng</span></div></div><p>Prompt gồm câu hỏi, hướng dẫn và có thể cả lịch sử hội thoại. KV cache là dữ liệu trung gian giúp model không phải tính lại một số phần trong lượt đang xử lý; nó thường tăng khi context dài hơn.</p><p class="limit"><strong>Nhớ:</strong> đây là bộ nhớ dùng lúc chạy, không phải weights mới được học.</p></article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="twophases-title">
+      <div class="section-intro"><p class="eyebrow">HAI KHOẢNH KHẮC QUAN TRỌNG</p><h2 id="twophases-title">Khởi động một lần, rồi xử lý từng lượt hỏi</h2><p>“Nạp model” và “trả lời câu hỏi” có liên quan nhưng không phải cùng một thao tác.</p></div>
+      <div class="two-lanes">
+        <article class="lane lane-start panel"><h3>A. Mở model / bắt đầu chạy</h3><p>Việc này có thể xảy ra lúc mở ứng dụng hoặc khi yêu cầu đầu tiên đến.</p><ol><li><strong>Runtime mở file model</strong><span>Ổ đĩa giữ file; chương trình kiểm tra định dạng và chuẩn bị model.</span></li><li><strong>Đặt weights vào bộ nhớ khả dụng</strong><span>Toàn bộ ở VRAM/RAM, hoặc phân lớp giữa GPU và CPU tùy thiết lập.</span></li><li><strong>Dành chỗ cho phần chạy</strong><span>Cần thêm chỗ cho context, KV cache, ứng dụng và dữ liệu tạm.</span></li></ol></article>
+        <article class="lane lane-question panel"><h3>B. Người dùng gửi câu hỏi</h3><p>Với một lượt chat mới, thường có hai phần tính toán dễ nhận ra.</p><ol><li><strong>Chuẩn bị và “đọc” prompt</strong><span>Văn bản được đổi thành token; model xử lý prompt để hiểu ngữ cảnh (prefill).</span></li><li><strong>Sinh từng token tiếp theo</strong><span>Model tính token kế, rồi lặp lại: mỗi token mới trở thành ngữ cảnh cho token sau (decode).</span></li><li><strong>Hiển thị và giữ ngữ cảnh</strong><span>Ứng dụng stream chữ ra màn hình; lịch sử/KV cache được giữ hoặc dựng lại theo runtime.</span></li></ol></article>
+      </div>
+      <div class="callout"><strong>Prefill và decode:</strong> GPU có thể xử lý nhiều phép toán song song bên trong mỗi bước. Nhưng phần trả lời vẫn phải chọn token tiếp theo rồi mới chọn token sau, nên việc sinh chữ thường diễn ra tuần tự theo từng token. Khi app/runtime hỗ trợ, câu trả lời được hiện dần để bạn không phải đợi đến cuối.</div>
+    </section>
+
+    <section class="section" aria-labelledby="memory-title">
+      <div class="section-intro"><p class="eyebrow">VÌ SAO CÓ MÁY CHẠY ĐƯỢC, CÓ MÁY BỊ CHẬM?</p><h2 id="memory-title">Bộ nhớ cần chỗ cho hơn mỗi file model</h2><p>Ước tính nhập môn để hiểu cấu phần; không phải công thức đảm bảo chính xác cho từng model.</p></div>
+      <div class="memory-equation" aria-label="Bộ nhớ khi chạy gồm weights cộng KV cache cộng phần phụ trợ"><span>weights</span><b>+</b><span>KV cache / context</span><b>+</b><span>runtime &amp; dữ liệu tạm</span><b>≈</b><strong>bộ nhớ cần khi chạy</strong></div>
+      <article class="example panel"><div><h3>Ví dụ gần đúng: model 8 tỷ tham số ở dạng Q4</h3><p>Chỉ phần weights có thể cỡ khoảng 4–5 GB theo kiểu lưu trữ phổ biến. Còn cần chỗ cho KV cache, runtime, hệ điều hành và các vùng đệm. Kích cỡ thật phụ thuộc định dạng, kiến trúc và cấu hình.</p></div><div class="number">~4–5 GB<small>weights minh họa thôi</small></div></article>
+      <article class="example panel"><div><h3>Nếu VRAM không đủ thì sao?</h3><p>Một số runtime có thể <strong>offload</strong>: để một phần weights/layers ở RAM và một phần ở VRAM. Model có thể chạy được nhưng CPU–GPU cần trao đổi dữ liệu; nếu trao đổi nhiều, GPU phải chờ và tốc độ giảm. Một số cấu hình khác sẽ báo không đủ bộ nhớ.</p></div><div class="number">GPU ↔ RAM<small>có thể thêm chặng trao đổi</small></div></article>
+    </section>
+
+    <section class="section" aria-labelledby="myths-title">
+      <div class="section-intro"><p class="eyebrow">ĐỠ NHẦM LẪN</p><h2 id="myths-title">Bốn điều người mới hay hiểu sai</h2></div>
+      <div class="myths">
+        <article class="myth panel"><h3>“Có RAM thật nhiều thì AI sẽ nhanh.”</h3><p>RAM lớn giúp <strong>chứa</strong> model/dữ liệu, nhưng tốc độ còn tùy băng thông bộ nhớ, CPU/GPU, runtime, model và lượng dữ liệu phải xử lý.</p></article>
+        <article class="myth panel"><h3>“Model đã tải là mọi câu hỏi đều tức thì.”</h3><p>Nạp weights chỉ chuẩn bị model. Mỗi prompt vẫn cần được xử lý; model càng lớn, context càng dài hoặc phần cứng càng chậm thì thường càng mất thời gian.</p></article>
+        <article class="myth panel"><h3>“GPU tự nhớ toàn bộ cuộc trò chuyện.”</h3><p>Model dùng context mà ứng dụng/runtime đưa vào lượt hiện tại. Lịch sử có thể được gửi lại hoặc cache theo cách triển khai; <strong>weights không tự cập nhật</strong> chỉ vì bạn chat.</p></article>
+        <article class="myth panel"><h3>“GPU 100% là mọi thứ đang chạy tối ưu.”</h3><p>Không nhất thiết. Máy còn có thể bị giới hạn bởi VRAM, băng thông, CPU, nhiệt độ, phần trao đổi dữ liệu hoặc thiết lập runtime. Phần trăm sử dụng chỉ là một tín hiệu.</p></article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="glossary-title">
+      <div class="section-intro"><p class="eyebrow">TỪ ĐIỂN MINI</p><h2 id="glossary-title">Gặp từ lạ thì tra nhanh ở đây</h2></div>
+      <dl class="glossary">
+        <div class="term"><dt>Inference</dt><dd>Dùng model đã huấn luyện để tạo kết quả mới, ví dụ trả lời câu hỏi.</dd></div>
+        <div class="term"><dt>Token</dt><dd>Mảnh văn bản mà model xử lý/sinh ra; không phải lúc nào cũng bằng một từ.</dd></div>
+        <div class="term"><dt>Quantization (Q4, Q8)</dt><dd>Cách lưu weights bằng độ chính xác thấp hơn để giảm kích thước và bộ nhớ; có thể ảnh hưởng chất lượng/tốc độ tùy model và backend.</dd></div>
+        <div class="term"><dt>Context window</dt><dd>Lượng nội dung model có thể xét trong một lượt; gồm chỉ dẫn, lịch sử và nội dung mới theo cách runtime đóng gói.</dd></div>
+        <div class="term"><dt>Bandwidth</dt><dd>Lượng dữ liệu bộ nhớ có thể chuyển trong một khoảng thời gian; khác với dung lượng bộ nhớ.</dd></div>
+        <div class="term"><dt>Offload</dt><dd>Chia một phần công việc/model sang thiết bị khác, thường là kết hợp GPU/VRAM với CPU/RAM.</dd></div>
+      </dl>
+    </section>
+
+    <aside class="closing panel"><div><h2>Muốn tự đổi model và phần cứng để quan sát?</h2><p>Mở playground CPU/GPU để xem ước tính bộ nhớ, chế độ chạy và luồng sinh chữ. Các con số ở đó cũng chỉ nhằm minh họa, không phải benchmark.</p></div><a class="button-link" href="cpu-gpu.html">Mở mô phỏng CPU vs GPU ↗</a></aside>
+    <footer class="footer"><span>AI Pattern Lab · hướng dẫn giáo dục, không gọi model hay gửi dữ liệu</span><a href="index.html">Về AI Pattern Lab ↑</a></footer>
+  </main>
+  <script>
+    (() => {
+      'use strict';
+      const steps = [
+        {phase:'TRƯỚC KHI CÓ CÂU HỎI',title:'Model được nạp vào bộ nhớ',text:'Khi bạn mở model, chương trình đọc các weights (những con số đã học) từ ổ đĩa. Tùy máy và runtime, chúng được đưa vào RAM, VRAM, hoặc chia giữa hai nơi. Ổ đĩa là chỗ cất; bộ nhớ là chỗ để model làm việc.',takeaway:'model vừa ổ đĩa chưa có nghĩa là đã vừa VRAM; cần tính cả bộ nhớ tạm để chạy.',nodes:['disk','ram','cpu']},
+        {phase:'KHI BẠN GỬI CÂU HỎI',title:'Ứng dụng chuẩn bị nội dung gửi model',text:'Ứng dụng/runtime nhận tin nhắn, ghép thêm chỉ dẫn và lịch sử cần thiết. Văn bản được tokenizer chia thành token — các mảnh chữ mà model hiểu. CPU thường điều phối bước chuẩn bị này; bản thân model không nhất thiết giữ toàn bộ lịch sử chat.',takeaway:'câu hỏi thường được thêm vào một prompt lớn hơn, chứ không chỉ gửi riêng một câu.',nodes:['cpu','ram']},
+        {phase:'PREFILL · XỬ LÝ PROMPT',title:'Model xử lý nội dung đầu vào',text:'Các token của prompt được đưa qua nhiều lớp của model. GPU thường đảm nhận nhiều phép toán ma trận song song; weights và dữ liệu tạm được đọc từ VRAM/RAM. Trong giai đoạn này, hệ thống cũng có thể tạo KV cache cho ngữ cảnh vừa đọc.',takeaway:'prompt dài thường cần nhiều phép tính ở bước đọc và dùng thêm bộ nhớ tạm.',nodes:['ram','gpu','cpu']},
+        {phase:'DECODE · TẠO PHẢN HỒI',title:'Tính token kế tiếp, lặp lại',text:'Model tính phân bố khả năng của token kế tiếp; thuật toán chọn ra một token. Rồi token ấy được nối vào ngữ cảnh để model tính token sau. GPU vẫn song song bên trong phép tính, nhưng chuỗi token được sinh lần lượt. Đọc weights và bộ nhớ thường xuyên có thể trở thành nút thắt.',takeaway:'GPU xử lý phép toán song song; việc tạo câu vẫn cần chờ token kế tiếp qua từng vòng.',nodes:['ram','gpu']},
+        {phase:'HIỂN THỊ CHO NGƯỜI DÙNG',title:'Ứng dụng stream câu trả lời ra màn hình',text:'Runtime chuyển các token thành chữ và thường gửi dần cho giao diện. CPU lo nhiều phần điều phối; GPU tiếp tục tính cho đến khi gặp token kết thúc, đạt giới hạn hoặc bị dừng. Các chi tiết như chọn token ở CPU hay GPU phụ thuộc phần mềm.',takeaway:'“đang gõ chữ” là các mảnh đầu ra nối tiếp nhau, không phải nguyên đoạn được viết sẵn.',nodes:['cpu','gpu','answer']},
+        {phase:'GIỮ MODEL SẴN SÀNG CHO LƯỢT TIẾP THEO',title:'Model có thể ở lại bộ nhớ',text:'Sau câu trả lời, ứng dụng có thể giữ weights trong RAM/VRAM để lượt sau bắt đầu nhanh hơn, hoặc giải phóng bộ nhớ. Lịch sử chat và KV cache được xử lý tùy runtime. Khi hội thoại dài, context/cache có thể chiếm thêm chỗ; khi đầy, ứng dụng có thể rút gọn hoặc bỏ bớt phần cũ.',takeaway:'weights là “sách công thức”; context/KV cache là “giấy nháp” có thể thay đổi theo lượt.',nodes:['ram','cpu','gpu','answer']}
+      ];
+      const tabs = [...document.querySelectorAll('.step-tab')];
+      const phase = document.getElementById('step-phase');
+      const title = document.getElementById('step-title');
+      const text = document.getElementById('step-text');
+      const takeaway = document.getElementById('step-takeaway');
+      const story = document.getElementById('step-story');
+      const liveStep = document.getElementById('liveStep');
+      const counter = document.getElementById('step-counter');
+      const prev = document.getElementById('prev-step');
+      const next = document.getElementById('next-step');
+      const nodes = [...document.querySelectorAll('.flow-node')];
+      let active = 0;
+      function showStep(index, moveFocus = false) {
+        active = Math.max(0, Math.min(steps.length - 1, index));
+        const step = steps[active];
+        tabs.forEach((tab, i) => {
+          const selected = i === active;
+          tab.setAttribute('aria-selected', String(selected));
+          tab.tabIndex = selected ? 0 : -1;
+        });
+        phase.textContent = step.phase;
+        title.textContent = step.title;
+        text.textContent = step.text;
+        takeaway.innerHTML = `<strong>Điểm nhớ:</strong> ${step.takeaway}`;
+        story.setAttribute('aria-labelledby', tabs[active].id);
+        liveStep.textContent = `ĐANG XEM · ${String(active + 1).padStart(2,'0')} / 06`;
+        counter.textContent = `Bước ${active + 1} trên ${steps.length}`;
+        prev.disabled = active === 0;
+        next.disabled = active === steps.length - 1;
+        nodes.forEach(node => node.classList.toggle('is-active', step.nodes.includes(node.dataset.node)));
+        if (moveFocus) tabs[active].focus();
+      }
+      tabs.forEach((tab, i) => {
+        tab.addEventListener('click', () => showStep(i));
+        tab.addEventListener('keydown', event => {
+          let target = null;
+          if (event.key === 'ArrowRight' || event.key === 'ArrowDown') target = (active + 1) % tabs.length;
+          if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') target = (active - 1 + tabs.length) % tabs.length;
+          if (event.key === 'Home') target = 0;
+          if (event.key === 'End') target = tabs.length - 1;
+          if (target !== null) { event.preventDefault(); showStep(target, true); }
+        });
+      });
+      prev.addEventListener('click', () => showStep(active - 1));
+      next.addEventListener('click', () => showStep(active + 1));
+      showStep(0);
+    })();
+  </script>
+</body>
+</html>
