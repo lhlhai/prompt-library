@@ -13,6 +13,8 @@
     .analogy p,.story-card p,.role-card p,.lane>p,.lane li,.callout,.example p,.myth p,.term dd,.section-intro p{font-size:13px;line-height:1.7}
     .section-heading p{font-size:12px}.step-tab strong{font-size:11px}.story-card .takeaway{font-size:12px}.role-card .short,.role-card .limit,.lane li span{font-size:11px}.example h3,.myth h3{font-size:13px}.term dt{font-size:12px}
     @media(max-width:580px){.analogy p,.story-card p,.role-card p,.lane>p,.lane li,.callout,.example p,.myth p,.term dd,.section-intro p{font-size:12px}}
+  <style>
+    .live-simulation{padding:18px}.live-simulation .section-intro{max-width:850px}.sim-toolbar{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:14px 0 10px}.sim-toolbar label{display:grid;gap:5px;min-width:min(100%,310px);color:var(--muted);font-size:11px;font-weight:800}.sim-toolbar select{min-height:40px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:#0b1824;color:var(--text);font:inherit}.sim-toolbar select:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}.sim-buttons{display:flex;flex-wrap:wrap;gap:7px}.sim-button{min-height:39px;padding:8px 11px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--text);font-size:10px;font-weight:850;cursor:pointer}.sim-button:hover:not(:disabled){border-color:var(--cyan)}.sim-button:disabled{opacity:.45;cursor:not-allowed}.sim-button.primary{border-color:rgba(74,222,128,.35);background:rgba(74,222,128,.1);color:#a7f3bf}.sim-button.quiet{color:var(--muted)}.sim-legend{display:flex;align-items:center;flex-wrap:wrap;gap:7px 14px;margin:0 0 10px;color:var(--muted);font-size:9px}.sim-legend span{display:inline-flex;align-items:center;gap:5px}.sim-legend i{width:8px;height:8px;border-radius:50%}.legend-memory{background:var(--purple)}.legend-compute{background:var(--green)}.legend-transfer{background:var(--amber)}.sim-legend small{color:var(--subtle);font-size:9px}.sim-visualization{display:grid;grid-template-columns:minmax(0,1fr) 24px minmax(0,1.06fr) 24px minmax(0,1fr);align-items:stretch;gap:7px;padding:10px;border:1px solid var(--line);border-radius:13px;background:radial-gradient(ellipse at 52% 0%,rgba(56,189,248,.045),transparent 66%),#081521}.sim-module{min-width:0;padding:12px;border:1px solid rgba(151,181,199,.16);border-radius:11px;background:rgba(16,30,43,.8);transition:border-color .2s,box-shadow .2s,background .2s}.sim-module.is-active{border-color:var(--active-color,var(--cyan));box-shadow:0 0 18px color-mix(in srgb,var(--active-color,var(--cyan)) 16%,transparent);background:color-mix(in srgb,var(--active-color,var(--cyan)) 5%,#101e2b)}.memory-module{--active-color:var(--purple)}.compute-module{--active-color:var(--green)}.stream-module{--active-color:var(--cyan)}.sim-module-title{display:flex;align-items:center;gap:8px;margin-bottom:11px}.sim-icon{display:grid;place-items:center;flex:none;width:31px;height:31px;border:1px solid var(--line);border-radius:9px;background:rgba(56,189,248,.07);font-size:16px}.sim-module-title strong,.sim-module-title small{display:block}.sim-module-title strong{font-size:11px}.sim-module-title small{margin-top:2px;color:var(--subtle);font-size:9px;line-height:1.3}.drive-file{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px;border:1px dashed rgba(251,191,36,.28);border-radius:9px;background:rgba(251,191,36,.035);opacity:.55;transition:opacity .2s,border-color .2s}.drive-file>span{font-size:18px}.drive-file strong,.drive-file small{display:block}.drive-file strong{font-size:10px}.drive-file small{color:var(--subtle);font-size:8px}.sim-visualization[data-phase=load] .drive-file{opacity:1;border-color:var(--amber)}.memory-bank{margin-top:8px;padding:8px;border:1px solid rgba(151,181,199,.12);border-radius:8px;background:rgba(5,14,22,.35);transition:border-color .2s,opacity .2s}.memory-bank>div:first-child{display:flex;align-items:center;justify-content:space-between;gap:5px}.memory-bank strong{font-size:10px}.memory-bank small{color:var(--subtle);font-size:8px}.memory-bank.is-used{border-color:rgba(192,132,252,.45)}.memory-track{display:flex;gap:2px;height:7px;margin-top:6px;overflow:hidden;border-radius:6px;background:#07131e}.memory-track span{display:block;width:0;border-radius:inherit;transition:width .45s ease}.memory-weights{background:var(--purple)}.memory-cache{background:var(--green)}.bank-note{margin:7px 0 0;color:var(--subtle);font-size:8px;line-height:1.4}.sim-visualization[data-mode=cpu] [data-bank=vram]{opacity:.42}.sim-visualization[data-mode=gpu] [data-bank=ram]{opacity:.7}.sim-visualization[data-mode=hybrid] [data-bank=ram],.sim-visualization[data-mode=hybrid] [data-bank=vram]{opacity:1}.sim-connector{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;color:var(--subtle);font-size:15px}.sim-connector i{display:none;color:var(--amber);font-size:12px;font-style:normal}.sim-connector i.is-on{display:block;animation:transfer-pulse .55s ease-in-out infinite alternate}@keyframes transfer-pulse{from{opacity:.4;transform:translateX(-2px)}to{opacity:1;transform:translateX(2px)}}.compute-units{display:grid;gap:10px}.unit-group{padding:8px;border:1px solid rgba(151,181,199,.12);border-radius:8px;background:rgba(5,14,22,.35);transition:opacity .2s,border-color .2s}.unit-group>strong{display:block;font-size:9px}.unit-group>small{display:block;margin-top:5px;color:var(--subtle);font-size:8px}.cpu-cores{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:7px}.cpu-cores i,.gpu-lanes i{display:block;height:15px;border:1px solid rgba(96,165,250,.2);border-radius:4px;background:#142738;transition:background .1s,box-shadow .1s,border-color .1s}.cpu-cores i.is-on{border-color:var(--blue);background:var(--blue);box-shadow:0 0 9px rgba(96,165,250,.5)}.gpu-lanes{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-top:7px}.gpu-lanes i{height:11px;border-color:rgba(74,222,128,.2)}.gpu-lanes i.is-on{border-color:var(--green);background:var(--green);box-shadow:0 0 7px rgba(74,222,128,.5)}.sim-visualization[data-mode=cpu] #gpu-units{opacity:.36}.sim-visualization[data-mode=gpu] #cpu-units{opacity:.8}.sim-visualization[data-mode=hybrid] #cpu-units,.sim-visualization[data-mode=hybrid] #gpu-units{opacity:1}.transfer-note{margin:9px 0 0;padding:7px;border:1px solid rgba(251,191,36,.28);border-radius:8px;background:rgba(251,191,36,.06);color:#fcd783;font-size:9px;line-height:1.4}#transfer-indicator.is-on{display:block}.prompt-scene,.answer-scene{padding:9px;border:1px solid rgba(151,181,199,.13);border-radius:9px;background:rgba(5,14,22,.35)}.answer-scene{margin-top:8px;border-color:rgba(56,189,248,.18)}.scene-label{display:block;color:var(--subtle);font:900 8px ui-monospace,monospace;letter-spacing:.1em}.prompt-scene p{margin:5px 0 7px;color:var(--text);font-size:10px;line-height:1.45}.prompt-tokens{display:flex;flex-wrap:wrap;gap:3px}.prompt-tokens i,.answer-token{padding:3px 5px;border:1px solid var(--line);border-radius:5px;background:rgba(151,181,199,.045);color:var(--subtle);font-size:8px;font-style:normal;transition:color .2s,border-color .2s,background .2s}.prompt-tokens i.is-ready{border-color:rgba(56,189,248,.28);color:#a9e8ff}.prompt-tokens i.is-read{border-color:rgba(192,132,252,.4);background:rgba(192,132,252,.1);color:#e0c6ff}.answer-tokens{display:flex;flex-wrap:wrap;align-content:flex-start;gap:4px;min-height:48px;margin-top:6px}.answer-placeholder{align-self:center;color:var(--subtle);font-size:9px}.answer-token{border-color:rgba(74,222,128,.26);background:rgba(74,222,128,.07);color:#baf4ca;animation:token-appear .2s ease both}@keyframes token-appear{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}.sim-readout{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;align-items:start;margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:10px;background:rgba(16,30,43,.62)}.sim-phase{grid-row:span 2;padding:4px 7px;border:1px solid rgba(56,189,248,.24);border-radius:7px;color:var(--cyan);font:900 8px ui-monospace,monospace;white-space:nowrap}.sim-readout h3{margin:0;font-size:12px}.sim-readout p{grid-column:2;margin:2px 0 0;color:var(--muted);font-size:11px;line-height:1.55}.sim-readout[data-state=paused] .sim-phase{border-color:rgba(251,191,36,.3);color:#fcd783}.sim-readout[data-state=done] .sim-phase{border-color:rgba(74,222,128,.3);color:var(--green)}@media(max-width:900px){.sim-visualization{grid-template-columns:minmax(0,1fr) 18px minmax(0,1.1fr) 18px minmax(0,1fr);gap:5px;padding:7px}.sim-module{padding:9px}.sim-toolbar{align-items:stretch;flex-direction:column}.sim-toolbar label{min-width:0}}@media(max-width:700px){.live-simulation{padding:12px}.sim-visualization{grid-template-columns:1fr;gap:6px}.sim-module{padding:11px}.sim-connector{min-height:17px;flex-direction:row;gap:8px}.sim-connector>span{transform:rotate(90deg)}.sim-connector i{min-width:14px;text-align:center}.single-connector{display:none}.compute-units{grid-template-columns:1fr 1fr}.sim-buttons{display:grid;grid-template-columns:1fr 1fr}.sim-button.quiet{grid-column:1/-1}.sim-readout{grid-template-columns:1fr}.sim-phase{grid-row:auto;justify-self:start}.sim-readout p{grid-column:1}.sim-legend small{flex-basis:100%}}@media(prefers-reduced-motion:reduce){.sim-connector i.is-on,.answer-token{animation:none!important}.memory-track span,.sim-module,.prompt-tokens i,.cpu-cores i,.gpu-lanes i{transition:none!important}}
   </style>
 </head>
 <body>
@@ -64,6 +66,46 @@
         </article>
       </div>
       <div class="step-controls"><button id="prev-step" type="button" disabled>← Bước trước</button><p id="step-counter">Bước 1 trên 6</p><button id="next-step" type="button">Bước tiếp →</button></div>
+    </section>
+
+    <section class="live-simulation panel section" id="live-simulation" aria-labelledby="live-simulation-title">
+      <div class="section-intro"><p class="eyebrow">MÔ PHỎNG · MỘT CÂU HỎI ĐI QUA PHẦN CỨNG</p><h2 id="live-simulation-title">Nhìn thấy model đang làm gì</h2><p>Chọn cách chạy rồi bấm phát. Quan sát weights được đặt vào bộ nhớ, CPU/GPU xử lý và câu trả lời xuất hiện từng phần.</p></div>
+      <div class="sim-toolbar">
+        <label for="sim-mode">Cách chạy
+          <select id="sim-mode"><option value="gpu" selected>GPU · weights chủ yếu ở VRAM</option><option value="cpu">CPU · weights ở RAM</option><option value="hybrid">GPU + CPU offload · chia VRAM/RAM</option></select>
+        </label>
+        <div class="sim-buttons" role="group" aria-label="Điều khiển mô phỏng">
+          <button class="sim-button primary" id="sim-run" type="button">▶ Chạy mô phỏng</button>
+          <button class="sim-button" id="sim-pause" type="button" disabled>Ⅱ Tạm dừng</button>
+          <button class="sim-button quiet" id="sim-reset" type="button">↺ Chạy lại từ đầu</button>
+        </div>
+      </div>
+      <div class="sim-legend" aria-label="Lưu ý về mô phỏng"><span><i class="legend-memory"></i>Bộ nhớ</span><span><i class="legend-compute"></i>Đang tính</span><span><i class="legend-transfer"></i>Trao đổi dữ liệu</span><small>Minh họa khái niệm, không phải benchmark; khối và tốc độ animation không theo tỉ lệ phần cứng thật.</small></div>
+      <div class="sim-visualization" id="sim-visualization" data-mode="gpu" data-phase="idle">
+        <article class="sim-module memory-module" id="sim-memory" aria-label="Ổ đĩa và bộ nhớ chứa weights cùng dữ liệu tạm">
+          <div class="sim-module-title"><span class="sim-icon">💾</span><div><strong>Nơi đặt dữ liệu</strong><small>Ổ đĩa → RAM / VRAM</small></div></div>
+          <div class="drive-file" id="sim-disk"><span>📦</span><div><strong>Model weights</strong><small>đang ở ổ đĩa</small></div></div>
+          <div class="memory-bank" data-bank="ram"><div><strong>RAM</strong><small id="ram-caption">Bộ nhớ hệ thống</small></div><div class="memory-track"><span class="memory-weights" id="ram-weights"></span><span class="memory-cache" id="ram-cache"></span></div></div>
+          <div class="memory-bank" data-bank="vram"><div><strong>VRAM</strong><small id="vram-caption">Bộ nhớ gần GPU</small></div><div class="memory-track"><span class="memory-weights" id="vram-weights"></span><span class="memory-cache" id="vram-cache"></span></div></div>
+          <p class="bank-note">Vạch tím: weights · vạch xanh: KV cache đang lớn dần</p>
+        </article>
+        <div class="sim-connector" aria-hidden="true"><span>→</span><i id="transfer-indicator">↔</i><span>→</span></div>
+        <article class="sim-module compute-module" id="sim-compute" aria-label="CPU điều phối và bộ xử lý thực hiện phép tính">
+          <div class="sim-module-title"><span class="sim-icon">⚙️</span><div><strong>Nơi tính toán</strong><small id="compute-caption">GPU xử lý nhiều phép tính song song</small></div></div>
+          <div class="compute-units">
+            <div class="unit-group" id="cpu-units"><strong>CPU · điều phối / tính toán</strong><div class="cpu-cores" aria-hidden="true"><i></i><i></i><i></i><i></i></div><small id="cpu-unit-caption">nhận câu hỏi, sắp việc</small></div>
+            <div class="unit-group" id="gpu-units"><strong>GPU · các lane tính toán</strong><div class="gpu-lanes" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><small id="gpu-unit-caption">nhiều phép nhân ma trận</small></div>
+          </div>
+          <p class="transfer-note" id="transfer-note" hidden>↔ Một phần dữ liệu qua lại giữa RAM và VRAM</p>
+        </article>
+        <div class="sim-connector single-connector" aria-hidden="true"><span>→</span></div>
+        <article class="sim-module stream-module" id="sim-stream" aria-label="Câu hỏi, prompt và các phần câu trả lời được sinh">
+          <div class="sim-module-title"><span class="sim-icon">💬</span><div><strong>Ngữ cảnh &amp; đầu ra</strong><small>prompt → token tiếp theo</small></div></div>
+          <div class="prompt-scene"><span class="scene-label">CÂU HỎI CỦA BẠN</span><p>Vì sao GPU xử lý nhiều phép tính cùng lúc?</p><div class="prompt-tokens" aria-label="Các mảnh chữ minh họa"><i>Vì sao</i><i>GPU</i><i>xử lý</i><i>nhiều phép</i><i>cùng lúc?</i></div></div>
+          <div class="answer-scene"><span class="scene-label">CÂU TRẢ LỜI ĐANG SINH</span><div class="answer-tokens" id="answer-tokens" aria-live="polite" aria-label="Các phần câu trả lời xuất hiện dần"><span class="answer-placeholder">Chưa bắt đầu…</span></div></div>
+        </article>
+      </div>
+      <div class="sim-readout" aria-live="polite" aria-atomic="true"><span class="sim-phase" id="sim-phase">SẴN SÀNG</span><h3 id="sim-title">Chọn cách chạy rồi bấm “Chạy mô phỏng”</h3><p id="sim-copy">Đây là một câu hỏi giả lập. Các mảnh chữ và ô tính toán chỉ giúp nhìn luồng dữ liệu, không đại diện cho tokenization hoặc tốc độ thực.</p></div>
     </section>
 
     <section class="section" aria-labelledby="roles-title">
@@ -119,6 +161,219 @@
     <aside class="closing panel"><div><h2>Muốn tự đổi model và phần cứng để quan sát?</h2><p>Mở playground CPU/GPU để xem ước tính bộ nhớ, chế độ chạy và luồng sinh chữ. Các con số ở đó cũng chỉ nhằm minh họa, không phải benchmark.</p></div><a class="button-link" href="cpu-gpu.html">Mở mô phỏng CPU vs GPU ↗</a></aside>
     <footer class="footer"><span>AI Pattern Lab · hướng dẫn giáo dục, không gọi model hay gửi dữ liệu</span><a href="index.html">Về AI Pattern Lab ↑</a></footer>
   </main>
+  <script>
+(() => {
+  'use strict';
+  const $ = (id) => document.getElementById(id);
+  const root = $('sim-visualization');
+  if (!root) return;
+
+  const ui = {
+    mode: $('sim-mode'), run: $('sim-run'), pause: $('sim-pause'), reset: $('sim-reset'),
+    memory: $('sim-memory'), disk: $('sim-disk'), compute: $('sim-compute'), stream: $('sim-stream'),
+    cpu: $('cpu-units'), gpu: $('gpu-units'), transfer: $('transfer-note'), transferIndicator: $('transfer-indicator'),
+    phase: $('sim-phase'), title: $('sim-title'), copy: $('sim-copy'), readout: document.querySelector('.sim-readout'),
+    ram: $('ram-weights'), vram: $('vram-weights'), ramCache: $('ram-cache'), vramCache: $('vram-cache'),
+    ramCaption: $('ram-caption'), vramCaption: $('vram-caption'), computeCaption: $('compute-caption'),
+    cpuCaption: $('cpu-unit-caption'), gpuCaption: $('gpu-unit-caption'),
+    promptTokens: [...document.querySelectorAll('.prompt-tokens i')], answer: $('answer-tokens'),
+    cpuCores: [...document.querySelectorAll('.cpu-cores i')], gpuLanes: [...document.querySelectorAll('.gpu-lanes i')],
+  };
+  const answerParts = ['GPU', 'có nhiều', 'lane tính toán', 'cùng lúc.'];
+  const events = [
+    { phase: 'load', duration: 1200, title: '1. Nạp model vào bộ nhớ', copy: 'Runtime đọc weights từ ổ đĩa và đặt chúng vào RAM, VRAM hoặc chia giữa hai nơi. CPU điều phối bước chuẩn bị này.' },
+    { phase: 'prompt', duration: 1100, title: '2. CPU nhận câu hỏi và chuẩn bị prompt', copy: 'Ứng dụng ghép câu hỏi với hướng dẫn/lịch sử cần thiết. Các mảnh chữ bên dưới chỉ minh họa, không phải tokenization thật.' },
+    { phase: 'prefill', duration: 1700, title: '3. Prefill: đọc prompt để dựng ngữ cảnh', copy: 'Model xử lý các phần của prompt. GPU thường làm nhiều phép toán ma trận song song; CPU vẫn điều phối. KV cache bắt đầu được dùng để giữ dữ liệu trung gian.' },
+    ...answerParts.map((part, index) => ({ phase: 'decode', token: part, index, duration: 720 })),
+    { phase: 'done', duration: 0, title: 'Câu trả lời đã được ghép xong', copy: 'Mỗi phần đầu ra xuất hiện sau một vòng tính token kế tiếp. GPU có thể tính song song bên trong vòng đó, nhưng các token của câu thường nối tiếp nhau.' },
+  ];
+  let eventIndex = 0;
+  let timer = null;
+  let pulseTimer = null;
+  let running = false;
+  let pulseIndex = 0;
+
+  function modeDescription() {
+    if (ui.mode.value === 'cpu') return 'CPU tính model trên RAM; các lõi sáng lần lượt.';
+    if (ui.mode.value === 'hybrid') return 'Model minh họa được chia giữa VRAM và RAM; đường nối báo việc trao đổi dữ liệu.';
+    return 'GPU tính phần chính trên VRAM; nhiều lane cùng sáng trong phép tính song song.';
+  }
+
+  function updateModeLabels() {
+    const mode = ui.mode.value;
+    root.dataset.mode = mode;
+    ui.ramCaption.textContent = mode === 'cpu' ? 'Model + dữ liệu tạm' : mode === 'hybrid' ? 'Một phần model / dữ liệu' : 'Ứng dụng / phần hệ thống';
+    ui.vramCaption.textContent = mode === 'cpu' ? 'Không dùng cho model này' : mode === 'hybrid' ? 'Một phần model / dữ liệu' : 'Model + dữ liệu tạm';
+    ui.computeCaption.textContent = mode === 'cpu' ? 'CPU đảm nhận phần tính model' : mode === 'hybrid' ? 'GPU tính; CPU hỗ trợ phần offload' : 'GPU đảm nhận nhiều phép toán song song';
+    ui.cpuCaption.textContent = mode === 'cpu' ? 'tính các phần lần lượt' : 'nhận câu hỏi, sắp việc';
+    ui.gpuCaption.textContent = mode === 'cpu' ? 'không tham gia phép tính' : mode === 'hybrid' ? 'tính phần đang ở VRAM' : 'nhiều phép nhân ma trận';
+    if (root.dataset.phase === 'idle') ui.copy.textContent = `${modeDescription()} Chọn cách chạy rồi bấm phát; không có số đo tốc độ thực.`;
+    if (root.dataset.phase === 'load' || root.dataset.phase === 'prefill' || root.dataset.phase === 'decode') applyHighlights(root.dataset.phase);
+  }
+
+  function fillMemory(loaded, cache = 0) {
+    const mode = ui.mode.value;
+    ui.ram.style.width = !loaded ? '0%' : mode === 'cpu' ? '72%' : mode === 'hybrid' ? '38%' : '14%';
+    ui.vram.style.width = !loaded ? '0%' : mode === 'cpu' ? '0%' : mode === 'hybrid' ? '48%' : '72%';
+    ui.ramCache.style.width = mode === 'cpu' ? `${cache}%` : mode === 'hybrid' ? `${Math.round(cache * .45)}%` : '0%';
+    ui.vramCache.style.width = mode === 'cpu' ? '0%' : mode === 'hybrid' ? `${Math.round(cache * .55)}%` : `${cache}%`;
+  }
+
+  function clearCompute() {
+    ui.cpuCores.forEach((cell) => cell.classList.remove('is-on'));
+    ui.gpuLanes.forEach((cell) => cell.classList.remove('is-on'));
+  }
+
+  function pulseCompute() {
+    clearCompute();
+    const mode = ui.mode.value;
+    if (mode === 'cpu') {
+      ui.cpuCores[pulseIndex % ui.cpuCores.length]?.classList.add('is-on');
+    } else {
+      ui.gpuLanes.forEach((cell) => cell.classList.add('is-on'));
+      if (mode === 'hybrid') ui.cpuCores[pulseIndex % ui.cpuCores.length]?.classList.add('is-on');
+      else ui.cpuCores[0]?.classList.add('is-on');
+    }
+    pulseIndex += 1;
+  }
+
+  function applyHighlights(phase) {
+    const mode = ui.mode.value;
+    [ui.memory, ui.disk, ui.compute, ui.stream, ui.cpu, ui.gpu].forEach((el) => el.classList.remove('is-active'));
+    ui.transfer.hidden = !(mode === 'hybrid' && (phase === 'prefill' || phase === 'decode'));
+    ui.transferIndicator.classList.toggle('is-on', mode === 'hybrid' && (phase === 'prefill' || phase === 'decode'));
+    if (phase === 'load') {
+      ui.disk.classList.add('is-active'); ui.memory.classList.add('is-active');
+    } else if (phase === 'prompt') {
+      ui.cpu.classList.add('is-active'); ui.stream.classList.add('is-active');
+    } else if (phase === 'prefill' || phase === 'decode') {
+      ui.memory.classList.add('is-active'); ui.compute.classList.add('is-active'); ui.stream.classList.add('is-active');
+      ui.cpu.classList.add('is-active');
+      if (mode !== 'cpu') ui.gpu.classList.add('is-active');
+    } else if (phase === 'done') {
+      ui.memory.classList.add('is-active'); ui.stream.classList.add('is-active');
+    }
+  }
+
+  function stopPulses() {
+    if (pulseTimer) clearInterval(pulseTimer);
+    pulseTimer = null;
+    clearCompute();
+  }
+
+  function renderEvent(event) {
+    root.dataset.phase = event.phase;
+    ui.readout.dataset.state = event.phase === 'done' ? 'done' : 'running';
+    ui.phase.textContent = ({ load: 'NẠP MODEL', prompt: 'CHUẨN BỊ PROMPT', prefill: 'PREFILL', decode: 'DECODE · TOKEN KẾ', done: 'HOÀN TẤT' })[event.phase];
+    ui.title.textContent = event.title;
+    ui.copy.textContent = event.phase === 'done' ? event.copy : `${event.copy} ${modeDescription()}`;
+    applyHighlights(event.phase);
+    stopPulses();
+
+    if (event.phase === 'load') {
+      fillMemory(true, 0);
+      ui.promptTokens.forEach((token) => token.classList.remove('is-ready', 'is-read'));
+      ui.answer.replaceChildren(Object.assign(document.createElement('span'), { className: 'answer-placeholder', textContent: 'Đang chờ model tính…' }));
+    } else if (event.phase === 'prompt') {
+      ui.promptTokens.forEach((token) => token.classList.add('is-ready'));
+    } else if (event.phase === 'prefill') {
+      ui.promptTokens.forEach((token) => token.classList.add('is-read'));
+      fillMemory(true, 14);
+      pulseCompute();
+      pulseTimer = setInterval(pulseCompute, ui.mode.value === 'cpu' ? 220 : 500);
+    } else if (event.phase === 'decode') {
+      if (event.index === 0) ui.answer.replaceChildren();
+      const chunk = document.createElement('span');
+      chunk.className = 'answer-token';
+      chunk.textContent = event.token;
+      ui.answer.append(chunk);
+      fillMemory(true, Math.min(70, 14 + (event.index + 1) * 12));
+      pulseCompute();
+    } else if (event.phase === 'done') {
+      fillMemory(true, 62);
+      stopPulses();
+      ui.transfer.hidden = true;
+      ui.transferIndicator.classList.remove('is-on');
+    }
+  }
+
+  function setIdle() {
+    root.dataset.phase = 'idle';
+    ui.readout.dataset.state = 'idle';
+    ui.phase.textContent = 'SẴN SÀNG';
+    ui.title.textContent = 'Chọn cách chạy rồi bấm “Chạy mô phỏng”';
+    ui.copy.textContent = `${modeDescription()} Chọn cách chạy rồi bấm phát; không có số đo tốc độ thực.`;
+    [ui.memory, ui.disk, ui.compute, ui.stream, ui.cpu, ui.gpu].forEach((el) => el.classList.remove('is-active'));
+    ui.transfer.hidden = true;
+    ui.transferIndicator.classList.remove('is-on');
+    fillMemory(false, 0);
+    clearCompute();
+    ui.promptTokens.forEach((token) => token.classList.remove('is-ready', 'is-read'));
+    ui.answer.replaceChildren(Object.assign(document.createElement('span'), { className: 'answer-placeholder', textContent: 'Chưa bắt đầu…' }));
+  }
+
+  function stopTimers() {
+    if (timer) clearTimeout(timer);
+    timer = null;
+    stopPulses();
+  }
+
+  function runNext() {
+    if (!running) return;
+    const event = events[eventIndex++];
+    if (!event) return finish();
+    renderEvent(event);
+    if (event.phase === 'done') return finish();
+    timer = setTimeout(runNext, event.duration);
+  }
+
+  function finish() {
+    running = false;
+    stopTimers();
+    ui.run.disabled = false;
+    ui.run.textContent = '↻ Chạy lại mô phỏng';
+    ui.pause.disabled = true;
+  }
+
+  ui.run.addEventListener('click', () => {
+    if (eventIndex >= events.length) { eventIndex = 0; setIdle(); }
+    running = true;
+    ui.run.disabled = true;
+    ui.run.textContent = '▶ Đang chạy…';
+    ui.pause.disabled = false;
+    runNext();
+  });
+  ui.pause.addEventListener('click', () => {
+    if (!running) return;
+    running = false;
+    stopTimers();
+    ui.readout.dataset.state = 'paused';
+    ui.phase.textContent = 'TẠM DỪNG';
+    ui.title.textContent = 'Đang tạm dừng';
+    ui.copy.textContent = 'Nhấn “Tiếp tục” để xem phần kế tiếp, hoặc “Chạy lại từ đầu” để bắt đầu lại.';
+    ui.run.disabled = false;
+    ui.run.textContent = '▶ Tiếp tục';
+    ui.pause.disabled = true;
+  });
+  ui.reset.addEventListener('click', () => {
+    running = false;
+    stopTimers();
+    eventIndex = 0;
+    ui.run.disabled = false;
+    ui.run.textContent = '▶ Chạy mô phỏng';
+    ui.pause.disabled = true;
+    setIdle();
+  });
+  ui.mode.addEventListener('change', () => {
+    updateModeLabels();
+    if (root.dataset.phase !== 'idle') {
+      fillMemory(root.dataset.phase !== 'load' || eventIndex > 0, root.dataset.phase === 'decode' ? 26 : root.dataset.phase === 'prefill' ? 14 : 0);
+    }
+  });
+  updateModeLabels();
+  setIdle();
+})();
+  </script>
   <script>
     (() => {
       'use strict';
