@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07121d">
+  <meta name="description" content="Mô phỏng tương tác cách CPU, GPU, RAM và VRAM phối hợp khi chạy LLM local.">
+  <title>CPU vs GPU khi chạy LLM · AI Pattern Lab</title>
+  <link rel="stylesheet" href="cpu-gpu.css">
+  <script src="cpu-gpu.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Bỏ qua điều khiển</a>
+  <header class="topbar">
+    <a class="brand" href="index.html"><span class="brand-mark">AI</span><span><strong>AI Pattern Lab</strong><small>Hardware playground</small></span></a>
+    <nav aria-label="Điều hướng"><a href="index.html">← AI Pattern Lab</a><a href="../index.html">Landing</a></nav>
+  </header>
+  <main id="main">
+    <section class="hero">
+      <p class="eyebrow">LOCAL INFERENCE · INTERACTIVE SIMULATION</p>
+      <h1>CPU <span>vs</span> GPU<br><em>khi chạy LLM</em></h1>
+      <p>Nhìn thấy model weights được nạp vào bộ nhớ nào, prompt được xử lý ra sao và vì sao tốc độ sinh token thường bị giới hạn bởi băng thông bộ nhớ.</p>
+      <div class="simulation-note"><span aria-hidden="true">i</span><p><strong>Mô phỏng giáo dục, không phải benchmark.</strong> Tốc độ thực phụ thuộc runtime, kernel, batch, nhiệt độ, model file và context. Các từ xuất hiện bên dưới là chunk minh họa, không phải tokenization thật.</p></div>
+    </section>
+
+    <section class="workspace" aria-label="Điều khiển và mô phỏng">
+      <aside class="control-panel panel" aria-labelledby="controls-title">
+        <div class="section-title"><div><p class="eyebrow">CONFIGURATION</p><h2 id="controls-title">Thiết lập chạy</h2></div><span class="live-dot">LOCAL</span></div>
+        <label class="field">Model
+          <select id="modelSelect">
+            <option value="llama1">Llama 3.2 · 1B</option>
+            <option value="llama8" selected>Llama 3.1 · 8B</option>
+            <option value="qwen14">Qwen 2.5 · 14B</option>
+            <option value="llama70">Llama 3.1 · 70B</option>
+          </select>
+        </label>
+        <label class="field">Quantization
+          <select id="quantSelect">
+            <option value="fp16">FP16 / BF16 · 2.00 byte/param</option>
+            <option value="q8">Q8 · 1.00 byte/param</option>
+            <option value="q4" selected>Q4_K_M · ~0.55 byte/param</option>
+            <option value="q2">Q2_K · ~0.35 byte/param</option>
+          </select>
+        </label>
+        <label class="field">Phần cứng
+          <select id="hardwareSelect">
+            <option value="cpu">CPU only · DDR5 dual-channel · 16 cores</option>
+            <option value="rtx4060" selected>GPU RTX 4060 · 8GB VRAM</option>
+            <option value="rtx4090">GPU RTX 4090 · 24GB VRAM</option>
+            <option value="m3max">Mac M3 Max · 64GB unified memory</option>
+            <option value="offload">GPU + CPU offload · RTX 4060 + 64GB RAM</option>
+            <option value="a100">GPU A100 · 80GB HBM</option>
+          </select>
+        </label>
+        <div class="field context-field"><div class="range-label"><label for="contextSelect">Context length</label><output id="contextOutput" for="contextSelect">8K</output></div>
+          <input id="contextSelect" type="range" min="0" max="3" step="1" value="2" aria-label="Context length">
+          <div class="range-ticks"><span>2K</span><span>4K</span><span>8K</span><span>32K</span></div>
+        </div>
+        <div class="button-stack">
+          <button id="generateButton" class="button primary" type="button">▶ Generate Response</button>
+          <div class="button-row"><button id="resetButton" class="button quiet" type="button">↺ Reset</button><button id="demoButton" class="button demo" type="button">⇄ Auto-demo · 10s</button></div>
+        </div>
+        <p class="privacy-note">Không tải model, không gọi API, không gửi dữ liệu ra ngoài.</p>
+      </aside>
+
+      <div class="visual-column">
+        <section class="status-card panel" aria-live="polite">
+          <div><span id="statusIcon" class="status-icon">✓</span><div><p class="eyebrow">EXECUTION PLAN</p><h2 id="statusTitle">Đang tính…</h2><p id="statusDetail" class="status-detail"></p></div></div>
+          <span id="modePill" class="mode-pill">GPU</span>
+        </section>
+        <section class="meter-grid" aria-label="Live hardware meters">
+          <article class="meter-card panel meter-ram"><div class="meter-head"><span>RAM system</span><strong id="ramValue">—</strong></div><div class="meter-track"><span id="ramBar" class="meter-fill ram-fill"></span></div><small id="ramCaption">DDR5 · host memory</small></article>
+          <article id="vramMeter" class="meter-card panel"><div class="meter-head"><span>VRAM</span><strong id="vramValue">—</strong></div><div class="meter-track"><span id="vramBar" class="meter-fill vram-fill"></span></div><small id="vramCaption">Weights + KV cache</small></article>
+          <article class="meter-card panel"><div class="meter-head"><span>CPU utilization</span><strong id="cpuValue">0%</strong></div><div class="meter-track"><span id="cpuBar" class="meter-fill cpu-fill"></span></div><small id="cpuCaption">Coordinator / fallback</small></article>
+          <article class="meter-card panel"><div class="meter-head"><span>GPU utilization</span><strong id="gpuValue">0%</strong></div><div class="meter-track"><span id="gpuBar" class="meter-fill gpu-fill"></span></div><small id="gpuCaption">Parallel matmul</small></article>
+          <article class="meter-card speed-card panel"><div class="meter-head"><span>Estimated decode</span><strong><b id="speedValue">—</b> <small>tok/s</small></strong></div><div class="speed-sub"><span id="latencyValue">— ms/token</span><span>ước tính</span></div></article>
+        </section>
+
+        <section class="visual-card panel" aria-labelledby="visualTitle">
+          <div class="section-title"><div><p class="eyebrow">COMPUTE VISUALIZER</p><h2 id="visualTitle">Luồng tính toán</h2></div><span id="visualMode" class="visual-mode">GPU · song song</span></div>
+          <div id="singleStage" class="canvas-shell"><canvas id="hardwareCanvas" aria-label="Minh họa lõi CPU hoặc GPU đang tính toán"></canvas><div class="canvas-legend"><span><i class="legend-cpu"></i> CPU · tuần tự</span><span><i class="legend-gpu"></i> GPU · song song</span><span><i class="legend-data"></i> dữ liệu / layers</span></div></div>
+          <div id="compareStage" class="compare-grid" hidden>
+            <article class="compare-box"><div><strong>CPU · 16 cores</strong><span id="demoCpuCount">0 chunks</span></div><canvas id="cpuCanvas" aria-label="CPU demo: các lõi sáng lần lượt"></canvas><p>Ít lõi mạnh · tuần tự</p></article>
+            <article class="compare-box"><div><strong>GPU · 20 × 20 lanes</strong><span id="demoGpuCount">0 chunks</span></div><canvas id="gpuCanvas" aria-label="GPU demo: nhiều lõi sáng song song"></canvas><p>Nhiều phép toán đồng thời</p></article>
+            <p class="demo-clock" id="demoClock">Auto-demo chạy song song trong 10 giây.</p>
+          </div>
+          <div class="token-area"><div class="token-head"><div><p class="eyebrow">STREAMING OUTPUT</p><h3>Token stream</h3></div><span id="tokenCount">0 chunks</span></div><div id="tokenStream" class="token-stream" aria-live="polite"><span class="stream-placeholder">Bấm Generate Response để bắt đầu…</span></div></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="lower-grid">
+      <article class="panel breakdown-card" aria-labelledby="breakdown-title">
+        <div class="section-title"><div><p class="eyebrow">MEMORY ESTIMATE</p><h2 id="breakdown-title">Model cần bao nhiêu bộ nhớ?</h2></div><span class="formula-chip">GB thập phân</span></div>
+        <div class="formula-box"><code>RAM / VRAM ≈ weights + KV cache + overhead</code><p>Weights = số tham số × byte/parameter. KV cache tăng theo layers, KV heads, head dimension và context length.</p></div>
+        <div id="breakdown" class="breakdown-lines"></div>
+        <div class="memory-total"><span>Tổng ước tính cần</span><strong id="totalMemory">—</strong></div>
+        <p id="memoryFootnote" class="footnote"></p>
+      </article>
+      <article class="panel speed-card-detail" aria-labelledby="speed-title">
+        <div class="section-title"><div><p class="eyebrow">DECODE · MEMORY-BOUND</p><h2 id="speed-title">Vì sao nhanh/chậm?</h2></div><span class="bandwidth-chip" id="bandwidthChip">— GB/s</span></div>
+        <div class="speed-equation"><span>Memory bandwidth</span><b>÷</b><span>bytes đọc mỗi token</span><b>≈</b><strong>tok/s</strong></div>
+        <p id="speedExplanation">Trong decode, model sinh từng token một và thường phải đọc phần lớn weights lặp lại. Bandwidth cao cùng model nhỏ hơn thường cho nhiều token/giây hơn.</p>
+        <div id="phaseBars" class="phase-bars"><div><span>Prefill · xử lý prompt</span><i><b class="prefill-bar"></b></i><strong>song song tốt</strong></div><div><span>Decode · sinh token</span><i><b class="decode-bar"></b></i><strong>tuần tự / memory-bound</strong></div></div>
+      </article>
+    </section>
+
+    <details class="learn-panel panel">
+      <summary><span><small>LEARN · 5 CONCEPTS</small><strong>📚 Hiểu thêm về inference local</strong></span><span class="summary-icon">＋</span></summary>
+      <div class="learn-grid">
+        <article><span class="learn-number">01</span><h3>Tại sao GPU nhanh hơn?</h3><p>LLM thực hiện rất nhiều phép nhân ma trận. GPU có nhiều compute lanes để xử lý các phần tử đồng thời; CPU có ít core tổng quát hơn, mạnh về điều phối và tác vụ tuần tự. Chênh lệch thực tế tùy model, kernel, batch và phần cứng — không cố định 10–30×.</p></article>
+        <article><span class="learn-number">02</span><h3>RAM khác VRAM thế nào?</h3><p>RAM là bộ nhớ hệ thống nối với CPU; VRAM là bộ nhớ gần GPU, thường có bandwidth cao hơn. Model weights cần nằm trong bộ nhớ của thiết bị xử lý. Apple unified memory là một pool dùng chung, không cộng RAM và VRAM thành hai pool độc lập.</p></article>
+        <article><span class="learn-number">03</span><h3>Quantization làm model nhẹ hơn?</h3><p>Quantization lưu mỗi weight bằng ít bit hơn: FP16 xấp xỉ 2 byte, Q8 xấp xỉ 1, Q4 khoảng 0.5–0.55 và Q2 khoảng 0.35 byte/parameter. Đây là ước tính; định dạng, scale/metadata và tensor giữ độ chính xác cao làm kích thước file khác đi.</p></article>
+        <article><span class="learn-number">04</span><h3>Khi nào CPU là đủ?</h3><p>Model nhỏ dưới khoảng 3B, context ngắn, tác vụ thử nghiệm hoặc khi không có GPU phù hợp. CPU inference thường dùng được nhưng sinh chậm hơn; dual-channel RAM và số core cũng ảnh hưởng kết quả.</p></article>
+        <article><span class="learn-number">05</span><h3>Offload là gì?</h3><p>Khi model không vừa VRAM, runtime có thể giữ một phần layers/weights trên RAM và chạy phần còn lại trên GPU. CPU–GPU phải đồng bộ/trao đổi dữ liệu nên GPU có thể chờ CPU; tốc độ thường giảm rõ. Hành vi cụ thể tùy Ollama/llama.cpp/backend và cách cấu hình.</p></article>
+      </div>
+    </details>
+    <footer class="page-footer"><span>AI Pattern Lab · mô phỏng cục bộ, không gọi model</span><a href="index.html">Về AI Pattern Lab ↑</a></footer>
+  </main>
+</body>
+</html>

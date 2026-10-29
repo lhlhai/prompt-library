@@ -16,6 +16,12 @@ https://lhlhai.github.io/prompt-library/AI-2026/
 
 Trang About có liên kết về landing ở `../index.html`. Có thể tùy chỉnh các ví dụ và quiz trong `app.js`, nội dung/diagram trong `index.html`, và màu sắc/layout trong `style.css`.
 
+### CPU vs GPU khi chạy LLM
+
+Mở [`cpu-gpu.html`](./cpu-gpu.html) hoặc trang publish [CPU vs GPU Simulation](https://lhlhai.github.io/prompt-library/AI-2026/cpu-gpu.html). Trang là Vanilla HTML/CSS/JavaScript, không có framework, build step, font ngoài hay API. `cpu-gpu.js` tính footprint weights/KV/overhead, trạng thái chạy/offload và tốc độ decode minh họa; `cpu-gpu.css` chứa theme và layout responsive.
+
+Các tốc độ là **ước tính giáo dục**, hiệu chỉnh theo baseline phần cứng trong yêu cầu, không phải benchmark và không thể dự đoán chính xác một máy/runtime cụ thể. KV cache dùng công thức layers × KV heads × head dimension × context, giả định cache FP16; kiến trúc model và allocation thực tế có thể khác. Mac unified memory là một pool dùng chung. Token stream dùng text chunk minh họa, không phải tokenizer/model thật.
+
 ## Ví dụ Markdown theo pattern
 
 Các file dưới đây là ví dụ độc lập để đọc và sao chép khi thiết kế prompt hoặc workflow:
