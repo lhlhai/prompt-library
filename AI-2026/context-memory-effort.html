@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07121d">
+  <meta name="description" content="Mô phỏng cách parameters (B), context và thinking effort ảnh hưởng weights, KV cache và bộ nhớ RAM/VRAM.">
+  <title>Parameters, context &amp; thinking effort · AI Pattern Lab</title>
+  <style>
+    :root{color-scheme:dark;--bg:#07121d;--panel:#101e2b;--panel2:#142535;--text:#e6f0f8;--muted:#9bb0c0;--subtle:#6d8495;--line:rgba(151,181,199,.17);--cyan:#38bdf8;--blue:#60a5fa;--green:#4ade80;--purple:#c084fc;--amber:#fbbf24;--red:#fb7185;--radius:17px;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text);background:var(--bg);font-synthesis:none}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-width:320px;background:radial-gradient(ellipse at 80% 0%,rgba(192,132,252,.075),transparent 37rem),var(--bg);font-size:15px;line-height:1.65}a{color:inherit}.topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px max(18px,calc((100% - 1100px)/2));border-bottom:1px solid var(--line);background:rgba(7,18,29,.93);backdrop-filter:blur(14px)}.brand{display:flex;align-items:center;gap:10px;text-decoration:none}.brand-mark{display:grid;place-items:center;width:37px;height:37px;border-radius:11px;background:rgba(192,132,252,.13);color:#e0c6ff;font-size:12px;font-weight:950}.brand strong,.brand small{display:block;line-height:1.2}.brand strong{font-size:12px}.brand small{margin-top:4px;color:var(--muted);font-size:9px}.topbar nav{display:flex;align-items:center;gap:15px}.topbar nav a{color:var(--muted);font-size:10px;font-weight:800;text-decoration:none}.topbar nav a:hover,.footer a:hover{color:var(--cyan)}.skip-link{position:fixed;z-index:9;top:8px;left:8px;transform:translateY(-150%);padding:8px 12px;border-radius:8px;background:var(--cyan);color:#04121d}.skip-link:focus{transform:translateY(0)}main{width:min(1100px,calc(100% - 32px));margin:auto;padding:37px 0 48px}.hero{max-width:820px;margin-bottom:18px}.eyebrow{margin:0 0 6px;color:var(--cyan);font-size:10px;font-weight:900;letter-spacing:.15em}.hero h1{margin:0;font-size:clamp(38px,7vw,66px);line-height:1.02;letter-spacing:-.06em}.hero h1 span{color:#d9b7ff}.hero>p:not(.eyebrow){max-width:760px;margin:13px 0;color:var(--muted);font-size:15px}.hero-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}.link-button{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:8px 12px;border:1px solid rgba(56,189,248,.28);border-radius:9px;background:rgba(56,189,248,.08);color:#a9e8ff;font-size:10px;font-weight:850;text-decoration:none}.link-button.secondary{border-color:var(--line);background:var(--panel);color:var(--muted)}.link-button:hover{border-color:var(--cyan)}.panel{border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(145deg,rgba(20,37,53,.96),rgba(13,27,40,.98));box-shadow:0 14px 35px rgba(0,0,0,.15)}.analogy{display:grid;grid-template-columns:auto 1fr;gap:11px;align-items:start;margin:16px 0;padding:13px 15px;border:1px solid rgba(192,132,252,.2);border-radius:13px;background:rgba(192,132,252,.045)}.analogy-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:rgba(192,132,252,.12);font-size:17px}.analogy h2{margin:0 0 3px;font-size:13px}.analogy p{margin:0;color:var(--muted);font-size:12px;line-height:1.65}.analogy strong{color:var(--text)}.lab{padding:17px}.lab-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}.lab-heading h2{margin:0;font-size:19px;letter-spacing:-.025em}.lab-heading p{margin:4px 0 0;color:var(--muted);font-size:11px}.badge{flex:none;padding:4px 8px;border:1px solid var(--line);border-radius:99px;color:var(--muted);font:800 9px ui-monospace,monospace}.controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;padding:12px;border:1px solid var(--line);border-radius:12px;background:rgba(5,14,22,.36)}.field{display:grid;gap:4px;min-width:0;color:var(--muted);font-size:10px;font-weight:800}.field select{width:100%;min-height:39px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:#0b1824;color:var(--text);font:inherit}.field select:focus-visible,.field input:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}.context-control{grid-column:1/-1}.range-header{display:flex;justify-content:space-between;gap:9px}.range-header output{color:var(--text);font:850 11px ui-monospace,monospace}.context-control input{width:100%;margin:7px 0 0;accent-color:var(--purple)}.context-ticks{display:flex;justify-content:space-between;color:var(--subtle);font:8px ui-monospace,monospace}.actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.action-button{min-height:39px;padding:8px 11px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--text);font-size:10px;font-weight:850;cursor:pointer}.action-button:hover:not(:disabled){border-color:var(--cyan)}.action-button:disabled{opacity:.42;cursor:not-allowed}.action-button.load{border-color:rgba(192,132,252,.35);background:rgba(192,132,252,.1);color:#e3c7ff}.action-button.add{border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.08);color:#baf4ca}.action-button.danger{color:#fda4af}.memory-scene{margin-top:13px;padding:13px;border:1px solid var(--line);border-radius:13px;background:radial-gradient(ellipse at 50% 0%,rgba(56,189,248,.035),transparent 65%),#081521}.scene-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}.scene-header h3{margin:0;font-size:13px}.scene-header p{margin:2px 0 0;color:var(--subtle);font-size:9px}.scene-state{flex:none;padding:4px 8px;border:1px solid rgba(151,181,199,.17);border-radius:99px;color:var(--subtle);font:850 8px ui-monospace,monospace}.scene-state[data-loaded=true]{border-color:rgba(74,222,128,.3);color:var(--green)}.drive-row{display:flex;align-items:center;gap:9px;margin-bottom:10px;padding:9px 10px;border:1px dashed rgba(251,191,36,.27);border-radius:9px;background:rgba(251,191,36,.035);transition:opacity .25s,border-color .25s}.drive-row .drive-icon{font-size:18px}.drive-row strong,.drive-row small{display:block}.drive-row strong{font-size:10px}.drive-row small{color:var(--subtle);font-size:8px}.drive-row[data-loaded=true]{opacity:.58}.pools{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pool{min-width:0;padding:11px;border:1px solid rgba(151,181,199,.15);border-radius:10px;background:rgba(16,30,43,.78);transition:border-color .2s,opacity .2s}.pool[data-active=true]{border-color:rgba(192,132,252,.45)}.pool[data-over=true]{border-color:rgba(251,113,133,.7);box-shadow:0 0 14px rgba(251,113,133,.12)}.pool-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}.pool-head strong{font-size:12px}.pool-head small{display:block;color:var(--subtle);font-size:8px}.pool-amount{flex:none;color:var(--text);font:850 10px ui-monospace,monospace;text-align:right}.pool-amount small{display:block;color:var(--subtle);font:700 8px system-ui,sans-serif}.pool-track{display:flex;height:14px;overflow:hidden;margin-top:9px;border:1px solid rgba(151,181,199,.12);border-radius:5px;background:#06101a}.pool-track i{display:block;width:0;height:100%;min-width:0;transition:width .35s ease}.seg-weight{background:var(--purple)}.seg-cache{background:var(--green)}.seg-runtime{background:#7890a2}.pool-subtext{min-height:28px;margin:6px 0 0;color:var(--subtle);font-size:8px;line-height:1.4}.pool[data-active=false]{opacity:.62}.context-meter{margin-top:12px;padding:11px;border:1px solid rgba(56,189,248,.18);border-radius:10px;background:rgba(56,189,248,.035)}.context-head{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:9px}.context-head strong{color:var(--text);font:850 10px ui-monospace,monospace}.context-track{height:9px;margin-top:7px;overflow:hidden;border-radius:9px;background:#06101a}.context-fill{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#7e22ce,var(--purple),var(--green));transition:width .35s ease}.context-caption{margin:5px 0 0;color:var(--subtle);font-size:8px}.legend{display:flex;flex-wrap:wrap;gap:7px 13px;margin-top:10px;color:var(--muted);font-size:9px}.legend span{display:inline-flex;align-items:center;gap:5px}.legend i{width:8px;height:8px;border-radius:2px}.legend .weight{background:var(--purple)}.legend .cache{background:var(--green)}.legend .runtime{background:#7890a2}.readout{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;align-items:start;margin-top:11px;padding:12px;border:1px solid var(--line);border-radius:10px;background:rgba(16,30,43,.65)}.readout-icon{grid-row:span 2;display:grid;place-items:center;width:25px;height:25px;border-radius:8px;background:rgba(56,189,248,.09);color:var(--cyan);font-weight:900}.readout h3{margin:0;font-size:12px}.readout p{grid-column:2;margin:2px 0 0;color:var(--muted);font-size:11px;line-height:1.6}.readout[data-state=warning] .readout-icon{background:rgba(251,191,36,.1);color:var(--amber)}.readout[data-state=error] .readout-icon{background:rgba(251,113,133,.1);color:var(--red)}.readout[data-state=ready] .readout-icon{background:rgba(74,222,128,.1);color:var(--green)}.breakdown{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.metric{padding:10px;border:1px solid var(--line);border-radius:10px;background:rgba(16,30,43,.62)}.metric span{display:block;color:var(--muted);font-size:9px}.metric strong{display:block;margin-top:3px;color:var(--text);font:850 13px ui-monospace,monospace}.metric small{display:block;margin-top:2px;color:var(--subtle);font-size:8px}.learn-section{margin-top:24px}.section-intro{max-width:780px;margin:0 0 11px}.section-intro .eyebrow{margin-bottom:3px}.section-intro h2{margin:0;font-size:21px;letter-spacing:-.025em}.section-intro p{margin:5px 0 0;color:var(--muted);font-size:12px}.learn-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.learn-card{padding:13px}.learn-card .icon{font-size:18px}.learn-card h3{margin:5px 0;font-size:12px}.learn-card p{margin:0;color:var(--muted);font-size:10px;line-height:1.65}.learn-card strong{color:var(--text)}.formula{margin-top:11px;padding:12px;border:1px solid rgba(192,132,252,.2);border-radius:10px;background:rgba(192,132,252,.045);color:var(--muted);font-size:10px}.formula code{color:#e0c6ff;font:850 10px ui-monospace,monospace}.formula p{margin:5px 0 0}.footer{display:flex;justify-content:space-between;gap:12px;margin-top:19px;color:var(--subtle);font-size:9px}.footer a{color:var(--muted);font-weight:800;text-decoration:none}button:focus-visible,a:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}@media(max-width:850px){.controls{grid-template-columns:repeat(2,minmax(0,1fr))}.learn-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.topbar{padding:9px 12px}.topbar nav{gap:8px}.topbar nav a{font-size:9px}main{width:calc(100% - 20px);padding-top:24px}.hero h1{font-size:clamp(38px,11vw,56px)}.hero>p:not(.eyebrow){font-size:13px}.lab{padding:11px}.controls{gap:8px;padding:9px}.pools{grid-template-columns:1fr}.scene-header{align-items:flex-start;flex-direction:column}.scene-state{align-self:flex-start}.actions{display:grid;grid-template-columns:1fr 1fr}.action-button:first-child{grid-column:1/-1}.breakdown{grid-template-columns:repeat(2,1fr)}.learn-grid{grid-template-columns:1fr}.footer{flex-direction:column}.readout{grid-template-columns:1fr}.readout-icon{grid-row:auto}.readout p{grid-column:1}.analogy{padding:11px}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.pool-track i,.context-fill,.drive-row,.pool{transition:none!important}}
+  <style>
+    .config-note{grid-column:1/-1;margin:0;color:var(--subtle);font-size:8px;font-weight:500;line-height:1.45}.turn-preview{margin:7px 2px 0;color:var(--muted);font-size:9px;line-height:1.5}.field select:disabled{opacity:.55;cursor:not-allowed}.breakdown{grid-template-columns:repeat(5,minmax(0,1fr))}.learn-grid{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:850px){.breakdown{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:560px){.breakdown{grid-template-columns:repeat(2,minmax(0,1fr))}.learn-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Bỏ qua điều hướng</a>
+  <header class="topbar">
+    <a class="brand" href="index.html"><span class="brand-mark">AI</span><span><strong>AI Pattern Lab</strong><small>Memory playground</small></span></a>
+    <nav aria-label="Điều hướng"><a href="cpu-gpu-guide.html">← Hướng dẫn CPU/GPU</a><a href="cpu-gpu.html">Mô phỏng CPU vs GPU ↗</a></nav>
+  </header>
+  <main id="main">
+    <section class="hero">
+      <p class="eyebrow">PARAMETERS · CONTEXT · THINKING EFFORT · MEMORY</p>
+      <h1>B parameters &amp; context<br><span>thinking effort → memory</span></h1>
+      <p>Thử model 1B, 8B, 14B hoặc 70B; đổi context và thinking effort. Quan sát vì sao số parameters chủ yếu quyết định weights, còn prompt và token suy luận làm phần context/KV cache tăng lên.</p>
+      <div class="hero-actions"><a class="link-button" href="#memory-lab">Bắt đầu mô phỏng ↓</a><a class="link-button secondary" href="cpu-gpu-guide.html">Quay lại hướng dẫn CPU/GPU ↗</a></div>
+    </section>
+
+    <aside class="analogy" aria-label="Phép so sánh bộ nhớ"><span class="analogy-icon" aria-hidden="true">📚</span><div><h2>Weights là sách; KV cache là giấy nháp</h2><p><strong>Weights</strong> là “cuốn sách công thức” đã học: nạp model thì chiếm chỗ và thường được giữ sẵn để dùng tiếp. <strong>KV cache</strong> là “giấy nháp” của ngữ cảnh đang xử lý: hội thoại dài hơn thường cần thêm chỗ. <strong>Xóa giấy nháp không đồng nghĩa cất cuốn sách đi.</strong></p></div></aside>
+
+    <section class="lab panel" id="memory-lab" aria-labelledby="lab-title">
+      <div class="lab-heading"><div><p class="eyebrow">THỬ THAY ĐỔI BỘ NHỚ</p><h2 id="lab-title">Nạp → thêm context → xóa → gỡ</h2><p>Số liệu là ước tính giáo dục. Thử một cài đặt rồi bấm các nút để xem bộ nhớ thay đổi.</p></div><span class="badge">LOCAL · KHÔNG GỌI API</span></div>
+
+      <div class="controls" aria-label="Cấu hình model và phần cứng">
+        <label class="field" for="model-select">Số parameters (B)
+          <select id="model-select"><option value="1b">1B tham số</option><option value="8b" selected>8B tham số</option><option value="14b">14B tham số</option><option value="70b">70B tham số</option></select>
+        </label>
+        <label class="field" for="quant-select">Cách lưu weights
+          <select id="quant-select"><option value="fp16">FP16 · ~2 byte</option><option value="q8">Q8 · ~1 byte</option><option value="q4" selected>Q4 · ~0,55 byte</option></select>
+        </label>
+        <label class="field" for="device-select">Nơi tính model
+          <select id="device-select"><option value="gpu" selected>GPU · 8 GB VRAM</option><option value="cpu">CPU · 32 GB RAM</option><option value="hybrid">Offload · GPU 8 / RAM 32 GB</option></select>
+        </label>
+        <label class="field" for="thinking-select">Thinking effort · minh họa
+          <select id="thinking-select"><option value="low">Thấp · ít suy luận</option><option value="balanced" selected>Vừa · mức trung bình</option><option value="high">Cao · nhiều suy luận</option></select>
+        </label>
+        <div class="field context-control"><div class="range-header"><label for="context-select">Context tối đa trong mô phỏng</label><output id="context-output" for="context-select">8K tokens</output></div><input id="context-select" type="range" min="2048" max="32768" step="2048" value="8192"><div class="context-ticks"><span>2K</span><span>8K</span><span>16K</span><span>32K</span></div></div>
+        <p class="config-note">Muốn đổi model, precision hoặc CPU/GPU thì gỡ model trước. Thinking effort chỉ áp dụng cho lượt mô phỏng kế tiếp; token count ở đây là ví dụ, không phải chuẩn chung.</p>
+      </div>
+
+      <div class="actions" role="group" aria-label="Điều khiển vòng đời model">
+        <button class="action-button load" id="load-model" type="button">⬇ Nạp model vào bộ nhớ</button>
+        <button class="action-button add" id="add-context" type="button" disabled>＋ Mô phỏng thêm một lượt hỏi</button>
+        <button class="action-button" id="clear-context" type="button" disabled>⌫ Xóa context</button>
+        <button class="action-button danger" id="unload-model" type="button" disabled>⏏ Gỡ model khỏi RAM/VRAM</button>
+      </div>
+      <p class="turn-preview" id="turn-preview" aria-live="polite">Mỗi lượt hỏi minh họa gồm prompt, token suy luận tùy effort và phần trả lời.</p>
+
+      <div class="memory-scene">
+        <div class="scene-header"><div><h3>Bản đồ bộ nhớ đang dùng</h3><p>Ổ đĩa giữ file model; RAM/VRAM là nơi chương trình làm việc khi model đã nạp.</p></div><span class="scene-state" id="loaded-state" data-loaded="false">MODEL CHƯA NẠP</span></div>
+        <div class="drive-row" id="drive-row" data-loaded="false"><span class="drive-icon" aria-hidden="true">💾</span><div><strong>File weights trên ổ đĩa</strong><small id="drive-caption">Có thể còn ở đây dù model chưa được nạp vào RAM/VRAM.</small></div></div>
+        <div class="pools">
+          <article class="pool" id="ram-pool" data-active="true" data-over="false" aria-label="Dung lượng RAM hệ thống">
+            <div class="pool-head"><div><strong>RAM hệ thống</strong><small id="ram-capacity">32 GB · host memory</small></div><span class="pool-amount" id="ram-value">0 / 32 GB<small id="ram-subvalue">chưa nạp model</small></span></div>
+            <div class="pool-track" aria-hidden="true"><i class="seg-weight" id="ram-weight"></i><i class="seg-cache" id="ram-cache"></i><i class="seg-runtime" id="ram-runtime"></i></div>
+            <p class="pool-subtext" id="ram-caption">Chưa có weights/KV cache của model trong mô phỏng.</p>
+          </article>
+          <article class="pool" id="vram-pool" data-active="true" data-over="false" aria-label="Dung lượng VRAM đồ họa">
+            <div class="pool-head"><div><strong>VRAM</strong><small id="vram-capacity">8 GB · gần GPU</small></div><span class="pool-amount" id="vram-value">0 / 8 GB<small id="vram-subvalue">chưa nạp model</small></span></div>
+            <div class="pool-track" aria-hidden="true"><i class="seg-weight" id="vram-weight"></i><i class="seg-cache" id="vram-cache"></i><i class="seg-runtime" id="vram-runtime"></i></div>
+            <p class="pool-subtext" id="vram-caption">Chưa có weights/KV cache của model trong mô phỏng.</p>
+          </article>
+        </div>
+        <div class="context-meter" role="progressbar" id="context-progress" aria-label="Mức context đang sử dụng" aria-valuemin="0" aria-valuemax="8192" aria-valuenow="0">
+          <div class="context-head"><span>Context đã dùng · gồm prompt và thinking minh họa</span><strong id="context-used">0 / 8K tokens</strong></div>
+          <div class="context-track"><span class="context-fill" id="context-fill"></span></div>
+          <p class="context-caption" id="context-caption">Nạp model chưa tạo KV cache cho cuộc trò chuyện này.</p>
+        </div>
+        <div class="legend" aria-label="Chú giải các dải bộ nhớ"><span><i class="weight"></i>Weights · tím</span><span><i class="cache"></i>KV cache / context · xanh</span><span><i class="runtime"></i>Runtime / phần phụ trợ · xám</span></div>
+      </div>
+
+      <div class="breakdown" aria-label="Ước tính dung lượng model">
+        <div class="metric"><span>Parameters</span><strong id="parameters-value">8B</strong><small>B = billion · tỷ tham số</small></div>
+        <div class="metric"><span>Weights</span><strong id="weights-value">—</strong><small>phần tương đối ổn định</small></div>
+        <div class="metric"><span>KV cache hiện tại</span><strong id="cache-value">—</strong><small>tăng theo context / thinking</small></div>
+        <div class="metric"><span>Runtime / overhead</span><strong id="overhead-value">—</strong><small>ước tính phụ trợ</small></div>
+        <div class="metric"><span>Tổng model cần</span><strong id="total-value">—</strong><small>chưa tính ứng dụng khác</small></div>
+      </div>
+
+      <div class="readout" id="status-card" data-state="info" aria-live="polite" aria-atomic="true"><span class="readout-icon" id="status-icon" aria-hidden="true">i</span><div><h3 id="status-title">Model còn ở ổ đĩa</h3><p id="status-text">B là số tham số, không phải GB. Bấm “Nạp model”, thêm lượt hỏi để xem context/KV cache, rồi so sánh xóa context với gỡ weights.</p></div></div>
+    </section>
+
+    <section class="learn-section" aria-labelledby="learn-title">
+      <div class="section-intro"><p class="eyebrow">CÁC KHÁI NIỆM CẦN TÁCH RIÊNG</p><h2 id="learn-title">Parameters, context, memory và thinking</h2><p>Chúng liên quan với nhau nhưng không phải cùng một đơn vị hay cùng một loại “chi phí”.</p></div>
+      <div class="learn-grid">
+        <article class="learn-card panel"><span class="icon" aria-hidden="true">🔢</span><h3>Parameters (B): số lượng giá trị đã học</h3><p><strong>B = billion = 1 tỷ parameters.</strong> Số B cùng precision quyết định gần đúng dung lượng weights; 8B không có nghĩa là cần đúng 8 GB. Số parameters lớn hơn cũng không tự bảo đảm model giỏi hơn.</p></article>
+        <article class="learn-card panel"><span class="icon" aria-hidden="true">📚</span><h3>Weights: “cuốn sách” nằm sẵn trong bộ nhớ</h3><p>Weights là các giá trị model đã học. Nạp model thì phần này chiếm chỗ, kể cả lúc chưa có câu hỏi. Đổi FP16/Q8/Q4 làm đổi số byte dùng để lưu weights.</p></article>
+        <article class="learn-card panel"><span class="icon" aria-hidden="true">📝</span><h3>Context: đề bài và phần chat đang được giữ</h3><p>Context gồm hướng dẫn, câu hỏi, lịch sử và có thể cả token model vừa sinh. Context dài hơn thường làm KV cache lớn lên; giới hạn context là mức tối đa, không phải số đang dùng.</p></article>
+        <article class="learn-card panel"><span class="icon" aria-hidden="true">💭</span><h3>Thinking effort: có thể thêm công tính</h3><p>Mức suy luận cao hơn có thể làm model xử lý thêm token trước câu trả lời, tăng công tính và phần KV cache trong một số runtime. Effort không có thang đo hay số token quy đổi chung; các mức trong trang chỉ là ví dụ.</p></article>
+        <article class="learn-card panel"><span class="icon" aria-hidden="true">🧮</span><h3>RAM/VRAM: có đủ chỗ không?</h3><p>Cần chỗ cho weights + cache + phần phụ trợ. Nếu không vừa VRAM, một runtime có thể offload một phần sang RAM; trao đổi giữa CPU/GPU có thể chậm hơn. Dung lượng lớn hơn không tự làm phép tính nhanh hơn.</p></article>
+        <article class="learn-card panel"><span class="icon" aria-hidden="true">🧹</span><h3>Xóa context khác với unload model</h3><p><strong>Xóa context</strong> trong mô phỏng dọn cache nhưng giữ weights. <strong>Gỡ model</strong> giải phóng weights lẫn cache. Runtime thật có thể giữ hoặc dựng lại cache theo cách triển khai.</p></article>
+      </div>
+      <div class="formula"><code>Bộ nhớ ước tính ≈ weights + KV cache + runtime overhead</code><p>Weights ≈ số parameters × bytes/parameter. KV cache được ước tính cho FP16 theo một kiến trúc mẫu; lượt hỏi cộng thêm prompt, token thinking giả lập và câu trả lời. Thinking effort không đồng nghĩa với một số token cố định trong mọi model. Quantization, kiến trúc, allocator, hệ điều hành và backend đều làm số thực tế khác đi. Các preset RAM/VRAM chỉ để hình dung, không phải cấu hình chuẩn hay benchmark.</p></div>
+    </section>
+    <footer class="footer"><span>AI Pattern Lab · mô phỏng cục bộ, không gọi model/API</span><a href="cpu-gpu-guide.html">← Về hướng dẫn CPU/GPU</a></footer>
+  </main>
+  <script>
+    (() => {
+      'use strict';
+      const models = {
+        '1b': { label: '1B', params: 1e9, layers: 16, kvHeads: 8, headDim: 64 },
+        '8b': { label: '8B', params: 8e9, layers: 32, kvHeads: 8, headDim: 128 },
+        '14b': { label: '14B', params: 14e9, layers: 48, kvHeads: 8, headDim: 128 },
+        '70b': { label: '70B', params: 70e9, layers: 80, kvHeads: 8, headDim: 128 },
+      };
+      const formats = { fp16: { label: 'FP16', bytes: 2 }, q8: { label: 'Q8', bytes: 1 }, q4: { label: 'Q4', bytes: .55 } };
+      const thinkingExamples = { low: 256, balanced: 1024, high: 4096 };
+      const hardware = {
+        cpu: { ram: 32, vram: 0, name: 'CPU · RAM hệ thống' },
+        gpu: { ram: 16, vram: 8, name: 'GPU · VRAM' },
+        hybrid: { ram: 32, vram: 8, name: 'GPU + CPU offload' },
+      };
+      const $ = (id) => document.getElementById(id);
+      const ui = {
+        model: $('model-select'), quant: $('quant-select'), device: $('device-select'), effort: $('thinking-select'), context: $('context-select'), contextOutput: $('context-output'),
+        load: $('load-model'), add: $('add-context'), clear: $('clear-context'), unload: $('unload-model'),
+        turnPreview: $('turn-preview'), parameters: $('parameters-value'),
+        loaded: $('loaded-state'), drive: $('drive-row'), driveCaption: $('drive-caption'),
+        ramPool: $('ram-pool'), vramPool: $('vram-pool'), ramValue: $('ram-value'), vramValue: $('vram-value'), ramSub: $('ram-subvalue'), vramSub: $('vram-subvalue'),
+        ramCapacity: $('ram-capacity'), vramCapacity: $('vram-capacity'), ramCaption: $('ram-caption'), vramCaption: $('vram-caption'),
+        ramWeight: $('ram-weight'), ramCache: $('ram-cache'), ramRuntime: $('ram-runtime'), vramWeight: $('vram-weight'), vramCache: $('vram-cache'), vramRuntime: $('vram-runtime'),
+        contextProgress: $('context-progress'), contextUsed: $('context-used'), contextFill: $('context-fill'), contextCaption: $('context-caption'),
+        weights: $('weights-value'), cache: $('cache-value'), overhead: $('overhead-value'), total: $('total-value'),
+        status: $('status-card'), statusIcon: $('status-icon'), statusTitle: $('status-title'), statusText: $('status-text'),
+      };
+      let loaded = false;
+      let usedTokens = 0;
+      const gb = (number) => `${number.toFixed(number < 10 ? 2 : 1)} GB`;
+      const contextLabel = (tokens) => `${Math.round(tokens / 1024)}K`;
+      const tokensPerTurn = () => 512 + thinkingExamples[ui.effort.value] + 256;
+
+      function updateTurnPreview() {
+        const reasoning = thinkingExamples[ui.effort.value];
+        ui.turnPreview.textContent = `Một lượt hỏi trong mô phỏng: 512 token prompt + ${reasoning.toLocaleString('vi-VN')} token thinking minh họa + 256 token trả lời ≈ ${tokensPerTurn().toLocaleString('vi-VN')} token. Thinking effort không quy đổi ra số token cố định ở mọi model.`;
+      }
+
+      function requirements() {
+        const model = models[ui.model.value];
+        const format = formats[ui.quant.value];
+        const weights = model.params * format.bytes / 1e9;
+        const cache = 2 * model.layers * model.kvHeads * model.headDim * usedTokens * 2 / 1e9;
+        const overhead = (weights + cache) * .15;
+        return { model, format, weights, cache, overhead, total: weights + cache + overhead };
+      }
+
+      function setSegments(elements, amounts, capacity) {
+        const denominator = Math.max(capacity, .01);
+        elements.forEach((element, index) => {
+          element.style.width = `${Math.min(100, Math.max(0, amounts[index] / denominator * 100))}%`;
+        });
+      }
+
+      function setPool(pool, value, capacity, amounts, labels, active) {
+        const [weightBar, cacheBar, runtimeBar] = amounts;
+        const [valueLabel, subLabel, capacityLabel, caption] = labels;
+        pool.dataset.active = String(active);
+        pool.dataset.over = String(value > capacity);
+        valueLabel.firstChild.textContent = `${gb(value)} / ${capacity} GB`;
+        subLabel.textContent = value > capacity ? `vượt khoảng ${gb(value - capacity)}` : active ? 'mức dùng trong mô phỏng' : 'không đặt model ở đây';
+        capacityLabel.textContent = `${capacity} GB · ${pool.id === 'ram-pool' ? 'host memory' : 'gần GPU'}`;
+        caption.textContent = active ? `Weights ${gb(weightBar)} · KV cache ${gb(cacheBar)} · runtime/OS ${gb(runtimeBar)}` : 'Chưa đặt weights/KV cache của model trong pool này.';
+        setSegments(pool.querySelectorAll('.pool-track i'), [weightBar, cacheBar, runtimeBar], capacity);
+      }
+
+      function updateStatus(req, fits) {
+        if (!loaded) {
+          ui.status.dataset.state = 'info'; ui.statusIcon.textContent = 'i';
+          ui.statusTitle.textContent = 'Model còn ở ổ đĩa';
+          ui.statusText.textContent = 'B là số parameters, không phải GB. Nạp model để đặt weights vào RAM/VRAM; context và thinking của lượt hỏi mới làm phần cache minh họa tăng thêm.';
+          return;
+        }
+        const device = ui.device.value;
+        ui.status.dataset.state = fits ? 'ready' : 'warning';
+        ui.statusIcon.textContent = fits ? '✓' : '⚠';
+        if (device === 'cpu') {
+          ui.statusTitle.textContent = fits ? 'Weights và context nằm trong RAM' : 'Ước tính vượt RAM khả dụng';
+          ui.statusText.textContent = fits ? `CPU dùng RAM để đọc weights và KV cache. Tổng ước tính ${gb(req.total)}; RAM preset 32 GB.` : `Cần khoảng ${gb(req.total)} cho model này; preset RAM 32 GB có thể không đủ sau khi tính hệ điều hành/runtime.`;
+        } else if (device === 'gpu') {
+          ui.statusTitle.textContent = fits ? 'Model vừa trong ngân sách VRAM minh họa' : 'Không vừa hoàn toàn trong VRAM';
+          ui.statusText.textContent = fits ? `Weights và KV cache đặt chủ yếu trong VRAM. Tổng ước tính ${gb(req.total)} trong ngân sách sử dụng khoảng 7,2 GB của preset 8 GB.` : `Tổng ước tính ${gb(req.total)} vượt ngân sách VRAM khoảng 7,2 GB. Có thể giảm model/context hoặc thử chế độ offload nếu runtime hỗ trợ.`;
+        } else {
+          const hostUse = Math.max(0, req.total - 7.2) + 2.5;
+          ui.statusTitle.textContent = fits ? 'Có thể chia model giữa VRAM và RAM' : 'Ước tính vượt cả hai pool';
+          ui.statusText.textContent = fits ? `Phần vừa VRAM được giữ gần GPU; phần vượt chuyển sang RAM. Host RAM ước tính ${gb(hostUse)} trong preset 32 GB. Trao đổi CPU–GPU có thể làm chậm.` : `Ước tính cần ${gb(req.total)} cộng phần hệ thống, vượt khả năng kết hợp của preset 8 GB VRAM + 32 GB RAM.`;
+        }
+      }
+
+      function render() {
+        const req = requirements();
+        const contextMax = Number(ui.context.value);
+        const nextTurnTokens = tokensPerTurn();
+        const device = hardware[ui.device.value];
+        const modelMemory = loaded ? req.total : 0;
+        const gpuBudget = device.vram * .9;
+        let ramParts = [0, 0, 0];
+        let vramParts = [0, 0, 0];
+        let ramTotal = 0;
+        let vramTotal = 0;
+        let ramActive = false;
+        let vramActive = false;
+        let fits = true;
+
+        if (loaded && ui.device.value === 'cpu') {
+          ramParts = [req.weights, req.cache, req.overhead];
+          ramTotal = req.total;
+          ramActive = true;
+          fits = ramTotal <= device.ram * .9;
+        } else if (loaded && ui.device.value === 'gpu') {
+          vramParts = [req.weights, req.cache, req.overhead];
+          vramTotal = req.total;
+          vramActive = true;
+          ramTotal = 2.5;
+          ramParts = [0, 0, 2.5];
+          fits = req.total <= gpuBudget;
+        } else if (loaded && ui.device.value === 'hybrid') {
+          let remaining = gpuBudget;
+          vramParts = [Math.min(req.weights, remaining), 0, 0];
+          remaining -= vramParts[0];
+          vramParts[1] = Math.min(req.cache, remaining);
+          remaining -= vramParts[1];
+          vramParts[2] = Math.min(req.overhead, remaining);
+          const hostParts = [req.weights - vramParts[0], req.cache - vramParts[1], req.overhead - vramParts[2]];
+          ramParts = [hostParts[0], hostParts[1], hostParts[2] + 2.5];
+          vramTotal = vramParts.reduce((sum, item) => sum + item, 0);
+          ramTotal = ramParts.reduce((sum, item) => sum + item, 0);
+          ramActive = ramTotal > 0;
+          vramActive = vramTotal > 0;
+          fits = ramTotal <= device.ram * .85;
+        }
+
+        const ramCap = device.ram;
+        const vramCap = Math.max(device.vram, 1);
+        setPool(ui.ramPool, ramTotal, ramCap, ramParts, [ui.ramValue, ui.ramSub, ui.ramCapacity, ui.ramCaption], ramActive);
+        setPool(ui.vramPool, vramTotal, vramCap, vramParts, [ui.vramValue, ui.vramSub, ui.vramCapacity, ui.vramCaption], vramActive);
+        ui.vramCapacity.textContent = device.vram ? `${device.vram} GB · gần GPU` : 'không dùng · CPU-only';
+        ui.vramValue.firstChild.textContent = device.vram ? `${gb(vramTotal)} / ${device.vram} GB` : 'Không dùng';
+        ui.vramSub.textContent = device.vram ? (vramTotal > device.vram ? `vượt khoảng ${gb(vramTotal - device.vram)}` : vramActive ? 'mức dùng trong mô phỏng' : 'không đặt model ở đây') : 'CPU-only';
+        ui.vramPool.dataset.active = String(vramActive);
+        ui.vramPool.dataset.over = String(vramTotal > device.vram && device.vram > 0);
+        if (!device.vram) ui.vramCaption.textContent = 'Mô phỏng CPU-only không dùng VRAM.';
+        if (ui.device.value === 'gpu' && loaded && req.total > device.vram) ui.vramPool.dataset.over = 'true';
+
+        ui.contextOutput.textContent = `${contextLabel(contextMax)} tokens`;
+        ui.contextProgress.setAttribute('aria-valuemax', String(contextMax));
+        ui.contextProgress.setAttribute('aria-valuenow', String(usedTokens));
+        ui.contextUsed.textContent = `${usedTokens.toLocaleString('vi-VN')} / ${contextLabel(contextMax)} tokens`;
+        ui.contextFill.style.width = `${Math.min(100, usedTokens / contextMax * 100)}%`;
+        ui.contextCaption.textContent = !loaded ? 'Nạp model rồi thêm context để xem phần KV cache xuất hiện.' : usedTokens ? `KV cache tăng theo ${usedTokens.toLocaleString('vi-VN')} token minh họa; weights vẫn được giữ nguyên.` : 'Model đã nạp nhưng chưa có hội thoại: weights còn, cache hội thoại đang ở 0.';
+        updateTurnPreview();
+        ui.parameters.textContent = req.model.label;
+        ui.weights.textContent = loaded ? gb(req.weights) : '0 GB';
+        ui.cache.textContent = loaded ? gb(req.cache) : '0 GB';
+        ui.overhead.textContent = loaded ? gb(req.overhead) : '0 GB';
+        ui.total.textContent = loaded ? gb(modelMemory) : '0 GB';
+        ui.loaded.dataset.loaded = String(loaded);
+        ui.loaded.textContent = loaded ? 'MODEL ĐANG Ở TRONG BỘ NHỚ' : 'MODEL CHƯA NẠP';
+        ui.drive.dataset.loaded = String(loaded);
+        ui.driveCaption.textContent = loaded ? 'File gốc vẫn ở ổ đĩa; weights đang có bản dùng trong RAM/VRAM.' : 'Weights chỉ nằm ở ổ đĩa; chưa chiếm chỗ model trong RAM/VRAM.';
+        ui.load.disabled = loaded;
+        ui.add.disabled = !loaded || usedTokens + nextTurnTokens > contextMax;
+        ui.clear.disabled = !loaded || usedTokens === 0;
+        ui.unload.disabled = !loaded;
+        ui.model.disabled = loaded;
+        ui.quant.disabled = loaded;
+        ui.device.disabled = loaded;
+        updateStatus(req, fits);
+      }
+
+      ui.load.addEventListener('click', () => { loaded = true; usedTokens = 0; render(); });
+      ui.add.addEventListener('click', () => { if (!loaded || usedTokens + tokensPerTurn() > Number(ui.context.value)) return; usedTokens += tokensPerTurn(); render(); });
+      ui.clear.addEventListener('click', () => { usedTokens = 0; render(); });
+      ui.unload.addEventListener('click', () => { loaded = false; usedTokens = 0; render(); });
+      ui.model.addEventListener('change', render);
+      ui.quant.addEventListener('change', render);
+      ui.device.addEventListener('change', render);
+      ui.effort.addEventListener('change', render);
+      ui.context.addEventListener('input', () => { usedTokens = Math.min(usedTokens, Number(ui.context.value)); render(); });
+      render();
+    })();
+  </script>
+</body>
+</html>
