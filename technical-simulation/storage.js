@@ -83,9 +83,9 @@
   document.getElementById('saveAll')?.addEventListener('click', saveAll);
   document.getElementById('clearAll')?.addEventListener('click', clearAll);
   document.getElementById('clearLog')?.addEventListener('click', () => { list.innerHTML = '<li class="console-placeholder">Log đã được xoá. Hãy thử thêm thao tác.</li>'; });
-  document.getElementById('reloadButton')?.addEventListener('click', () => { log('Đang reload: trình duyệt sẽ đọc lại các storage...', 'info'); setTimeout(() => location.reload(), 250); });
-  document.getElementById('newTabButton')?.addEventListener('click', () => { const opened = window.open(location.href, '_blank', 'noopener'); log(opened ? 'Đã mở tab mới: local/cache/database có thể dùng lại, session là ngăn riêng.' : 'Trình duyệt chặn popup. Hãy cho phép mở tab để thử.', opened ? 'ok' : 'warn'); });
-  document.getElementById('closeTabButton')?.addEventListener('click', async () => { sessionStorage.removeItem(NOTE_KEY); await refreshStatuses(); log('Giả lập đóng tab: sessionStorage của tab này đã được xoá.', 'warn'); });
+  document.getElementById('reloadButton')?.addEventListener('click', () => { const eventSelect = document.getElementById('flowEvent'); if (eventSelect) { eventSelect.value = 'reload'; eventSelect.dispatchEvent(new Event('change')); } document.getElementById('runFlow')?.click(); log('Đang reload: trình duyệt sẽ đọc lại các storage...', 'info'); setTimeout(() => location.reload(), 250); });
+  document.getElementById('newTabButton')?.addEventListener('click', () => { const eventSelect = document.getElementById('flowEvent'); if (eventSelect) { eventSelect.value = 'new-tab'; eventSelect.dispatchEvent(new Event('change')); } document.getElementById('runFlow')?.click(); const opened = window.open(location.href, '_blank', 'noopener'); log(opened ? 'Đã mở tab mới: local/cache/database có thể dùng lại, session là ngăn riêng.' : 'Trình duyệt chặn popup. Hãy cho phép mở tab để thử.', opened ? 'ok' : 'warn'); });
+  document.getElementById('closeTabButton')?.addEventListener('click', async () => { const eventSelect = document.getElementById('flowEvent'); if (eventSelect) { eventSelect.value = 'close-tab'; eventSelect.dispatchEvent(new Event('change')); } document.getElementById('runFlow')?.click(); sessionStorage.removeItem(NOTE_KEY); await refreshStatuses(); log('Giả lập đóng tab: sessionStorage của tab này đã được xoá.', 'warn'); });
   window.addEventListener('popstate', () => { setStatus('history', 'Đang ở entry khác', true); log('History: popstate — trạng thái điều hướng đã thay đổi.', 'info'); });
   input?.addEventListener('input', () => { if (input.value.trim()) document.querySelector('.guide-strip .guide-number')?.replaceChildren(document.createTextNode('02')); });
   const flowLab = document.getElementById('flowLab');
@@ -111,6 +111,16 @@
   let allLaneTimer;
   const storageNames = { all: 'All browser storage', local: 'Local Storage', session: 'Session Storage', cache: 'Cache', database: 'Database', cookies: 'Cookies', history: 'History' };
   const eventNames = { reload: 'Reload trang', 'new-tab': 'Mở tab mới', 'close-tab': 'Đóng tab' };
+  const eventProfiles = {
+    reload: { title: 'Reload: đọc lại dữ liệu', text: 'Browser dựng lại trang rồi hỏi từng storage. Reload không tự xoá dữ liệu.', label: 'đọc lại data' },
+    'new-tab': { title: 'Mở tab: tạo context mới', text: 'Tab mới là một context khác: Session tách riêng, còn các kho theo domain thường được dùng chung.', label: 'tab mới' },
+    'close-tab': { title: 'Đóng tab: kết thúc context', text: 'Khi tab kết thúc, Session Storage thường bị dọn. Local, Cache, Database và Cookies không tự biến mất.', label: 'tab kết thúc' }
+  };
+  const eventOutcomes = {
+    reload: [['Session', 'vẫn còn trong tab'], ['Local', 'vẫn còn'], ['Cache', 'có thể cache HIT'], ['Database', 'vẫn còn records'], ['Cookies', 'vẫn gửi nếu chưa hết hạn'], ['History', 'entry vẫn còn']],
+    'new-tab': [['Session', 'tab mới có ngăn riêng'], ['Local', 'dùng chung theo domain'], ['Cache', 'có thể dùng chung'], ['Database', 'dùng chung origin'], ['Cookies', 'gửi cùng request'], ['History', 'context điều hướng riêng']],
+    'close-tab': [['Session', 'thường bị xoá'], ['Local', 'vẫn còn'], ['Cache', 'vẫn còn bản sao'], ['Database', 'vẫn còn records'], ['Cookies', 'còn tới khi hết hạn/xoá'], ['History', 'entry không phải app data']]
+  };
   const flowCopy = [
     ['Bước 1 · Người dùng', 'Ghi chú là “món đồ” bạn muốn cất.'],
     ['Bước 2 · Ứng dụng', 'Ứng dụng nhìn vào mục đích rồi chọn ngăn phù hợp.'],
@@ -127,7 +137,14 @@
     cookies: { title: 'COOKIES · browser → request → server', color: '#f97316', nodes: [['🌐','Browser','document.cookie'],['🍪','Cookie jar','key = value'],['⇧','Request header','gửi cùng request'],['🖥️','Server','đọc cookie'],['↩','Response','session / prefs']], paths: ['M205 220 C245 220 260 220 305 220','M455 220 C495 220 510 220 555 220','M705 220 C745 220 760 220 805 220','M850 270 C850 340 670 370 560 315'] },
     history: { title: 'HISTORY · URL → Back / Forward', color: '#fb7185', nodes: [['👤','Người dùng','đổi URL'],['↗','History API','pushState()'],['↶','Browser history','entry stack'],['←','Back / Forward','popstate'],['✓','Kết quả','đổi màn hình']], paths: ['M205 220 C245 220 260 220 305 220','M455 220 C495 220 510 220 555 220','M705 220 C745 220 760 220 805 220','M850 270 C850 340 670 370 560 315'] }
   };
-  function renderLiveFlow(kind) {
+  function updateEventOutcome() {
+    const event = flowEvent?.value || 'reload'; const kind = flowStorage?.value || 'local'; const profile = eventProfiles[event];
+    const title = document.getElementById('eventOutcomeTitle'); const text = document.getElementById('eventOutcomeText'); const badge = document.getElementById('eventOutcomeBadge'); const chips = document.getElementById('outcomeChips');
+    if (title) title.textContent = profile.title; if (text) text.textContent = profile.text; if (badge) badge.textContent = kind === 'all' ? '6 STORAGE LANES' : storageNames[kind].toUpperCase();
+    if (chips) chips.innerHTML = eventOutcomes[event].map(([name, value]) => `<span class="outcome-chip"><strong>${name}:</strong> ${value}</span>`).join('');
+    if (liveFlowScene) { const node = liveFlowScene.querySelector('[data-svg-step="3"]'); if (node) { node.querySelector('.live-title').textContent = profile.title.split(':')[0]; node.querySelector('.live-caption').textContent = profile.label; } }
+  }
+  function renderLiveFlow(kind, event = flowEvent?.value || 'reload') {
     const blueprint = flowBlueprints[kind] || flowBlueprints.local;
     if (!liveFlowScene) return;
     liveFlowScene.innerHTML = `<g class="live-wires">${blueprint.paths.map((d, i) => `<path id="svgPath${i}" class="live-wire" d="${d}" marker-end="url(#flowArrowHead)"></path>`).join('')}</g>${blueprint.nodes.map((node, i) => { const x = [65,305,555,805,430][i]; const y = i === 4 ? 300 : 175; const w = i === 3 ? 125 : i === 4 ? 160 : i === 0 ? 140 : 150; const laneClass = kind === 'all' && i === 2 ? ' all-lane' : ''; const details = node[3] ? node[3].map((line, index) => `<text class="live-detail${laneClass}" x="${w / 2}" y="${78 + index * 11}">${line}</text>`).join('') : ''; const h = node[3] ? 142 : i === 4 ? 82 : 90; return `<g class="live-node${i === 4 ? ' live-result' : ''}${node[3] ? ' live-hub' : ''}" data-svg-step="${i}" transform="translate(${x} ${y})"><rect width="${w}" height="${h}" rx="17"></rect><text class="live-emoji" x="18" y="36">${node[0]}</text><text class="live-title" x="${w / 2 + 8}" y="38">${node[1]}</text><text class="live-caption" x="${w / 2}" y="62"${i === 4 ? ' id="svgResultLabel"' : ''}>${node[2]}</text>${details}</g>`; }).join('')}`;
@@ -137,6 +154,7 @@
     if (flowScenarioTitle) { flowScenarioTitle.textContent = blueprint.title; flowScenarioTitle.style.color = blueprint.color; flowScenarioTitle.style.borderColor = `${blueprint.color}66`; }
     if (svgStorageLabel) svgStorageLabel.textContent = storageNames[kind];
     resetSvgFlow();
+    updateEventOutcome();
   }
   function explainFlow(step, extra = '') {
     if (!flowExplanation) return;
@@ -191,6 +209,7 @@
     if (flowEventLabel) flowEventLabel.textContent = eventNames[flowEvent?.value || 'reload'];
     if (flowResultLabel) flowResultLabel.textContent = 'đang chờ';
     explainFlow(0);
+    updateEventOutcome();
   }
   function runFlow() {
     resetFlow();
@@ -231,8 +250,8 @@
   }
   document.getElementById('runFlow')?.addEventListener('click', runFlow);
   document.getElementById('resetFlow')?.addEventListener('click', resetFlow);
-  flowStorage?.addEventListener('change', () => { renderLiveFlow(flowStorage.value); resetFlow(); }); flowEvent?.addEventListener('change', resetFlow);
-  renderLiveFlow(flowStorage?.value || 'local');
+  flowStorage?.addEventListener('change', () => { renderLiveFlow(flowStorage.value, flowEvent?.value); resetFlow(); }); flowEvent?.addEventListener('change', () => { renderLiveFlow(flowStorage?.value || 'local', flowEvent.value); resetFlow(); });
+  renderLiveFlow(flowStorage?.value || 'local', flowEvent?.value || 'reload');
   resetFlow();
   refreshStatuses();
 })();
