@@ -98,8 +98,10 @@
   const flowStorageLabel = document.getElementById('flowStorageLabel');
   const flowEventLabel = document.getElementById('flowEventLabel');
   const flowResultLabel = document.getElementById('flowResultLabel');
-  const svgNodes = [...document.querySelectorAll('[data-svg-step]')];
-  const svgPaths = [...document.querySelectorAll('.live-wire')];
+  let svgNodes = [];
+  let svgPaths = [];
+  const liveFlowScene = document.getElementById('liveFlowScene');
+  const svgHarnessLabel = document.querySelector('.flow-harness-label');
   const svgPacket = document.getElementById('svgPacket');
   const svgStorageLabel = document.getElementById('svgStorageLabel');
   const svgEventLabel = document.getElementById('svgEventLabel');
@@ -114,6 +116,22 @@
     ['Bước 4 · Sự kiện', 'Bây giờ ta thay đổi tình huống: '],
     ['Bước 5 · Kết quả', 'Quan sát dữ liệu còn lại hay biến mất. Đây là điều cần nhớ khi thiết kế app.']
   ];
+  const flowBlueprints = {
+    local: { title: 'LOCAL · reload vẫn còn', color: '#22c55e', nodes: [['👤','Người dùng','cài đặt'],['🧭','Ứng dụng','setItem()'],['▣','Local Storage','theo domain'],['🔄','Reload trang','đọc lại'],['✓','Kết quả','vẫn còn']], paths: ['M205 220 C245 220 260 220 305 220','M455 220 C495 220 510 220 555 220','M705 220 C745 220 760 220 805 220','M850 270 C850 340 670 370 560 315'] },
+    session: { title: 'SESSION · mỗi tab một ngăn riêng', color: '#f59e0b', nodes: [['👤','Tab A','đang nhập form'],['↔','Session Storage','Tab A only'],['↗','Tab B','không thấy'],['✕','Đóng tab A','xoá ngăn'],['∅','Kết quả','mất dữ liệu']], paths: ['M205 220 C245 220 260 220 305 220','M455 220 C495 220 510 220 555 220','M705 220 C745 220 760 220 805 220','M850 270 C850 340 670 370 560 315'] },
+    cache: { title: 'CACHE · cache hit hoặc miss', color: '#a78bfa', nodes: [['🌐','Request','cần tài nguyên'],['⚡','Cache lookup','hit / miss'],['✓','Cache HIT','trả ngay'],['⇩','Cache MISS','ra network'],['🚀','Response','nhanh hơn']], paths: ['M205 220 C245 220 260 220 305 220','M455 220 C495 220 510 220 555 220','M705 220 C745 220 760 220 805 220','M850 270 C850 340 670 370 560 315'] },
+    database: { title: 'DATABASE · transaction → query → records', color: '#38bdf8', nodes: [['👤','User action','thêm bản ghi'],['▤','Transaction','ghi an toàn'],['⌗','IndexedDB','nhiều records'],['⌕','Query / index','tìm dữ liệu'],['▤','Result set','danh sách']], paths: ['M205 220 C245 220 260 220 305 220','M455 220 C495 220 510 220 555 220','M705 220 C745 220 760 220 805 220','M850 270 C850 340 670 370 560 315'] },
+    history: { title: 'HISTORY · URL → Back / Forward', color: '#fb7185', nodes: [['👤','Người dùng','đổi URL'],['↗','History API','pushState()'],['↶','Browser history','entry stack'],['←','Back / Forward','popstate'],['✓','Kết quả','đổi màn hình']], paths: ['M205 220 C245 220 260 220 305 220','M455 220 C495 220 510 220 555 220','M705 220 C745 220 760 220 805 220','M850 270 C850 340 670 370 560 315'] }
+  };
+  function renderLiveFlow(kind) {
+    const blueprint = flowBlueprints[kind] || flowBlueprints.local;
+    if (!liveFlowScene) return;
+    liveFlowScene.innerHTML = `<g class="live-wires">${blueprint.paths.map((d, i) => `<path id="svgPath${i}" class="live-wire" d="${d}" marker-end="url(#flowArrowHead)"></path>`).join('')}</g>${blueprint.nodes.map((node, i) => { const x = [65,305,555,805,430][i]; const y = i === 4 ? 300 : 175; const w = i === 3 ? 125 : i === 4 ? 160 : i === 0 ? 140 : 150; return `<g class="live-node${i === 4 ? ' live-result' : ''}" data-svg-step="${i}" transform="translate(${x} ${y})"><rect width="${w}" height="${i === 4 ? 82 : 90}" rx="17"></rect><text class="live-emoji" x="18" y="36">${node[0]}</text><text class="live-title" x="${w / 2 + 8}" y="38">${node[1]}</text><text class="live-caption" x="${w / 2}" y="62">${node[2]}</text></g>`; }).join('')}`;
+    svgNodes = [...liveFlowScene.querySelectorAll('[data-svg-step]')]; svgPaths = [...liveFlowScene.querySelectorAll('.live-wire')];
+    if (svgHarnessLabel) { svgHarnessLabel.textContent = blueprint.title; svgHarnessLabel.style.fill = blueprint.color; }
+    if (svgStorageLabel) svgStorageLabel.textContent = storageNames[kind];
+    resetSvgFlow();
+  }
   function explainFlow(step, extra = '') {
     if (!flowExplanation) return;
     const [heading, copy] = flowCopy[step];
@@ -186,7 +204,8 @@
   }
   document.getElementById('runFlow')?.addEventListener('click', runFlow);
   document.getElementById('resetFlow')?.addEventListener('click', resetFlow);
-  flowStorage?.addEventListener('change', resetFlow); flowEvent?.addEventListener('change', resetFlow);
+  flowStorage?.addEventListener('change', () => { renderLiveFlow(flowStorage.value); resetFlow(); }); flowEvent?.addEventListener('change', resetFlow);
+  renderLiveFlow(flowStorage?.value || 'local');
   resetFlow();
   refreshStatuses();
 })();
