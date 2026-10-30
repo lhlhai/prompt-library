@@ -34,6 +34,9 @@
 :root[data-theme="light"] .sources a{color:#0369a1!important}
 :root[data-theme="light"] .home-link:hover,:root[data-theme="light"] .footer a:hover{color:#0369a1!important}
 
+/* Brand mark variants across the series (quantization uses .mark) */
+:root[data-theme="light"] .mark{color:#7c3aed!important;background:rgba(124,58,237,.1)!important}
+
 /* Shared series nav pill (dark by default) */
 :root[data-theme="light"] .ai26-series-nav{color:var(--text)}
 :root[data-theme="light"] .ai26-series-nav summary{background:linear-gradient(135deg,#e0f2fe,#f0f9ff)!important;border-color:rgba(3,105,161,.35)!important;color:#0c4a6e!important;box-shadow:0 8px 28px rgba(31,41,55,.12)!important}

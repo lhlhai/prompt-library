@@ -29,8 +29,15 @@
   apply(saved === 'light' || saved === 'dark' ? saved : (prefersLight ? 'light' : 'dark'));
 
   function injectButton() {
-    if (document.getElementById('ai26ThemeToggle')) return;
-    const host = document.querySelector('.topbar nav') || document.querySelector('.header-actions') || document.querySelector('.topbar') || document.body;
+    // Pages that already ship their own toggle (#themeToggle in index.html /
+    // token.html) keep it — ai26-theme.js still bootstraps the theme there.
+    if (document.getElementById('ai26ThemeToggle') || document.getElementById('themeToggle')) return;
+    const host = document.querySelector('.topbar nav')
+      || document.querySelector('.tc-header-actions')
+      || document.querySelector('.header-actions')
+      || document.querySelector('.topbar .nav')
+      || document.querySelector('.topbar')
+      || document.body;
     const btn = document.createElement('button');
     btn.id = 'ai26ThemeToggle';
     btn.type = 'button';
