@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#0f172a">
   <meta name="description" content="Storage Lab — mô phỏng History, Local Storage, Session Storage, Cache và Database.">
   <title>Storage Lab · Technical Simulation</title>
-  <link rel="stylesheet" href="style.css?v=logs-settings-1">
-  <script src="app.js?v=logs-settings-1" defer></script>
-  <script src="storage.js?v=logs-settings-1" defer></script>
+  <link rel="stylesheet" href="style.css?v=logs-settings-2">
+  <script src="app.js?v=logs-settings-2" defer></script>
+  <script src="storage.js?v=logs-settings-2" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Bỏ qua điều hướng</a>
@@ -17,7 +17,7 @@
     <nav class="tabbar wrap" aria-label="Điều hướng Technical Simulation"><a class="tab-button" href="index.html">🏠 Bắt đầu</a><a class="tab-button is-active" href="storage.html" aria-current="page">🗄️ Storage Lab</a></nav>
   </header>
   <main id="main" class="main-content wrap">
-    <section class="page-intro"><p class="eyebrow">STORAGE LAB · HỌC BẰNG CÁCH THỬ</p><h1>Dữ liệu đang ở <span>ngăn kéo nào?</span></h1><p>Mỗi loại storage có một vai trò khác nhau. Hãy nhập một ghi chú, lưu vào từng nơi rồi thử reload, mở tab mới hoặc mô phỏng đóng tab để thấy sự khác biệt bằng dữ liệu thật của trình duyệt.</p></section>
+    <section class="page-intro"><p class="eyebrow">STORAGE LAB · HỌC BẰNG CÁCH THỬ</p><div class="ai-top-label"><span>AI-GENERATED LEARNING CONTENT</span><strong>Kiểm chứng cẩn thận trước khi sử dụng</strong><small>Tài liệu minh hoạ, không thay thế tài liệu chính thức hoặc tư vấn chuyên môn.</small></div><h1>Dữ liệu đang ở <span>ngăn kéo nào?</span></h1><p>Mỗi loại storage có một vai trò khác nhau. Hãy nhập một ghi chú, lưu vào từng nơi rồi thử reload, mở tab mới hoặc mô phỏng đóng tab để thấy sự khác biệt bằng dữ liệu thật của trình duyệt.</p></section>
     <section class="guide-strip card" id="guideStrip"><div class="guide-number">01</div><div><strong id="guideTitle">Bắt đầu bằng một ghi chú</strong><p id="guideText">Nhập nội dung bên dưới. Chưa cần hiểu kỹ thuật — hãy coi trình duyệt như một căn phòng có nhiều ngăn kéo.</p></div><button class="secondary-button small" id="openTour" type="button">🧭 Hướng dẫn tour</button></section>
     <section class="ai-notice card"><div class="ai-notice-mark">AI</div><div><strong>Nội dung hỗ trợ học tập được tạo bởi AI</strong><p>Hãy dùng như tài liệu tham khảo: kiểm chứng với tài liệu chính thức, thử trong môi trường an toàn và hỏi chuyên gia trước khi dùng cho dữ liệu thật, bảo mật hoặc quyết định quan trọng.</p></div><span class="verification-badge">VERIFY BEFORE USE</span></section>
     <section class="settings-panel card" aria-labelledby="settingsTitle"><div class="section-heading compact"><div><p class="eyebrow">USER SETTINGS</p><h2 id="settingsTitle">Tùy chỉnh cách học</h2></div><span class="muted" id="settingsSaved">Tự lưu trên thiết bị</span></div><div class="settings-grid"><label class="setting-control"><span><strong>Hiện giải thích chi tiết</strong><small>Log sẽ nói rõ đang chạm vào storage nào.</small></span><input id="settingHints" type="checkbox" checked></label><label class="setting-control"><span><strong>Tự chạy ALL khi đổi lựa chọn</strong><small>Đổi event sẽ tự khởi động flow tổng hợp.</small></span><input id="settingAutoRun" type="checkbox"></label><label class="setting-control"><span><strong>Highlight cảnh báo</strong><small>Làm nổi bật các điểm cần kiểm chứng.</small></span><input id="settingWarnings" type="checkbox" checked></label><label class="setting-control"><span><strong>Tốc độ animation</strong><small id="speedValue">1×</small></span><select id="settingSpeed"><option value="0.7">0.7× · chậm</option><option value="1" selected>1× · bình thường</option><option value="1.4">1.4× · nhanh</option></select></label></div></section>
