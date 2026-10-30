@@ -12,3 +12,5 @@
 .flow-scenario-label{display:inline-block;margin-top:6px;padding:5px 8px;border:1px solid rgba(56,189,248,.35);border-radius:7px;background:rgba(56,189,248,.08);color:var(--cyan);font-size:9px;font-weight:900;letter-spacing:.08em}.flow-harness-label{paint-order:stroke;stroke:rgba(15,23,42,.18);stroke-width:1px}
 
 .live-hub rect{fill:rgba(167,139,250,.1);stroke:var(--purple)}.live-detail{fill:var(--text);font-size:9px;text-anchor:middle;font-weight:750}.live-hub .live-detail:nth-of-type(4){fill:#22c55e}.live-hub .live-detail:nth-of-type(5){fill:#f59e0b}.live-hub .live-detail:nth-of-type(6){fill:#a78bfa}.live-hub .live-detail:nth-of-type(7){fill:#38bdf8}.live-hub .live-detail:nth-of-type(8){fill:#f97316}.live-hub .live-detail:nth-of-type(9){fill:#fb7185}
+
+.all-lane{opacity:.55;transition:opacity .2s,fill .2s,font-size .2s}.all-lane.is-lane-active{opacity:1;fill:var(--yellow);font-size:11px;font-weight:950;filter:url(#flowGlow)}

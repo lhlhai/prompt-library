@@ -108,6 +108,7 @@
   const svgEventLabel = document.getElementById('svgEventLabel');
   let svgResultLabel = document.getElementById('svgResultLabel');
   let flowTimer;
+  let allLaneTimer;
   const storageNames = { all: 'All browser storage', local: 'Local Storage', session: 'Session Storage', cache: 'Cache', database: 'Database', cookies: 'Cookies', history: 'History' };
   const eventNames = { reload: 'Reload trang', 'new-tab': 'Mở tab mới', 'close-tab': 'Đóng tab' };
   const flowCopy = [
@@ -118,7 +119,7 @@
     ['Bước 5 · Kết quả', 'Quan sát dữ liệu còn lại hay biến mất. Đây là điều cần nhớ khi thiết kế app.']
   ];
   const flowBlueprints = {
-    all: { title: 'ALL · browser storage phối hợp', color: '#a78bfa', nodes: [['👤','User action','login / settings'],['🧭','Ứng dụng','điều phối'],['⇢','Browser services','đúng nơi, đúng lúc',['Local','Session','Cache','Database','Cookies','History']],['🔄','Events','reload · request · URL'],['✓','Kết quả','trải nghiệm liền mạch']], paths: ['M205 220 C245 220 260 220 305 220','M455 220 C495 220 510 220 555 220','M705 220 C745 220 760 220 805 220','M850 270 C850 340 670 370 560 315'] },
+    all: { title: 'ALL · browser storage phối hợp', color: '#a78bfa', nodes: [['👤','User action','login / settings'],['🧭','Ứng dụng','decision router'],['⇢','Khi nào dùng gì?','6 mục đích',['Session · form đang mở','Local · cài đặt lâu dài','Cache · tải ảnh / CSS','Cookies · gửi lên server','Database · nhiều records','History · đổi URL']],['🔄','Events','reload · request · URL'],['✓','Kết quả','trải nghiệm liền mạch']], paths: ['M205 220 C245 220 260 220 305 220','M455 220 C495 220 510 220 555 220','M705 220 C745 220 760 220 805 220','M850 270 C850 340 670 370 560 315'] },
     local: { title: 'LOCAL · reload vẫn còn', color: '#22c55e', nodes: [['👤','Người dùng','cài đặt'],['🧭','Ứng dụng','setItem()'],['▣','Local Storage','theo domain'],['🔄','Reload trang','đọc lại'],['✓','Kết quả','vẫn còn']], paths: ['M205 220 C245 220 260 220 305 220','M455 220 C495 220 510 220 555 220','M705 220 C745 220 760 220 805 220','M850 270 C850 340 670 370 560 315'] },
     session: { title: 'SESSION · mỗi tab một ngăn riêng', color: '#f59e0b', nodes: [['👤','Tab A','đang nhập form'],['↔','Session Storage','Tab A only'],['↗','Tab B','không thấy'],['✕','Đóng tab A','xoá ngăn'],['∅','Kết quả','mất dữ liệu']], paths: ['M205 220 C245 220 260 220 305 220','M455 220 C495 220 510 220 555 220','M705 220 C745 220 760 220 805 220','M850 270 C850 340 670 370 560 315'] },
     cache: { title: 'CACHE · cache hit hoặc miss', color: '#a78bfa', nodes: [['🌐','Request','cần tài nguyên'],['⚡','Cache lookup','hit / miss'],['✓','Cache HIT','trả ngay'],['⇩','Cache MISS','ra network'],['🚀','Response','nhanh hơn']], paths: ['M205 220 C245 220 260 220 305 220','M455 220 C495 220 510 220 555 220','M705 220 C745 220 760 220 805 220','M850 270 C850 340 670 370 560 315'] },
@@ -129,7 +130,7 @@
   function renderLiveFlow(kind) {
     const blueprint = flowBlueprints[kind] || flowBlueprints.local;
     if (!liveFlowScene) return;
-    liveFlowScene.innerHTML = `<g class="live-wires">${blueprint.paths.map((d, i) => `<path id="svgPath${i}" class="live-wire" d="${d}" marker-end="url(#flowArrowHead)"></path>`).join('')}</g>${blueprint.nodes.map((node, i) => { const x = [65,305,555,805,430][i]; const y = i === 4 ? 300 : 175; const w = i === 3 ? 125 : i === 4 ? 160 : i === 0 ? 140 : 150; const details = node[3] ? node[3].map((line, index) => `<text class="live-detail" x="${w / 2}" y="${78 + index * 11}">${line}</text>`).join('') : ''; const h = node[3] ? 142 : i === 4 ? 82 : 90; return `<g class="live-node${i === 4 ? ' live-result' : ''}${node[3] ? ' live-hub' : ''}" data-svg-step="${i}" transform="translate(${x} ${y})"><rect width="${w}" height="${h}" rx="17"></rect><text class="live-emoji" x="18" y="36">${node[0]}</text><text class="live-title" x="${w / 2 + 8}" y="38">${node[1]}</text><text class="live-caption" x="${w / 2}" y="62"${i === 4 ? ' id="svgResultLabel"' : ''}>${node[2]}</text>${details}</g>`; }).join('')}`;
+    liveFlowScene.innerHTML = `<g class="live-wires">${blueprint.paths.map((d, i) => `<path id="svgPath${i}" class="live-wire" d="${d}" marker-end="url(#flowArrowHead)"></path>`).join('')}</g>${blueprint.nodes.map((node, i) => { const x = [65,305,555,805,430][i]; const y = i === 4 ? 300 : 175; const w = i === 3 ? 125 : i === 4 ? 160 : i === 0 ? 140 : 150; const laneClass = kind === 'all' && i === 2 ? ' all-lane' : ''; const details = node[3] ? node[3].map((line, index) => `<text class="live-detail${laneClass}" x="${w / 2}" y="${78 + index * 11}">${line}</text>`).join('') : ''; const h = node[3] ? 142 : i === 4 ? 82 : 90; return `<g class="live-node${i === 4 ? ' live-result' : ''}${node[3] ? ' live-hub' : ''}" data-svg-step="${i}" transform="translate(${x} ${y})"><rect width="${w}" height="${h}" rx="17"></rect><text class="live-emoji" x="18" y="36">${node[0]}</text><text class="live-title" x="${w / 2 + 8}" y="38">${node[1]}</text><text class="live-caption" x="${w / 2}" y="62"${i === 4 ? ' id="svgResultLabel"' : ''}>${node[2]}</text>${details}</g>`; }).join('')}`;
     svgNodes = [...liveFlowScene.querySelectorAll('[data-svg-step]')]; svgPaths = [...liveFlowScene.querySelectorAll('.live-wire')];
     svgResultLabel = liveFlowScene.querySelector('#svgResultLabel');
     if (svgHarnessLabel) { svgHarnessLabel.textContent = blueprint.title; svgHarnessLabel.style.fill = blueprint.color; }
@@ -154,7 +155,25 @@
     };
     requestAnimationFrame(tick);
   }
+  const allLaneExplanations = [
+    'Session Storage: dùng khi dữ liệu chỉ cần sống trong tab hiện tại, như form đang nhập.',
+    'Local Storage: dùng cho cài đặt nhỏ cần nhớ sau reload, như theme hoặc ngôn ngữ.',
+    'Cache: dùng khi muốn tải lại ảnh, CSS hoặc response nhanh hơn.',
+    'Cookies: dùng khi server cần nhận biết phiên đăng nhập hoặc preferences trong request.',
+    'Database: dùng khi có nhiều records cần tìm, sửa, xoá hoặc query.',
+    'History: dùng khi thay đổi URL và cần Back / Forward.'
+  ];
+  function resetAllLanes() {
+    clearInterval(allLaneTimer); document.querySelectorAll('.all-lane').forEach((lane) => lane.classList.remove('is-lane-active'));
+  }
+  function animateAllLanes() {
+    resetAllLanes(); const lanes = [...document.querySelectorAll('.all-lane')]; let index = 0;
+    if (!lanes.length) return;
+    const show = () => { lanes.forEach((lane, i) => lane.classList.toggle('is-lane-active', i === index)); explainFlow(2, ` ${allLaneExplanations[index]}`); index = (index + 1) % lanes.length; };
+    show(); allLaneTimer = setInterval(show, 850);
+  }
   function resetSvgFlow() {
+    resetAllLanes();
     svgNodes.forEach((node, index) => { node.classList.toggle('is-active', index === 0); node.classList.remove('is-done'); });
     svgPaths.forEach((path) => path.classList.remove('is-active', 'is-done'));
     svgPacket?.classList.remove('is-running'); svgPacket?.setAttribute('cx', '115'); svgPacket?.setAttribute('cy', '220');
@@ -191,21 +210,23 @@
       if (flowArrows[step]) flowArrows[step].classList.add('is-done');
       svgNodes[step]?.classList.remove('is-active'); svgNodes[step]?.classList.add('is-done');
       if (svgPaths[step]) { svgPaths[step].classList.add('is-active'); moveSvgPacket(step); }
+      if (selectedStorage === 'all' && step === 2) animateAllLanes();
       step += 1;
       movePacket(step);
       if (step >= total) {
-        clearInterval(flowTimer); flowPacket?.classList.remove('is-running'); svgPacket?.classList.remove('is-running'); flowLab?.classList.remove('is-running');
+        clearInterval(flowTimer); clearInterval(allLaneTimer); flowPacket?.classList.remove('is-running'); svgPacket?.classList.remove('is-running'); flowLab?.classList.remove('is-running');
         const finalResult = selectedStorage === 'all' ? 'trải nghiệm liền mạch' : selectedEvent === 'close-tab' && selectedStorage === 'session' ? 'session biến mất' : 'có thể đọc lại';
         if (flowResultLabel) flowResultLabel.textContent = finalResult;
         if (svgResultLabel) svgResultLabel.textContent = finalResult;
-        explainFlow(4, selectedEvent === 'close-tab' && selectedStorage === 'session' ? ' Session Storage thường mất khi tab đóng.' : ` ${storageNames[selectedStorage]} thường được đọc lại sau ${eventNames[selectedEvent].toLowerCase()}.`);
+        const finalExtra = selectedStorage === 'all' ? ' Mỗi loại đã xử lý một mục đích khác nhau: session cho tab, local cho cài đặt, cache cho tốc độ, cookies cho server, database cho records và history cho URL.' : selectedEvent === 'close-tab' && selectedStorage === 'session' ? ' Session Storage thường mất khi tab đóng.' : ` ${storageNames[selectedStorage]} thường được đọc lại sau ${eventNames[selectedEvent].toLowerCase()}.`;
+        explainFlow(4, finalExtra);
         log('Flow animation: đã tới kết quả. Hãy thử một lựa chọn khác để so sánh.', 'ok');
         return;
       }
       flowNodes[step]?.classList.add('is-active');
       svgNodes[step]?.classList.add('is-active');
       const extra = step === 2 ? storageNames[selectedStorage] : step === 3 ? eventNames[selectedEvent] : '';
-      explainFlow(step, extra ? ` ${extra}.` : '');
+      if (!(selectedStorage === 'all' && step === 3)) explainFlow(step, extra ? ` ${extra}.` : '');
     }, 950);
   }
   document.getElementById('runFlow')?.addEventListener('click', runFlow);
