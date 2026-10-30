@@ -1,14 +1,14 @@
 # AI Field Notes · Prompt Library
 
-Repository này giữ ứng dụng Prompt Library hiện có và bổ sung landing page cùng hai mô phỏng học tập tương tác. Root `index.html` là landing; ứng dụng Prompt Library cũ vẫn dùng được tại `prompts.html`.
+Repository này giữ ứng dụng Prompt Library hiện có và bổ sung các landing page cùng mô phỏng học tập tương tác. Root `index.html` là landing; ứng dụng Prompt Library cũ vẫn dùng được tại `prompts.html`.
 
 ## Hai mô phỏng học tập
 
 - **[SIT vs ST vs IT](https://lhlhai.github.io/prompt-library/SIT/)** — phân biệt Integration Test, System Test và System Integration Test bằng animation, ví dụ và quiz.
 - **[AI Pattern Lab](https://lhlhai.github.io/prompt-library/AI-2026/)** — trực quan hóa bảy pattern; nhấn rõ Skill giúp tái sử dụng quy trình, tăng tính nhất quán của output và được Agent/Runtime sử dụng thế nào. Có Playground mock, lý thuyết, bảng so sánh, decision tree và 9 câu quiz.
-- **[Technical Simulation](https://lhlhai.github.io/prompt-library/technical-simulation/)** — Storage Lab cho người mới: nhìn thấy History, Local Storage, Session Storage, Cache và IndexedDB bằng dữ liệu thật trong trình duyệt, có user guide tour và simulation flow.
+- **[Technical Simulation](https://lhlhai.github.io/prompt-library/technical-simulation/)** — topic hub. Hiện có domain **Storage** với live lab, lý thuyết, animation flow và Storage Quiz.
 
-Các app nằm trong thư mục riêng (`SIT/`, `AI-2026/`, `technical-simulation/`) và chạy bằng HTML/CSS/vanilla JavaScript, không cần framework, npm, build step hoặc API. Technical Simulation dùng các Web Storage APIs, Cache API và IndexedDB có sẵn trong trình duyệt; dữ liệu demo không rời khỏi thiết bị của người dùng.
+Các app nằm trong thư mục riêng (`SIT/`, `AI-2026/`, `technical-simulation/`) và chạy bằng HTML/CSS/vanilla JavaScript, không cần framework, npm, build step hoặc API. Technical Simulation dùng các Web Storage APIs, Cache API và IndexedDB có sẵn trong trình duyệt; dữ liệu demo không rời khỏi thiết bị của người dùng. Mỗi topic mới nên có một folder domain riêng và một `index.html` làm lab entry point.
 
 **[Mở landing page](https://lhlhai.github.io/prompt-library/)** · **[Mở Prompt Library](https://lhlhai.github.io/prompt-library/prompts.html)**
 
@@ -71,7 +71,15 @@ prompt-library/
 ├── README.md
 ├── SIT/                    # Mô phỏng IT / ST / SIT
 ├── AI-2026/                # Mô phỏng bảy AI pattern
-└── technical-simulation/   # Storage Lab cho người mới
+└── technical-simulation/   # Topic hub
+    ├── index.html          # Danh sách topic
+    ├── storage/            # Domain Storage
+    │   ├── index.html      # Storage Lab
+    │   ├── quiz.html       # Storage Quiz
+    │   ├── storage.js      # Logic riêng của domain
+    │   └── quiz.js         # Quiz riêng của domain
+    ├── app.js              # Theme/tour dùng chung
+    └── style.css           # Style dùng chung
 ```
 Các tài sản CSS, JavaScript và dữ liệu ở root vẫn được giữ cho Prompt Library cùng các trang khác trong repository.
 
