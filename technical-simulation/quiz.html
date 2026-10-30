@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="Technical Simulation Quiz — kiểm tra kiến thức về browser storage và live flow.">
+  <title>Quiz · Technical Simulation</title>
+  <link rel="stylesheet" href="style.css?v=quiz-1">
+  <script src="app.js?v=quiz-1" defer></script>
+  <script src="quiz.js?v=quiz-1" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Bỏ qua điều hướng</a>
+  <header class="app-header">
+    <div class="header-top wrap"><a class="brand" href="index.html" aria-label="Về Technical Simulation"><span class="brand-mark">TS</span><span><strong>Technical Simulation</strong><small>Quiz · kiểm tra hiểu thật</small></span></a><div class="header-actions"><span class="persistent-ai-badge">AI · VERIFY BEFORE USE</span><a class="home-link" href="index.html">← Bắt đầu</a><button id="themeToggle" class="theme-toggle" type="button" aria-label="Đổi giao diện">☼ Giao diện</button></div></div>
+    <nav class="tabbar wrap" aria-label="Điều hướng Technical Simulation"><a class="tab-button" href="index.html">🏠 Bắt đầu</a><a class="tab-button" href="storage.html">🗄️ Storage Lab</a><a class="tab-button is-active" href="quiz.html" aria-current="page">🎯 Quiz</a></nav>
+  </header>
+  <main id="main" class="main-content wrap quiz-main">
+    <section class="page-intro"><p class="eyebrow">QUIZ · 40 QUESTIONS</p><div class="ai-top-label"><span>AI-GENERATED LEARNING CONTENT</span><strong>Kiểm chứng cẩn thận trước khi sử dụng</strong><small>Câu hỏi dùng để tự học; hãy đối chiếu với tài liệu chính thức trước khi áp dụng vào hệ thống thật.</small></div><h1>Hiểu thật.<br><span>Không học thuộc.</span></h1><p>Ngân hàng câu hỏi được trộn thứ tự mỗi lượt. Có câu chọn một đáp án và có câu chọn nhiều đáp án. Bạn cần đạt ít nhất <strong>35/40</strong> để được tính là PASSED.</p></section>
+    <section class="quiz-notice card"><div><strong>Luật chấm</strong><p>Single choice phải chọn đúng một đáp án. Multiple choice phải chọn đủ và đúng toàn bộ đáp án; chọn thừa cũng bị tính sai.</p></div><span class="verification-badge">PASS ≥ 35/40</span></section>
+    <section class="quiz-shell card" id="quizShell">
+      <div class="quiz-topbar"><div><p class="eyebrow">LIVE ASSESSMENT</p><h2 id="questionNumber">Câu 1 / 40</h2></div><div class="quiz-score-preview" id="scorePreview">Chưa chấm</div></div>
+      <div class="quiz-progress"><span id="progressBar"></span></div>
+      <div class="question-meta"><span class="question-kind" id="questionKind">SINGLE CHOICE</span><span class="question-topic" id="questionTopic">Storage</span></div>
+      <h3 id="questionText"></h3><p class="question-help" id="questionHelp"></p>
+      <fieldset class="answer-list" id="answerList"><legend class="sr-only">Các đáp án</legend></fieldset>
+      <div class="quiz-actions"><button class="secondary-button" id="prevQuestion" type="button">← Câu trước</button><button class="primary-button" id="nextQuestion" type="button">Câu tiếp theo →</button><button class="primary-button" id="submitQuiz" type="button" hidden>Nộp bài & chấm điểm</button></div>
+    </section>
+    <section class="result-panel card" id="resultPanel" hidden><div class="result-mark" id="resultMark">✓</div><div><p class="eyebrow">QUIZ RESULT</p><h2 id="resultTitle">PASSED</h2><p id="resultText"></p></div><button class="secondary-button" id="retryQuiz" type="button">↺ Làm lượt mới</button></section>
+    <section class="review-panel card" id="reviewPanel" hidden><div class="section-heading compact"><div><p class="eyebrow">REVIEW</p><h2>Giải thích đáp án</h2></div><span class="muted">Học từ câu sai</span></div><div id="reviewList"></div></section>
+  </main>
+  <footer class="wrap footer"><span>Technical Simulation · Quiz</span><span>AI-assisted learning · Verify before use.</span></footer>
+</body>
+</html>
