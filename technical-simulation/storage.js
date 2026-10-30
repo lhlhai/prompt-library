@@ -102,12 +102,13 @@
   let svgPaths = [];
   const liveFlowScene = document.getElementById('liveFlowScene');
   const svgHarnessLabel = document.querySelector('.flow-harness-label');
+  const flowScenarioTitle = document.getElementById('flowScenarioTitle');
   const svgPacket = document.getElementById('svgPacket');
   const svgStorageLabel = document.getElementById('svgStorageLabel');
   const svgEventLabel = document.getElementById('svgEventLabel');
   const svgResultLabel = document.getElementById('svgResultLabel');
   let flowTimer;
-  const storageNames = { local: 'Local Storage', session: 'Session Storage', cache: 'Cache', database: 'Database', history: 'History' };
+  const storageNames = { local: 'Local Storage', session: 'Session Storage', cache: 'Cache', database: 'Database', cookies: 'Cookies', history: 'History' };
   const eventNames = { reload: 'Reload trang', 'new-tab': 'Mở tab mới', 'close-tab': 'Đóng tab' };
   const flowCopy = [
     ['Bước 1 · Người dùng', 'Ghi chú là “món đồ” bạn muốn cất.'],
@@ -121,6 +122,7 @@
     session: { title: 'SESSION · mỗi tab một ngăn riêng', color: '#f59e0b', nodes: [['👤','Tab A','đang nhập form'],['↔','Session Storage','Tab A only'],['↗','Tab B','không thấy'],['✕','Đóng tab A','xoá ngăn'],['∅','Kết quả','mất dữ liệu']], paths: ['M205 220 C245 220 260 220 305 220','M455 220 C495 220 510 220 555 220','M705 220 C745 220 760 220 805 220','M850 270 C850 340 670 370 560 315'] },
     cache: { title: 'CACHE · cache hit hoặc miss', color: '#a78bfa', nodes: [['🌐','Request','cần tài nguyên'],['⚡','Cache lookup','hit / miss'],['✓','Cache HIT','trả ngay'],['⇩','Cache MISS','ra network'],['🚀','Response','nhanh hơn']], paths: ['M205 220 C245 220 260 220 305 220','M455 220 C495 220 510 220 555 220','M705 220 C745 220 760 220 805 220','M850 270 C850 340 670 370 560 315'] },
     database: { title: 'DATABASE · transaction → query → records', color: '#38bdf8', nodes: [['👤','User action','thêm bản ghi'],['▤','Transaction','ghi an toàn'],['⌗','IndexedDB','nhiều records'],['⌕','Query / index','tìm dữ liệu'],['▤','Result set','danh sách']], paths: ['M205 220 C245 220 260 220 305 220','M455 220 C495 220 510 220 555 220','M705 220 C745 220 760 220 805 220','M850 270 C850 340 670 370 560 315'] },
+    cookies: { title: 'COOKIES · browser → request → server', color: '#f97316', nodes: [['🌐','Browser','document.cookie'],['🍪','Cookie jar','key = value'],['⇧','Request header','gửi cùng request'],['🖥️','Server','đọc cookie'],['↩','Response','session / prefs']], paths: ['M205 220 C245 220 260 220 305 220','M455 220 C495 220 510 220 555 220','M705 220 C745 220 760 220 805 220','M850 270 C850 340 670 370 560 315'] },
     history: { title: 'HISTORY · URL → Back / Forward', color: '#fb7185', nodes: [['👤','Người dùng','đổi URL'],['↗','History API','pushState()'],['↶','Browser history','entry stack'],['←','Back / Forward','popstate'],['✓','Kết quả','đổi màn hình']], paths: ['M205 220 C245 220 260 220 305 220','M455 220 C495 220 510 220 555 220','M705 220 C745 220 760 220 805 220','M850 270 C850 340 670 370 560 315'] }
   };
   function renderLiveFlow(kind) {
@@ -129,6 +131,7 @@
     liveFlowScene.innerHTML = `<g class="live-wires">${blueprint.paths.map((d, i) => `<path id="svgPath${i}" class="live-wire" d="${d}" marker-end="url(#flowArrowHead)"></path>`).join('')}</g>${blueprint.nodes.map((node, i) => { const x = [65,305,555,805,430][i]; const y = i === 4 ? 300 : 175; const w = i === 3 ? 125 : i === 4 ? 160 : i === 0 ? 140 : 150; return `<g class="live-node${i === 4 ? ' live-result' : ''}" data-svg-step="${i}" transform="translate(${x} ${y})"><rect width="${w}" height="${i === 4 ? 82 : 90}" rx="17"></rect><text class="live-emoji" x="18" y="36">${node[0]}</text><text class="live-title" x="${w / 2 + 8}" y="38">${node[1]}</text><text class="live-caption" x="${w / 2}" y="62">${node[2]}</text></g>`; }).join('')}`;
     svgNodes = [...liveFlowScene.querySelectorAll('[data-svg-step]')]; svgPaths = [...liveFlowScene.querySelectorAll('.live-wire')];
     if (svgHarnessLabel) { svgHarnessLabel.textContent = blueprint.title; svgHarnessLabel.style.fill = blueprint.color; }
+    if (flowScenarioTitle) { flowScenarioTitle.textContent = blueprint.title; flowScenarioTitle.style.color = blueprint.color; flowScenarioTitle.style.borderColor = `${blueprint.color}66`; }
     if (svgStorageLabel) svgStorageLabel.textContent = storageNames[kind];
     resetSvgFlow();
   }
