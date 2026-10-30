@@ -6,8 +6,9 @@ Repository này giữ ứng dụng Prompt Library hiện có và bổ sung landi
 
 - **[SIT vs ST vs IT](https://lhlhai.github.io/prompt-library/SIT/)** — phân biệt Integration Test, System Test và System Integration Test bằng animation, ví dụ và quiz.
 - **[AI Pattern Lab](https://lhlhai.github.io/prompt-library/AI-2026/)** — trực quan hóa bảy pattern; nhấn rõ Skill giúp tái sử dụng quy trình, tăng tính nhất quán của output và được Agent/Runtime sử dụng thế nào. Có Playground mock, lý thuyết, bảng so sánh, decision tree và 9 câu quiz.
+- **[Technical Simulation](https://lhlhai.github.io/prompt-library/technical-simulation/)** — Storage Lab cho người mới: nhìn thấy History, Local Storage, Session Storage, Cache và IndexedDB bằng dữ liệu thật trong trình duyệt, có user guide tour và simulation flow.
 
-Hai app nằm trong thư mục riêng (`SIT/`, `AI-2026/`) và chạy bằng HTML/CSS/vanilla JavaScript, không cần framework, npm, build step hoặc API. Các phản hồi trong AI Pattern Lab là dữ liệu minh họa, không phải kết quả từ model thật.
+Các app nằm trong thư mục riêng (`SIT/`, `AI-2026/`, `technical-simulation/`) và chạy bằng HTML/CSS/vanilla JavaScript, không cần framework, npm, build step hoặc API. Technical Simulation dùng các Web Storage APIs, Cache API và IndexedDB có sẵn trong trình duyệt; dữ liệu demo không rời khỏi thiết bị của người dùng.
 
 **[Mở landing page](https://lhlhai.github.io/prompt-library/)** · **[Mở Prompt Library](https://lhlhai.github.io/prompt-library/prompts.html)**
 
@@ -69,7 +70,8 @@ prompt-library/
 ├── prompts.html            # Prompt Library hiện có
 ├── README.md
 ├── SIT/                    # Mô phỏng IT / ST / SIT
-└── AI-2026/                # Mô phỏng bảy AI pattern
+├── AI-2026/                # Mô phỏng bảy AI pattern
+└── technical-simulation/   # Storage Lab cho người mới
 ```
 Các tài sản CSS, JavaScript và dữ liệu ở root vẫn được giữ cho Prompt Library cùng các trang khác trong repository.
 
