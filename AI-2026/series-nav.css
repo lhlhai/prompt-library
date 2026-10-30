@@ -1,0 +1,31 @@
+/* Shared navigation for every AI-2026 HTML page. */
+.ai26-series-nav{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:10000;color:#e6f0f8;color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.4}
+.ai26-series-nav *{box-sizing:border-box}
+.ai26-series-nav details{position:relative}
+.ai26-series-nav summary{display:flex;align-items:center;gap:8px;min-height:42px;padding:8px 12px;border:1px solid rgba(125,211,252,.35);border-radius:999px;background:linear-gradient(135deg,#0d2535,#102331);box-shadow:0 8px 28px rgba(0,0,0,.32);color:#e6f0f8;font-size:11px;font-weight:900;letter-spacing:.02em;cursor:pointer;list-style:none;user-select:none}
+.ai26-series-nav summary::-webkit-details-marker{display:none}
+.ai26-series-nav summary::marker{content:""}
+.ai26-series-nav summary:hover{border-color:#38bdf8;background:#123147}
+.ai26-series-nav summary:focus-visible,.ai26-series-nav a:focus-visible{outline:2px solid #38bdf8;outline-offset:3px}
+.ai26-menu-mark{display:grid;place-items:center;width:24px;height:24px;border-radius:8px;background:rgba(56,189,248,.15);color:#a6e7ff;font-size:9px;font-weight:950}
+.ai26-menu-caret{margin-left:2px;color:#9bb0c0;font-size:10px;transition:transform .18s ease}
+.ai26-series-nav details[open] .ai26-menu-caret{transform:rotate(180deg)}
+.ai26-menu-panel{position:absolute;right:0;bottom:calc(100% + 9px);display:flex;flex-direction:column;width:min(330px,calc(100vw - 24px));max-height:min(72vh,620px);overflow:hidden;border:1px solid rgba(151,181,199,.25);border-radius:15px;background:rgba(9,22,33,.98);box-shadow:0 18px 56px rgba(0,0,0,.48);backdrop-filter:blur(16px)}
+.ai26-menu-heading{padding:13px 14px 10px;border-bottom:1px solid rgba(151,181,199,.15)}
+.ai26-menu-heading strong{display:block;color:#f1f7fb;font-size:13px}
+.ai26-menu-heading span{display:block;margin-top:3px;color:#9bb0c0;font-size:10px}
+.ai26-menu-links{overflow:auto;padding:8px;overscroll-behavior:contain}
+.ai26-menu-home,.ai26-menu-link{display:flex;align-items:center;gap:9px;min-height:38px;padding:7px 9px;border:1px solid transparent;border-radius:9px;color:#c6d5df;text-decoration:none;transition:background .15s,border-color .15s,color .15s}
+.ai26-menu-home{margin-bottom:7px;border-color:rgba(56,189,248,.2);background:rgba(56,189,248,.07);color:#d9f4ff;font-weight:850}
+.ai26-menu-link:hover,.ai26-menu-home:hover{border-color:rgba(56,189,248,.3);background:rgba(56,189,248,.11);color:#fff}
+.ai26-menu-icon{display:grid;place-items:center;flex:none;width:23px;height:23px;border-radius:7px;background:rgba(151,181,199,.08);color:#a9bdcb;font:800 8px ui-monospace,monospace}
+.ai26-menu-copy{min-width:0;flex:1}
+.ai26-menu-copy strong{display:block;font-size:10px;line-height:1.35}
+.ai26-menu-copy small{display:block;margin-top:2px;color:#8298a8;font-size:8px;line-height:1.35}
+.ai26-menu-section{padding:7px 4px 3px}
+.ai26-menu-section h3{margin:2px 5px 4px;color:#7e9aab;font-size:8px;font-weight:900;letter-spacing:.11em;text-transform:uppercase}
+.ai26-menu-link[aria-current="page"],.ai26-menu-home[aria-current="page"]{border-color:rgba(74,222,128,.38);background:rgba(74,222,128,.1);color:#d9ffe5}
+.ai26-menu-link[aria-current="page"] .ai26-menu-icon,.ai26-menu-home[aria-current="page"] .ai26-menu-icon{background:rgba(74,222,128,.15);color:#baf4ca}
+.ai26-menu-current{flex:none;padding:3px 6px;border-radius:999px;background:rgba(74,222,128,.12);color:#baf4ca;font-size:7px;font-weight:900}
+@media(max-width:480px){.ai26-series-nav{right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px))}.ai26-series-nav summary{min-height:40px;padding:7px 10px}.ai26-menu-panel{width:min(320px,calc(100vw - 20px));max-height:min(70vh,580px)}}
+@media(prefers-reduced-motion:reduce){.ai26-series-nav *{scroll-behavior:auto!important;transition-duration:.01ms!important}}
