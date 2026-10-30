@@ -127,6 +127,7 @@
     'new-tab': [['Session', 'tab mới có ngăn riêng'], ['Local', 'dùng chung theo domain'], ['Cache', 'có thể dùng chung'], ['Database', 'dùng chung origin'], ['Cookies', 'gửi cùng request'], ['History', 'context điều hướng riêng']],
     'close-tab': [['Session', 'thường bị xoá'], ['Local', 'vẫn còn'], ['Cache', 'vẫn còn bản sao'], ['Database', 'vẫn còn records'], ['Cookies', 'còn tới khi hết hạn/xoá'], ['History', 'entry không phải app data']]
   };
+  const storageReasons = { local: 'Cần nhớ cài đặt nhỏ sau reload, nhưng không cần gửi tự động lên server.', session: 'Chỉ cần giữ trạng thái tạm trong tab hiện tại.', cache: 'Cần một bản sao tài nguyên để lần tải sau có thể nhanh hơn.', database: 'Có nhiều records cần lưu, tìm kiếm, sửa hoặc xoá.', cookies: 'Server cần nhận một mẩu dữ liệu nhỏ trong request theo policy.', history: 'Cần quản lý đường đi URL để Back/Forward hoạt động.', all: 'Ứng dụng tách theo mục đích: session cho tab, local cho cài đặt, cache cho tốc độ, cookies cho server, database cho records và history cho URL.' };
   const flowCopy = [
     ['Bước 1 · Người dùng', 'Ghi chú là “món đồ” bạn muốn cất.'],
     ['Bước 2 · Ứng dụng', 'Ứng dụng nhìn vào mục đích rồi chọn ngăn phù hợp.'],
@@ -145,8 +146,8 @@
   };
   function updateEventOutcome() {
     const event = flowEvent?.value || 'reload'; const kind = flowStorage?.value || 'local'; const profile = eventProfiles[event];
-    const title = document.getElementById('eventOutcomeTitle'); const text = document.getElementById('eventOutcomeText'); const badge = document.getElementById('eventOutcomeBadge'); const chips = document.getElementById('outcomeChips');
-    if (title) title.textContent = profile.title; if (text) text.textContent = profile.text; if (badge) badge.textContent = kind === 'all' ? '6 STORAGE LANES' : storageNames[kind].toUpperCase();
+    const title = document.getElementById('eventOutcomeTitle'); const text = document.getElementById('eventOutcomeText'); const badge = document.getElementById('eventOutcomeBadge'); const chips = document.getElementById('outcomeChips'); const decision = document.getElementById('eventDecision');
+    if (title) title.textContent = profile.title; if (text) text.textContent = profile.text; if (badge) badge.textContent = kind === 'all' ? '6 STORAGE LANES' : storageNames[kind].toUpperCase(); if (decision) decision.innerHTML = `<strong>WHY?</strong><span>${storageReasons[kind]}</span>`;
     if (chips) chips.innerHTML = eventOutcomes[event].map(([name, value]) => `<span class="outcome-chip"><strong>${name}:</strong> ${value}</span>`).join('');
     if (liveFlowScene) { const node = liveFlowScene.querySelector('[data-svg-step="3"]'); if (node) { node.querySelector('.live-title').textContent = profile.title.split(':')[0]; node.querySelector('.live-caption').textContent = profile.label; } }
   }
