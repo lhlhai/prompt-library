@@ -5,6 +5,8 @@
   const CACHE_URL = new URL('./demo-note.json', location.href).href;
   const DB_NAME = 'technical-simulation-db';
   const DB_VERSION = 1;
+  const SETTINGS_KEY = 'technical-simulation-settings';
+  let userSettings = { hints: true, autoRun: false, warnings: true, speed: 1 };
   const input = document.getElementById('noteInput');
   const list = document.getElementById('consoleList');
   const statusIds = { local: 'localStatus', session: 'sessionStatus', cache: 'cacheStatus', database: 'databaseStatus', history: 'historyStatus' };
@@ -12,6 +14,7 @@
   function stamp() { return new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
   function log(message, type = 'info') {
     if (!list) return;
+    if (type === 'info' && !userSettings.hints) return;
     const empty = list.querySelector('.console-placeholder');
     empty?.remove();
     const item = document.createElement('li');
@@ -28,6 +31,9 @@
   function note() { return input?.value.trim() || 'Một ghi chú demo'; }
   function setInput(value) { if (input && value) input.value = value; }
   function safeGet(storage, key) { try { return storage.getItem(key); } catch (_) { return null; } }
+  try { userSettings = { ...userSettings, ...JSON.parse(safeGet(localStorage, SETTINGS_KEY) || '{}') }; } catch (_) {}
+  function saveSettings() { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(userSettings)); } catch (_) {} }
+  function speedMs(base) { return Math.round(base / Math.max(.5, Number(userSettings.speed) || 1)); }
 
   function openDatabase() {
     return new Promise((resolve, reject) => {
@@ -185,8 +191,8 @@
     resetAllLanes(); const lanes = [...document.querySelectorAll('.all-lane')]; let index = 0;
     if (!lanes.length) return;
     const explanations = allLaneExplanations[flowEvent?.value || 'reload'];
-    const show = () => { lanes.forEach((lane, i) => lane.classList.toggle('is-lane-active', i === index)); explainFlow(2, ` ${explanations[index]}`); index = (index + 1) % lanes.length; };
-    show(); allLaneTimer = setInterval(show, 600);
+    const show = () => { lanes.forEach((lane, i) => lane.classList.toggle('is-lane-active', i === index)); explainFlow(2, ` ${explanations[index]}`); log(`[${flowEvent?.value || 'reload'}] Storage route → ${explanations[index]}`, 'info'); index = (index + 1) % lanes.length; };
+    show(); allLaneTimer = setInterval(show, speedMs(600));
   }
   function resetSvgFlow() {
     resetAllLanes();
@@ -228,6 +234,10 @@
       if (flowArrows[step]) flowArrows[step].classList.add('is-done');
       svgNodes[step]?.classList.remove('is-active'); svgNodes[step]?.classList.add('is-done');
       if (svgPaths[step]) { svgPaths[step].classList.add('is-active'); moveSvgPacket(step); }
+      if (selectedStorage !== 'all') {
+        const stepLogs = [`Input → nhận ghi chú: “${note()}”`, `Router → mục đích được chọn: ${storageNames[selectedStorage]}`, `Storage → ${storageNames[selectedStorage]} đang xử lý dữ liệu`, `Event → ${eventNames[selectedEvent]} đang tác động vào flow`, 'Result → kiểm tra dữ liệu còn lại'];
+        log(`[${selectedStorage}] ${stepLogs[step]}`, step === 4 ? 'ok' : 'info');
+      }
       step += 1;
       movePacket(step);
       if (step >= total) {
@@ -244,11 +254,16 @@
       svgNodes[step]?.classList.add('is-active');
       const extra = step === 2 ? storageNames[selectedStorage] : step === 3 ? eventNames[selectedEvent] : '';
       if (!(selectedStorage === 'all' && step === 3)) explainFlow(step, extra ? ` ${extra}.` : '');
-    }, 950);
+    }, speedMs(950));
   }
   document.getElementById('runFlow')?.addEventListener('click', runFlow);
   document.getElementById('resetFlow')?.addEventListener('click', resetFlow);
-  flowStorage?.addEventListener('change', () => { renderLiveFlow(flowStorage.value, flowEvent?.value); resetFlow(); }); flowEvent?.addEventListener('change', () => { renderLiveFlow(flowStorage?.value || 'local', flowEvent.value); resetFlow(); });
+  const settingHints = document.getElementById('settingHints'); const settingAutoRun = document.getElementById('settingAutoRun'); const settingWarnings = document.getElementById('settingWarnings'); const settingSpeed = document.getElementById('settingSpeed'); const speedValue = document.getElementById('speedValue'); const settingsSaved = document.getElementById('settingsSaved');
+  function paintSettings() { if (settingHints) settingHints.checked = userSettings.hints; if (settingAutoRun) settingAutoRun.checked = userSettings.autoRun; if (settingWarnings) settingWarnings.checked = userSettings.warnings; if (settingSpeed) settingSpeed.value = String(userSettings.speed); if (speedValue) speedValue.textContent = `${userSettings.speed}×`; document.querySelector('.ai-notice')?.classList.toggle('is-muted', !userSettings.warnings); }
+  function settingsChanged() { saveSettings(); paintSettings(); if (settingsSaved) { settingsSaved.textContent = 'Đã lưu'; setTimeout(() => { settingsSaved.textContent = 'Tự lưu trên thiết bị'; }, 1400); } }
+  settingHints?.addEventListener('change', () => { userSettings.hints = settingHints.checked; settingsChanged(); }); settingAutoRun?.addEventListener('change', () => { userSettings.autoRun = settingAutoRun.checked; settingsChanged(); }); settingWarnings?.addEventListener('change', () => { userSettings.warnings = settingWarnings.checked; settingsChanged(); }); settingSpeed?.addEventListener('change', () => { userSettings.speed = Number(settingSpeed.value); settingsChanged(); });
+  paintSettings();
+  flowStorage?.addEventListener('change', () => { renderLiveFlow(flowStorage.value, flowEvent?.value); resetFlow(); if (userSettings.autoRun) runFlow(); }); flowEvent?.addEventListener('change', () => { renderLiveFlow(flowStorage?.value || 'local', flowEvent.value); resetFlow(); if (userSettings.autoRun) runFlow(); });
   renderLiveFlow(flowStorage?.value || 'local', flowEvent?.value || 'reload');
   resetFlow();
   refreshStatuses();
