@@ -173,22 +173,20 @@
     };
     requestAnimationFrame(tick);
   }
-  const allLaneExplanations = [
-    'Session Storage: dùng khi dữ liệu chỉ cần sống trong tab hiện tại, như form đang nhập.',
-    'Local Storage: dùng cho cài đặt nhỏ cần nhớ sau reload, như theme hoặc ngôn ngữ.',
-    'Cache: dùng khi muốn tải lại ảnh, CSS hoặc response nhanh hơn.',
-    'Cookies: dùng khi server cần nhận biết phiên đăng nhập hoặc preferences trong request.',
-    'Database: dùng khi có nhiều records cần tìm, sửa, xoá hoặc query.',
-    'History: dùng khi thay đổi URL và cần Back / Forward.'
-  ];
+  const allLaneExplanations = {
+    reload: ['Session: đọc lại form đang mở trong tab.', 'Local: đọc lại theme/cài đặt sau reload.', 'Cache: thử lấy ảnh/CSS từ cache trước.', 'Cookies: gửi cookie cùng request reload.', 'Database: mở lại records đã lưu.', 'History: giữ entry URL hiện tại.'],
+    'new-tab': ['Session: tab mới tạo một ngăn riêng, không thấy dữ liệu Tab A.', 'Local: tab mới dùng chung cài đặt theo domain.', 'Cache: tab mới có thể dùng bản sao đã cache.', 'Cookies: tab mới vẫn gửi cookie lên server.', 'Database: cùng origin nên đọc được records.', 'History: tab mới có context điều hướng riêng.'],
+    'close-tab': ['Session: dọn ngăn vì tab đã kết thúc.', 'Local: không bị xoá khi đóng tab.', 'Cache: bản sao tài nguyên vẫn còn.', 'Cookies: còn tới khi hết hạn hoặc bị xoá.', 'Database: records vẫn nằm trong IndexedDB.', 'History: entry điều hướng không phải dữ liệu app.']
+  };
   function resetAllLanes() {
     clearInterval(allLaneTimer); document.querySelectorAll('.all-lane').forEach((lane) => lane.classList.remove('is-lane-active'));
   }
   function animateAllLanes() {
     resetAllLanes(); const lanes = [...document.querySelectorAll('.all-lane')]; let index = 0;
     if (!lanes.length) return;
-    const show = () => { lanes.forEach((lane, i) => lane.classList.toggle('is-lane-active', i === index)); explainFlow(2, ` ${allLaneExplanations[index]}`); index = (index + 1) % lanes.length; };
-    show(); allLaneTimer = setInterval(show, 850);
+    const explanations = allLaneExplanations[flowEvent?.value || 'reload'];
+    const show = () => { lanes.forEach((lane, i) => lane.classList.toggle('is-lane-active', i === index)); explainFlow(2, ` ${explanations[index]}`); index = (index + 1) % lanes.length; };
+    show(); allLaneTimer = setInterval(show, 600);
   }
   function resetSvgFlow() {
     resetAllLanes();
@@ -223,13 +221,13 @@
     if (flowEventLabel) flowEventLabel.textContent = eventNames[selectedEvent];
     if (svgStorageLabel) svgStorageLabel.textContent = storageNames[selectedStorage];
     if (svgEventLabel) svgEventLabel.textContent = eventNames[selectedEvent].replace(' trang', '');
+    if (selectedStorage === 'all') animateAllLanes();
     log(`Flow animation: ${storageNames[selectedStorage]} → ${eventNames[selectedEvent]}.`, 'info');
     flowTimer = setInterval(() => {
       flowNodes[step]?.classList.remove('is-active'); flowNodes[step]?.classList.add('is-done');
       if (flowArrows[step]) flowArrows[step].classList.add('is-done');
       svgNodes[step]?.classList.remove('is-active'); svgNodes[step]?.classList.add('is-done');
       if (svgPaths[step]) { svgPaths[step].classList.add('is-active'); moveSvgPacket(step); }
-      if (selectedStorage === 'all' && step === 2) animateAllLanes();
       step += 1;
       movePacket(step);
       if (step >= total) {
