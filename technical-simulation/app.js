@@ -28,9 +28,10 @@
   const tourSteps = document.body.contains(document.getElementById('simulator'))
     ? [
       ['simulator', '1. Nhập dữ liệu', 'Đây là nơi bạn nhập một ghi chú. Hãy coi nó như món đồ bạn muốn cất vào các ngăn kéo khác nhau.'],
-      ['stores', '2. Chọn ngăn kéo', 'Mỗi thẻ giải thích một loại storage. Bấm nút lưu riêng để thấy trình duyệt ghi dữ liệu thật vào nơi đó.'],
-      ['events', '3. Thay đổi tình huống', 'Reload, mở tab mới hoặc giả lập đóng tab. Đây là lúc khác biệt giữa local, session, cache và database trở nên rõ ràng.'],
-      ['explain', '4. Chọn theo mục đích', 'Đọc phần Vai trò & chức năng để nhớ nhanh: cần điều hướng, nhớ lâu, tạm thời, tải nhanh hay truy vấn nhiều dữ liệu?']
+      ['flow', '2. Chạy flow minh hoạ', 'Chọn một storage và một sự kiện, sau đó bấm Chạy flow. Chấm sáng sẽ đi qua từng vai trò để kể câu chuyện dữ liệu.'],
+      ['stores', '3. Chọn ngăn kéo', 'Mỗi thẻ giải thích một loại storage. Bấm nút lưu riêng để thấy trình duyệt ghi dữ liệu thật vào nơi đó.'],
+      ['events', '4. Thay đổi tình huống', 'Reload, mở tab mới hoặc giả lập đóng tab. Đây là lúc khác biệt giữa local, session, cache và database trở nên rõ ràng.'],
+      ['explain', '5. Chọn theo mục đích', 'Đọc phần Vai trò & chức năng để nhớ nhanh: cần điều hướng, nhớ lâu, tạm thời, tải nhanh hay truy vấn nhiều dữ liệu?']
     ]
     : [
       ['.hero', '1. Bắt đầu ở trang này', 'Đây là bản đồ bài học. Mỗi card là một “ngăn kéo” dữ liệu với vai trò riêng.'],

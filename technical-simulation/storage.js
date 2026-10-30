@@ -88,5 +88,72 @@
   document.getElementById('closeTabButton')?.addEventListener('click', async () => { sessionStorage.removeItem(NOTE_KEY); await refreshStatuses(); log('Giả lập đóng tab: sessionStorage của tab này đã được xoá.', 'warn'); });
   window.addEventListener('popstate', () => { setStatus('history', 'Đang ở entry khác', true); log('History: popstate — trạng thái điều hướng đã thay đổi.', 'info'); });
   input?.addEventListener('input', () => { if (input.value.trim()) document.querySelector('.guide-strip .guide-number')?.replaceChildren(document.createTextNode('02')); });
+  const flowLab = document.getElementById('flowLab');
+  const flowNodes = [...document.querySelectorAll('[data-flow-step]')];
+  const flowArrows = [...document.querySelectorAll('[data-flow-arrow]')];
+  const flowPacket = document.getElementById('flowPacket');
+  const flowExplanation = document.getElementById('flowExplanation');
+  const flowStorage = document.getElementById('flowStorage');
+  const flowEvent = document.getElementById('flowEvent');
+  const flowStorageLabel = document.getElementById('flowStorageLabel');
+  const flowEventLabel = document.getElementById('flowEventLabel');
+  const flowResultLabel = document.getElementById('flowResultLabel');
+  let flowTimer;
+  const storageNames = { local: 'Local Storage', session: 'Session Storage', cache: 'Cache', database: 'Database', history: 'History' };
+  const eventNames = { reload: 'Reload trang', 'new-tab': 'Mở tab mới', 'close-tab': 'Đóng tab' };
+  const flowCopy = [
+    ['Bước 1 · Người dùng', 'Ghi chú là “món đồ” bạn muốn cất.'],
+    ['Bước 2 · Ứng dụng', 'Ứng dụng nhìn vào mục đích rồi chọn ngăn phù hợp.'],
+    ['Bước 3 · Storage', 'Trình duyệt ghi dữ liệu vào ngăn đang chọn: '],
+    ['Bước 4 · Sự kiện', 'Bây giờ ta thay đổi tình huống: '],
+    ['Bước 5 · Kết quả', 'Quan sát dữ liệu còn lại hay biến mất. Đây là điều cần nhớ khi thiết kế app.']
+  ];
+  function explainFlow(step, extra = '') {
+    if (!flowExplanation) return;
+    const [heading, copy] = flowCopy[step];
+    flowExplanation.innerHTML = `<strong>${heading}</strong><span>${copy}${extra}</span>`;
+  }
+  function movePacket(step) { if (flowPacket) flowPacket.style.left = `${Math.min(92, 6 + step * 22)}%`; }
+  function resetFlow() {
+    clearInterval(flowTimer); flowLab?.classList.remove('is-running'); flowPacket?.classList.remove('is-running');
+    flowNodes.forEach((node, index) => { node.classList.toggle('is-active', index === 0); node.classList.remove('is-done'); });
+    flowArrows.forEach((arrow) => arrow.classList.remove('is-done'));
+    movePacket(0);
+    if (flowStorageLabel) flowStorageLabel.textContent = storageNames[flowStorage?.value || 'local'];
+    if (flowEventLabel) flowEventLabel.textContent = eventNames[flowEvent?.value || 'reload'];
+    if (flowResultLabel) flowResultLabel.textContent = 'đang chờ';
+    explainFlow(0);
+  }
+  function runFlow() {
+    resetFlow();
+    const selectedStorage = flowStorage?.value || 'local';
+    const selectedEvent = flowEvent?.value || 'reload';
+    const total = flowNodes.length;
+    let step = 0;
+    flowLab?.classList.add('is-running'); flowPacket?.classList.add('is-running');
+    if (flowStorageLabel) flowStorageLabel.textContent = storageNames[selectedStorage];
+    if (flowEventLabel) flowEventLabel.textContent = eventNames[selectedEvent];
+    log(`Flow animation: ${storageNames[selectedStorage]} → ${eventNames[selectedEvent]}.`, 'info');
+    flowTimer = setInterval(() => {
+      flowNodes[step]?.classList.remove('is-active'); flowNodes[step]?.classList.add('is-done');
+      if (flowArrows[step]) flowArrows[step].classList.add('is-done');
+      step += 1;
+      movePacket(step);
+      if (step >= total) {
+        clearInterval(flowTimer); flowPacket?.classList.remove('is-running'); flowLab?.classList.remove('is-running');
+        if (flowResultLabel) flowResultLabel.textContent = selectedEvent === 'close-tab' && selectedStorage === 'session' ? 'session biến mất' : 'có thể đọc lại';
+        explainFlow(4, selectedEvent === 'close-tab' && selectedStorage === 'session' ? ' Session Storage thường mất khi tab đóng.' : ` ${storageNames[selectedStorage]} thường được đọc lại sau ${eventNames[selectedEvent].toLowerCase()}.`);
+        log('Flow animation: đã tới kết quả. Hãy thử một lựa chọn khác để so sánh.', 'ok');
+        return;
+      }
+      flowNodes[step]?.classList.add('is-active');
+      const extra = step === 2 ? storageNames[selectedStorage] : step === 3 ? eventNames[selectedEvent] : '';
+      explainFlow(step, extra ? ` ${extra}.` : '');
+    }, 950);
+  }
+  document.getElementById('runFlow')?.addEventListener('click', runFlow);
+  document.getElementById('resetFlow')?.addEventListener('click', resetFlow);
+  flowStorage?.addEventListener('change', resetFlow); flowEvent?.addEventListener('change', resetFlow);
+  resetFlow();
   refreshStatuses();
 })();
