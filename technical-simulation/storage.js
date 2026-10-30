@@ -106,9 +106,9 @@
   const svgPacket = document.getElementById('svgPacket');
   const svgStorageLabel = document.getElementById('svgStorageLabel');
   const svgEventLabel = document.getElementById('svgEventLabel');
-  const svgResultLabel = document.getElementById('svgResultLabel');
+  let svgResultLabel = document.getElementById('svgResultLabel');
   let flowTimer;
-  const storageNames = { local: 'Local Storage', session: 'Session Storage', cache: 'Cache', database: 'Database', cookies: 'Cookies', history: 'History' };
+  const storageNames = { all: 'All browser storage', local: 'Local Storage', session: 'Session Storage', cache: 'Cache', database: 'Database', cookies: 'Cookies', history: 'History' };
   const eventNames = { reload: 'Reload trang', 'new-tab': 'Mở tab mới', 'close-tab': 'Đóng tab' };
   const flowCopy = [
     ['Bước 1 · Người dùng', 'Ghi chú là “món đồ” bạn muốn cất.'],
@@ -118,6 +118,7 @@
     ['Bước 5 · Kết quả', 'Quan sát dữ liệu còn lại hay biến mất. Đây là điều cần nhớ khi thiết kế app.']
   ];
   const flowBlueprints = {
+    all: { title: 'ALL · browser storage phối hợp', color: '#a78bfa', nodes: [['👤','User action','login / settings'],['🧭','Ứng dụng','điều phối'],['⇢','Browser services','đúng nơi, đúng lúc',['Local','Session','Cache','Database','Cookies','History']],['🔄','Events','reload · request · URL'],['✓','Kết quả','trải nghiệm liền mạch']], paths: ['M205 220 C245 220 260 220 305 220','M455 220 C495 220 510 220 555 220','M705 220 C745 220 760 220 805 220','M850 270 C850 340 670 370 560 315'] },
     local: { title: 'LOCAL · reload vẫn còn', color: '#22c55e', nodes: [['👤','Người dùng','cài đặt'],['🧭','Ứng dụng','setItem()'],['▣','Local Storage','theo domain'],['🔄','Reload trang','đọc lại'],['✓','Kết quả','vẫn còn']], paths: ['M205 220 C245 220 260 220 305 220','M455 220 C495 220 510 220 555 220','M705 220 C745 220 760 220 805 220','M850 270 C850 340 670 370 560 315'] },
     session: { title: 'SESSION · mỗi tab một ngăn riêng', color: '#f59e0b', nodes: [['👤','Tab A','đang nhập form'],['↔','Session Storage','Tab A only'],['↗','Tab B','không thấy'],['✕','Đóng tab A','xoá ngăn'],['∅','Kết quả','mất dữ liệu']], paths: ['M205 220 C245 220 260 220 305 220','M455 220 C495 220 510 220 555 220','M705 220 C745 220 760 220 805 220','M850 270 C850 340 670 370 560 315'] },
     cache: { title: 'CACHE · cache hit hoặc miss', color: '#a78bfa', nodes: [['🌐','Request','cần tài nguyên'],['⚡','Cache lookup','hit / miss'],['✓','Cache HIT','trả ngay'],['⇩','Cache MISS','ra network'],['🚀','Response','nhanh hơn']], paths: ['M205 220 C245 220 260 220 305 220','M455 220 C495 220 510 220 555 220','M705 220 C745 220 760 220 805 220','M850 270 C850 340 670 370 560 315'] },
@@ -128,8 +129,9 @@
   function renderLiveFlow(kind) {
     const blueprint = flowBlueprints[kind] || flowBlueprints.local;
     if (!liveFlowScene) return;
-    liveFlowScene.innerHTML = `<g class="live-wires">${blueprint.paths.map((d, i) => `<path id="svgPath${i}" class="live-wire" d="${d}" marker-end="url(#flowArrowHead)"></path>`).join('')}</g>${blueprint.nodes.map((node, i) => { const x = [65,305,555,805,430][i]; const y = i === 4 ? 300 : 175; const w = i === 3 ? 125 : i === 4 ? 160 : i === 0 ? 140 : 150; return `<g class="live-node${i === 4 ? ' live-result' : ''}" data-svg-step="${i}" transform="translate(${x} ${y})"><rect width="${w}" height="${i === 4 ? 82 : 90}" rx="17"></rect><text class="live-emoji" x="18" y="36">${node[0]}</text><text class="live-title" x="${w / 2 + 8}" y="38">${node[1]}</text><text class="live-caption" x="${w / 2}" y="62">${node[2]}</text></g>`; }).join('')}`;
+    liveFlowScene.innerHTML = `<g class="live-wires">${blueprint.paths.map((d, i) => `<path id="svgPath${i}" class="live-wire" d="${d}" marker-end="url(#flowArrowHead)"></path>`).join('')}</g>${blueprint.nodes.map((node, i) => { const x = [65,305,555,805,430][i]; const y = i === 4 ? 300 : 175; const w = i === 3 ? 125 : i === 4 ? 160 : i === 0 ? 140 : 150; const details = node[3] ? node[3].map((line, index) => `<text class="live-detail" x="${w / 2}" y="${78 + index * 11}">${line}</text>`).join('') : ''; const h = node[3] ? 142 : i === 4 ? 82 : 90; return `<g class="live-node${i === 4 ? ' live-result' : ''}${node[3] ? ' live-hub' : ''}" data-svg-step="${i}" transform="translate(${x} ${y})"><rect width="${w}" height="${h}" rx="17"></rect><text class="live-emoji" x="18" y="36">${node[0]}</text><text class="live-title" x="${w / 2 + 8}" y="38">${node[1]}</text><text class="live-caption" x="${w / 2}" y="62"${i === 4 ? ' id="svgResultLabel"' : ''}>${node[2]}</text>${details}</g>`; }).join('')}`;
     svgNodes = [...liveFlowScene.querySelectorAll('[data-svg-step]')]; svgPaths = [...liveFlowScene.querySelectorAll('.live-wire')];
+    svgResultLabel = liveFlowScene.querySelector('#svgResultLabel');
     if (svgHarnessLabel) { svgHarnessLabel.textContent = blueprint.title; svgHarnessLabel.style.fill = blueprint.color; }
     if (flowScenarioTitle) { flowScenarioTitle.textContent = blueprint.title; flowScenarioTitle.style.color = blueprint.color; flowScenarioTitle.style.borderColor = `${blueprint.color}66`; }
     if (svgStorageLabel) svgStorageLabel.textContent = storageNames[kind];
@@ -193,8 +195,9 @@
       movePacket(step);
       if (step >= total) {
         clearInterval(flowTimer); flowPacket?.classList.remove('is-running'); svgPacket?.classList.remove('is-running'); flowLab?.classList.remove('is-running');
-        if (flowResultLabel) flowResultLabel.textContent = selectedEvent === 'close-tab' && selectedStorage === 'session' ? 'session biến mất' : 'có thể đọc lại';
-        if (svgResultLabel) svgResultLabel.textContent = selectedEvent === 'close-tab' && selectedStorage === 'session' ? 'session biến mất' : 'có thể đọc lại';
+        const finalResult = selectedStorage === 'all' ? 'trải nghiệm liền mạch' : selectedEvent === 'close-tab' && selectedStorage === 'session' ? 'session biến mất' : 'có thể đọc lại';
+        if (flowResultLabel) flowResultLabel.textContent = finalResult;
+        if (svgResultLabel) svgResultLabel.textContent = finalResult;
         explainFlow(4, selectedEvent === 'close-tab' && selectedStorage === 'session' ? ' Session Storage thường mất khi tab đóng.' : ` ${storageNames[selectedStorage]} thường được đọc lại sau ${eventNames[selectedEvent].toLowerCase()}.`);
         log('Flow animation: đã tới kết quả. Hãy thử một lựa chọn khác để so sánh.', 'ok');
         return;
