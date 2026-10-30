@@ -98,6 +98,12 @@
   const flowStorageLabel = document.getElementById('flowStorageLabel');
   const flowEventLabel = document.getElementById('flowEventLabel');
   const flowResultLabel = document.getElementById('flowResultLabel');
+  const svgNodes = [...document.querySelectorAll('[data-svg-step]')];
+  const svgPaths = [...document.querySelectorAll('.live-wire')];
+  const svgPacket = document.getElementById('svgPacket');
+  const svgStorageLabel = document.getElementById('svgStorageLabel');
+  const svgEventLabel = document.getElementById('svgEventLabel');
+  const svgResultLabel = document.getElementById('svgResultLabel');
   let flowTimer;
   const storageNames = { local: 'Local Storage', session: 'Session Storage', cache: 'Cache', database: 'Database', history: 'History' };
   const eventNames = { reload: 'Reload trang', 'new-tab': 'Mở tab mới', 'close-tab': 'Đóng tab' };
@@ -114,11 +120,31 @@
     flowExplanation.innerHTML = `<strong>${heading}</strong><span>${copy}${extra}</span>`;
   }
   function movePacket(step) { if (flowPacket) flowPacket.style.left = `${Math.min(92, 6 + step * 22)}%`; }
+  function moveSvgPacket(pathIndex) {
+    const path = svgPaths[pathIndex];
+    if (!path || !svgPacket) return;
+    const length = path.getTotalLength(); const started = performance.now();
+    const tick = (now) => {
+      const progress = Math.min(1, (now - started) / 820); const point = path.getPointAtLength(length * progress);
+      svgPacket.setAttribute('cx', point.x); svgPacket.setAttribute('cy', point.y);
+      if (progress < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+  function resetSvgFlow() {
+    svgNodes.forEach((node, index) => { node.classList.toggle('is-active', index === 0); node.classList.remove('is-done'); });
+    svgPaths.forEach((path) => path.classList.remove('is-active', 'is-done'));
+    svgPacket?.classList.remove('is-running'); svgPacket?.setAttribute('cx', '115'); svgPacket?.setAttribute('cy', '220');
+    if (svgStorageLabel) svgStorageLabel.textContent = storageNames[flowStorage?.value || 'local'];
+    if (svgEventLabel) svgEventLabel.textContent = eventNames[flowEvent?.value || 'reload'].replace(' trang', '');
+    if (svgResultLabel) svgResultLabel.textContent = 'đang chờ';
+  }
   function resetFlow() {
     clearInterval(flowTimer); flowLab?.classList.remove('is-running'); flowPacket?.classList.remove('is-running');
     flowNodes.forEach((node, index) => { node.classList.toggle('is-active', index === 0); node.classList.remove('is-done'); });
     flowArrows.forEach((arrow) => arrow.classList.remove('is-done'));
     movePacket(0);
+    resetSvgFlow();
     if (flowStorageLabel) flowStorageLabel.textContent = storageNames[flowStorage?.value || 'local'];
     if (flowEventLabel) flowEventLabel.textContent = eventNames[flowEvent?.value || 'reload'];
     if (flowResultLabel) flowResultLabel.textContent = 'đang chờ';
@@ -131,22 +157,29 @@
     const total = flowNodes.length;
     let step = 0;
     flowLab?.classList.add('is-running'); flowPacket?.classList.add('is-running');
+    svgPacket?.classList.add('is-running');
     if (flowStorageLabel) flowStorageLabel.textContent = storageNames[selectedStorage];
     if (flowEventLabel) flowEventLabel.textContent = eventNames[selectedEvent];
+    if (svgStorageLabel) svgStorageLabel.textContent = storageNames[selectedStorage];
+    if (svgEventLabel) svgEventLabel.textContent = eventNames[selectedEvent].replace(' trang', '');
     log(`Flow animation: ${storageNames[selectedStorage]} → ${eventNames[selectedEvent]}.`, 'info');
     flowTimer = setInterval(() => {
       flowNodes[step]?.classList.remove('is-active'); flowNodes[step]?.classList.add('is-done');
       if (flowArrows[step]) flowArrows[step].classList.add('is-done');
+      svgNodes[step]?.classList.remove('is-active'); svgNodes[step]?.classList.add('is-done');
+      if (svgPaths[step]) { svgPaths[step].classList.add('is-active'); moveSvgPacket(step); }
       step += 1;
       movePacket(step);
       if (step >= total) {
-        clearInterval(flowTimer); flowPacket?.classList.remove('is-running'); flowLab?.classList.remove('is-running');
+        clearInterval(flowTimer); flowPacket?.classList.remove('is-running'); svgPacket?.classList.remove('is-running'); flowLab?.classList.remove('is-running');
         if (flowResultLabel) flowResultLabel.textContent = selectedEvent === 'close-tab' && selectedStorage === 'session' ? 'session biến mất' : 'có thể đọc lại';
+        if (svgResultLabel) svgResultLabel.textContent = selectedEvent === 'close-tab' && selectedStorage === 'session' ? 'session biến mất' : 'có thể đọc lại';
         explainFlow(4, selectedEvent === 'close-tab' && selectedStorage === 'session' ? ' Session Storage thường mất khi tab đóng.' : ` ${storageNames[selectedStorage]} thường được đọc lại sau ${eventNames[selectedEvent].toLowerCase()}.`);
         log('Flow animation: đã tới kết quả. Hãy thử một lựa chọn khác để so sánh.', 'ok');
         return;
       }
       flowNodes[step]?.classList.add('is-active');
+      svgNodes[step]?.classList.add('is-active');
       const extra = step === 2 ? storageNames[selectedStorage] : step === 3 ? eventNames[selectedEvent] : '';
       explainFlow(step, extra ? ` ${extra}.` : '');
     }, 950);
