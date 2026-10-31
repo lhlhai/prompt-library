@@ -163,7 +163,7 @@
     <div class="section-head">
       <div class="kicker">Hall of fame · Live from GitHub</div>
       <h2 id="fameTitle">Bảng vàng contributor 🏆</h2>
-      <p>Những người đã góp công cho dự án. Danh sách lấy trực tiếp từ GitHub và tự làm mới khi contributor mới được ghi nhận.</p>
+      <p>Những người có PR đã được merge vào dự án. Danh sách lấy trực tiếp từ GitHub và tự cập nhật sau mỗi lần đóng góp được hợp nhất.</p>
     </div>
     <p class="fame-status" id="fameStatus" role="status" aria-live="polite">Đang tải danh sách contributor…</p>
     <div class="fame-grid" id="fameGrid" aria-label="Danh sách contributor của dự án"></div>
@@ -339,21 +339,46 @@
     catch(e){toast('Clipboard từ chối 😅 — bạn có thể gõ tay, tốt cho ngón út.');}
   });
 
-  // Live contributor wall (GitHub refreshes contributor statistics asynchronously).
+  // Live contributor wall based on merged PR authors, not commit attribution.
   const fameGrid=$('#fameGrid');
   const fameStatus=$('#fameStatus');
   async function loadContributors(){
     try{
-      const response=await fetch('https://api.github.com/repos/lhlhai/prompt-library/contributors?per_page=100',{
-        headers:{Accept:'application/vnd.github+json'}
+      const mergedPullRequests=[];
+      let page=1;
+      while(true){
+        const response=await fetch(`https://api.github.com/repos/lhlhai/prompt-library/pulls?state=closed&per_page=100&sort=created&direction=desc&page=${page}`,{
+          headers:{Accept:'application/vnd.github+json'}
+        });
+        if(!response.ok)throw new Error(`GitHub API returned ${response.status}`);
+        const pullRequests=await response.json();
+        if(!Array.isArray(pullRequests))throw new Error('Unexpected GitHub API response');
+        mergedPullRequests.push(...pullRequests.filter(pull=>pull.merged_at&&pull.user));
+        if(pullRequests.length<100)break;
+        page++;
+      }
+
+      const peopleByLogin=new Map();
+      mergedPullRequests.forEach(pull=>{
+        const contributor=pull.user;
+        if(contributor.type==='Bot'||contributor.login.endsWith('[bot]'))return;
+        const person=peopleByLogin.get(contributor.login)||{
+          login:contributor.login,
+          html_url:contributor.html_url,
+          avatar_url:contributor.avatar_url,
+          mergedPrs:0,
+          latestMergedAt:''
+        };
+        person.mergedPrs++;
+        if(pull.merged_at>person.latestMergedAt)person.latestMergedAt=pull.merged_at;
+        peopleByLogin.set(person.login,person);
       });
-      if(!response.ok)throw new Error(`GitHub API returned ${response.status}`);
-      const contributors=await response.json();
-      if(!Array.isArray(contributors))throw new Error('Unexpected GitHub API response');
-      const people=contributors.filter(user=>user.type!=='Bot'&&!user.login.endsWith('[bot]'));
+      const people=[...peopleByLogin.values()].sort((a,b)=>
+        b.mergedPrs-a.mergedPrs||b.latestMergedAt.localeCompare(a.latestMergedAt)
+      );
       fameGrid.replaceChildren();
       if(!people.length){
-        fameStatus.textContent='Chưa có contributor nào được GitHub ghi nhận. Hãy là người đầu tiên!';
+        fameStatus.textContent='Chưa có PR nào được merge. Hãy là người đầu tiên góp sức!';
         return;
       }
       const medals=['🥇','🥈','🥉'];
@@ -363,8 +388,7 @@
         card.href=contributor.html_url;
         card.target='_blank';
         card.rel='noreferrer';
-        card.setAttribute('aria-label',`${contributor.login}, ${contributor.contributions} đóng góp`);
-
+        card.setAttribute('aria-label',`${contributor.login}, ${contributor.mergedPrs} PR được merge`);
         const rank=document.createElement('span');
         rank.className='tier';
         rank.textContent=index<medals.length?`${medals[index]} Top ${index+1}`:'Contributor';
@@ -380,18 +404,18 @@
         name.textContent=contributor.login;
         const count=document.createElement('p');
         count.className='contrib-count';
-        count.textContent=`${Number(contributor.contributions).toLocaleString('vi-VN')} đóng góp`;
+        count.textContent=`${contributor.mergedPrs.toLocaleString('vi-VN')} PR được merge`;
         card.append(rank,avatar,name,count);
         fameGrid.append(card);
       });
-      fameStatus.textContent=`${people.length} contributor đang hiển thị · GitHub có thể cần một lúc để cập nhật đóng góp mới.`;
+      fameStatus.textContent=`${people.length} contributor có PR được merge · danh sách tự cập nhật từ GitHub.`;
     }catch(error){
       fameStatus.textContent='Chưa tải được dữ liệu trực tiếp. ';
       const link=document.createElement('a');
-      link.href='https://github.com/lhlhai/prompt-library/graphs/contributors';
+      link.href='https://github.com/lhlhai/prompt-library/pulls?q=is%3Apr+is%3Amerged';
       link.target='_blank';
       link.rel='noreferrer';
-      link.textContent='Xem bảng contributor trên GitHub.';
+      link.textContent='Xem các PR đã merge trên GitHub.';
       fameStatus.append(link);
     }
   }
