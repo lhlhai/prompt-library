@@ -32,7 +32,7 @@ const Luu = {
   macDinh() {
     return {
       moKhoa: 1, daPha: {},                 // tiến độ chế độ Tấn công
-      phongThu: { moKhoa: 1, daPha: {} },   // tiến độ chế độ Phòng thủ
+      phongThu: { moKhoa: 1, daPha: {}, nhap: {} },   // tiến độ + bản nháp luật chế độ Phòng thủ
       cheDo: 'tancong',                     // chế độ đang chọn ở màn hình chính
       amThanh: true, nhacNen: false
     };
@@ -763,16 +763,15 @@ function moHoSo(che) {
 }
 
 /* ---------------------------------------------------------------------
-   7b. CHẾ ĐỘ PHÒNG THỦ (giao diện) — dữ liệu & bộ máy nằm trong phongthu.js
+   7b. CHẾ ĐỘ PHÒNG THỦ (giao diện) — bộ máy đọc luật nằm trong phongthu.js
    --------------------------------------------------------------------- */
 
 /** Trạng thái màn phòng thủ đang chơi */
 const Thu = {
-  man: null,          // dữ liệu màn (MAN_PHONG_THU)
-  lv: null,           // nhân vật tương ứng bên chế độ Tấn công (để lấy avatar, màu)
-  chon: new Set(),    // các thẻ đang bật
-  tuKhoa: '',         // danh sách từ khóa người chơi gõ
-  lanChay: 0,         // số lần chạy mô phỏng
+  man: null,         // dữ liệu màn (MAN_PHONG_THU)
+  lv: null,          // nhân vật tương ứng bên chế độ Tấn công (avatar, màu, tên)
+  ch: null,          // cấu hình người chơi viết: { prompt, tuKhoa, chuanHoa, giaiMa, dauRa, ktQuyen, ktTach }
+  lanChay: 0,        // số lần chạy mô phỏng
   goiY: 0,
   dangChay: false,
   daThang: false,
@@ -780,9 +779,13 @@ const Thu = {
 };
 
 const CHUONG_PHONG_THU = [
-  { tuMan: 1, ten: 'Chương 1 · Vá lỗi cơ bản', moTa: 'Mỗi lỗ hổng một lớp bảo vệ' },
-  { tuMan: 11, ten: 'Chương 2 · Phòng thủ nâng cao', moTa: 'Agent, dữ liệu ngoài và kiến trúc an toàn' }
+  { tuMan: 1, ten: 'Chương 1 · Viết luật cơ bản', moTa: 'Mỗi lỗ hổng một câu luật' },
+  { tuMan: 11, ten: 'Chương 2 · Phòng thủ nâng cao', moTa: 'Đầu ra, dữ liệu ngoài và kiến trúc an toàn' }
 ];
+
+function cauHinhRong() {
+  return { prompt: '', tuKhoa: '', chuanHoa: false, giaiMa: false, dauRa: '', ktQuyen: false, ktTach: false };
+}
 
 function phongThuXong() { return MAN_PHONG_THU.every((m) => tienDo.phongThu.daPha[m.id]); }
 
@@ -814,7 +817,7 @@ function veMenuPhongThu() {
     the.querySelector('.num').textContent = 'PHÒNG THỦ #' + String(man.id).padStart(2, '0');
     the.querySelector('.av').textContent = moKhoa ? (lv.avatar || '🛡️') : '🔒';
     the.querySelector('.nm').textContent = moKhoa ? man.ten : 'Hệ thống niêm phong';
-    the.querySelector('.tc').textContent = kq ? ('Chi phí ' + kq.chiPhi + ' điểm') : (moKhoa ? 'Đang chờ vá lỗi' : 'Vá hệ thống trước để mở');
+    the.querySelector('.tc').textContent = kq ? ('Vá xong sau ' + kq.lanChay + ' lần chạy') : (moKhoa ? 'Đang chờ vá lỗi' : 'Vá hệ thống trước để mở');
     if (kq) the.querySelector('.st').innerHTML = htmlSao(kq.sao);
     the.addEventListener('click', () => {
       AmThanh.khoiTao();
@@ -835,11 +838,15 @@ function batDauPhongThu(id) {
   const man = MAN_PHONG_THU.find((m) => m.id === id);
   if (!man) return;
   const lv = LEVELS.find((l) => l.id === man.nhanVat) || { avatar: '🛡️', mau: '#5ab0ff', ten: man.ten, vaiTro: '' };
-  Object.assign(Thu, { man, lv, chon: new Set(), tuKhoa: '', lanChay: 0, goiY: 0, dangChay: false, daThang: false });
+  const pt = tienDo.phongThu;
+  pt.nhap = pt.nhap || {};
+  // Lấy bản nháp đã lưu (nếu có) để chơi tiếp
+  const ch = Object.assign(cauHinhRong(), pt.nhap[id] || {});
+  Object.assign(Thu, { man, lv, ch, lanChay: 0, goiY: 0, dangChay: false, daThang: false });
   Thu.phien++;
 
   document.documentElement.style.setProperty('--accent', lv.mau);
-  $('def-caseno').textContent = 'PHÒNG THỦ #' + String(man.id).padStart(2, '0') + ' · NGÂN SÁCH ' + man.nganSach + ' ĐIỂM';
+  $('def-caseno').textContent = 'PHÒNG THỦ #' + String(man.id).padStart(2, '0') + ' · TỰ VIẾT LUẬT';
   $('def-name').textContent = lv.avatar + ' ' + man.ten;
   $('def-avatar').textContent = lv.avatar;
   $('def-title').textContent = lv.ten;
@@ -856,135 +863,157 @@ function batDauPhongThu(id) {
     daCo.add(khoa);
     const c = document.createElement('span');
     c.className = 'chip' + (tc.manh ? ' manh' : '');
-    c.textContent = (TEN_KY_THUAT[k] || k) + (tc.manh ? ' ⚡mạnh' : '');
+    c.textContent = (TEN_KY_THUAT[k] || k) + (tc.manh ? ' ⚡' : '');
     chips.appendChild(c);
   }));
   const ul = $('def-legit');
   ul.innerHTML = '';
   man.khach.forEach((kh) => { const li = document.createElement('li'); li.textContent = kh.text; ul.appendChild(li); });
 
-  veThePhongThu();
+  // Trình soạn: hiện đúng công cụ hệ thống này có
+  $('def-prompt').maxLength = man.gioiHan;
+  $('def-prompt').value = ch.prompt;
+  $('def-kw').value = ch.tuKhoa;
+  $('def-out').value = ch.dauRa;
+  $('def-chuanhoa').checked = ch.chuanHoa;
+  $('def-giaima').checked = ch.giaiMa;
+  $('def-ktquyen').checked = ch.ktQuyen;
+  $('def-kttach').checked = ch.ktTach;
+  $('ed-kw').hidden = !coCongCu(man, 'tuKhoa');
+  $('opt-chuanhoa').hidden = !coCongCu(man, 'chuanHoa');
+  $('opt-giaima').hidden = !coCongCu(man, 'giaiMa');
+  $('ed-out').hidden = !coCongCu(man, 'dauRa');
+  $('opt-ktquyen').hidden = !coCongCu(man, 'ktQuyen');
+  $('opt-kttach').hidden = !coCongCu(man, 'ktTach');
+  $('ed-arch').hidden = !coCongCu(man, 'ktQuyen') && !coCongCu(man, 'ktTach');
+  $('def-reuse').hidden = !promptManTruoc(id);
+
   $('def-hint-list').innerHTML = '';
   $('def-hint').disabled = false;
   $('def-hint').textContent = '💡 Xin gợi ý (còn 3)';
   $('def-results').innerHTML = '';
-  $('def-summary').innerHTML = '<p class="muted">Chọn các lớp phòng thủ, rồi bấm <b>Chạy mô phỏng</b>. Hệ thống sẽ thử mọi biến thể tấn công và gửi tin nhắn của khách thật. Thẻ ⚡ <b>mạnh</b> bỏ qua mọi quy tắc trong system prompt.</p>';
+  $('def-summary').innerHTML = '<p class="muted">Viết luật bên trái, rồi bấm <b>Chạy mô phỏng</b>. Kẻ tấn công sẽ thử mọi chiêu trong phần Tình báo, khách thật cũng gửi câu hỏi. Càng ít lần chạy, càng nhiều sao!</p>';
   $('def-run').disabled = false;
+  $('def-run').textContent = '▶ Chạy mô phỏng tấn công';
   $('def-tab-dot').hidden = true;
+  capNhatSoan();
   chuyenTabPT('config');
   hienManHinh('defense');
 }
 
-/** Vẽ các thẻ phòng thủ, chia theo lớp */
-function veThePhongThu() {
-  const man = Thu.man;
-  const duocDung = theDuocDung(man);
-  const box = $('def-cards');
-  box.innerHTML = '';
-  ['vao', 'mohinh', 'ra', 'kientruc'].forEach((lop) => {
-    const ds = THE_PHONG_THU.filter((t) => t.lop === lop && duocDung.includes(t.id));
-    if (!ds.length) return;
-    const g = document.createElement('div');
-    g.className = 'card-group';
-    const h = document.createElement('h3');
-    h.textContent = TEN_LOP[lop];
-    g.appendChild(h);
-    ds.forEach((t) => {
-      const lab = document.createElement('label');
-      lab.className = 'def-card' + (Thu.chon.has(t.id) ? ' on' : '');
-      lab.innerHTML = '<input type="checkbox"><span><b></b><small></small></span><span class="cost"></span>';
-      const cb = lab.querySelector('input');
-      cb.checked = Thu.chon.has(t.id);
-      lab.querySelector('b').textContent = t.ten;
-      if (man.theMoi.includes(t.id)) {
-        const m = document.createElement('span'); m.className = 'new'; m.textContent = 'MỚI';
-        lab.querySelector('b').appendChild(m);
-      }
-      lab.querySelector('small').textContent = t.cauLenh ? '“' + t.cauLenh + '”' : t.moTa;
-      lab.querySelector('.cost').textContent = t.id === 'loc_tu_khoa' ? '1đ/3 từ' : t.chiPhi + 'đ';
-      cb.addEventListener('change', () => {
-        AmThanh.bam();
-        if (cb.checked) Thu.chon.add(t.id); else Thu.chon.delete(t.id);
-        lab.classList.toggle('on', cb.checked);
-        if (t.id === 'loc_tu_khoa') veThePhongThu(); // hiện/ẩn ô từ khóa
-        capNhatNganSach();
-      });
-      g.appendChild(lab);
+/** Prompt của màn trước (đã thắng hoặc bản nháp), để người chơi dùng lại */
+function promptManTruoc(id) {
+  const pt = tienDo.phongThu;
+  const kq = pt.daPha[id - 1];
+  return (kq && kq.ch && kq.ch.prompt) || (pt.nhap && pt.nhap[id - 1] && pt.nhap[id - 1].prompt) || '';
+}
 
-      // Ô nhập từ khóa ngay dưới thẻ bộ lọc
-      if (t.id === 'loc_tu_khoa' && Thu.chon.has('loc_tu_khoa')) {
-        const kw = document.createElement('div');
-        kw.className = 'kw-box';
-        kw.innerHTML = '<textarea placeholder="Các từ cần chặn, cách nhau bằng dấu phẩy. VD: mật mã, mật khẩu"></textarea><small></small>';
-        const ta = kw.querySelector('textarea');
-        ta.value = Thu.tuKhoa;
-        ta.setAttribute('aria-label', 'Danh sách từ khóa cần chặn');
-        ta.addEventListener('input', () => { Thu.tuKhoa = ta.value; capNhatNganSach(); });
-        g.appendChild(kw);
-      }
-    });
-    box.appendChild(g);
+/** Đọc lại các ô soạn thảo → Thu.ch, cập nhật bộ đếm, "AI hiểu luật", lưu nháp */
+function capNhatSoan() {
+  const man = Thu.man;
+  const ch = Thu.ch;
+  ch.prompt = $('def-prompt').value;
+  ch.tuKhoa = $('def-kw').value;
+  ch.dauRa = $('def-out').value;
+  ch.chuanHoa = $('def-chuanhoa').checked;
+  ch.giaiMa = $('def-giaima').checked;
+  ch.ktQuyen = $('def-ktquyen').checked;
+  ch.ktTach = $('def-kttach').checked;
+
+  $('def-prompt-fixed').textContent = 'Bạn là ' + Thu.lv.ten + '.\n' +
+    (ch.ktTach && coCongCu(man, 'ktTach') ? '(Mật mã KHÔNG có ở đây — công cụ kiem_tra_ma() sẽ xác minh.)' : 'Mật mã: ██████');
+  const dem = $('def-prompt-count');
+  dem.textContent = ch.prompt.length + '/' + man.gioiHan;
+  dem.classList.toggle('over', ch.prompt.length >= man.gioiHan);
+  $('def-kw-count').textContent = tachTuKhoa(ch.tuKhoa).length + '/9 từ';
+  $('def-out-count').textContent = ch.dauRa.length + '/160';
+
+  // "AI hiểu luật của bạn như sau"
+  const ul = $('def-understood');
+  ul.innerHTML = '';
+  const luat = docLuat(ch.prompt);
+  if (!luat.length) {
+    const li = document.createElement('li');
+    li.className = 'empty';
+    li.textContent = 'Chưa có luật nào. AI sẽ trả lời mọi câu hỏi — kể cả câu hỏi về mật mã.';
+    ul.appendChild(li);
+  }
+  luat.forEach((l) => {
+    const li = document.createElement('li');
+    li.className = l.loai;
+    const q = document.createElement('span');
+    q.className = 'q';
+    q.textContent = '“' + l.cau + '”';
+    li.appendChild(q);
+    const them = (text, warn) => {
+      const k = document.createElement('span');
+      k.className = 'k' + (warn ? ' warn' : '');
+      k.textContent = text;
+      li.appendChild(k);
+    };
+    if (l.loai === 'baove') l.baoVe.forEach((k) => them('🛡 ' + (TEN_KY_THUAT[k] || k)));
+    if (l.loai === 'camrong' || l.baoVe.size && l.camRong.size) {
+      l.camRong.forEach((k) => them('⚠ cấm luôn: ' + (TEN_KY_THUAT[k] || k).toLowerCase(), true));
+      if (l.loai === 'camrong') l.baoVe.forEach((k) => them('🛡 ' + (TEN_KY_THUAT[k] || k)));
+    }
+    if (l.loai === 'camhet') them('⚠ từ chối MỌI câu hỏi', true);
+    if (l.loai === 'bo') {
+      const s = document.createElement('small');
+      s.textContent = LUAT_TU.phuDinh.test(chuanHoa(l.cau)) ? 'AI không hiểu luật này bảo vệ điều gì.' : 'Không phải luật (thiếu từ phủ định: không, đừng, cấm).';
+      li.appendChild(s);
+    }
+    ul.appendChild(li);
   });
-  capNhatNganSach();
+
+  // Giám sát đầu ra đọc được gì
+  if (coCongCu(man, 'dauRa')) {
+    const dang = [...docDauRa(ch.dauRa).keys()];
+    $('def-out-read').textContent = dang.length
+      ? '🛰️ Sẽ chặn câu trả lời chứa mật mã dạng: ' + dang.map((d) => TEN_DANG[d]).join(', ')
+      : '🛰️ Chưa có luật hợp lệ (luật cần nhắc tới "mật mã").';
+  }
+
+  // Lưu nháp để lần sau vào lại vẫn còn
+  tienDo.phongThu.nhap = tienDo.phongThu.nhap || {};
+  tienDo.phongThu.nhap[man.id] = Object.assign({}, ch);
+  clearTimeout(capNhatSoan.hen);
+  capNhatSoan.hen = setTimeout(() => Luu.ghi(tienDo), 400);
 }
 
-/** Cập nhật thanh ngân sách và system prompt xem trước */
-function capNhatNganSach() {
-  const man = Thu.man;
-  const kws = tachTuKhoa(Thu.tuKhoa);
-  const chiPhi = tinhChiPhi(Thu.chon, kws);
-  const vuot = chiPhi > man.nganSach;
-  $('def-budget-text').textContent = chiPhi + ' / ' + man.nganSach + ' điểm';
-  $('def-budget-bar').style.width = Math.min(100, chiPhi / man.nganSach * 100) + '%';
-  $('def-budget').classList.toggle('over', vuot);
-  $('def-budget-note').textContent = vuot ? '⚠ Vượt ngân sách — cấu hình này không được duyệt.' :
-    (Thu.chon.has('loc_tu_khoa') ? `Bộ lọc: ${kws.length} từ khóa (tối đa 9).` : 'Mỗi thẻ có chi phí. Càng ít điểm, càng nhiều sao.');
-  const kwSmall = document.querySelector('.kw-box small');
-  if (kwSmall) kwSmall.textContent = kws.length ? 'Đang chặn: ' + kws.join(' · ') : 'Chưa có từ khóa nào.';
-
-  // System prompt người chơi đang xây
-  const dong = ['Bạn là ' + Thu.lv.ten + '.'];
-  dong.push(Thu.chon.has('kt_tach_bi_mat') ? '(Mật mã KHÔNG có ở đây. Dùng công cụ kiem_tra_ma() khi cần xác minh.)' : 'Mật mã: ██████');
-  THE_PHONG_THU.filter((t) => t.lop === 'mohinh' && Thu.chon.has(t.id)).forEach((t) => dong.push('- ' + t.cauLenh));
-  if (dong.length === 2) dong.push('(Chưa có quy tắc nào — hãy bật thẻ ở Lớp mô hình.)');
-  $('def-sp').textContent = dong.join('\n');
-}
-
-/** Chạy mô phỏng và hiện kết quả từng dòng */
+/** Chạy mô phỏng và hiện kết quả */
 function chayMoPhongUI() {
   if (!Thu.man || Thu.dangChay) return;
   AmThanh.khoiTao();
   AmThanh.gui();
+  capNhatSoan();
   const man = Thu.man;
-  const kq = chayMoPhong(man, Thu.chon, tachTuKhoa(Thu.tuKhoa));
+  const kq = chayMoPhong(man, Thu.ch);
   Thu.lanChay++;
   Thu.dangChay = true;
   $('def-run').disabled = true;
   const phien = Thu.phien;
 
-  // Tổng kết
   const chan = kq.tanCong.filter((x) => x.chan).length;
   const phucVu = kq.khach.filter((x) => x.ok).length;
   let ketLuan;
   if (kq.thang) ketLuan = '<p class="verdict good-c">✔ HỆ THỐNG AN TOÀN — đã duyệt!</p>';
+  else if (!kq.chanHet && !kq.phucVuHet) ketLuan = '<p class="verdict bad-c">💥 Vừa có tấn công lọt, vừa chặn nhầm khách!</p>';
   else if (!kq.chanHet) ketLuan = '<p class="verdict bad-c">💥 Còn ' + (kq.tanCong.length - chan) + ' tấn công lọt qua!</p>';
-  else if (!kq.phucVuHet) ketLuan = '<p class="verdict warn-c">⚠ Chặn nhầm khách thật — chặn quá tay rồi!</p>';
-  else ketLuan = '<p class="verdict warn-c">⚠ An toàn nhưng vượt ngân sách. Tìm cách rẻ hơn!</p>';
+  else ketLuan = '<p class="verdict warn-c">⚠ Chặn nhầm khách thật — luật cấm quá rộng!</p>';
   $('def-summary').innerHTML =
     '<div class="sum-grid">' +
     `<div><span class="${chan === kq.tanCong.length ? 'good-c' : 'bad-c'}">${chan}/${kq.tanCong.length}</span><small>Tấn công bị chặn</small></div>` +
     `<div><span class="${kq.phucVuHet ? 'good-c' : 'warn-c'}">${phucVu}/${kq.khach.length}</span><small>Khách được phục vụ</small></div>` +
-    `<div><span class="${kq.trongNganSach ? 'good-c' : 'bad-c'}">${kq.chiPhi}/${man.nganSach}</span><small>Chi phí</small></div>` +
-    '</div>' + ketLuan + `<p class="muted small" style="text-align:center;margin-top:6px">Lần mô phỏng thứ ${Thu.lanChay}</p>`;
+    `<div><span>${Thu.lanChay}</span><small>Lần mô phỏng</small></div>` +
+    '</div>' + ketLuan;
 
-  // Danh sách chi tiết: lỗi hiện lên đầu để dễ thấy
+  // Lỗi lên đầu cho dễ thấy
   const dong = [];
   kq.tanCong.forEach((x) => dong.push({ loai: 'tc', x }));
   kq.khach.forEach((x) => dong.push({ loai: 'kh', x }));
-  dong.sort((a, b) => Number(laLoi(a)) - Number(laLoi(b))).reverse();
+  dong.sort((a, b) => Number(laLoi(b)) - Number(laLoi(a)));
   const ol = $('def-results');
   ol.innerHTML = '';
-
   if (window.innerWidth <= 860) chuyenTabPT('sim');
 
   dong.forEach((d, i) => {
@@ -995,7 +1024,6 @@ function chayMoPhongUI() {
       if (i === dong.length - 1) xongMoPhong(kq, phien);
     }, i * 90);
   });
-  if (!dong.length) xongMoPhong(kq, phien);
 }
 
 function laLoi(d) { return d.loai === 'tc' ? !d.x.chan : !d.x.ok; }
@@ -1010,15 +1038,19 @@ function veDongKetQua(d) {
     li.querySelector('.l').textContent = '🗡️ ' + x.tc.kt.map((k) => TEN_KY_THUAT[k] || k).join(' + ') + (x.tc.manh ? ' ⚡' : '');
     li.querySelector('.r').textContent = x.chan ? '🛡 Đã chặn' : '💥 Lọt';
     li.querySelector('.msgtext').textContent = '“' + x.text + '”';
-    li.querySelector('.out').textContent = x.chan
-      ? 'Chặn ở ' + TEN_LOP[x.lop] + ' — ' + x.ten + ' (' + x.chiTiet + ')'
-      : 'AI trả lời: ' + cauRoRi(Thu.man, x.tc);
+    li.querySelector('.out').textContent = x.chan ? 'Chặn bởi ' + x.lop + ': ' + x.chiTiet : 'AI trả lời: ' + cauRoRi(Thu.man, x.tc);
+    if (!x.chan) {
+      const t = document.createElement('div');
+      t.className = 'taunt';
+      t.textContent = x.cheGieu;
+      li.appendChild(t);
+    }
   } else {
     li.className = x.ok ? 'served' : 'overblock';
     li.querySelector('.l').textContent = '👤 Khách thật';
     li.querySelector('.r').textContent = x.ok ? '✔ Phục vụ' : '⚠ Chặn nhầm';
     li.querySelector('.msgtext').textContent = '“' + x.kh.text + '”';
-    li.querySelector('.out').textContent = x.ok ? 'Trả lời bình thường.' : 'Bị chặn bởi ' + x.ten + ' (' + x.chiTiet + ') — khách bực mình bỏ đi!';
+    li.querySelector('.out').textContent = x.ok ? 'Trả lời bình thường.' : '😠 Khách bỏ đi! ' + x.lop + ': ' + x.chiTiet;
   }
   return li;
 }
@@ -1028,25 +1060,21 @@ function xongMoPhong(kq, phien) {
   Thu.dangChay = false;
   $('def-run').disabled = false;
   $('def-run').textContent = '▶ Chạy lại mô phỏng';
-  if (kq.thang) {
-    setTimeout(() => thangPhongThu(kq), 500);
-  } else {
-    AmThanh.sai();
-  }
+  if (kq.thang) setTimeout(() => thangPhongThu(), 500);
+  else AmThanh.sai();
 }
 
 /** Thắng màn phòng thủ */
-function thangPhongThu(kq) {
+function thangPhongThu() {
   if (Thu.daThang) return;
   Thu.daThang = true;
   const man = Thu.man;
-  const toiUu = chiPhiToiUu(man);
-  const sao = tinhSaoPhongThu(kq.chiPhi, toiUu);
+  const sao = tinhSaoPhongThu(Thu.lanChay, Thu.goiY);
   const pt = tienDo.phongThu;
   const cu = pt.daPha[man.id];
   const xongTruoc = phongThuXong();
-  if (!cu || sao > cu.sao || (sao === cu.sao && kq.chiPhi < cu.chiPhi)) {
-    pt.daPha[man.id] = { chiPhi: kq.chiPhi, sao, lanChay: Thu.lanChay, goiY: Thu.goiY };
+  if (!cu || sao > cu.sao || (sao === cu.sao && Thu.lanChay < cu.lanChay)) {
+    pt.daPha[man.id] = { sao, lanChay: Thu.lanChay, goiY: Thu.goiY, ch: Object.assign({}, Thu.ch) };
   }
   pt.moKhoa = Math.max(pt.moKhoa, Math.min(man.id + 1, MAN_PHONG_THU.length));
   Luu.ghi(tienDo);
@@ -1055,7 +1083,7 @@ function thangPhongThu(kq) {
   $('win-eyebrow').textContent = 'Hệ thống đã được vá';
   $('win-title').textContent = 'PHÒNG THỦ THÀNH CÔNG!';
   $('win-stars').innerHTML = htmlSao(sao);
-  $('win-meta').textContent = `Chi phí ${kq.chiPhi}/${man.nganSach} · tối ưu ${toiUu} điểm · ${Thu.lanChay} lần mô phỏng · ${Thu.goiY} gợi ý`;
+  $('win-meta').textContent = `${Thu.lanChay} lần mô phỏng · ${Thu.goiY} gợi ý · prompt ${Thu.ch.prompt.length}/${man.gioiHan} ký tự`;
   $('win-label-1').textContent = 'Bài học phòng thủ';
   $('win-tech').textContent = man.baiHoc.tieuDe;
   $('win-explain').textContent = man.baiHoc.giaiThich;
@@ -1100,15 +1128,32 @@ function chuyenTabPT(ten) {
   if (!cfg) $('def-tab-dot').hidden = true;
 }
 
+/** Gắn sự kiện cho trình soạn luật (gọi một lần khi khởi động) */
+function ganSuKienPhongThu() {
+  ['def-prompt', 'def-kw', 'def-out'].forEach((id) => $(id).addEventListener('input', capNhatSoan));
+  ['def-chuanhoa', 'def-giaima', 'def-ktquyen', 'def-kttach'].forEach((id) => $(id).addEventListener('change', () => { AmThanh.bam(); capNhatSoan(); }));
+  $('def-reuse').onclick = () => {
+    const cu = promptManTruoc(Thu.man.id);
+    if (!cu) return;
+    $('def-prompt').value = cu.slice(0, Thu.man.gioiHan);
+    capNhatSoan();
+    toast(cu.length > Thu.man.gioiHan ? '↩ Đã dùng lại (bị cắt bớt cho vừa giới hạn ký tự)' : '↩ Đã dùng lại prompt màn trước');
+  };
+  // Ctrl/Cmd + Enter để chạy nhanh
+  ['def-prompt', 'def-kw', 'def-out'].forEach((id) => $(id).addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); chayMoPhongUI(); }
+  }));
+}
+
 /** Hồ sơ chuyên gia (phá đảo chế độ Phòng thủ) */
 function moHoSoPhongThu() {
-  let tongChiPhi = 0, tongSao = 0, tongLan = 0;
+  let tongLan = 0, tongSao = 0, tongGoiY = 0;
   const ol = $('dossier-list');
   ol.innerHTML = '';
   MAN_PHONG_THU.forEach((man, i) => {
     const lv = LEVELS.find((l) => l.id === man.nhanVat) || { avatar: '🛡️', mau: '#5ab0ff' };
-    const kq = tienDo.phongThu.daPha[man.id] || { chiPhi: 0, sao: 0, lanChay: 0 };
-    tongChiPhi += kq.chiPhi; tongSao += kq.sao; tongLan += kq.lanChay;
+    const kq = tienDo.phongThu.daPha[man.id] || { lanChay: 0, sao: 0, goiY: 0 };
+    tongLan += kq.lanChay; tongSao += kq.sao; tongGoiY += kq.goiY || 0;
     const li = document.createElement('li');
     li.style.setProperty('--c', lv.mau);
     li.style.animationDelay = (i * 0.04) + 's';
@@ -1117,20 +1162,20 @@ function moHoSoPhongThu() {
     li.querySelector('b').textContent = (i + 1) + '. ' + man.baiHoc.tieuDe;
     li.querySelector('small').textContent = man.ten;
     li.querySelector('em').innerHTML = htmlSao(kq.sao);
-    li.querySelector('.luot').textContent = kq.chiPhi + ' điểm';
+    li.querySelector('.luot').textContent = kq.lanChay + ' lần chạy';
     ol.appendChild(li);
   });
   const saoToiDa = MAN_PHONG_THU.length * 3;
   const tiLe = tongSao / saoToiDa;
   $('dos-title').innerHTML = 'Hồ Sơ <span>Chuyên Gia</span>';
-  $('dos-turns').textContent = tongChiPhi;
-  $('dos-turns-label').textContent = 'Tổng chi phí';
+  $('dos-turns').textContent = tongLan;
+  $('dos-turns-label').textContent = 'Lần mô phỏng';
   $('dos-stars').textContent = tongSao;
   $('dos-stars-label').textContent = 'Tổng số sao / ' + saoToiDa;
-  $('dos-hints').textContent = tongLan;
-  $('dos-hints-label').textContent = 'Lần mô phỏng';
+  $('dos-hints').textContent = tongGoiY;
+  $('dos-hints-label').textContent = 'Gợi ý đã dùng';
   $('dos-sub').textContent = MAN_PHONG_THU.length + ' bài học phòng thủ';
-  $('dos-note').textContent = 'Bạn đã tự tay trải nghiệm vì sao bảo mật AI cần nhiều lớp: quy tắc, giám sát, phân quyền — và trên hết là thiết kế để mô hình không chạm vào thứ nó không cần biết.';
+  $('dos-note').textContent = 'Bạn đã tự tay viết luật và thấy chúng bị xuyên thủng ra sao. Bảo mật AI cần nhiều lớp: luật rõ ràng, giám sát, phân quyền — và trên hết là thiết kế để mô hình không chạm vào thứ nó không cần biết.';
   let danhHieu = 'THỰC TẬP SINH AN NINH';
   if (tiLe >= 0.93) danhHieu = 'KIẾN TRÚC SƯ BẢO MẬT';
   else if (tiLe >= 0.73) danhHieu = 'CHUYÊN GIA PHÒNG THỦ';
@@ -1209,7 +1254,16 @@ function khoiDong() {
   // Màn phòng thủ
   $('def-back').onclick = () => { Thu.phien++; AmThanh.bam(); veMenu(); hienManHinh('menu'); };
   $('def-sound').onclick = batTatAmThanh;
-  $('def-reset').onclick = () => { if (Thu.man) { AmThanh.bam(); batDauPhongThu(Thu.man.id); toast('Đã xóa cấu hình phòng thủ.'); } };
+  $('def-reset').onclick = () => {
+    if (!Thu.man) return;
+    AmThanh.bam();
+    tienDo.phongThu.nhap = tienDo.phongThu.nhap || {};
+    delete tienDo.phongThu.nhap[Thu.man.id];
+    Luu.ghi(tienDo);
+    batDauPhongThu(Thu.man.id);
+    toast('Đã xóa luật, viết lại từ đầu.');
+  };
+  ganSuKienPhongThu();
   $('def-run').onclick = chayMoPhongUI;
   $('def-hint').onclick = xinGoiYPhongThu;
   $('def-tab-config').onclick = () => chuyenTabPT('config');
