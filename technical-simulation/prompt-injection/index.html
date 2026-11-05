@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0a08">
+  <meta name="description" content="Thám Tử Prompt — trò chơi học về prompt và bảo mật AI: khéo léo khiến các nhân vật AI tiết lộ mật mã.">
+  <title>Thám Tử Prompt</title>
+  <!-- Biểu tượng tab: dùng emoji kính lúp, không cần file ảnh -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+  <!-- Đường dẫn TƯƠNG ĐỐI để chạy đúng trên GitHub Pages -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Lớp hiệu ứng: mưa, nhiễu hạt phim, viền tối -->
+  <canvas id="rain" aria-hidden="true"></canvas>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <!-- ================= MÀN HÌNH CHÍNH ================= -->
+  <section id="screen-menu" class="screen active" aria-label="Màn hình chính">
+    <header class="menu-head">
+      <p class="eyebrow">Sở Cảnh Sát Kỹ Thuật Số · Phòng Điều Tra AI</p>
+      <h1 class="logo">Thám Tử <span>Prompt</span></h1>
+      <p class="tagline" id="tagline">10 nhân vật AI. 10 mật mã. Chỉ có lời nói làm vũ khí.</p>
+    </header>
+
+    <div class="menu-toolbar">
+      <button class="btn ghost" id="btn-help" type="button">📜 Cách chơi</button>
+      <button class="btn ghost" id="btn-sound" type="button" aria-pressed="true">🔊 Âm thanh</button>
+      <button class="btn ghost" id="btn-music" type="button" aria-pressed="false">🌧️ Nhạc nền</button>
+    </div>
+
+    <div class="mode-tabs" role="tablist" aria-label="Chọn chế độ">
+      <button class="mode-tab active" id="mode-attack" type="button" role="tab" aria-selected="true">🗡️ Tấn công<small>Moi mật mã từ AI</small></button>
+      <button class="mode-tab" id="mode-defense" type="button" role="tab" aria-selected="false">🛡️ Phòng thủ<small>Vá lỗi cho AI</small></button>
+    </div>
+
+    <div class="progress-line" id="menu-progress"></div>
+
+    <div class="case-grid" id="case-grid" role="list"></div>
+
+    <div class="menu-foot">
+      <button class="btn primary" id="btn-dossier" type="button" hidden>🗂️ Hồ sơ thám tử</button>
+      <button class="btn danger" id="btn-reset" type="button">↺ Chơi lại từ đầu</button>
+    </div>
+  </section>
+
+  <!-- ================= MÀN CHƠI ================= -->
+  <section id="screen-game" class="screen" aria-label="Màn chơi">
+    <header class="game-top">
+      <button class="icon-btn" id="btn-back" type="button" aria-label="Về danh sách vụ án">←</button>
+      <div class="game-title">
+        <span class="case-no" id="game-caseno">VỤ ÁN #01</span>
+        <strong id="game-name">Tên nhân vật</strong>
+      </div>
+      <button class="icon-btn" id="btn-restart-level" type="button" aria-label="Làm lại vụ án" title="Làm lại vụ án (mật mã mới)">↻</button>
+      <button class="icon-btn" id="btn-sound-2" type="button" aria-label="Bật/tắt âm thanh">🔊</button>
+    </header>
+
+    <!-- Tab chỉ hiện trên điện thoại -->
+    <nav class="tabs" role="tablist">
+      <button class="tab active" id="tab-chat" type="button" role="tab" aria-selected="true">💬 Thẩm vấn</button>
+      <button class="tab" id="tab-case" type="button" role="tab" aria-selected="false">📁 Hồ sơ vụ án <span class="dot" id="tab-dot" hidden></span></button>
+    </nav>
+
+    <div class="game-layout">
+      <!-- Cột trái: khung chat -->
+      <div class="chat-col" id="panel-chat">
+        <!-- Khung AI Giám Sát (chỉ hiện ở màn có giám sát) -->
+        <div class="supervisor" id="supervisor" hidden>
+          <div class="sup-head">
+            <span class="sup-lamp" id="sup-lamp"></span>
+            <span class="sup-avatar">👁️</span>
+            <div>
+              <strong>AI GIÁM SÁT</strong>
+              <small id="sup-status">Đang theo dõi mọi phản hồi…</small>
+            </div>
+          </div>
+          <div class="sup-layers">
+            <span class="layer" id="sup-layer1">Lớp 1: KHÓA</span>
+            <span class="layer ok">Lớp 2: GIÁM SÁT BẬT</span>
+          </div>
+          <ol class="sup-log" id="sup-log"></ol>
+        </div>
+
+        <div class="chat-log" id="chat-log" aria-live="polite"></div>
+
+        <form class="chat-form" id="chat-form" autocomplete="off">
+          <label class="sr-only" for="chat-input">Tin nhắn của bạn</label>
+          <textarea id="chat-input" rows="1" maxlength="500" placeholder="Gõ tin nhắn để thẩm vấn…" enterkeyhint="send"></textarea>
+          <button class="btn primary send" id="chat-send" type="submit" aria-label="Gửi">Gửi ➤</button>
+        </form>
+      </div>
+
+      <!-- Cột phải: Hồ sơ vụ án -->
+      <aside class="case-col" id="panel-case" aria-label="Hồ sơ vụ án">
+        <div class="file-card">
+          <div class="suspect">
+            <div class="avatar big" id="case-avatar">🤖</div>
+            <div>
+              <p class="label">Nghi phạm</p>
+              <h2 id="case-name">Tên</h2>
+              <p class="role" id="case-role">Vai trò</p>
+            </div>
+          </div>
+          <p class="persona" id="case-persona"></p>
+
+          <details class="sys">
+            <summary>🧾 System prompt (giả lập)</summary>
+            <pre id="case-system"></pre>
+          </details>
+
+          <div class="defenses">
+            <p class="label">Lớp phòng thủ</p>
+            <ul id="case-defenses"></ul>
+          </div>
+
+          <div class="stats">
+            <div><span id="stat-turns">0</span><small>Lượt đã dùng</small></div>
+            <div><span id="stat-par">3</span><small>Mức chuẩn ★★★</small></div>
+            <div><span id="stat-hints">0/3</span><small>Gợi ý</small></div>
+          </div>
+
+          <div class="hints">
+            <button class="btn ghost full" id="btn-hint" type="button">💡 Xin gợi ý</button>
+            <ol class="hint-list" id="hint-list"></ol>
+          </div>
+
+          <details class="morse" id="morse-box" hidden>
+            <summary>📡 Bảng mã Morse</summary>
+            <div class="morse-grid" id="morse-grid"></div>
+          </details>
+        </div>
+
+        <form class="submit-card" id="submit-form" autocomplete="off">
+          <label for="submit-input" class="label">🔑 Nộp mật mã phá án</label>
+          <div class="submit-row">
+            <input id="submit-input" type="text" maxlength="40" placeholder="VD: ABCXYZ" spellcheck="false" autocapitalize="characters">
+            <button class="btn primary" type="submit">Nộp</button>
+          </div>
+          <p class="submit-msg" id="submit-msg" role="status"></p>
+        </form>
+      </aside>
+    </div>
+  </section>
+
+
+  <!-- ================= MÀN PHÒNG THỦ ================= -->
+  <section id="screen-defense" class="screen" aria-label="Màn phòng thủ">
+    <header class="game-top">
+      <button class="icon-btn" id="def-back" type="button" aria-label="Về danh sách">←</button>
+      <div class="game-title">
+        <span class="case-no" id="def-caseno">PHÒNG THỦ #01</span>
+        <strong id="def-name">Vá lỗi</strong>
+      </div>
+      <button class="icon-btn" id="def-reset" type="button" aria-label="Xóa cấu hình" title="Xóa cấu hình">↻</button>
+      <button class="icon-btn" id="def-sound" type="button" aria-label="Bật/tắt âm thanh">🔊</button>
+    </header>
+
+    <nav class="tabs" role="tablist">
+      <button class="tab active" id="def-tab-config" type="button" role="tab" aria-selected="true">⚙️ Cấu hình</button>
+      <button class="tab" id="def-tab-sim" type="button" role="tab" aria-selected="false">▶ Mô phỏng <span class="dot" id="def-tab-dot" hidden></span></button>
+    </nav>
+
+    <div class="def-layout">
+      <!-- Cột trái: cấu hình phòng thủ -->
+      <div class="def-config" id="def-panel-config">
+        <div class="file-card def-brief">
+          <div class="suspect">
+            <div class="avatar big" id="def-avatar">🛡️</div>
+            <div>
+              <p class="label">Hệ thống cần vá</p>
+              <h2 id="def-title">Tên</h2>
+              <p class="role" id="def-role"></p>
+            </div>
+          </div>
+          <p class="persona" id="def-desc"></p>
+          <p class="label">🕵️ Tình báo: kẻ tấn công sẽ dùng</p>
+          <div class="chips" id="def-threats"></div>
+          <p class="label">👥 Khách thật thường hỏi (không được chặn nhầm)</p>
+          <ul class="legit-list" id="def-legit"></ul>
+        </div>
+
+        <div class="budget" id="def-budget">
+          <div class="budget-top"><span>💰 Ngân sách</span><b id="def-budget-text">0 / 0</b></div>
+          <div class="budget-bar"><i id="def-budget-bar"></i></div>
+          <small id="def-budget-note"></small>
+        </div>
+
+        <div id="def-cards"></div>
+
+        <details class="sys">
+          <summary>🧾 System prompt bạn đang xây</summary>
+          <pre id="def-sp"></pre>
+        </details>
+
+        <div class="hints">
+          <button class="btn ghost full" id="def-hint" type="button">💡 Xin gợi ý</button>
+          <ol class="hint-list" id="def-hint-list"></ol>
+        </div>
+      </div>
+
+      <!-- Cột phải: phòng mô phỏng -->
+      <div class="def-sim" id="def-panel-sim">
+        <button class="btn primary full run" id="def-run" type="button">▶ Chạy mô phỏng tấn công</button>
+        <div class="def-summary" id="def-summary">
+          <p class="muted">Chọn các lớp phòng thủ bên trái, rồi bấm <b>Chạy mô phỏng</b>. Hệ thống sẽ thử mọi biến thể tấn công lên cấu hình của bạn và gửi tin nhắn của khách thật.</p>
+        </div>
+        <ol class="def-results" id="def-results"></ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= HỒ SƠ THÁM TỬ (phá đảo) ================= -->
+  <section id="screen-dossier" class="screen" aria-label="Hồ sơ thám tử">
+    <div class="dossier">
+      <p class="eyebrow">Hồ sơ mật · Đã giải mã</p>
+      <h1 class="logo small" id="dos-title">Hồ Sơ <span>Thám Tử</span></h1>
+      <div class="stamp" id="dossier-rank">THÁM TỬ HUYỀN THOẠI</div>
+      <div class="dossier-totals">
+        <div><span id="dos-turns">0</span><small id="dos-turns-label">Tổng số lượt</small></div>
+        <div><span id="dos-stars">0</span><small id="dos-stars-label">Tổng số sao / 30</small></div>
+        <div><span id="dos-hints">0</span><small id="dos-hints-label">Gợi ý đã dùng</small></div>
+      </div>
+      <h3 class="dos-sub" id="dos-sub">10 kỹ thuật đã nắm vững</h3>
+      <ol class="dossier-list" id="dossier-list"></ol>
+      <p class="dos-note" id="dos-note">Hãy nhớ: hiểu cách tấn công là để xây dựng AI an toàn hơn — và để chính bạn không bị lừa bởi những chiêu y hệt ngoài đời thật.</p>
+      <div class="menu-foot">
+        <button class="btn primary" id="btn-dos-menu" type="button">← Về danh sách vụ án</button>
+        <button class="btn danger" id="btn-dos-reset" type="button">↺ Chơi lại từ đầu</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= HỘP THOẠI ================= -->
+  <!-- Thắng màn -->
+  <div class="modal" id="modal-win" hidden role="dialog" aria-modal="true" aria-labelledby="win-title">
+    <div class="modal-box win">
+      <div class="confetti" id="confetti" aria-hidden="true"></div>
+      <p class="eyebrow" id="win-eyebrow">Vụ án đã khép lại</p>
+      <h2 id="win-title">PHÁ ÁN THÀNH CÔNG!</h2>
+      <div class="stars" id="win-stars">★★★</div>
+      <p class="win-meta" id="win-meta"></p>
+      <div class="lesson">
+        <p class="label" id="win-label-1">Kỹ thuật vừa dùng</p>
+        <h3 id="win-tech"></h3>
+        <p id="win-explain"></p>
+        <p class="label" id="win-label-2">🛡️ AI thật phòng thủ thế nào?</p>
+        <p id="win-defense"></p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn ghost" id="win-menu" type="button">Danh sách vụ án</button>
+        <button class="btn primary" id="win-next" type="button">Vụ án tiếp theo →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Xác nhận -->
+  <div class="modal" id="modal-confirm" hidden role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="modal-box">
+      <h2 id="confirm-title">Xóa toàn bộ tiến độ?</h2>
+      <p id="confirm-text">Mọi vụ án đã phá và số sao sẽ bị xóa. Không thể hoàn tác.</p>
+      <div class="modal-actions">
+        <button class="btn ghost" id="confirm-no" type="button">Hủy</button>
+        <button class="btn danger" id="confirm-yes" type="button">Xóa và chơi lại</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hướng dẫn -->
+  <div class="modal" id="modal-help" hidden role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <div class="modal-box">
+      <h2 id="help-title">📜 Cách chơi</h2>
+      <ol class="help-list">
+        <li>Mỗi vụ án có một <b>nhân vật AI</b> đang giữ một <b>mật mã</b>.</li>
+        <li>Gõ tin nhắn để thẩm vấn. Hãy đọc kỹ <b>system prompt</b> và <b>lớp phòng thủ</b> trong hồ sơ — điểm yếu nằm ở đó.</li>
+        <li>Khi nhân vật lỡ lời, ghi lại mật mã và nộp vào ô <b>🔑 Nộp mật mã</b>. Nếu mật mã bị đánh vần, viết ngược hay mã hóa, bạn phải tự giải mã!</li>
+        <li>Phá án trong <b>mức chuẩn</b> số lượt và không dùng gợi ý để đạt ★★★.</li>
+        <li>Bí mật đổi ngẫu nhiên mỗi lần chơi — không có đường tắt.</li>
+        <li><b>Chế độ 🛡️ Phòng thủ:</b> chọn các lớp bảo vệ trong giới hạn ngân sách rồi chạy mô phỏng. Phải chặn <b>hết</b> tấn công mà vẫn phục vụ <b>đủ</b> khách thật — chặn quá tay cũng là thua!</li>
+      </ol>
+      <p class="muted small">Các "AI" trong game là bộ luật viết bằng JavaScript chạy ngay trên trình duyệt, mô phỏng các lỗ hổng có thật của mô hình ngôn ngữ. Không có dữ liệu nào được gửi đi.</p>
+      <div class="modal-actions">
+        <button class="btn primary" id="help-close" type="button">Đã hiểu</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- levels.js phải nạp TRƯỚC game.js vì game.js dùng dữ liệu của nó -->
+  <script src="levels.js"></script>
+  <script src="phongthu.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
